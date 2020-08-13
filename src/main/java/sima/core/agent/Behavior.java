@@ -13,7 +13,7 @@ public abstract class Behavior {
     // Variables.
 
     private final Optional<AbstractAgent> agent;
-    private boolean isStarted = false;
+    private boolean isPlaying = false;
 
     // Constructors.
 
@@ -38,10 +38,10 @@ public abstract class Behavior {
      * <p>
      * To implement the start behavior, implement the method {@link #onStartPlaying()}.
      */
-    public final void play() {
-        if (!this.isStarted) {
+    public final void startPlaying() {
+        if (!this.isPlaying) {
             this.onStartPlaying();
-            this.isStarted = true;
+            this.isPlaying = true;
         }
     }
 
@@ -49,19 +49,19 @@ public abstract class Behavior {
      * Stop to play the behavior. The behavior must be started for that method have an effect.
      */
     public final void stopPlaying() {
-        if (this.isStarted) {
+        if (this.isPlaying) {
             this.onStopPlaying();
-            this.isStarted = false;
+            this.isPlaying = false;
         }
     }
 
     /**
-     * Method called in the method {@link #play()}.
+     * Method called in the method {@link #startPlaying()}.
      */
     public abstract void onStartPlaying();
 
     /**
-     * Method called in the method {@link #stopPlaying()}.
+     * Method called in the method {@link #stopPlaying()}  .
      */
     public abstract void onStopPlaying();
 
@@ -71,7 +71,7 @@ public abstract class Behavior {
         return agent.orElse(null);
     }
 
-    public boolean isStarted() {
-        return isStarted;
+    public boolean isPlaying() {
+        return isPlaying;
     }
 }
