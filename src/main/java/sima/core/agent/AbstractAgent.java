@@ -4,6 +4,7 @@ import sima.core.agent.exception.AgentException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.security.InvalidParameterException;
 import java.util.*;
 
 public abstract class AbstractAgent {
@@ -87,6 +88,43 @@ public abstract class AbstractAgent {
             return this.mapBehaviors.get(behaviorClass.getName()).isPlaying();
         } else
             return false;
+    }
+
+    /**
+     * @param protocolName the name of the protocol
+     * @return the protocol associate to the protocolName, if no protocol is associated to its name, return null.
+     */
+    public Protocol getProtocol(String protocolName) {
+        return this.mapProtocol.get(protocolName);
+    }
+
+    /**
+     * Map the protocol name and the protocol together. If there was already a protocol mapped with the specified name,
+     * the older protocol is removed and replace by the new specified protocol. The protocol name and the protocol can
+     * not be null.
+     *
+     * @param protocolName the name of the protocol
+     * @param protocol     the protocol, can not be null
+     */
+    public void addProtocol(String protocolName, Protocol protocol) {
+        if (protocol != null && protocolName != null) {
+            this.mapProtocol.put(protocolName, protocol);
+        } else {
+            throw new InvalidParameterException("Protocol name or protocol can not be null");
+        }
+    }
+
+    /**
+     * Unmap the protocol name with its protocol if there is a protocol mapped to this protocol name.
+     *
+     * @param protocolName the name of the protocol
+     */
+    public void removeProtocol(String protocolName) {
+        if (protocolName != null) {
+            this.mapProtocol.remove(protocolName);
+        } else {
+            throw new InvalidParameterException("Protocol name or protocol can not be null");
+        }
     }
 
     // Getters and Setters.
