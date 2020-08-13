@@ -42,4 +42,10 @@ public interface Environment {
      * @param message the message received
      */
     void receiveMessage(Message message);
+
+    /**
+     *
+     * @return the unique name of the environment, cannot be null.
+     */
+    String getName();
 }
