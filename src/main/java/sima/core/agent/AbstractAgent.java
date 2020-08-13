@@ -14,7 +14,7 @@ public abstract class AbstractAgent {
 
     private final List<Environment> environments;
 
-    private final List<Behavior> behaviors;
+    private final Map<String, Behavior> mapBehaviors;
 
     private final Map<String, Protocol> mapProtocol;
 
@@ -24,12 +24,12 @@ public abstract class AbstractAgent {
         this.agentName = agentName;
         this.environments = new ArrayList<>();
 
-        this.behaviors = new ArrayList<>();
+        this.mapBehaviors = new HashMap<>();
         for (Class<? extends Behavior> behaviorClass : listBehaviors) {
             try {
                 Constructor<? extends Behavior> constructor = behaviorClass.getConstructor(AbstractAgent.class);
                 Behavior behavior = constructor.newInstance(this);
-                this.behaviors.add(behavior);
+                this.mapBehaviors.put(behaviorClass.getName(), behavior);
             } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
                     | InvocationTargetException e) {
                 throw new AgentException(e);
@@ -43,6 +43,52 @@ public abstract class AbstractAgent {
 
     public abstract void start();
 
+    /**
+     * Search if the behavior is a behavior of the agent, if it is the case, call the method
+     * {@link Behavior#startPlaying()}.
+     *
+     * @param behaviorClass the class of the behavior that we want starting to play
+     */
+    public void startPlayingBehavior(Class<? extends Behavior> behaviorClass) {
+        Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
+        if (behavior != null)
+            behavior.startPlaying();
+    }
+
+    /**
+     * Search if the behavior is a behavior of the agent, if it is the case, call the method
+     * {@link Behavior#stopPlaying()}.
+     *
+     * @param behaviorClass the class of the behavior that we want stopping to play
+     */
+    public void stopPlayingBehavior(Class<? extends Behavior> behaviorClass) {
+        Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
+        if (behavior != null)
+            behavior.stopPlaying();
+    }
+
+    /**
+     * @param behaviorClass the class of the behavior
+     * @return true if the agent can play the specified behavior, else false.
+     */
+    public boolean canPlayBehavior(Class<? extends Behavior> behaviorClass) {
+        return this.mapBehaviors.containsKey(behaviorClass.getName());
+    }
+
+    /**
+     * Verifies if the behaviors can be played by the agent with the method{@link #canPlayBehavior(Class)} and if it the
+     * case, look if the behavior is playing by the agent by calling the function {@link Behavior#isPlaying()}
+     *
+     * @param behaviorClass the class of the behavior
+     * @return true if the specified behavior is playing by the agent, else false.
+     */
+    public boolean isPlayingBehavior(Class<? extends Behavior> behaviorClass) {
+        if (this.canPlayBehavior(behaviorClass)) {
+            return this.mapBehaviors.get(behaviorClass.getName()).isPlaying();
+        } else
+            return false;
+    }
+
     // Getters and Setters.
 
     public String getAgentName() {
@@ -53,8 +99,8 @@ public abstract class AbstractAgent {
         return Collections.unmodifiableList(environments);
     }
 
-    public List<Behavior> getBehaviors() {
-        return Collections.unmodifiableList(this.behaviors);
+    public Map<String, Behavior> getMapBehaviors() {
+        return Collections.unmodifiableMap(this.mapBehaviors);
     }
 
     public Map<String, Protocol> getMapProtocol() {
