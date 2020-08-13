@@ -12,7 +12,7 @@ public abstract class AbstractAgent {
 
     private final String agentName;
 
-    private final List<Environment> environments;
+    private final Map<String, Environment> environments;
 
     private final List<Behavior> behaviors;
 
@@ -20,9 +20,14 @@ public abstract class AbstractAgent {
 
     // Constructors.
 
-    public AbstractAgent(String agentName, List<Class<? extends Behavior>> listBehaviors) throws AgentException {
+    public AbstractAgent(String agentName, List<Environment> environments,
+                         List<Class<? extends Behavior>> listBehaviors) throws AgentException {
         this.agentName = agentName;
-        this.environments = new ArrayList<>();
+
+        this.environments = new HashMap<>();
+        for (Environment environment : environments) {
+            this.environments.put(environment.getName(), environment);
+        }
 
         this.behaviors = new ArrayList<>();
         for (Class<? extends Behavior> behaviorClass : listBehaviors) {
@@ -43,14 +48,31 @@ public abstract class AbstractAgent {
 
     public abstract void start();
 
+    /**
+     * @param environmentName the environment name
+     * @return true if the environment name is mapped to an environment in the agent.
+     */
+    public boolean isEvolvingInEnvironment(String environmentName) {
+        return this.environments.containsKey(environmentName);
+    }
+
+    /**
+     * Remove the environment of the agent.
+     *
+     * @param environmentName the environment name
+     */
+    public void quiteEnvironment(String environmentName) {
+        this.environments.remove(environmentName);
+    }
+
     // Getters and Setters.
 
     public String getAgentName() {
         return agentName;
     }
 
-    public List<Environment> getEnvironments() {
-        return Collections.unmodifiableList(environments);
+    public Map<String, Environment> getEnvironments() {
+        return Collections.unmodifiableMap(environments);
     }
 
     public List<Behavior> getBehaviors() {
