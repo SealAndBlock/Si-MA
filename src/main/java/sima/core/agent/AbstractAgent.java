@@ -62,7 +62,7 @@ public abstract class AbstractAgent {
      *
      * @param environmentName the environment name
      */
-    public void quiteEnvironment(String environmentName) {
+    public void leaveEnvironment(String environmentName) {
         this.environments.remove(environmentName);
     }
 
