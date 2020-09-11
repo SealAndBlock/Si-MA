@@ -1,4 +1,7 @@
-package sima.core.agent;
+package sima.core.environment;
+
+import sima.core.agent.AbstractAgent;
+import sima.core.agent.Protocol;
 
 import java.util.List;
 

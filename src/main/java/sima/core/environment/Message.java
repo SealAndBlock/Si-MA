@@ -1,4 +1,7 @@
-package sima.core.agent;
+package sima.core.environment;
+
+import sima.core.agent.AbstractAgent;
+import sima.core.agent.Protocol;
 
 /**
  * A message is a particular event which has a content.

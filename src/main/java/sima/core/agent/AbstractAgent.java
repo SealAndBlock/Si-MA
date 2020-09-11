@@ -1,6 +1,7 @@
 package sima.core.agent;
 
 import sima.core.agent.exception.AgentException;
+import sima.core.environment.Environment;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

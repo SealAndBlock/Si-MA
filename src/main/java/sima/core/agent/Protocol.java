@@ -1,5 +1,7 @@
 package sima.core.agent;
 
+import sima.core.environment.Event;
+
 /**
  * Represents a protocol. A protocol has only one method {@link #processEvent(Event)} which is called when an
  * {@link Event} occurs and the {@link Event#getProtocolTargeted()} is the protocol.
