@@ -68,8 +68,7 @@ public abstract class AbstractAgent {
 
         this.mapEnvironments = new HashMap<>();
         for (Environment environment : environments) {
-            if (environment.acceptAgent(this))
-                this.mapEnvironments.put(environment.getName(), environment);
+            this.joinEnvironment(environment);
         }
 
         this.mapBehaviors = new HashMap<>();
@@ -158,8 +157,7 @@ public abstract class AbstractAgent {
      */
     public boolean joinEnvironment(Environment environment) {
         if (this.mapEnvironments.get(environment.getName()) == null) {
-            boolean accepted = environment.acceptAgent(this);
-            if (accepted) {
+            if (environment.acceptAgent(this)) {
                 this.mapEnvironments.put(environment.getName(), environment);
                 return true;
             } else
