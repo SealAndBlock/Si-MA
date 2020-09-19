@@ -238,24 +238,25 @@ public abstract class AbstractAgent {
     }
 
     /**
-     * @param behaviorClass the class of the behavior
+     * @param behavior the behavior
      * @return true if the agent can play the specified behavior, else false.
      */
-    public boolean canPlayBehavior(Class<? extends Behavior> behaviorClass) {
-        return this.mapBehaviors.containsKey(behaviorClass.getName());
+    public boolean canPlayBehavior(Behavior behavior) {
+        return behavior.canBePlayedBy(this);
     }
 
     /**
-     * Verifies if the behaviors can be played by the agent with the method{@link #canPlayBehavior(Class)} and if it the
-     * case, look if the behavior is playing by the agent by calling the function {@link Behavior#isPlaying()}
+     * Look if the behavior is playing by the agent by calling the function {@link Behavior#isPlaying()}
      *
      * @param behaviorClass the class of the behavior
      * @return true if the specified behavior is playing by the agent, else false.
      */
     public boolean isPlayingBehavior(Class<? extends Behavior> behaviorClass) {
-        if (this.canPlayBehavior(behaviorClass)) {
-            return this.mapBehaviors.get(behaviorClass.getName()).isPlaying();
-        } else
+        Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
+
+        if (behavior != null)
+            return behavior.isPlaying();
+        else
             return false;
     }
 
