@@ -1,5 +1,7 @@
 package sima.core.agent;
 
+import sima.core.agent.exception.BehaviorCannotBePlayedByAgentException;
+
 import java.util.Optional;
 
 /**
@@ -25,19 +27,33 @@ public abstract class Behavior {
     // Constructors.
 
     /**
-     * Initiate the behavior with the instance of the agent which will play it.
+     * Initiate the behavior with the instance of the agent which will play it. Verifies if the specified agent can play
+     * the behavior, if it is not the case, throws a {@link BehaviorCannotBePlayedByAgentException}.
      * <p>
-     * All sub classes of {@link Behavior} must have this constructors with only one argument which is an
+     * All sub classes of {@link Behavior} must have this constructor with only one argument which is an
      * {@link AbstractAgent}.
      *
      * @param agent the agent which play the behavior
-     * @throws NullPointerException if the agent is null
+     * @throws NullPointerException                   if the agent is null
+     * @throws BehaviorCannotBePlayedByAgentException if the behavior cannot be played by the agent
      */
-    public Behavior(AbstractAgent agent) {
+    public Behavior(AbstractAgent agent) throws BehaviorCannotBePlayedByAgentException {
         this.agent = Optional.of(agent);
+
+        if (!this.canBePlayedBy(this.agent.get()))
+            throw new BehaviorCannotBePlayedByAgentException("The agent : " + this.agent.get() + " cannot play the " +
+                    "behavior " + this.getClass().getName());
     }
 
     // Methods.
+
+    /**
+     * Verify if the agent can play the behavior or not.
+     *
+     * @param agent the agent to verify
+     * @return true if the agent can play the behavior, else false.
+     */
+    public abstract boolean canBePlayedBy(AbstractAgent agent);
 
     /**
      * Call when the agent must start to play the behavior. Can be call only one time (no effect after the first call).
