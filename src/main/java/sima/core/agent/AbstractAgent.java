@@ -55,35 +55,47 @@ public abstract class AbstractAgent {
     // Constructors.
 
     /**
-     * Constructs an agent with a name, a list of environments and a list of all behaviors the agent can play.
+     * Constructs an agent with a name and no environments, behaviors and protocols.
+     *
+     * @param agentName the agent name
+     */
+    public AbstractAgent(String agentName) {
+        this.agentName = agentName;
+
+        this.mapEnvironments = new HashMap<>();
+        this.mapBehaviors = new HashMap<>();
+        this.mapProtocol = new HashMap<>();
+    }
+
+    /**
+     * Constructs an agent with a name, a list of environments and no behaviors and protocols.
+     *
+     * @param agentName    the agent name
+     * @param environments the list of environment where the agent evolves
+     */
+    public AbstractAgent(String agentName, List<Environment> environments) {
+        this(agentName);
+
+        for (Environment environment : environments) {
+            this.joinEnvironment(environment);
+        }
+    }
+
+    /**
+     * Constructs an agent with a name, a list of environments, a list of all behaviors the agent can play and no
+     * protocols.
      *
      * @param agentName     the agent name
      * @param environments  the list of environment where the agent evolves
      * @param listBehaviors the list of behaviors that the agent can play
-     * @throws AgentException when the agent cannot instantiate a class of a behavior
      */
     public AbstractAgent(String agentName, List<Environment> environments,
-                         List<Class<? extends Behavior>> listBehaviors) throws AgentException {
-        this.agentName = agentName;
+                         List<Class<? extends Behavior>> listBehaviors) {
+        this(agentName, environments);
 
-        this.mapEnvironments = new HashMap<>();
-        for (Environment environment : environments) {
-            this.joinEnvironment(environment);
-        }
-
-        this.mapBehaviors = new HashMap<>();
         for (Class<? extends Behavior> behaviorClass : listBehaviors) {
-            try {
-                Constructor<? extends Behavior> constructor = behaviorClass.getConstructor(AbstractAgent.class);
-                Behavior behavior = constructor.newInstance(this);
-                this.mapBehaviors.put(behaviorClass.getName(), behavior);
-            } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
-                    | InvocationTargetException e) {
-                throw new AgentException(e);
-            }
+            this.addBehavior(behaviorClass);
         }
-
-        this.mapProtocol = new HashMap<>();
     }
 
     // Methods.
@@ -209,6 +221,31 @@ public abstract class AbstractAgent {
             environment.leave(this);
             this.mapEnvironments.remove(environmentName);
         }
+    }
+
+    /**
+     * Add the behavior to the agent. If the agent already have this behavior, nothing is done and returns false.
+     * <p>
+     * In the case where the agent has not already the behavior, this method creates a new instance of the behavior
+     * class. If the creation of the instance is a success, the behavior is added to the agent and returns true, else
+     * the behavior is not added in the agent and returns false.
+     *
+     * @param behaviorClass the behavior class
+     * @return true if the behavior has been added to the agent, else false.
+     */
+    public boolean addBehavior(Class<? extends Behavior> behaviorClass) {
+        if (this.mapBehaviors.get(behaviorClass.getName()) == null)
+            try {
+                Constructor<? extends Behavior> constructor = behaviorClass.getConstructor(AbstractAgent.class);
+                Behavior behavior = constructor.newInstance(this);
+                this.mapBehaviors.put(behaviorClass.getName(), behavior);
+                return true;
+            } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
+                    | InvocationTargetException e) {
+                return false;
+            }
+        else
+            return false;
     }
 
     /**
