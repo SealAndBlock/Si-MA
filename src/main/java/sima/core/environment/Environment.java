@@ -20,12 +20,13 @@ public interface Environment {
 
     /**
      * Add the agent in the environment. The agent can be not accept in the environment, in that case, the methods
-     * returns false.
+     * returns false. If the agent has already been accepted in the environment, this method does not accept the agent
+     * and returns false.
      *
      * @param evolvingAgent the agent which want evolve in the environment.
      * @return true if the environment accept the agent, else false.
      */
-    boolean addAgent(AbstractAgent evolvingAgent);
+    boolean acceptAgent(AbstractAgent evolvingAgent);
 
     /**
      * Make that the agent is leaving the environment.

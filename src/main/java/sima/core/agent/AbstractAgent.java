@@ -23,7 +23,7 @@ public abstract class AbstractAgent {
     /**
      * The several environments where the agent evolves.
      * <p>
-     * Associate the name of the class of the environment and the instance of the environment.
+     * Associate the name of the environment name and the instance of the environment.
      */
     private final Map<String, Environment> mapEnvironments;
 
@@ -68,7 +68,7 @@ public abstract class AbstractAgent {
 
         this.mapEnvironments = new HashMap<>();
         for (Environment environment : environments) {
-            if (environment.addAgent(this))
+            if (environment.acceptAgent(this))
                 this.mapEnvironments.put(environment.getName(), environment);
         }
 
@@ -153,6 +153,22 @@ public abstract class AbstractAgent {
     public abstract void onKill();
 
     /**
+     * @param environment the environment that the agent want join
+     * @return true if the agent has joined the environment, else false.
+     */
+    public boolean joinEnvironment(Environment environment) {
+        if (this.mapEnvironments.get(environment.getName()) == null) {
+            boolean accepted = environment.acceptAgent(this);
+            if (accepted) {
+                this.mapEnvironments.put(environment.getName(), environment);
+                return true;
+            } else
+                return false;
+        } else
+            return false;
+    }
+
+    /**
      * @param environment the environment
      * @return true if the agent is evolving in the environment, else false.
      */
@@ -181,7 +197,7 @@ public abstract class AbstractAgent {
      */
     public void leaveEnvironment(Environment environment) {
         environment.leave(this);
-        this.mapEnvironments.remove(environment.getClass().getName());
+        this.mapEnvironments.remove(environment.getName());
     }
 
     /**
