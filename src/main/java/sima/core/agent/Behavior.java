@@ -40,6 +40,12 @@ public abstract class Behavior {
     // Methods.
 
     /**
+     * @param agent the agent to verify
+     * @return true if the agent can play the behavior, else false.
+     */
+    public abstract boolean canBePlayedBy(AbstractAgent agent);
+
+    /**
      * Call when the agent must start to play the behavior. Can be call only one time (no effect after the first call).
      * You must call the method {@link #stopPlaying()} to be allowed to call again this method.
      * <p>
