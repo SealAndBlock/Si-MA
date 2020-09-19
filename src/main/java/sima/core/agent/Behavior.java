@@ -12,7 +12,14 @@ public abstract class Behavior {
 
     // Variables.
 
+    /**
+     * The agent which has the behavior.
+     */
     private final Optional<AbstractAgent> agent;
+
+    /**
+     * True if the {@link #agent} is playing the behavior, else false.
+     */
     private boolean isPlaying = false;
 
     // Constructors.
