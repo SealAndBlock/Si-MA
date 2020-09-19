@@ -19,6 +19,28 @@ import java.util.List;
 public interface Environment {
 
     /**
+     * Add the agent in the environment. The agent can be not accept in the environment, in that case, the methods
+     * returns false.
+     *
+     * @param evolvingAgent the agent which want evolve in the environment.
+     * @return true if the environment accept the agent, else false.
+     */
+    boolean addAgent(AbstractAgent evolvingAgent);
+
+    /**
+     * Make that the agent is leaving the environment.
+     *
+     * @param leavingAgent the leaving agent
+     */
+    void leave(AbstractAgent leavingAgent);
+
+    /**
+     * @param agent the agent to verify
+     * @return true if the agent is evolving in the environment, else false.
+     */
+    boolean isEvolving(AbstractAgent agent);
+
+    /**
      * @return the list of all agents evolving in the environment, if there is no agent, returns an empty list but never
      * null.
      */
@@ -47,7 +69,6 @@ public interface Environment {
     void receiveMessage(Message message);
 
     /**
-     *
      * @return the unique name of the environment, cannot be null.
      */
     String getName();

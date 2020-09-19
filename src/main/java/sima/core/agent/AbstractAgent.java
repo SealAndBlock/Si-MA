@@ -1,6 +1,9 @@
 package sima.core.agent;
 
 import sima.core.agent.exception.AgentException;
+import sima.core.agent.exception.AlreadyKilledAgentException;
+import sima.core.agent.exception.AlreadyStartedAgentException;
+import sima.core.agent.exception.KilledAgentException;
 import sima.core.environment.Environment;
 
 import java.lang.reflect.Constructor;
@@ -22,7 +25,7 @@ public abstract class AbstractAgent {
      * <p>
      * Associate the name of the class of the environment and the instance of the environment.
      */
-    private final Map<String, Environment> environments;
+    private final Map<String, Environment> mapEnvironments;
 
     /**
      * The several behaviors that the agent can have.
@@ -38,15 +41,35 @@ public abstract class AbstractAgent {
      */
     private final Map<String, Protocol> mapProtocol;
 
+    /**
+     * True if the agent is started, else false.
+     */
+    private boolean isStarted = false;
+
+    /**
+     * True if the agent is killed, else false. If an agent is killed, it stops to be started and cannot become
+     * started again.
+     */
+    private boolean isKilled = false;
+
     // Constructors.
 
+    /**
+     * Constructs an agent with a name, a list of environments and a list of all behaviors the agent can play.
+     *
+     * @param agentName     the agent name
+     * @param environments  the list of environment where the agent evolves
+     * @param listBehaviors the list of behaviors that the agent can play
+     * @throws AgentException when the agent cannot instantiate a class of a behavior
+     */
     public AbstractAgent(String agentName, List<Environment> environments,
                          List<Class<? extends Behavior>> listBehaviors) throws AgentException {
         this.agentName = agentName;
 
-        this.environments = new HashMap<>();
+        this.mapEnvironments = new HashMap<>();
         for (Environment environment : environments) {
-            this.environments.put(environment.getName(), environment);
+            if (environment.addAgent(this))
+                this.mapEnvironments.put(environment.getName(), environment);
         }
 
         this.mapBehaviors = new HashMap<>();
@@ -68,37 +91,110 @@ public abstract class AbstractAgent {
 
     /**
      * Start the agent.
+     * <p>
+     * When an agent is started, it calls the method {@link #onStart()}.
+     *
+     * @throws KilledAgentException         if the agent is killed
+     * @throws AlreadyStartedAgentException if the agent have already been started
      */
-    public void start() {
-        // TODO make the start method.
+    public void start() throws KilledAgentException, AlreadyStartedAgentException {
+        if (!this.isKilled && !this.isStarted) {
+            this.isStarted = true;
+
+            this.onStart();
+        } else {
+            if (this.isKilled)
+                throw new KilledAgentException();
+
+            // Agent is already started.
+            throw new AlreadyStartedAgentException();
+        }
     }
 
+    /**
+     * Method call when the agent is started in the method {@link #start()}.
+     */
     public abstract void onStart();
 
     /**
      * Kill the agent. When an agent is killed, it cannot be restarted.
+     * <p>
+     * When an agent is killed, it stops to play all its behaviors, leaves all the environments where it was evolving
+     * and call the method {@link #onKill()}.
+     *
+     * @throws AlreadyKilledAgentException if the agent have already been killed
      */
-    public void kill() {
-        // TODO make the kill method.
+    public void kill() throws AlreadyKilledAgentException {
+        if (!this.isKilled()) {
+            this.isStarted = false;
+            this.isKilled = true;
+
+            // Stop playing all behaviors.
+            Set<Map.Entry<String, Behavior>> behaviors = this.mapBehaviors.entrySet();
+            for (Map.Entry<String, Behavior> behaviorEntry : behaviors) {
+                Behavior behavior = behaviorEntry.getValue();
+                behavior.stopPlaying();
+            }
+
+            // Leave all environments.
+            Set<Map.Entry<String, Environment>> environments = this.mapEnvironments.entrySet();
+            for (Map.Entry<String, Environment> environmentEntry : environments) {
+                this.leaveEnvironment(environmentEntry.getValue());
+            }
+
+            this.onKill();
+        } else
+            throw new AlreadyKilledAgentException();
     }
 
+    /**
+     * Method call when the agent is killed in the method {@link #kill()}
+     */
     public abstract void onKill();
 
     /**
-     * @param environmentName the environment name
-     * @return true if the environment name is mapped to an environment in the agent.
+     * @param environment the environment
+     * @return true if the agent is evolving in the environment, else false.
      */
-    public boolean isEvolvingInEnvironment(String environmentName) {
-        return this.environments.containsKey(environmentName);
+    public boolean isEvolvingInEnvironment(Environment environment) {
+        return environment.isEvolving(this);
     }
 
     /**
-     * Remove the environment of the agent.
+     * @param environmentName the environment name
+     * @return true if the agent is evolving in the environment, else false.
+     */
+    public boolean isEvolvingInEnvironment(String environmentName) {
+        Environment environment = this.mapEnvironments.get(environmentName);
+        if (environment != null) {
+            return environment.isEvolving(this);
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Makes that the agent leaves the environment.
+     *
+     * @param environment the environment to leave
+     */
+    public void leaveEnvironment(Environment environment) {
+        environment.leave(this);
+        this.mapEnvironments.remove(environment.getClass().getName());
+    }
+
+    /**
+     * Makes that the agent leaves the environment.
      *
      * @param environmentName the environment name
      */
     public void leaveEnvironment(String environmentName) {
-        this.environments.remove(environmentName);
+        Environment environment = this.mapEnvironments.get(environmentName);
+        if (environment != null) {
+            environment.leave(this);
+            this.mapEnvironments.remove(environmentName);
+        }
     }
 
     /**
@@ -108,9 +204,11 @@ public abstract class AbstractAgent {
      * @param behaviorClass the class of the behavior that we want starting to play
      */
     public void startPlayingBehavior(Class<? extends Behavior> behaviorClass) {
-        Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
-        if (behavior != null)
-            behavior.startPlaying();
+        if (this.isStarted) {
+            Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
+            if (behavior != null)
+                behavior.startPlaying();
+        }
     }
 
     /**
@@ -190,8 +288,8 @@ public abstract class AbstractAgent {
         return agentName;
     }
 
-    public Map<String, Environment> getEnvironments() {
-        return Collections.unmodifiableMap(environments);
+    public Map<String, Environment> getMapEnvironments() {
+        return Collections.unmodifiableMap(mapEnvironments);
     }
 
     public Map<String, Behavior> getMapBehaviors() {
@@ -200,5 +298,13 @@ public abstract class AbstractAgent {
 
     public Map<String, Protocol> getMapProtocol() {
         return Collections.unmodifiableMap(this.mapProtocol);
+    }
+
+    public boolean isStarted() {
+        return isStarted;
+    }
+
+    public boolean isKilled() {
+        return isKilled;
     }
 }
