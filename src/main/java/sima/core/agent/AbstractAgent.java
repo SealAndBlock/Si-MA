@@ -69,12 +69,20 @@ public abstract class AbstractAgent {
     /**
      * Start the agent.
      */
-    public abstract void start();
+    public void start() {
+        // TODO make the start method.
+    }
+
+    public abstract void onStart();
 
     /**
      * Kill the agent. When an agent is killed, it cannot be restarted.
      */
-    public abstract void kill();
+    public void kill() {
+        // TODO make the kill method.
+    }
+
+    public abstract void onKill();
 
     /**
      * @param environmentName the environment name
