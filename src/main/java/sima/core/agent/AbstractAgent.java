@@ -12,12 +12,30 @@ public abstract class AbstractAgent {
 
     // Variables.
 
+    /**
+     * The name of the agent
+     */
     private final String agentName;
 
+    /**
+     * The several environments where the agent evolves.
+     * <p>
+     * Associate the name of the class of the environment and the instance of the environment.
+     */
     private final Map<String, Environment> environments;
 
+    /**
+     * The several behaviors that the agent can have.
+     * <p>
+     * Associate the name of the class of the behavior and the instance of the behavior.
+     */
     private final Map<String, Behavior> mapBehaviors;
 
+    /**
+     * The several protocols that the agent can use.
+     * <p>
+     * Associate the name of the class of the protocol and the instance of the protocol.
+     */
     private final Map<String, Protocol> mapProtocol;
 
     // Constructors.
@@ -48,7 +66,15 @@ public abstract class AbstractAgent {
 
     // Methods.
 
+    /**
+     * Start the agent.
+     */
     public abstract void start();
+
+    /**
+     * Kill the agent. When an agent is killed, it cannot be restarted.
+     */
+    public abstract void kill();
 
     /**
      * @param environmentName the environment name
@@ -123,8 +149,8 @@ public abstract class AbstractAgent {
 
     /**
      * Map the protocol name and the protocol together. If there was already a protocol mapped with the specified name,
-     * the older protocol is removed and replace by the new specified protocol. The protocol name and the protocol can
-     * not be null.
+     * the older protocol is removed and replace by the new specified protocol. The protocolName and the protocol cannot
+     * be null.
      *
      * @param protocolName the name of the protocol
      * @param protocol     the protocol, can not be null

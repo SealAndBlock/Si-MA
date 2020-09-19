@@ -5,7 +5,7 @@ import java.util.Optional;
 /**
  * Represents the behavior that an {@link AbstractAgent} can have.
  * <p>
- * All sub classes of {@link Behavior} must have this constructors with only one argument which is an
+ * All sub classes of {@link Behavior} must have this constructor with only one argument which is an
  * {@link AbstractAgent}.
  */
 public abstract class Behavior {
