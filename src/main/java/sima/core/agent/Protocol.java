@@ -47,10 +47,16 @@ public abstract class Protocol {
     }
 
     /**
+     * Set {@link #protocolManipulator}. In addition to this, the method
+     * {@link ProtocolManipulator#setManipulatedProtocol(Protocol)} is called to set as manipulated protocol for the new
+     * protocol manipulator the current protocol.
+     *
      * @param protocolManipulator the protocol manipulator (must be not null)
      * @throws NullPointerException if the protocol manipulator is null
      */
     public void setProtocolManipulator(ProtocolManipulator protocolManipulator) {
         this.protocolManipulator = Optional.of(protocolManipulator);
+        ProtocolManipulator pM = this.protocolManipulator.get();
+        pM.setManipulatedProtocol(this);
     }
 }
