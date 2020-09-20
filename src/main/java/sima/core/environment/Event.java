@@ -6,7 +6,7 @@ import sima.core.agent.Protocol;
 /**
  * Represents an event which can occur during the simulation.
  * <p>
- * An event has a send {@link AbstractAgent} which is the agent which as send (trigger) the event. It also has receiver
+ * An event has a sender {@link AbstractAgent} which is the agent which as send (trigger) the event. It also has receiver
  * which is the agent which will receive the event.
  * <p>
  * In plus, the event as a protocol in attribute which is the protocol which will process the event with the method
