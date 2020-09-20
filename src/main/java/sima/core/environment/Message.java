@@ -17,7 +17,8 @@ public class Message extends Event {
 
     // Constructors.
 
-    public Message(AbstractAgent sender, AbstractAgent receiver, Protocol protocolTargeted, Object content) {
+    public Message(AbstractAgent sender, AbstractAgent receiver, Class<? extends Protocol> protocolTargeted,
+                   Object content) {
         super(sender, receiver, protocolTargeted);
 
         this.content = content;

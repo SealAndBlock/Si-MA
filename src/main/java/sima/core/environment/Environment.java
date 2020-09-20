@@ -52,7 +52,7 @@ public interface Environment {
      * <p>
      * It is this methods that you can simulate for example communication failure in the communication network.
      * <p>
-     * To manage communication latency, you must implement it in sub class as parameter and use theses parameters in the
+     * To manage communication latency, you must implement it in sub class as parameter and use these parameters in the
      * implementation of this method.
      *
      * @param message the message to send

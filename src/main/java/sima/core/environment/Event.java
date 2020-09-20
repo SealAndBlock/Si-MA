@@ -6,8 +6,8 @@ import sima.core.agent.Protocol;
 /**
  * Represents an event which can occur during the simulation.
  * <p>
- * An event has a sender {@link AbstractAgent} which is the agent which as send (trigger) the event. It also has receiver
- * which is the agent which will receive the event.
+ * An event has a sender {@link AbstractAgent} which is the agent which as send (trigger) the event. It also has a
+ * receiver which is the agent which will receive the event.
  * <p>
  * In plus, the event as a protocol in attribute which is the protocol which will process the event with the method
  * {@link Protocol#processEvent(Event)}.
@@ -27,13 +27,13 @@ public class Event {
     private final AbstractAgent receiver;
 
     /**
-     * The protocol which will process the event.
+     * The class of the protocol which will process the event.
      */
-    private final Protocol protocolTargeted;
+    private final Class<? extends Protocol> protocolTargeted;
 
     // Constructors.
 
-    public Event(AbstractAgent sender, AbstractAgent receiver, Protocol protocolTargeted) {
+    public Event(AbstractAgent sender, AbstractAgent receiver, Class<? extends Protocol> protocolTargeted) {
         this.sender = sender;
         this.receiver = receiver;
         this.protocolTargeted = protocolTargeted;
@@ -49,7 +49,7 @@ public class Event {
         return receiver;
     }
 
-    public Protocol getProtocolTargeted() {
+    public Class<? extends Protocol> getProtocolTargeted() {
         return protocolTargeted;
     }
 }
