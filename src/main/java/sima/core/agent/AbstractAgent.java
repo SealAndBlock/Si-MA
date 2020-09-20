@@ -1,5 +1,6 @@
 package sima.core.agent;
 
+import org.jetbrains.annotations.NotNull;
 import sima.core.agent.exception.AlreadyKilledAgentException;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
@@ -138,7 +139,7 @@ public abstract class AbstractAgent {
      * @param environment the environment that the agent want join
      * @return true if the agent has joined the environment, else false.
      */
-    public boolean joinEnvironment(Environment environment) {
+    public boolean joinEnvironment(@NotNull Environment environment) {
         if (this.mapEnvironments.get(environment.getName()) == null) {
             if (environment.acceptAgent(this)) {
                 this.mapEnvironments.put(environment.getName(), environment);
@@ -153,7 +154,7 @@ public abstract class AbstractAgent {
      * @param environment the environment
      * @return true if the agent is evolving in the environment, else false.
      */
-    public boolean isEvolvingInEnvironment(Environment environment) {
+    public boolean isEvolvingInEnvironment(@NotNull Environment environment) {
         return environment.isEvolving(this);
     }
 
@@ -176,7 +177,7 @@ public abstract class AbstractAgent {
      *
      * @param environment the environment to leave
      */
-    public void leaveEnvironment(Environment environment) {
+    public void leaveEnvironment(@NotNull Environment environment) {
         environment.leave(this);
         this.mapEnvironments.remove(environment.getName());
     }
@@ -204,7 +205,7 @@ public abstract class AbstractAgent {
      * @param behaviorClass the behavior class
      * @return true if the behavior has been added to the agent, else false.
      */
-    public boolean addBehavior(Class<? extends Behavior> behaviorClass) {
+    public boolean addBehavior(@NotNull Class<? extends Behavior> behaviorClass) {
         if (this.mapBehaviors.get(behaviorClass.getName()) == null)
             try {
                 Constructor<? extends Behavior> constructor = behaviorClass.getConstructor(AbstractAgent.class);
@@ -239,7 +240,7 @@ public abstract class AbstractAgent {
      *
      * @param behaviorClass the class of the behavior that we want stopping to play
      */
-    public void stopPlayingBehavior(Class<? extends Behavior> behaviorClass) {
+    public void stopPlayingBehavior(@NotNull Class<? extends Behavior> behaviorClass) {
         Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
         if (behavior != null)
             behavior.stopPlaying();
@@ -249,7 +250,7 @@ public abstract class AbstractAgent {
      * @param behavior the behavior
      * @return true if the agent can play the specified behavior, else false.
      */
-    public boolean canPlayBehavior(Behavior behavior) {
+    public boolean canPlayBehavior(@NotNull Behavior behavior) {
         return behavior.canBePlayedBy(this);
     }
 
@@ -259,7 +260,7 @@ public abstract class AbstractAgent {
      * @param behaviorClass the class of the behavior
      * @return true if the specified behavior is playing by the agent, else false.
      */
-    public boolean isPlayingBehavior(Class<? extends Behavior> behaviorClass) {
+    public boolean isPlayingBehavior(@NotNull Class<? extends Behavior> behaviorClass) {
         Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
 
         if (behavior != null)
@@ -269,27 +270,55 @@ public abstract class AbstractAgent {
     }
 
     /**
-     * @param protocolName the name of the protocol
-     * @return the protocol associate to the protocolName, if no protocol is associated to its name, return null.
+     * @param protocolClass the class of the protocol
+     * @return the protocol associate to the protocol class, if no protocol is associated to this class, return null.
      */
-    public Protocol getProtocol(String protocolName) {
-        return this.mapProtocol.get(protocolName);
+    public Protocol getProtocol(@NotNull Class<? extends Protocol> protocolClass) {
+        return this.mapProtocol.get(protocolClass.getName());
     }
 
     /**
-     * Map the protocol name and the protocol together. If there was already a protocol mapped with the specified name,
-     * the older protocol is removed and replace by the new specified protocol. The protocolName and the protocol cannot
-     * be null.
+     * Add the protocol to the agent. If the agent has already an instance of protocol which has the class than the
+     * specified protocol, the protocol is not added. To update a protocol which has already been added, use
+     * {@link #updateProtocol(Protocol)}. If the specified protocol is null, nothing is done and returns false.
      *
-     * @param protocolName the name of the protocol
-     * @param protocol     the protocol, can not be null
+     * @param protocol the protocol (must be not null)
+     * @return true if the protocol is added, else false.
+     * @see #updateProtocol(Protocol)
      */
-    public void addProtocol(String protocolName, Protocol protocol) {
-        if (protocol != null && protocolName != null) {
-            this.mapProtocol.put(protocolName, protocol);
-        } else {
-            throw new InvalidParameterException("Protocol name or protocol cannot be null");
-        }
+    public boolean addProtocol(Protocol protocol) {
+        if (protocol != null) {
+            Class<? extends Protocol> protocolClass = protocol.getClass();
+            String className = protocolClass.getName();
+
+            Protocol older = this.getProtocol(protocolClass);
+            if (older == null) {
+                this.mapProtocol.put(className, protocol);
+                return true;
+            } else {
+                return false;
+            }
+        } else
+            return false;
+    }
+
+    /**
+     * Update the protocol of the agent. It is the same behavior that the method {@link #addProtocol(Protocol)},
+     * however the protocol is update even if there is already an instance of protocol with the same class if the
+     * specified class in the agent.
+     *
+     * @param protocol the protocol (must be not null)
+     * @return true if the protocol is update, else false.
+     */
+    public boolean updateProtocol(Protocol protocol) {
+        if (protocol != null) {
+            Class<? extends Protocol> protocolClass = protocol.getClass();
+            String className = protocolClass.getName();
+
+            this.mapProtocol.put(className, protocol);
+            return true;
+        } else
+            return false;
     }
 
     /**
