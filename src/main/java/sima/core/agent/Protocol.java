@@ -14,7 +14,7 @@ public abstract class Protocol {
     // Variables.
 
     /**
-     * The protocol manipulator.
+     * The protocol manipulator. Must be not null.
      */
     private Optional<ProtocolManipulator> protocolManipulator;
 
