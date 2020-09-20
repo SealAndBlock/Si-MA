@@ -286,7 +286,7 @@ public abstract class AbstractAgent {
         if (protocol != null && protocolName != null) {
             this.mapProtocol.put(protocolName, protocol);
         } else {
-            throw new InvalidParameterException("Protocol name or protocol can not be null");
+            throw new InvalidParameterException("Protocol name or protocol cannot be null");
         }
     }
 
