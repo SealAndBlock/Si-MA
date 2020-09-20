@@ -1,6 +1,5 @@
 package sima.core.agent;
 
-import sima.core.agent.exception.AgentException;
 import sima.core.agent.exception.AlreadyKilledAgentException;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
@@ -9,7 +8,10 @@ import sima.core.environment.Environment;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidParameterException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class AbstractAgent {
 
