@@ -321,19 +321,6 @@ public abstract class AbstractAgent {
             return false;
     }
 
-    /**
-     * Unmap the protocol name with its protocol if there is a protocol mapped to this protocol name.
-     *
-     * @param protocolName the name of the protocol
-     */
-    public void removeProtocol(String protocolName) {
-        if (protocolName != null) {
-            this.mapProtocol.remove(protocolName);
-        } else {
-            throw new InvalidParameterException("Protocol name or protocol cannot be null");
-        }
-    }
-
     // Getters and Setters.
 
     public String getAgentName() {
