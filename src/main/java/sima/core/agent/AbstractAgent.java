@@ -67,37 +67,6 @@ public abstract class AbstractAgent {
         this.mapProtocol = new HashMap<>();
     }
 
-    /**
-     * Constructs an agent with a name, a list of environments and no behaviors and protocols.
-     *
-     * @param agentName    the agent name
-     * @param environments the list of environment where the agent evolves
-     */
-    public AbstractAgent(String agentName, List<Environment> environments) {
-        this(agentName);
-
-        for (Environment environment : environments) {
-            this.joinEnvironment(environment);
-        }
-    }
-
-    /**
-     * Constructs an agent with a name, a list of environments, a list of all behaviors the agent can play and no
-     * protocols.
-     *
-     * @param agentName     the agent name
-     * @param environments  the list of environment where the agent evolves
-     * @param listBehaviors the list of behaviors that the agent can play
-     */
-    public AbstractAgent(String agentName, List<Environment> environments,
-                         List<Class<? extends Behavior>> listBehaviors) {
-        this(agentName, environments);
-
-        for (Class<? extends Behavior> behaviorClass : listBehaviors) {
-            this.addBehavior(behaviorClass);
-        }
-    }
-
     // Methods.
 
     /**
