@@ -6,4 +6,10 @@ package sima.core.agent;
  * reimplement all the protocol.
  */
 public interface ProtocolManipulator {
+
+    /**
+     * @param manipulatedProtocol the manipulated protocol
+     */
+    void setManipulatedProtocol(Protocol manipulatedProtocol);
+
 }
