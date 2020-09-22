@@ -40,6 +40,12 @@ public abstract class Protocol {
      */
     public abstract void processEvent(Event event);
 
+    /**
+     * Reset the default manipulator of the protocol. In that way, the property {@link #protocolManipulator} is never
+     * null.
+     */
+    public abstract void resetDefaultProtocolManipulator();
+
     // Getters and Setters.
 
     public ProtocolManipulator getProtocolManipulator() {
