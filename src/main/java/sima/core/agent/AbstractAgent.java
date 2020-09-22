@@ -4,6 +4,7 @@ import sima.core.agent.exception.AlreadyKilledAgentException;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
 import sima.core.environment.Environment;
+import sima.core.environment.Event;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -318,6 +319,51 @@ public abstract class AbstractAgent {
         } else
             return false;
     }
+
+    /**
+     * Method called by an environment when an event occurs and that the receiver is the agent. This method is here to
+     * allow the agent to manage how the event must be treated.
+     * <p>
+     * If the event is a <i>general event</i>, the method {@link #treatGeneralEvent(Event)} is called.
+     * <p>
+     * If the event has a protocol targeted, then the agent search the associated protocol and call the method
+     * {@link Protocol#processEvent(Event)} is the protocol is find. In the case where the targeted protocol is not find
+     * among all protocol that the agent possesses, the method {@link #treatEventWithNotFindProtocol(Event)} is called.
+     *
+     * @param event the event received
+     * @see sima.core.environment.GeneralEvent
+     * @see Event#isGeneralEvent()
+     */
+    public void receivedEvent(Event event) {
+        if (event.isGeneralEvent()) {
+            Protocol protocolTarget = this.getProtocol(event.getProtocolTargeted());
+            if (protocolTarget != null) {
+                protocolTarget.processEvent(event);
+            } else {
+                this.treatEventWithNotFindProtocol(event);
+            }
+        } else {
+            this.treatGeneralEvent(event);
+        }
+    }
+
+    /**
+     * This method is called when the agent received a <i>general event</i>. This method allows the agent to treat all
+     * general event that it receives.
+     *
+     * @param event the event received
+     * @see sima.core.environment.GeneralEvent
+     * @see Event#isGeneralEvent()
+     */
+    protected abstract void treatGeneralEvent(Event event);
+
+    /**
+     * This method is called whe the agent received an event with a target protocol, but the agent does not have this
+     * protocol. This method allows the agent to treat this type of event.
+     *
+     * @param event the event received
+     */
+    protected abstract void treatEventWithNotFindProtocol(Event event);
 
     // Getters and Setters.
 
