@@ -27,7 +27,8 @@ public class Event {
     private final AbstractAgent receiver;
 
     /**
-     * The class of the protocol which will process the event.
+     * The class of the protocol which will process the event. An event can have a null instance protocol targeted. In
+     * that way the agent receive the event and chose itself how to manage the event.
      */
     private final Class<? extends Protocol> protocolTargeted;
 
@@ -37,6 +38,13 @@ public class Event {
         this.sender = sender;
         this.receiver = receiver;
         this.protocolTargeted = protocolTargeted;
+    }
+
+    /**
+     * @return true if the protocol targeted is not null, else false.
+     */
+    public boolean hasProtocolTargeted() {
+        return this.protocolTargeted != null;
     }
 
     // Getters and Setters.
