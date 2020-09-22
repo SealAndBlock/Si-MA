@@ -1,7 +1,6 @@
 package sima.core.environment;
 
 import sima.core.agent.AbstractAgent;
-import sima.core.agent.Protocol;
 
 import java.util.List;
 
@@ -58,6 +57,8 @@ public interface Environment {
      * @param message the message to send
      */
     void sendMessage(Message message);
+
+    void triggerGeneralEvent(GeneralEvent event);
 
     /**
      * @return the unique name of the environment, cannot be null.
