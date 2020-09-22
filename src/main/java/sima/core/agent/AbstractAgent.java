@@ -25,7 +25,8 @@ public abstract class AbstractAgent {
     /**
      * The several environments where the agent evolves.
      * <p>
-     * Associate the name of the environment name and the instance of the environment.
+     * Associate the environment name get with the method {@link Environment#getName()} and the instance of the
+     * environment.
      */
     private final Map<String, Environment> mapEnvironments;
 
