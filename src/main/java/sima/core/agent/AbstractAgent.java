@@ -331,6 +331,7 @@ public abstract class AbstractAgent {
      * among all protocol that the agent possesses, the method {@link #treatEventWithNotFindProtocol(Event)} is called.
      *
      * @param event the event received
+     * @see sima.core.environment.GeneralEvent
      * @see Event#isGeneralEvent()
      */
     public void receivedEvent(Event event) {
@@ -351,6 +352,7 @@ public abstract class AbstractAgent {
      * general event that it receives.
      *
      * @param event the event received
+     * @see sima.core.environment.GeneralEvent
      * @see Event#isGeneralEvent()
      */
     protected abstract void treatGeneralEvent(Event event);

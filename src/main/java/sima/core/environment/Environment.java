@@ -49,15 +49,21 @@ public interface Environment {
     /**
      * Send the message to the {@link Message#getReceiver()}.
      * <p>
-     * It is this methods that you can simulate for example communication failure in the communication network.
+     * It is in this method that you can simulate for example communication failure in the communication network.
      * <p>
-     * To manage communication latency, you must implement it in sub class as parameter and use these parameters in the
+     * To manage communication latency, you must implement it in subclass as parameter and use these parameters in the
      * implementation of this method.
      *
      * @param message the message to send
      */
     void sendMessage(Message message);
 
+    /**
+     * Triggers a {@link GeneralEvent} in the environment.
+     *
+     * @param event the general event to trigger
+     * @see GeneralEvent
+     */
     void triggerGeneralEvent(GeneralEvent event);
 
     /**
