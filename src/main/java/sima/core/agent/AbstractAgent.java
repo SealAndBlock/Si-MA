@@ -326,7 +326,7 @@ public abstract class AbstractAgent {
     }
 
     public Map<String, Environment> getMapEnvironments() {
-        return Collections.unmodifiableMap(mapEnvironments);
+        return Collections.unmodifiableMap(this.mapEnvironments);
     }
 
     public Map<String, Behavior> getMapBehaviors() {
