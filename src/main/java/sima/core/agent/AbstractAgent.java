@@ -1,6 +1,5 @@
 package sima.core.agent;
 
-import org.jetbrains.annotations.NotNull;
 import sima.core.agent.exception.AlreadyKilledAgentException;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
@@ -8,7 +7,6 @@ import sima.core.environment.Environment;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.security.InvalidParameterException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -139,7 +137,7 @@ public abstract class AbstractAgent {
      * @param environment the environment that the agent want join
      * @return true if the agent has joined the environment, else false.
      */
-    public boolean joinEnvironment(@NotNull Environment environment) {
+    public boolean joinEnvironment(Environment environment) {
         if (this.mapEnvironments.get(environment.getName()) == null) {
             if (environment.acceptAgent(this)) {
                 this.mapEnvironments.put(environment.getName(), environment);
@@ -154,7 +152,7 @@ public abstract class AbstractAgent {
      * @param environment the environment
      * @return true if the agent is evolving in the environment, else false.
      */
-    public boolean isEvolvingInEnvironment(@NotNull Environment environment) {
+    public boolean isEvolvingInEnvironment(Environment environment) {
         return environment.isEvolving(this);
     }
 
@@ -177,7 +175,7 @@ public abstract class AbstractAgent {
      *
      * @param environment the environment to leave
      */
-    public void leaveEnvironment(@NotNull Environment environment) {
+    public void leaveEnvironment(Environment environment) {
         environment.leave(this);
         this.mapEnvironments.remove(environment.getName());
     }
@@ -205,7 +203,7 @@ public abstract class AbstractAgent {
      * @param behaviorClass the behavior class
      * @return true if the behavior has been added to the agent, else false.
      */
-    public boolean addBehavior(@NotNull Class<? extends Behavior> behaviorClass) {
+    public boolean addBehavior(Class<? extends Behavior> behaviorClass) {
         if (this.mapBehaviors.get(behaviorClass.getName()) == null)
             try {
                 Constructor<? extends Behavior> constructor = behaviorClass.getConstructor(AbstractAgent.class);
@@ -240,7 +238,7 @@ public abstract class AbstractAgent {
      *
      * @param behaviorClass the class of the behavior that we want stopping to play
      */
-    public void stopPlayingBehavior(@NotNull Class<? extends Behavior> behaviorClass) {
+    public void stopPlayingBehavior(Class<? extends Behavior> behaviorClass) {
         Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
         if (behavior != null)
             behavior.stopPlaying();
@@ -250,7 +248,7 @@ public abstract class AbstractAgent {
      * @param behavior the behavior
      * @return true if the agent can play the specified behavior, else false.
      */
-    public boolean canPlayBehavior(@NotNull Behavior behavior) {
+    public boolean canPlayBehavior(Behavior behavior) {
         return behavior.canBePlayedBy(this);
     }
 
@@ -260,7 +258,7 @@ public abstract class AbstractAgent {
      * @param behaviorClass the class of the behavior
      * @return true if the specified behavior is playing by the agent, else false.
      */
-    public boolean isPlayingBehavior(@NotNull Class<? extends Behavior> behaviorClass) {
+    public boolean isPlayingBehavior(Class<? extends Behavior> behaviorClass) {
         Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
 
         if (behavior != null)
@@ -273,7 +271,7 @@ public abstract class AbstractAgent {
      * @param protocolClass the class of the protocol
      * @return the protocol associate to the protocol class, if no protocol is associated to this class, return null.
      */
-    public Protocol getProtocol(@NotNull Class<? extends Protocol> protocolClass) {
+    public Protocol getProtocol(Class<? extends Protocol> protocolClass) {
         return this.mapProtocol.get(protocolClass.getName());
     }
 
