@@ -42,8 +42,8 @@ public interface Environment {
     boolean isEvolving(AbstractAgent agent);
 
     /**
-     * @return the list of all {@link AgentInfo} of all agents evolving in the environment, if there is no agent, returns an empty list but never
-     * null.
+     * @return the list of all {@link AgentInfo} of all agents evolving in the environment, if there is no agent,
+     * returns an empty list but never null.
      */
     List<AgentInfo> getListOfEvolvingAgent();
 
