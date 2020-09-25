@@ -3,6 +3,8 @@ package sima.core.environment;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.Protocol;
 
+import java.util.UUID;
+
 /**
  * Represents an event which can occur during the simulation.
  * <p>
@@ -19,12 +21,12 @@ public class Event {
     /**
      * The agent sender of the event.
      */
-    private final AbstractAgent sender;
+    private final UUID sender;
 
     /**
      * The agent receiver of the event.
      */
-    private final AbstractAgent receiver;
+    private final UUID receiver;
 
     /**
      * The class of the protocol which will process the event. An event can have a null instance of this property. In
@@ -48,7 +50,7 @@ public class Event {
      *
      * @throws NullPointerException if the agent receiver is null
      */
-    public Event(AbstractAgent sender, AbstractAgent receiver, Class<? extends Protocol> protocolTargeted) {
+    public Event(UUID sender, UUID receiver, Class<? extends Protocol> protocolTargeted) {
         this.sender = sender;
 
         this.receiver = receiver;
@@ -71,11 +73,11 @@ public class Event {
 
     // Getters and Setters.
 
-    public AbstractAgent getSender() {
+    public UUID getSender() {
         return sender;
     }
 
-    public AbstractAgent getReceiver() {
+    public UUID getReceiver() {
         return receiver;
     }
 

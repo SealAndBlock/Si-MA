@@ -3,6 +3,8 @@ package sima.core.environment;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.Protocol;
 
+import java.util.UUID;
+
 /**
  * A message is a particular event which has a content.
  */
@@ -17,7 +19,7 @@ public class Message extends Event {
 
     // Constructors.
 
-    public Message(AbstractAgent sender, AbstractAgent receiver, Class<? extends Protocol> protocolTargeted,
+    public Message(UUID sender, UUID receiver, Class<? extends Protocol> protocolTargeted,
                    Object content) {
         super(sender, receiver, protocolTargeted);
 
