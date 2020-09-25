@@ -370,6 +370,13 @@ public abstract class AbstractAgent {
      */
     protected abstract void treatEventWithNotFindProtocol(Event event);
 
+    /**
+     * @return a new instance of {@link AgentInfo} which contains all information about the agent.
+     */
+    public AgentInfo getInfo() {
+        return new AgentInfo(this.uuid, this.agentName);
+    }
+
     // Getters and Setters.
 
     public UUID getUUID() {
