@@ -8,14 +8,16 @@ import sima.core.environment.Event;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public abstract class AbstractAgent {
 
     // Variables.
+
+    /**
+     * The {@link UUID} of the agent.
+     */
+    private final UUID uuid;
 
     /**
      * The name of the agent
@@ -63,6 +65,8 @@ public abstract class AbstractAgent {
      * @param agentName the agent name
      */
     public AbstractAgent(String agentName) {
+        this.uuid = UUID.randomUUID();
+
         this.agentName = agentName;
 
         this.mapEnvironments = new HashMap<>();
@@ -367,6 +371,10 @@ public abstract class AbstractAgent {
     protected abstract void treatEventWithNotFindProtocol(Event event);
 
     // Getters and Setters.
+
+    public UUID getUUID() {
+        return this.uuid;
+    }
 
     public String getAgentName() {
         return agentName;
