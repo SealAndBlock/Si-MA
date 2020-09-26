@@ -1,4 +1,4 @@
-package sima.core.agent.exception;
+package sima.core.behavior.exception;
 
 public class BehaviorException extends Exception {
 

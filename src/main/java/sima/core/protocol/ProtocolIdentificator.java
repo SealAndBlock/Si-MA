@@ -1,4 +1,4 @@
-package sima.core.agent;
+package sima.core.protocol;
 
 import java.io.Serializable;
 import java.util.Objects;

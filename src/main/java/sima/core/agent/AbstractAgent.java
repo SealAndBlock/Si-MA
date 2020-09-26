@@ -3,8 +3,11 @@ package sima.core.agent;
 import sima.core.agent.exception.AlreadyKilledAgentException;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
+import sima.core.behavior.Behavior;
 import sima.core.environment.Environment;
 import sima.core.environment.Event;
+import sima.core.protocol.Protocol;
+import sima.core.protocol.ProtocolIdentificator;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

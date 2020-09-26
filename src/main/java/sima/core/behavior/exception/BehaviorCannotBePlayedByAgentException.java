@@ -1,6 +1,4 @@
-package sima.core.agent.exception;
-
-import sima.core.agent.Behavior;
+package sima.core.behavior.exception;
 
 public class BehaviorCannotBePlayedByAgentException extends BehaviorException {
 

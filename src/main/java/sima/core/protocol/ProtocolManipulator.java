@@ -1,4 +1,4 @@
-package sima.core.agent;
+package sima.core.protocol;
 
 /**
  * Allow a {@link Protocol} to define several methods which can be control by the {@link ProtocolManipulator}. In that

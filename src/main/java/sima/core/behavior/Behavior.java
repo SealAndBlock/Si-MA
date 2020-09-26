@@ -1,6 +1,7 @@
-package sima.core.agent;
+package sima.core.behavior;
 
-import sima.core.agent.exception.BehaviorCannotBePlayedByAgentException;
+import sima.core.agent.AbstractAgent;
+import sima.core.behavior.exception.BehaviorCannotBePlayedByAgentException;
 
 import java.util.Optional;
 

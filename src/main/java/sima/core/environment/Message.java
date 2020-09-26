@@ -1,6 +1,6 @@
 package sima.core.environment;
 
-import sima.core.agent.ProtocolIdentificator;
+import sima.core.protocol.ProtocolIdentificator;
 
 import java.io.Serializable;
 import java.util.UUID;

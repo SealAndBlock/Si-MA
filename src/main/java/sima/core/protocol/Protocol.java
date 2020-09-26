@@ -1,5 +1,7 @@
-package sima.core.agent;
+package sima.core.protocol;
 
+import sima.core.agent.AbstractAgent;
+import sima.core.behavior.Behavior;
 import sima.core.environment.Event;
 
 import java.util.Optional;
