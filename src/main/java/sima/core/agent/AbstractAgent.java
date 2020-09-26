@@ -42,9 +42,9 @@ public abstract class AbstractAgent {
     /**
      * The several protocols that the agent can use.
      * <p>
-     * Associate the name of the class of the protocol and the instance of the protocol.
+     * Associate the {@link ProtocolIdentificator} and the instance of the protocol.
      */
-    private final Map<String, Protocol> mapProtocol;
+    private final Map<ProtocolIdentificator, Protocol> mapProtocol;
 
     /**
      * True if the agent is started, else false.
@@ -274,11 +274,11 @@ public abstract class AbstractAgent {
     }
 
     /**
-     * @param protocolClass the class of the protocol
+     * @param protocolIdentificator the string which identify the protocol
      * @return the protocol associate to the protocol class, if no protocol is associated to this class, return null.
      */
-    public Protocol getProtocol(Class<? extends Protocol> protocolClass) {
-        return this.mapProtocol.get(protocolClass.getName());
+    public Protocol getProtocol(ProtocolIdentificator protocolIdentificator) {
+        return this.mapProtocol.get(protocolIdentificator);
     }
 
     /**
@@ -292,12 +292,9 @@ public abstract class AbstractAgent {
      */
     public boolean addProtocol(Protocol protocol) {
         if (protocol != null) {
-            Class<? extends Protocol> protocolClass = protocol.getClass();
-            String className = protocolClass.getName();
-
-            Protocol older = this.getProtocol(protocolClass);
+            Protocol older = this.getProtocol(protocol.getIdentificator());
             if (older == null) {
-                this.mapProtocol.put(className, protocol);
+                this.mapProtocol.put(protocol.getIdentificator(), protocol);
                 return true;
             } else {
                 return false;
@@ -319,7 +316,7 @@ public abstract class AbstractAgent {
             Class<? extends Protocol> protocolClass = protocol.getClass();
             String className = protocolClass.getName();
 
-            this.mapProtocol.put(className, protocol);
+            this.mapProtocol.put(protocol.getIdentificator(), protocol);
             return true;
         } else
             return false;
@@ -395,7 +392,7 @@ public abstract class AbstractAgent {
         return Collections.unmodifiableMap(this.mapBehaviors);
     }
 
-    public Map<String, Protocol> getMapProtocol() {
+    public Map<ProtocolIdentificator, Protocol> getMapProtocol() {
         return Collections.unmodifiableMap(this.mapProtocol);
     }
 

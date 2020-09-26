@@ -11,6 +11,18 @@ import java.util.Optional;
  */
 public abstract class Protocol {
 
+    // Singletons.
+
+    /**
+     * The thread lock for manipulate the static variable {@link #PROTOCOL_IDENTIFICATOR}.
+     */
+    private static final Object PROTOCOL_IDENTIFICATOR_LOCK = new Object();
+
+    /**
+     * The {@link ProtocolIdentificator} of the protocol.
+     */
+    private static ProtocolIdentificator PROTOCOL_IDENTIFICATOR;
+
     // Variables.
 
     /**
@@ -32,6 +44,29 @@ public abstract class Protocol {
     }
 
     // Methods.
+
+    /**
+     * Returns the {@link ProtocolIdentificator} of the protocol. The protocol identificator must allow an agent to
+     * identify which protocol is called and for two different agents which use the same set of protocols, for a same
+     * instance of a {@link ProtocolIdentificator}, the method {@link AbstractAgent#getProtocol(ProtocolIdentificator)}
+     * must returns the same protocol for both agents.
+     * <p>
+     * The base implementation is the use of a singleton of {@link ProtocolIdentificator} instantiates at the first call
+     * of the method.
+     * <p>
+     * This method is thread safe and the thread lock is the static variable {@link #PROTOCOL_IDENTIFICATOR_LOCK}.
+     *
+     * @return the {@link ProtocolIdentificator} of the protocol. It never returns null.
+     */
+    public ProtocolIdentificator getIdentificator() {
+        synchronized (PROTOCOL_IDENTIFICATOR_LOCK) {
+            if (PROTOCOL_IDENTIFICATOR == null) {
+                PROTOCOL_IDENTIFICATOR = new ProtocolIdentificator(this.getClass().getName());
+            }
+
+            return PROTOCOL_IDENTIFICATOR;
+        }
+    }
 
     /**
      * Call when an event occurs and that the {@link Event#getProtocolTargeted()} is the protocol.

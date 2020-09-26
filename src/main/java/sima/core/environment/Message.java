@@ -1,7 +1,6 @@
 package sima.core.environment;
 
-import sima.core.agent.AbstractAgent;
-import sima.core.agent.Protocol;
+import sima.core.agent.ProtocolIdentificator;
 
 import java.util.UUID;
 
@@ -19,7 +18,7 @@ public class Message extends Event {
 
     // Constructors.
 
-    public Message(UUID sender, UUID receiver, Class<? extends Protocol> protocolTargeted,
+    public Message(UUID sender, UUID receiver, ProtocolIdentificator protocolTargeted,
                    Object content) {
         super(sender, receiver, protocolTargeted);
 
