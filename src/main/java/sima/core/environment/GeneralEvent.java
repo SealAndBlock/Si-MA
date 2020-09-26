@@ -2,6 +2,8 @@ package sima.core.environment;
 
 import sima.core.agent.AbstractAgent;
 
+import java.util.UUID;
+
 /**
  * Class which represents an {@link Event} with no protocol targeted.
  */
@@ -15,7 +17,7 @@ public class GeneralEvent extends Event {
      * @param sender   the agent sender
      * @param receiver the agent receiver
      */
-    public GeneralEvent(AbstractAgent sender, AbstractAgent receiver) {
+    public GeneralEvent(UUID sender, UUID receiver) {
         super(sender, receiver, null);
     }
 
