@@ -1,4 +1,4 @@
-package sima.core.environment;
+package sima.core.environment.event;
 
 import sima.core.protocol.ProtocolIdentificator;
 

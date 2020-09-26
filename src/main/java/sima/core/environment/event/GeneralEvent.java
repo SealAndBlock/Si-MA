@@ -1,6 +1,4 @@
-package sima.core.environment;
-
-import sima.core.agent.AbstractAgent;
+package sima.core.environment.event;
 
 import java.util.UUID;
 
