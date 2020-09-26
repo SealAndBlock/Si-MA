@@ -2,6 +2,7 @@ package sima.core.environment;
 
 import sima.core.agent.ProtocolIdentificator;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 /**
@@ -13,13 +14,16 @@ public class Message extends Event {
 
     /**
      * The content of the message.
+     * <p>
+     * Because a {@link Message} is an {@link Event} and that an {@link Event} is {@link Serializable}, the content of
+     * the message must be {@link Serializable}.
      */
-    private final Object content;
+    private final Serializable content;
 
     // Constructors.
 
     public Message(UUID sender, UUID receiver, ProtocolIdentificator protocolTargeted,
-                   Object content) {
+                   Serializable content) {
         super(sender, receiver, protocolTargeted);
 
         this.content = content;
@@ -27,7 +31,7 @@ public class Message extends Event {
 
     // Getters and Setters.
 
-    public Object getContent() {
+    public Serializable getContent() {
         return content;
     }
 }

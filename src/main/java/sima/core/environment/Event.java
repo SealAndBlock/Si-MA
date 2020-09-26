@@ -4,6 +4,7 @@ import sima.core.agent.AbstractAgent;
 import sima.core.agent.Protocol;
 import sima.core.agent.ProtocolIdentificator;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 /**
@@ -14,8 +15,11 @@ import java.util.UUID;
  * <p>
  * In plus, the event as a protocol in attribute which is the protocol which will process the event with the method
  * {@link Protocol#processEvent(Event)}.
+ * <p>
+ * An Event is {@link Serializable}. Therefore all sub classes must have attribute {@link Serializable} attributes or
+ * using the key word <i>transient</i>.
  */
-public class Event {
+public class Event implements Serializable {
 
     // Variables.
 
@@ -47,9 +51,8 @@ public class Event {
      * @param sender           the agent sender
      * @param receiver         the agent receiver
      * @param protocolTargeted the protocol targeted
-     * @see Protocol#processEvent(Event)
-     *
      * @throws NullPointerException if the agent receiver is null
+     * @see Protocol#processEvent(Event)
      */
     public Event(UUID sender, UUID receiver, ProtocolIdentificator protocolTargeted) {
         this.sender = sender;
