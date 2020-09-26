@@ -2,6 +2,7 @@ package sima.core.environment;
 
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.Protocol;
+import sima.core.agent.ProtocolIdentificator;
 
 import java.util.UUID;
 
@@ -35,7 +36,7 @@ public class Event {
      *
      * @see GeneralEvent
      */
-    private final Class<? extends Protocol> protocolTargeted;
+    private final ProtocolIdentificator protocolTargeted;
 
     // Constructors.
 
@@ -50,7 +51,7 @@ public class Event {
      *
      * @throws NullPointerException if the agent receiver is null
      */
-    public Event(UUID sender, UUID receiver, Class<? extends Protocol> protocolTargeted) {
+    public Event(UUID sender, UUID receiver, ProtocolIdentificator protocolTargeted) {
         this.sender = sender;
 
         this.receiver = receiver;
@@ -81,7 +82,7 @@ public class Event {
         return receiver;
     }
 
-    public Class<? extends Protocol> getProtocolTargeted() {
+    public ProtocolIdentificator getProtocolTargeted() {
         return protocolTargeted;
     }
 }
