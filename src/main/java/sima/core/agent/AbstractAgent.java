@@ -83,7 +83,7 @@ public abstract class AbstractAgent {
     /**
      * Start the agent.
      * <p>
-     * When an agent is started, it calls the method {@link #onStart()}.
+     * When an agent is starting, the method {@link #onStart()} is called.
      *
      * @throws KilledAgentException         if the agent is killed
      * @throws AlreadyStartedAgentException if the agent have already been started
