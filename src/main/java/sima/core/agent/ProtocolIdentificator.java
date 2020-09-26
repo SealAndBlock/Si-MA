@@ -7,6 +7,9 @@ import java.util.Objects;
  * A protocol identificator allows the identification of a protocol in an agent. If an agent <i>A</i> has the same
  * protocol <i>P</i> than the agent <i>B</i>, then a protocol identificator <i>PI</i> for the protocol <i>P</i> must
  * allow the identification of the protocol <i>P</i> in the agent <i>A</i> and the agent <i>B</i>.
+ * <p>
+ * This object is {@link Serializable}, therefore all its attributes must be {@link Serializable} are used the key word
+ * <i>transient</i>.
  */
 public class ProtocolIdentificator implements Serializable {
 
