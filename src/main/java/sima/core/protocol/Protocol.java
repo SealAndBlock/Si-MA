@@ -11,8 +11,8 @@ import java.util.Optional;
  * {@link ProtocolManipulator}, the agent via the {@link Behavior} can change the behavior of the protocol by changing
  * the current {@link #protocolManipulator}.
  * <p>
- * A Protocol must have a constructor with this form: Protocol(String protocolTag). In that way the java reflexivity
- * can be use and we can instantiate your protocol.
+ * All inherited class of {@link Protocol} must have this constructor <strong>Protocol(String protocolTag,
+ * String[] args)</strong>. In that way, it allows to use the java reflexivity.
  */
 public abstract class Protocol {
 
@@ -46,22 +46,35 @@ public abstract class Protocol {
      * Create a protocol with a tag and a protocol manipulator which not be null. Throws a {@link NullPointerException}
      * if the protocol tag or the protocol manipulator is null.
      * <p>
-     * This constructor must always use by inherited class. However, a protocol must always have the same form of
-     * constructor: Protocol(Sting protocolTag).
+     * This constructor must always call by inherited class in their constructor. An inherited class of
+     * {@link Protocol} must always have the same form of constructor: <strong>Protocol(Sting protocolTag, String[]
+     *
+     * args)</strong>.
      *
      * @param protocolTag         the tag of the protocol (must be not null)
      * @param protocolManipulator the protocol manipulator (must be not null)
      * @throws NullPointerException if the protocol tag and/or the protocol manipulator is null
      */
-    protected Protocol(String protocolTag, ProtocolManipulator protocolManipulator) {
+    protected Protocol(String protocolTag, ProtocolManipulator protocolManipulator, String[] args) {
         this.protocolTag = protocolTag;
         if (this.protocolTag == null)
             throw new NullPointerException();
 
         this.protocolManipulator = Optional.of(protocolManipulator);
+
+        if (args != null)
+            this.processArgument(args);
     }
 
     // Methods.
+
+    /**
+     * Method called in the constructors. It is this method which make all treatment associated to all arguments
+     * received.
+     *
+     * @param args arguments array
+     */
+    protected abstract void processArgument(String[] args);
 
     /**
      * Returns the {@link ProtocolIdentificator} of the protocol. The protocol identificator must allow an agent to
