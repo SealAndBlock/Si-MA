@@ -68,7 +68,7 @@ public abstract class AbstractAgent {
      *
      * @param agentName the agent name
      */
-    public AbstractAgent(String agentName) {
+    protected AbstractAgent(String agentName) {
         this.uuid = UUID.randomUUID();
 
         this.agentName = agentName;
