@@ -10,6 +10,9 @@ import java.util.Optional;
  * This class represents a protocol. A protocol is an algorithm that an {@link AbstractAgent} can use and thanks to the
  * {@link ProtocolManipulator}, the agent via the {@link Behavior} can change the behavior of the protocol by changing
  * the current {@link #protocolManipulator}.
+ * <p>
+ * A Protocol must have a constructor with this form: Protocol(String protocolTag). In that way the java reflexivity
+ * can be use and we can instantiate your protocol.
  */
 public abstract class Protocol {
 
@@ -42,6 +45,9 @@ public abstract class Protocol {
     /**
      * Create a protocol with a tag and a protocol manipulator which not be null. Throws a {@link NullPointerException}
      * if the protocol tag or the protocol manipulator is null.
+     * <p>
+     * This constructor must always use by inherited class. However, a protocol must always have the same form of
+     * constructor: Protocol(Sting protocolTag).
      *
      * @param protocolTag         the tag of the protocol (must be not null)
      * @param protocolManipulator the protocol manipulator (must be not null)
