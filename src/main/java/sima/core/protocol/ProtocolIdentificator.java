@@ -20,17 +20,25 @@ public class ProtocolIdentificator implements Serializable {
      */
     private final String protocolName;
 
+    /**
+     * The tag of the protocol.
+     */
+    private final String protocolTag;
+
     // Constructors.
 
     /**
      * Constructs a {@link ProtocolIdentificator} with a protocol name.
      *
      * @param protocolName the protocol name (must be not null)
-     * @throws NullPointerException if the protocolName is null
+     * @param protocolTag  the protocol tag (must be not null)
+     * @throws NullPointerException if the protocolName and/or the protocol tag is null
      */
-    public ProtocolIdentificator(String protocolName) {
+    public ProtocolIdentificator(String protocolName, String protocolTag) {
         this.protocolName = protocolName;
-        if (this.protocolName == null)
+        this.protocolTag = protocolTag;
+
+        if (this.protocolName == null || this.protocolTag == null)
             throw new NullPointerException();
     }
 
@@ -41,17 +49,22 @@ public class ProtocolIdentificator implements Serializable {
         if (this == o) return true;
         if (!(o instanceof ProtocolIdentificator)) return false;
         ProtocolIdentificator that = (ProtocolIdentificator) o;
-        return protocolName.equals(that.protocolName);
+        return Objects.equals(protocolName, that.protocolName) &&
+                Objects.equals(protocolTag, that.protocolTag);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(protocolName);
+        return Objects.hash(protocolName, protocolTag);
     }
 
     // Getters and Setters.
 
     public String getProtocolName() {
         return protocolName;
+    }
+
+    public String getProtocolTag() {
+        return protocolTag;
     }
 }
