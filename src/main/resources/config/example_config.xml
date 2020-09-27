@@ -1,0 +1,30 @@
+<?xml version = "1.0"?>
+<sim>
+    <protocols>
+        <!--Same class of protocol but not the same tag-->
+        <protocol tag="BitcoinProtocol">
+            <class>sima.core.protocol.Blockchain</class>
+        </protocol>
+        <protocol tag="EtherumProtocol">
+            <class>sima.core.protocol.Blockchain</class>
+        </protocol>
+    </protocols>
+
+    <behaviors>
+        <behavior tag="GreedyBlockchain">
+            <class>sima.core.behavior.GreedyBlockchain</class>
+        </behavior>
+    </behaviors>
+
+    <agents>
+        <agent name="Agent1">
+            <protocols>
+                <protocol>BitcoinProtocol</protocol>
+                <protocol>EtherumProtocol</protocol>
+            </protocols>
+            <behaviors>
+                <behavior>GreedyBlockchain</behavior>
+            </behaviors>
+        </agent>
+    </agents>
+</sim>
