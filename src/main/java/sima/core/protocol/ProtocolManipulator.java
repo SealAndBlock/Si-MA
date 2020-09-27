@@ -5,11 +5,27 @@ package sima.core.protocol;
  * way, it is possible to change the behavior of a protocol only by changing is current protocol manipulator and not by
  * reimplement all the protocol.
  */
-public interface ProtocolManipulator {
+public abstract class ProtocolManipulator {
 
-    /**
-     * @param manipulatedProtocol the manipulated protocol
-     */
-    void setManipulatedProtocol(Protocol manipulatedProtocol);
+    // Variables.
 
+    private Protocol manipulatedProtocol;
+
+    // Constructors.
+
+    public ProtocolManipulator(Protocol manipulatedProtocol) {
+        this.manipulatedProtocol = manipulatedProtocol;
+    }
+
+    // Methods.
+
+    // Getters and Setters.
+
+    public Protocol getManipulatedProtocol() {
+        return manipulatedProtocol;
+    }
+
+    public void setManipulatedProtocol(Protocol manipulatedProtocol) {
+        this.manipulatedProtocol = manipulatedProtocol;
+    }
 }
