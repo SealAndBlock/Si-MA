@@ -8,8 +8,8 @@ import java.util.Optional;
 /**
  * Represents the behavior that an {@link AbstractAgent} can have.
  * <p>
- * All sub classes of {@link Behavior} must have this constructor with only one argument which is an
- * {@link AbstractAgent}.
+ * All inherited classes of {@link Behavior} must have the same constructor {@link #Behavior(AbstractAgent, String[])}.
+ * In that way, it allow the use of java reflexivity.
  */
 public abstract class Behavior {
 
@@ -28,25 +28,37 @@ public abstract class Behavior {
     // Constructors.
 
     /**
-     * Initiate the behavior with the instance of the agent which will play it. Verifies if the specified agent can play
-     * the behavior, if it is not the case, throws a {@link BehaviorCannotBePlayedByAgentException}.
+     * Initiate the behavior with the instance of the agent which will play it and an array of arguments. Verifies if
+     * the specified agent can play the behavior, if it is not the case, throws a
+     * {@link BehaviorCannotBePlayedByAgentException}.
      * <p>
-     * All sub classes of {@link Behavior} must have this constructor with only one argument which is an
-     * {@link AbstractAgent}.
+     * All inherited classes of {@link Behavior} must have this constructor with sames arguments of this constructor.
      *
      * @param agent the agent which play the behavior
+     * @param args  arguments array
      * @throws NullPointerException                   if the agent is null
      * @throws BehaviorCannotBePlayedByAgentException if the behavior cannot be played by the agent
      */
-    public Behavior(AbstractAgent agent) throws BehaviorCannotBePlayedByAgentException {
+    public Behavior(AbstractAgent agent, String[] args) throws BehaviorCannotBePlayedByAgentException {
         this.agent = Optional.of(agent);
 
         if (!this.canBePlayedBy(this.agent.get()))
             throw new BehaviorCannotBePlayedByAgentException("The agent : " + this.agent.get() + " cannot play the " +
                     "behavior " + this.getClass().getName());
+
+        if (args != null)
+            this.processArgument(args);
     }
 
     // Methods.
+
+    /**
+     * Method called in the constructors. It is this method which make all treatment associated to all arguments
+     * received.
+     *
+     * @param args arguments array
+     */
+    protected abstract void processArgument(String[] args);
 
     /**
      * Verify if the agent can play the behavior or not.
