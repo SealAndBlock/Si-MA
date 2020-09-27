@@ -28,6 +28,11 @@ public abstract class Protocol {
     // Variables.
 
     /**
+     * A tag for the protocol to allow its identification among all other protocols which can have the same class.
+     */
+    private final String protocolTag;
+
+    /**
      * The protocol manipulator. Must be not null.
      */
     private Optional<ProtocolManipulator> protocolManipulator;
@@ -35,13 +40,18 @@ public abstract class Protocol {
     // Constructors.
 
     /**
-     * Create a protocol with a protocol manipulator which not be null. Throws a {@link NullPointerException} if the
-     * protocol manipulator is null.
+     * Create a protocol with a tag and a protocol manipulator which not be null. Throws a {@link NullPointerException}
+     * if the protocol tag or the protocol manipulator is null.
      *
+     * @param protocolTag         the tag of the protocol (must be not null)
      * @param protocolManipulator the protocol manipulator (must be not null)
-     * @throws NullPointerException if the protocol manipulator is null.
+     * @throws NullPointerException if the protocol tag and/or the protocol manipulator is null
      */
-    protected Protocol(ProtocolManipulator protocolManipulator) {
+    protected Protocol(String protocolTag, ProtocolManipulator protocolManipulator) {
+        this.protocolTag = protocolTag;
+        if (this.protocolTag == null)
+            throw new NullPointerException();
+
         this.protocolManipulator = Optional.of(protocolManipulator);
     }
 
@@ -63,7 +73,7 @@ public abstract class Protocol {
     public ProtocolIdentificator getIdentificator() {
         synchronized (PROTOCOL_IDENTIFICATOR_LOCK) {
             if (PROTOCOL_IDENTIFICATOR == null) {
-                PROTOCOL_IDENTIFICATOR = new ProtocolIdentificator(this.getClass().getName());
+                PROTOCOL_IDENTIFICATOR = new ProtocolIdentificator(this.getClass().getName(), this.protocolTag);
             }
 
             return PROTOCOL_IDENTIFICATOR;
@@ -84,6 +94,10 @@ public abstract class Protocol {
     public abstract void resetDefaultProtocolManipulator();
 
     // Getters and Setters.
+
+    public String getProtocolTag() {
+        return protocolTag;
+    }
 
     public ProtocolManipulator getProtocolManipulator() {
         return protocolManipulator.get();
