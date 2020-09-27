@@ -7,12 +7,15 @@
         </protocol>
         <protocol tag="EtherumProtocol">
             <class>sima.core.protocol.Blockchain</class>
+            <arg>Argument1</arg>
         </protocol>
     </protocols>
 
     <behaviors>
         <behavior tag="GreedyBlockchain">
             <class>sima.core.behavior.GreedyBlockchain</class>
+            <arg>Argument1</arg>
+            <arg>Argument2</arg>
         </behavior>
     </behaviors>
 
