@@ -48,18 +48,18 @@ public class Event implements Serializable {
      * Constructs an Event with the agent which send the event, the agent which will received the event, and the class
      * of the protocol which must process the event. Only the receiver must be not null.
      *
-     * @param sender           the agent sender
+     * @param sender           the agent sender (cannot be null)
      * @param receiver         the agent receiver
      * @param protocolTargeted the protocol targeted
-     * @throws NullPointerException if the agent receiver is null
+     * @throws NullPointerException if the sender is null
      * @see Protocol#processEvent(Event)
      */
     public Event(UUID sender, UUID receiver, ProtocolIdentificator protocolTargeted) {
         this.sender = sender;
+        if (this.sender == null)
+            throw new NullPointerException("The sender cannot be null");
 
         this.receiver = receiver;
-        if (this.receiver == null)
-            throw new NullPointerException("The agent receiver cannot be null");
 
         this.protocolTargeted = protocolTargeted;
     }

@@ -12,7 +12,7 @@ public class GeneralEvent extends Event {
     /**
      * Constructs a {@link GeneralEvent}. A GeneralEvent is an {@link Event} with no protocol targeted.
      *
-     * @param sender   the agent sender
+     * @param sender   the agent sender (cannot be null)
      * @param receiver the agent receiver
      */
     public GeneralEvent(UUID sender, UUID receiver) {

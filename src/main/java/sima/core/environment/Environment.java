@@ -129,7 +129,18 @@ public abstract class Environment implements EventCatcher {
      *
      * @param message the message to send
      */
-    public abstract void sendMessage(Message message);
+    public void sendMessage(Message message) {
+        if (message != null) {
+            if (message.getReceiver() != null) {
+                // Message destined for one identified agent.
+                // TODO
+            } else {
+                // Broadcast Message.
+                // TODO
+            }
+        } else
+            throw new NullPointerException("The sent message is null");
+    }
 
     /**
      * Triggers a {@link GeneralEvent} in the environment.
