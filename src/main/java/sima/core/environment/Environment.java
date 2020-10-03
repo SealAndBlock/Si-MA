@@ -50,7 +50,23 @@ public abstract class Environment {
      * @param evolvingAgent the agent which want evolve in the environment.
      * @return true if the environment accept the agent, else false.
      */
-    public abstract boolean acceptAgent(AbstractAgent evolvingAgent);
+    public boolean acceptAgent(AbstractAgent evolvingAgent) {
+        if (evolvingAgent != null && this.canBeAccepted(evolvingAgent)) {
+            return this.setAgent.add(evolvingAgent);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Verifies if the agent can be accepted and evolving in the environment. This method is called in the method
+     * {@link #acceptAgent(AbstractAgent)}.
+     *
+     * @param abstractAgent the agent to verify
+     * @return true if the agent can be accepted in the environment, else false.
+     * @see #acceptAgent(AbstractAgent)
+     */
+    protected abstract boolean canBeAccepted(AbstractAgent abstractAgent);
 
     /**
      * Make that the agent is leaving the environment.
