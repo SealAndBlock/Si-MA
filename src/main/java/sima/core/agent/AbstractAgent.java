@@ -72,6 +72,8 @@ public abstract class AbstractAgent {
         this.uuid = UUID.randomUUID();
 
         this.agentName = agentName;
+        if (this.agentName == null)
+            throw new NullPointerException("The agent name cannot be null.");
 
         this.mapEnvironments = new HashMap<>();
         this.mapBehaviors = new HashMap<>();
@@ -79,6 +81,32 @@ public abstract class AbstractAgent {
     }
 
     // Methods.
+
+    /**
+     * Only use the attributes {@link #uuid} and {@link #agentName} to compare two agents.
+     *
+     * @param o the object to compare to the agent
+     * @return true if the object is equal to the agent.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AbstractAgent)) return false;
+        AbstractAgent that = (AbstractAgent) o;
+        return uuid.equals(that.uuid) &&
+                agentName.equals(that.agentName);
+    }
+
+    /**
+     * Compute the hash code of the agent. Use only the attribute {@link #uuid} and {@link #agentName} to compute the
+     * hash code.
+     *
+     * @return the hash code of the agent.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid, agentName);
+    }
 
     /**
      * Start the agent.

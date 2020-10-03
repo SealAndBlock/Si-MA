@@ -49,26 +49,26 @@ public abstract class Environment {
      * @param evolvingAgent the agent which want evolve in the environment.
      * @return true if the environment accept the agent, else false.
      */
-    abstract boolean acceptAgent(AbstractAgent evolvingAgent);
+    public abstract boolean acceptAgent(AbstractAgent evolvingAgent);
 
     /**
      * Make that the agent is leaving the environment.
      *
      * @param leavingAgent the leaving agent
      */
-    abstract void leave(AbstractAgent leavingAgent);
+    public abstract void leave(AbstractAgent leavingAgent);
 
     /**
      * @param agent the agent to verify
      * @return true if the agent is evolving in the environment, else false.
      */
-    abstract boolean isEvolving(AbstractAgent agent);
+    public abstract boolean isEvolving(AbstractAgent agent);
 
     /**
      * @return the list of all {@link AgentInfo} of all agents evolving in the environment, if there is no agent,
      * returns an empty list but never null.
      */
-    abstract List<AgentInfo> getListOfEvolvingAgent();
+    public abstract List<AgentInfo> getListOfEvolvingAgent();
 
     /**
      * Send the message to the {@link Message#getReceiver()}.
@@ -80,7 +80,7 @@ public abstract class Environment {
      *
      * @param message the message to send
      */
-    abstract void sendMessage(Message message);
+    public abstract void sendMessage(Message message);
 
     /**
      * Triggers a {@link GeneralEvent} in the environment.
@@ -88,7 +88,7 @@ public abstract class Environment {
      * @param event the general event to trigger
      * @see GeneralEvent
      */
-    abstract void triggerGeneralEvent(GeneralEvent event);
+    public abstract void triggerGeneralEvent(GeneralEvent event);
 
     // Getters ans Setters.
 
