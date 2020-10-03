@@ -2,6 +2,7 @@ package sima.core.environment;
 
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentInfo;
+import sima.core.environment.event.Event;
 import sima.core.environment.event.EventCatcher;
 import sima.core.environment.event.GeneralEvent;
 import sima.core.environment.event.Message;
@@ -155,14 +156,69 @@ public abstract class Environment implements EventCatcher {
 
                 if (receiver != null) {
                     // Message destined for one identified agent.
-                    // TODO
+                    this.sendAndScheduleMessage(receiver, message);
                 } else {
                     // Broadcast Message.
-                    // TODO
+                    this.evolvingAgents.forEach(agent -> {
+                        this.sendAndScheduleMessage(agent, message);
+                    });
                 }
             }
         } else
             throw new NullPointerException("The sent message is null");
+    }
+
+    /**
+     * Verifies if the message can be sent or not. If the message is null, returns false.
+     * <p>
+     * In this method, the {@link Environment} verifies if the message can be sent or not. It is in this method that for
+     * example it can be simulated that two agents are not within range to send messages to each other. It can be also
+     * simulate that randomly, messages are not sent, etc.
+     * <p>
+     * This method is called in the method {@link #sendMessage(Message)} when all verifications have been done and that
+     * the sender and the receiver have been correctly identified.
+     *
+     * @param message the message to send
+     * @return true if the message can be sent, else false.
+     * @see #sendMessage(Message)
+     * @see #sendAndScheduleMessage(AbstractAgent, Message)
+     */
+    protected abstract boolean messageCanBeSent(Message message);
+
+    /**
+     * This method schedules the reception of the message for the specified agent.
+     * <p>
+     * It is in this methods where it is specified at what time the message is received by the specified agent, in
+     * other word, this method schedule the call of the method {@link AbstractAgent#processEvent(Event)} of the agent.
+     * <p>
+     * This method is called in the method {@link #sendMessage(Message)} after that the method
+     * {@link #messageCanBeSent(Message)} has returned true.
+     *
+     * @param receiver the agent receiver
+     * @param message  the message to receive
+     * @see #sendMessage(Message)
+     * @see #messageCanBeSent(Message)
+     * @see #sendAndScheduleMessage(AbstractAgent, Message)
+     */
+    protected abstract void scheduleReceivingMessageToOneAgent(AbstractAgent receiver, Message message);
+
+    /**
+     * This method verifies if the message can be sent with the method {@link #messageCanBeSent(Message)} and if the
+     * message can be sent, then calls the method {@link #scheduleReceivingMessageToOneAgent(AbstractAgent, Message)}
+     * to schedule the reception of the message by the receiver agent.
+     * <p>
+     * This method is called in the method {@link #sendMessage(Message)}.
+     *
+     * @param receiver the receiver agent
+     * @param message  the message to receive
+     * @see #sendMessage(Message)
+     * @see #messageCanBeSent(Message)
+     * @see #scheduleReceivingMessageToOneAgent(AbstractAgent, Message) 
+     */
+    private void sendAndScheduleMessage(AbstractAgent receiver, Message message) {
+        if (this.messageCanBeSent(message)) {
+            this.scheduleReceivingMessageToOneAgent(receiver, message);
+        }
     }
 
     /**

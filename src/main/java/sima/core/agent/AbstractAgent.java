@@ -6,6 +6,7 @@ import sima.core.agent.exception.KilledAgentException;
 import sima.core.behavior.Behavior;
 import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
+import sima.core.environment.event.EventCatcher;
 import sima.core.environment.event.GeneralEvent;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentificator;
@@ -14,7 +15,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-public abstract class AbstractAgent {
+public abstract class AbstractAgent implements EventCatcher {
 
     // Variables.
 
@@ -368,7 +369,8 @@ public abstract class AbstractAgent {
      * @see GeneralEvent
      * @see Event#isGeneralEvent()
      */
-    public void receivedEvent(Event event) {
+    @Override
+    public void processEvent(Event event) {
         if (event.isGeneralEvent()) {
             Protocol protocolTarget = this.getProtocol(event.getProtocolTargeted());
             if (protocolTarget != null) {
