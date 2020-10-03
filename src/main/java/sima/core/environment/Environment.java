@@ -60,10 +60,17 @@ public abstract class Environment {
     public abstract void leave(AbstractAgent leavingAgent);
 
     /**
+     * Verifies if the agent is evolving in the environment. An agent is evolving in the environment if it is in the
+     * list of evolving agent, therefore it possible to verify if an agent is evolving in the environment by calling
+     * the method {@link #getListOfEvolvingAgent()} and see if the agent is contained is the returned list.
+     *
      * @param agent the agent to verify
      * @return true if the agent is evolving in the environment, else false.
+     * @see #getListOfEvolvingAgent()
      */
-    public abstract boolean isEvolving(AbstractAgent agent);
+    public boolean isEvolving(AbstractAgent agent) {
+        return this.setAgent.contains(agent);
+    }
 
     /**
      * @return the list of all {@link AgentInfo} of all agents evolving in the environment, if there is no agent,
