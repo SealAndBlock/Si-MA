@@ -2,6 +2,7 @@ package sima.core.environment;
 
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentInfo;
+import sima.core.environment.event.EventCatcher;
 import sima.core.environment.event.GeneralEvent;
 import sima.core.environment.event.Message;
 
@@ -21,7 +22,7 @@ import java.util.Set;
  *
  * @author guilr
  */
-public abstract class Environment {
+public abstract class Environment implements EventCatcher {
 
     // Variables.
 
