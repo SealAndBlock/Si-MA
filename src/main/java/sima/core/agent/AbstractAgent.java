@@ -6,6 +6,7 @@ import sima.core.agent.exception.KilledAgentException;
 import sima.core.behavior.Behavior;
 import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
+import sima.core.environment.event.EventCatcher;
 import sima.core.environment.event.GeneralEvent;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentificator;
@@ -14,7 +15,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-public abstract class AbstractAgent {
+public abstract class AbstractAgent implements EventCatcher {
 
     // Variables.
 
@@ -31,7 +32,7 @@ public abstract class AbstractAgent {
     /**
      * The several environments where the agent evolves.
      * <p>
-     * Associate the environment name get with the method {@link Environment#getName()} and the instance of the
+     * Associate the environment name get with the method {@link Environment#getEnvironmentName()} and the instance of the
      * environment.
      */
     private final Map<String, Environment> mapEnvironments;
@@ -72,6 +73,8 @@ public abstract class AbstractAgent {
         this.uuid = UUID.randomUUID();
 
         this.agentName = agentName;
+        if (this.agentName == null)
+            throw new NullPointerException("The agent name cannot be null.");
 
         this.mapEnvironments = new HashMap<>();
         this.mapBehaviors = new HashMap<>();
@@ -79,6 +82,32 @@ public abstract class AbstractAgent {
     }
 
     // Methods.
+
+    /**
+     * Only use the attributes {@link #uuid} and {@link #agentName} to compare two agents.
+     *
+     * @param o the object to compare to the agent
+     * @return true if the object is equal to the agent.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AbstractAgent)) return false;
+        AbstractAgent that = (AbstractAgent) o;
+        return uuid.equals(that.uuid) &&
+                agentName.equals(that.agentName);
+    }
+
+    /**
+     * Compute the hash code of the agent. Use only the attribute {@link #uuid} and {@link #agentName} to compute the
+     * hash code.
+     *
+     * @return the hash code of the agent.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid, agentName);
+    }
 
     /**
      * Start the agent.
@@ -148,9 +177,9 @@ public abstract class AbstractAgent {
      * @return true if the agent has joined the environment, else false.
      */
     public boolean joinEnvironment(Environment environment) {
-        if (this.mapEnvironments.get(environment.getName()) == null) {
+        if (this.mapEnvironments.get(environment.getEnvironmentName()) == null) {
             if (environment.acceptAgent(this)) {
-                this.mapEnvironments.put(environment.getName(), environment);
+                this.mapEnvironments.put(environment.getEnvironmentName(), environment);
                 return true;
             } else
                 return false;
@@ -187,7 +216,7 @@ public abstract class AbstractAgent {
      */
     public void leaveEnvironment(Environment environment) {
         environment.leave(this);
-        this.mapEnvironments.remove(environment.getName());
+        this.mapEnvironments.remove(environment.getEnvironmentName());
     }
 
     /**
@@ -340,7 +369,8 @@ public abstract class AbstractAgent {
      * @see GeneralEvent
      * @see Event#isGeneralEvent()
      */
-    public void receivedEvent(Event event) {
+    @Override
+    public void processEvent(Event event) {
         if (event.isGeneralEvent()) {
             Protocol protocolTarget = this.getProtocol(event.getProtocolTargeted());
             if (protocolTarget != null) {

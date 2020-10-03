@@ -2,7 +2,7 @@ package sima.core.protocol;
 
 import sima.core.agent.AbstractAgent;
 import sima.core.behavior.Behavior;
-import sima.core.environment.event.Event;
+import sima.core.environment.event.EventCatcher;
 
 import java.util.Optional;
 
@@ -14,7 +14,7 @@ import java.util.Optional;
  * All inherited class of {@link Protocol} must have this constructor <strong>Protocol(String protocolTag,
  * String[] args)</strong>. In that way, it allows to use the java reflexivity.
  */
-public abstract class Protocol {
+public abstract class Protocol implements EventCatcher {
 
     // Singletons.
 
@@ -48,7 +48,7 @@ public abstract class Protocol {
      * <p>
      * This constructor must always call by inherited class in their constructor. An inherited class of
      * {@link Protocol} must always have the same form of constructor: <strong>Protocol(Sting protocolTag, String[]
-     *
+     * <p>
      * args)</strong>.
      *
      * @param protocolTag         the tag of the protocol (must be not null)
@@ -98,13 +98,6 @@ public abstract class Protocol {
             return PROTOCOL_IDENTIFICATOR;
         }
     }
-
-    /**
-     * Call when an event occurs and that the {@link Event#getProtocolTargeted()} is the protocol.
-     *
-     * @param event the occurred event
-     */
-    public abstract void processEvent(Event event);
 
     /**
      * Reset the default manipulator of the protocol. In that way, the property {@link #protocolManipulator} is never
