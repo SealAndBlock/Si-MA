@@ -16,9 +16,24 @@ import java.util.*;
  * layer of the communication. An environment determine if two agents can communicate or not.
  * <p>
  * For example, you can create an environment where agent are mobil and move. Each agent has a maximum scope and can
- * communicate only with agent which are in this scope. Therefore, in method {@link #sendEvent(Event)}  you can
- * verify if the {@link Message#getSender()}} and the {@link Message#getReceiver()} are in the range to send and
- * receive a message.
+ * communicate only with agent which are in this scope.
+ * <p>
+ * With the method {@link #sendEvent(Event)}, it is possible to send two types of {@link Event}:
+ * <blockquote><pre>
+ *     - {@link Message}
+ *     - {@link GeneralEvent}
+ * </pre></blockquote>
+ * <p>
+ * For both types of event it is possible to determine the condition of if an event can be sent or not and schedule
+ * when the receiver agent(s) received the event. In that way it is easy to simulate all type of environment and
+ * network.
+ * <p>
+ * You can for example simulate a mobile environment where agents move and have communication range, is that way, an
+ * agent can send a message to an other agent only if the second agent is at range. This feature can be implemented in
+ * the method {@link #messageCanBeSent(Message)}.
+ * <p>
+ * After that, if the send it message is possible, therefore it is possible to simulate the time transfer with the
+ * method {@link #scheduleMessageReceptionToOneAgent(AbstractAgent, Message)}.
  *
  * @author guilr
  */
@@ -241,7 +256,7 @@ public abstract class Environment implements EventCatcher {
      * message can be sent, then calls the method {@link #scheduleMessageReceptionToOneAgent(AbstractAgent, Message)}
      * to schedule the reception of the message by the receiver agent.
      * <p>
-     * This method is called in the method {@link #sendEvent(Event)}.
+     * This method is called in the method {@link #sendEvent(Event)} if the event is an instance of a {@link Message}
      *
      * @param receiver the receiver agent
      * @param message  the message to receive
@@ -294,7 +309,8 @@ public abstract class Environment implements EventCatcher {
      * {@link #scheduleGeneralEventReceptionToOneAgent(AbstractAgent, GeneralEvent)} to schedule the reception of the
      * event by the receiver agent.
      * <p>
-     * This method is called in the method {@link #sendEvent(Event)}.
+     * This method is called in the method {@link #sendEvent(Event)} if the event is an instance of a
+     * {@link GeneralEvent}
      *
      * @param receiver the receiver agent
      * @param event    the event to receive
