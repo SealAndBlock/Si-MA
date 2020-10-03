@@ -56,7 +56,7 @@ public abstract class Environment implements EventCatcher {
      * @return true if the environment accept the agent, else false.
      */
     public boolean acceptAgent(AbstractAgent evolvingAgent) {
-        if (evolvingAgent != null && this.canBeAccepted(evolvingAgent)) {
+        if (evolvingAgent != null && this.agentCanBeAccepted(evolvingAgent)) {
             return this.evolvingAgents.add(evolvingAgent);
         } else {
             return false;
@@ -71,7 +71,7 @@ public abstract class Environment implements EventCatcher {
      * @return true if the agent can be accepted in the environment, else false.
      * @see #acceptAgent(AbstractAgent)
      */
-    protected abstract boolean canBeAccepted(AbstractAgent abstractAgent);
+    protected abstract boolean agentCanBeAccepted(AbstractAgent abstractAgent);
 
     /**
      * Make that the agent is leaving the environment. If the agent is not evolving in the environment, nothing is done.
@@ -159,9 +159,7 @@ public abstract class Environment implements EventCatcher {
                     this.sendAndScheduleMessage(receiver, message);
                 } else {
                     // Broadcast Message.
-                    this.evolvingAgents.forEach(agent -> {
-                        this.sendAndScheduleMessage(agent, message);
-                    });
+                    this.evolvingAgents.forEach(agent -> this.sendAndScheduleMessage(agent, message));
                 }
             }
         } else
@@ -200,11 +198,11 @@ public abstract class Environment implements EventCatcher {
      * @see #messageCanBeSent(Message)
      * @see #sendAndScheduleMessage(AbstractAgent, Message)
      */
-    protected abstract void scheduleReceivingMessageToOneAgent(AbstractAgent receiver, Message message);
+    protected abstract void scheduleMessageReceptionToOneAgent(AbstractAgent receiver, Message message);
 
     /**
      * This method verifies if the message can be sent with the method {@link #messageCanBeSent(Message)} and if the
-     * message can be sent, then calls the method {@link #scheduleReceivingMessageToOneAgent(AbstractAgent, Message)}
+     * message can be sent, then calls the method {@link #scheduleMessageReceptionToOneAgent(AbstractAgent, Message)}
      * to schedule the reception of the message by the receiver agent.
      * <p>
      * This method is called in the method {@link #sendMessage(Message)}.
@@ -213,11 +211,11 @@ public abstract class Environment implements EventCatcher {
      * @param message  the message to receive
      * @see #sendMessage(Message)
      * @see #messageCanBeSent(Message)
-     * @see #scheduleReceivingMessageToOneAgent(AbstractAgent, Message) 
+     * @see #scheduleMessageReceptionToOneAgent(AbstractAgent, Message)
      */
     private void sendAndScheduleMessage(AbstractAgent receiver, Message message) {
         if (this.messageCanBeSent(message)) {
-            this.scheduleReceivingMessageToOneAgent(receiver, message);
+            this.scheduleMessageReceptionToOneAgent(receiver, message);
         }
     }
 
