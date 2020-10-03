@@ -144,7 +144,7 @@ public abstract class Environment implements EventCatcher {
             }
         }
 
-        throw new NotEvolvingAgentInEnvironmentException("No agent with the uuid " + agentID + " is evovling in the " +
+        throw new NotEvolvingAgentInEnvironmentException("No agent with the uuid " + agentID + " is evolving in the " +
                 "environment.");
     }
 
