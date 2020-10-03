@@ -19,7 +19,7 @@ import java.util.UUID;
  * An Event is {@link Serializable}. Therefore all sub classes must have attribute {@link Serializable} attributes or
  * using the key word <i>transient</i>.
  */
-public class Event implements Serializable {
+public abstract class Event implements Serializable {
 
     // Variables.
 
