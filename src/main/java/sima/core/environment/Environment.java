@@ -6,6 +6,7 @@ import sima.core.environment.event.Event;
 import sima.core.environment.event.EventCatcher;
 import sima.core.environment.event.GeneralEvent;
 import sima.core.environment.event.Message;
+import sima.core.environment.exception.NotEvolvingAgentInEnvironmentException;
 
 import java.util.*;
 
@@ -146,21 +147,31 @@ public abstract class Environment implements EventCatcher {
      * implementation of this method.
      *
      * @param message the message to send
+     * @throws NotEvolvingAgentInEnvironmentException if the sender and/or the receiver agent are not evolving in the
+     *                                                environment
      */
-    public void sendMessage(Message message) {
+    public void sendMessage(Message message) throws NotEvolvingAgentInEnvironmentException {
         if (message != null) {
             UUID senderID = message.getSender();
 
-            if (this.isEvolving(this.getAgent(senderID))) {
+            AbstractAgent sender = this.getAgent(senderID);
+            if (this.isEvolving(sender)) {
                 AbstractAgent receiver = this.getAgent(message.getReceiver());
 
                 if (receiver != null) {
                     // Message destined for one identified agent.
-                    this.sendAndScheduleMessage(receiver, message);
+                    if (this.isEvolving(receiver))
+                        this.sendAndScheduleMessage(receiver, message);
+                    else
+                        throw new NotEvolvingAgentInEnvironmentException("The receiver agent " + sender + " is not " +
+                                "evolving in the environment " + this.getEnvironmentName());
                 } else {
                     // Broadcast Message.
                     this.evolvingAgents.forEach(agent -> this.sendAndScheduleMessage(agent, message));
                 }
+            } else {
+                throw new NotEvolvingAgentInEnvironmentException("The sender agent " + sender + " is not evolving in " +
+                        "the environment " + this.getEnvironmentName());
             }
         } else
             throw new NullPointerException("The sent message is null");
