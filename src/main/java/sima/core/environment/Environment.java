@@ -149,30 +149,29 @@ public abstract class Environment implements EventCatcher {
      * @param message the message to send
      * @throws NotEvolvingAgentInEnvironmentException if the sender and/or the receiver agent are not evolving in the
      *                                                environment
+     * @throws NullPointerException                   if the message is null
      */
     public void sendMessage(Message message) throws NotEvolvingAgentInEnvironmentException {
         if (message != null) {
             UUID senderID = message.getSender();
-
             AbstractAgent sender = this.getAgent(senderID);
+
             if (this.isEvolving(sender)) {
                 AbstractAgent receiver = this.getAgent(message.getReceiver());
 
                 if (receiver != null) {
                     // Message destined for one identified agent.
                     if (this.isEvolving(receiver))
-                        this.sendAndScheduleMessage(receiver, message);
+                        this.verifyAndScheduleMessage(receiver, message);
                     else
                         throw new NotEvolvingAgentInEnvironmentException("The receiver agent " + sender + " is not " +
                                 "evolving in the environment " + this.getEnvironmentName());
-                } else {
+                } else
                     // Broadcast Message.
-                    this.evolvingAgents.forEach(agent -> this.sendAndScheduleMessage(agent, message));
-                }
-            } else {
+                    this.evolvingAgents.forEach(agent -> this.verifyAndScheduleMessage(agent, message));
+            } else
                 throw new NotEvolvingAgentInEnvironmentException("The sender agent " + sender + " is not evolving in " +
                         "the environment " + this.getEnvironmentName());
-            }
         } else
             throw new NullPointerException("The sent message is null");
     }
@@ -190,7 +189,7 @@ public abstract class Environment implements EventCatcher {
      * @param message the message to send
      * @return true if the message can be sent, else false.
      * @see #sendMessage(Message)
-     * @see #sendAndScheduleMessage(AbstractAgent, Message)
+     * @see #verifyAndScheduleMessage(AbstractAgent, Message)
      */
     protected abstract boolean messageCanBeSent(Message message);
 
@@ -207,7 +206,7 @@ public abstract class Environment implements EventCatcher {
      * @param message  the message to receive
      * @see #sendMessage(Message)
      * @see #messageCanBeSent(Message)
-     * @see #sendAndScheduleMessage(AbstractAgent, Message)
+     * @see #verifyAndScheduleMessage(AbstractAgent, Message)
      */
     protected abstract void scheduleMessageReceptionToOneAgent(AbstractAgent receiver, Message message);
 
@@ -224,19 +223,81 @@ public abstract class Environment implements EventCatcher {
      * @see #messageCanBeSent(Message)
      * @see #scheduleMessageReceptionToOneAgent(AbstractAgent, Message)
      */
-    private void sendAndScheduleMessage(AbstractAgent receiver, Message message) {
-        if (this.messageCanBeSent(message)) {
+    private void verifyAndScheduleMessage(AbstractAgent receiver, Message message) {
+        if (this.messageCanBeSent(message))
             this.scheduleMessageReceptionToOneAgent(receiver, message);
-        }
     }
 
     /**
      * Triggers a {@link GeneralEvent} in the environment.
      *
      * @param event the general event to trigger
+     * @throws NullPointerException if the triggered event is null
      * @see GeneralEvent
      */
-    public abstract void triggerGeneralEvent(GeneralEvent event);
+    public void triggerGeneralEvent(GeneralEvent event) throws NotEvolvingAgentInEnvironmentException {
+        if (event != null) {
+            UUID senderID = event.getSender();
+            AbstractAgent sender = this.getAgent(senderID);
+
+            if (this.isEvolving(sender)) {
+                AbstractAgent receiver = this.getAgent(event.getReceiver());
+
+                if (receiver != null) {
+                    // Event destined for one identified agent.
+                    if (this.isEvolving(receiver)) {
+                        this.verifyAndScheduleGeneralEvent(receiver, event);
+                    } else
+                        throw new NotEvolvingAgentInEnvironmentException("The receiver agent " + sender + " is not " +
+                                "evolving in the environment " + this.getEnvironmentName());
+                } else
+                    // Broadcast event.
+                    this.evolvingAgents.forEach(agent -> this.verifyAndScheduleGeneralEvent(agent, event));
+            } else
+                throw new NotEvolvingAgentInEnvironmentException("The sender agent " + sender + " is not evolving in " +
+                        "the environment " + this.getEnvironmentName());
+        } else
+            throw new NullPointerException("The triggered event is null");
+    }
+
+    /**
+     * Verifies if the general event can be sent or not. If the general event is null, returns false.
+     * <p>
+     * In this method, the {@link Environment} verifies if the general event can be sent or not. It is in this method
+     * that it is possible or not to an agent to receive the event or not (for example, the agent is to far to received
+     * the event)
+     * <p>
+     * This method is called in the method {@link #triggerGeneralEvent(GeneralEvent)} (Message)} when all verifications
+     * have been done and that the sender and the receiver have been correctly identified.
+     *
+     * @param event the event to send
+     * @return true if the event can be sent, else false.
+     * @see #triggerGeneralEvent(GeneralEvent)
+     * @see #verifyAndScheduleGeneralEvent(AbstractAgent, GeneralEvent)
+     */
+    protected abstract boolean generalEventCanBeSent(GeneralEvent event);
+
+    /**
+     * This method schedules the reception of the general event for the specified agent.
+     * <p>
+     * It is in this methods where it is specified at what time the general event is received by the specified agent, in
+     * other word, this method schedule the call of the method {@link AbstractAgent#processEvent(Event)} of the agent.
+     * <p>
+     * This method is called in the method {@link #triggerGeneralEvent(GeneralEvent)} after that the method
+     * {@link #generalEventCanBeSent(GeneralEvent)} has returned true.
+     *
+     * @param receiver the agent receiver
+     * @param event    the event to receive
+     * @see #triggerGeneralEvent(GeneralEvent)
+     * @see #generalEventCanBeSent(GeneralEvent)
+     * @see #verifyAndScheduleGeneralEvent(AbstractAgent, GeneralEvent)
+     */
+    protected abstract void scheduleGeneralEventReceptionToOneAgent(AbstractAgent receiver, GeneralEvent event);
+
+    private void verifyAndScheduleGeneralEvent(AbstractAgent receiver, GeneralEvent event) {
+        if (this.generalEventCanBeSent(event))
+            this.scheduleGeneralEventReceptionToOneAgent(receiver, event);
+    }
 
     // Getters ans Setters.
 
