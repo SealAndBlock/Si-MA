@@ -27,7 +27,7 @@ public abstract class Environment {
 
     private final String environmentName;
 
-    private final Set<AbstractAgent> setAgent;
+    private final Set<AbstractAgent> evolvingAgents;
 
     // Constructors.
 
@@ -37,7 +37,7 @@ public abstract class Environment {
         if (this.environmentName == null)
             throw new NullPointerException("The environment name cannot be null.");
 
-        this.setAgent = new HashSet<>();
+        this.evolvingAgents = new HashSet<>();
     }
 
     // Methods.
@@ -52,7 +52,7 @@ public abstract class Environment {
      */
     public boolean acceptAgent(AbstractAgent evolvingAgent) {
         if (evolvingAgent != null && this.canBeAccepted(evolvingAgent)) {
-            return this.setAgent.add(evolvingAgent);
+            return this.evolvingAgents.add(evolvingAgent);
         } else {
             return false;
         }
@@ -69,11 +69,26 @@ public abstract class Environment {
     protected abstract boolean canBeAccepted(AbstractAgent abstractAgent);
 
     /**
-     * Make that the agent is leaving the environment.
+     * Make that the agent is leaving the environment. If the agent is not evolving in the environment, nothing is done.
+     * Calls the method {@link #agentIsLeaving(AbstractAgent)} before remove the agent from the environment.
      *
      * @param leavingAgent the leaving agent
      */
-    public abstract void leave(AbstractAgent leavingAgent);
+    public void leave(AbstractAgent leavingAgent) {
+        if (this.isEvolving(leavingAgent)) {
+            this.agentIsLeaving(leavingAgent);
+            this.evolvingAgents.remove(leavingAgent);
+        }
+    }
+
+    /**
+     * Call back method called when an agent is leaving the environment, in other word, when the method
+     * {@link #leave(AbstractAgent)} is called. This method is called before the agent is removed from the list of
+     * evolving agent.
+     *
+     * @param leavingAgent the leaving agent
+     */
+    protected abstract void agentIsLeaving(AbstractAgent leavingAgent);
 
     /**
      * Verifies if the agent is evolving in the environment. An agent is evolving in the environment if it is in the
@@ -85,7 +100,7 @@ public abstract class Environment {
      * @see #getListOfEvolvingAgent()
      */
     public boolean isEvolving(AbstractAgent agent) {
-        return this.setAgent.contains(agent);
+        return agent != null && this.evolvingAgents.contains(agent);
     }
 
     /**
@@ -93,7 +108,7 @@ public abstract class Environment {
      * returns an empty list but never null.
      */
     public List<AgentInfo> getListOfEvolvingAgent() {
-        return this.setAgent.stream().map(AbstractAgent::getInfo)
+        return this.evolvingAgents.stream().map(AbstractAgent::getInfo)
                 .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
     }
 
