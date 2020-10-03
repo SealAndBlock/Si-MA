@@ -8,7 +8,7 @@ import java.util.UUID;
 /**
  * A {@link BroadcastMessage} is a {@link Message} with no receiver (the receiver is null).
  */
-public class BroadcastMessage extends Message {
+public abstract class BroadcastMessage extends Message {
 
     // Constructors.
 

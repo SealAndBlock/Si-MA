@@ -8,7 +8,7 @@ import java.util.UUID;
 /**
  * A message is a particular event which has a content.
  */
-public class Message extends Event {
+public abstract class Message extends Event {
 
     // Variables.
 

@@ -6,7 +6,7 @@ import java.util.UUID;
  * A {@link BroadcastGeneralEvent} is a {@link GeneralEvent} with no receiver. It is mean that the event is destined to
  * all agents of the environment.
  */
-public class BroadcastGeneralEvent extends GeneralEvent {
+public abstract class BroadcastGeneralEvent extends GeneralEvent {
 
     // Constructors.
 
