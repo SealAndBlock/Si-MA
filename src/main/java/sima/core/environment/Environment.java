@@ -294,6 +294,20 @@ public abstract class Environment implements EventCatcher {
      */
     protected abstract void scheduleGeneralEventReceptionToOneAgent(AbstractAgent receiver, GeneralEvent event);
 
+    /**
+     * This method verifies if the general event can be sent with the method
+     * {@link #generalEventCanBeSent(GeneralEvent)}} and if the general event can be sent, then calls the method
+     * {@link #scheduleGeneralEventReceptionToOneAgent(AbstractAgent, GeneralEvent)} to schedule the reception of the
+     * event by the receiver agent.
+     * <p>
+     * This method is called in the method {@link #sendMessage(Message)}.
+     *
+     * @param receiver the receiver agent
+     * @param event    the event to receive
+     * @see #triggerGeneralEvent(GeneralEvent)
+     * @see #generalEventCanBeSent(GeneralEvent)
+     * @see #scheduleGeneralEventReceptionToOneAgent(AbstractAgent, GeneralEvent)
+     */
     private void verifyAndScheduleGeneralEvent(AbstractAgent receiver, GeneralEvent event) {
         if (this.generalEventCanBeSent(event))
             this.scheduleGeneralEventReceptionToOneAgent(receiver, event);
