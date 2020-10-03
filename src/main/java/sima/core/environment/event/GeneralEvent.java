@@ -5,7 +5,7 @@ import java.util.UUID;
 /**
  * Class which represents an {@link Event} with no protocol targeted.
  */
-public class GeneralEvent extends Event {
+public abstract class GeneralEvent extends Event {
 
     // Constructors.
 
