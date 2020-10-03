@@ -6,10 +6,7 @@ import sima.core.environment.event.EventCatcher;
 import sima.core.environment.event.GeneralEvent;
 import sima.core.environment.event.Message;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents an environment where {@link AbstractAgent} evolves. An environment can be the representation of the physic
@@ -111,6 +108,26 @@ public abstract class Environment implements EventCatcher {
     }
 
     /**
+     * Finds the agent which is evolving in the environment and which has the same uuid of the specified uuid. If the
+     * agent is not find, returns null.
+     *
+     * @param agentID the uuid of the wanted agent
+     * @return the agent which has the uuid specified. If the agent is not find in the environment, returns null.
+     */
+    protected AbstractAgent getAgent(UUID agentID) {
+        if (agentID == null)
+            return null;
+
+        for (AbstractAgent agent : this.evolvingAgents) {
+            if (agent.getUUID().equals(agentID)) {
+                return agent;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @return the list of all {@link AgentInfo} of all agents evolving in the environment, if there is no agent,
      * returns an empty list but never null.
      */
@@ -131,12 +148,17 @@ public abstract class Environment implements EventCatcher {
      */
     public void sendMessage(Message message) {
         if (message != null) {
-            if (message.getReceiver() != null) {
-                // Message destined for one identified agent.
-                // TODO
-            } else {
-                // Broadcast Message.
-                // TODO
+            UUID sender = message.getSender();
+            UUID receiver = message.getReceiver();
+
+            if (this.isEvolving(this.getAgent(sender))) {
+                if (message.getReceiver() != null) {
+                    // Message destined for one identified agent.
+                    // TODO
+                } else {
+                    // Broadcast Message.
+                    // TODO
+                }
             }
         } else
             throw new NullPointerException("The sent message is null");
