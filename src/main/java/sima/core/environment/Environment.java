@@ -148,11 +148,12 @@ public abstract class Environment implements EventCatcher {
      */
     public void sendMessage(Message message) {
         if (message != null) {
-            UUID sender = message.getSender();
-            UUID receiver = message.getReceiver();
+            UUID senderID = message.getSender();
 
-            if (this.isEvolving(this.getAgent(sender))) {
-                if (message.getReceiver() != null) {
+            if (this.isEvolving(this.getAgent(senderID))) {
+                AbstractAgent receiver = this.getAgent(message.getReceiver());
+
+                if (receiver != null) {
                     // Message destined for one identified agent.
                     // TODO
                 } else {
