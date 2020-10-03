@@ -25,8 +25,14 @@ public abstract class Environment {
 
     // Variables.
 
+    /**
+     * The unique name of the environment.
+     */
     private final String environmentName;
 
+    /**
+     * The set of evolving agents.
+     */
     private final Set<AbstractAgent> evolvingAgents;
 
     // Constructors.
