@@ -5,6 +5,7 @@ import sima.core.agent.AgentInfo;
 import sima.core.environment.event.GeneralEvent;
 import sima.core.environment.event.Message;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -68,7 +69,10 @@ public abstract class Environment {
      * @return the list of all {@link AgentInfo} of all agents evolving in the environment, if there is no agent,
      * returns an empty list but never null.
      */
-    public abstract List<AgentInfo> getListOfEvolvingAgent();
+    public List<AgentInfo> getListOfEvolvingAgent() {
+        return this.setAgent.stream().map(AbstractAgent::getInfo)
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+    }
 
     /**
      * Send the message to the {@link Message#getReceiver()}.
