@@ -207,6 +207,21 @@ public abstract class Environment implements EventCatcher {
             throw new NullPointerException("The sent event is null");
     }
 
+    /**
+     * Verifies if the event is an instance of a {@link Message} or of a {@link GeneralEvent}. If it is not the case
+     * throws an {@link UnknownEventException}.
+     * <p>
+     * After that, calls in function of the type of the event, the method
+     * {@link #verifyAndScheduleMessage(AbstractAgent, Message)} if the event is a {@code Message} or
+     * {@link #verifyAndScheduleGeneralEvent(AbstractAgent, GeneralEvent)} if the event is a {@code GeneralEvent}.
+     *
+     * @param receiver the agent receiver
+     * @param event    the event to receiver
+     * @throws UnknownEventException if the event is not a {@link Message} or a {@link GeneralEvent}
+     * @see #sendEvent(Event)
+     * @see #verifyAndScheduleMessage(AbstractAgent, Message)
+     * @see #verifyAndScheduleGeneralEvent(AbstractAgent, GeneralEvent)
+     */
     private void verifyAndScheduleEvent(AbstractAgent receiver, Event event) {
         if (event instanceof Message) {
             this.verifyAndScheduleMessage(receiver, (Message) event);
