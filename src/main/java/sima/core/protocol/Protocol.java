@@ -2,7 +2,6 @@ package sima.core.protocol;
 
 import sima.core.agent.AbstractAgent;
 import sima.core.behavior.Behavior;
-import sima.core.environment.event.Event;
 import sima.core.environment.event.EventCatcher;
 
 import java.util.Optional;
@@ -49,7 +48,7 @@ public abstract class Protocol implements EventCatcher {
      * <p>
      * This constructor must always call by inherited class in their constructor. An inherited class of
      * {@link Protocol} must always have the same form of constructor: <strong>Protocol(Sting protocolTag, String[]
-     *
+     * <p>
      * args)</strong>.
      *
      * @param protocolTag         the tag of the protocol (must be not null)
