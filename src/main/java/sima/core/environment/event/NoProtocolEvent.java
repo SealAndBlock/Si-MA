@@ -5,17 +5,17 @@ import java.util.UUID;
 /**
  * Class which represents an {@link Event} with no protocol targeted.
  */
-public abstract class GeneralEvent extends Event {
+public abstract class NoProtocolEvent extends Event {
 
     // Constructors.
 
     /**
-     * Constructs a {@link GeneralEvent}. A GeneralEvent is an {@link Event} with no protocol targeted.
+     * Constructs a {@link NoProtocolEvent}. A GeneralEvent is an {@link Event} with no protocol targeted.
      *
      * @param sender   the agent sender (cannot be null)
      * @param receiver the agent receiver
      */
-    public GeneralEvent(UUID sender, UUID receiver) {
+    public NoProtocolEvent(UUID sender, UUID receiver) {
         super(sender, receiver, null);
     }
 
@@ -25,7 +25,7 @@ public abstract class GeneralEvent extends Event {
      * @return always returns true.
      */
     @Override
-    public boolean isGeneralEvent() {
+    public boolean isNoProtocolEvent() {
         return true;
     }
 }

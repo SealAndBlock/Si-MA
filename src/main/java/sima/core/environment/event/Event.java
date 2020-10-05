@@ -38,15 +38,20 @@ public abstract class Event implements Serializable {
      * that way the agent receive the event and chose itself how to manage the event. An event which has not protocol
      * targeted is called <i>general event</i>.
      *
-     * @see GeneralEvent
+     * @see NoProtocolEvent
      */
     private final ProtocolIdentificator protocolTargeted;
 
     // Constructors.
 
     /**
-     * Constructs an Event with the agent which send the event, the agent which will received the event, and the class
-     * of the protocol which must process the event. Only the receiver must be not null.
+     * Constructs an {@link Event} with the agent which sends the event, the agent which will receive the event, and
+     * the class of the protocol which must process the event.
+     * <p>
+     * The sender cannot be null, if it is the case a {@link NullPointerException} is thrown.
+     * <p>
+     * The receiver can be null, in that case it is to the environment to manage which agent(s) are the receivers
+     * of the {@code Event}.
      *
      * @param sender           the agent sender (cannot be null)
      * @param receiver         the agent receiver
@@ -65,13 +70,13 @@ public abstract class Event implements Serializable {
     }
 
     /**
-     * Returns true if the event is a <i>general event</i>, else false. An event is a general event if it has not a
-     * protocol targeted.
+     * Returns true if the event is a {@code NoProtocolEvent}, else false. An event is a {@code NoProtocolEvent} if it
+     * has not a protocol targeted.
      *
      * @return true if the protocol targeted is not null, else false.
-     * @see GeneralEvent
+     * @see NoProtocolEvent
      */
-    public boolean isGeneralEvent() {
+    public boolean isNoProtocolEvent() {
         return this.protocolTargeted != null;
     }
 

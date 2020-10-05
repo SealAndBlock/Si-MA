@@ -4,7 +4,7 @@ import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentInfo;
 import sima.core.environment.event.Event;
 import sima.core.environment.event.EventCatcher;
-import sima.core.environment.event.GeneralEvent;
+import sima.core.environment.event.NoProtocolEvent;
 import sima.core.environment.event.Message;
 import sima.core.environment.exception.NotEvolvingAgentInEnvironmentException;
 import sima.core.environment.exception.UnknownEventException;
@@ -231,7 +231,7 @@ public abstract class Environment implements EventCatcher {
      *
      * @param receiver the agent receiver
      * @param event    the event to receiver
-     * @throws UnknownEventException if the event is not a {@link Message} or a {@link GeneralEvent}
+     * @throws UnknownEventException if the event is not a {@link Message} or a {@link NoProtocolEvent}
      * @see #sendEvent(Event)
      * @see #eventCanBeSentTo(AbstractAgent, Event)
      * @see #scheduleEventReceptionToOneAgent(AbstractAgent, Event)
