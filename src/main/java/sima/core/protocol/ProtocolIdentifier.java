@@ -11,7 +11,7 @@ import java.util.Objects;
  * This object is {@link Serializable}, therefore all its attributes must be {@link Serializable} are used the key word
  * <i>transient</i>.
  */
-public class ProtocolIdentificator implements Serializable {
+public class ProtocolIdentifier implements Serializable {
 
     // Variables.
 
@@ -28,13 +28,13 @@ public class ProtocolIdentificator implements Serializable {
     // Constructors.
 
     /**
-     * Constructs a {@link ProtocolIdentificator} with a protocol name.
+     * Constructs a {@link ProtocolIdentifier} with a protocol name.
      *
      * @param protocolName the protocol name (must be not null)
      * @param protocolTag  the protocol tag (must be not null)
      * @throws NullPointerException if the protocolName and/or the protocol tag is null
      */
-    public ProtocolIdentificator(String protocolName, String protocolTag) {
+    public ProtocolIdentifier(String protocolName, String protocolTag) {
         this.protocolName = protocolName;
         this.protocolTag = protocolTag;
 
@@ -47,8 +47,8 @@ public class ProtocolIdentificator implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ProtocolIdentificator)) return false;
-        ProtocolIdentificator that = (ProtocolIdentificator) o;
+        if (!(o instanceof ProtocolIdentifier)) return false;
+        ProtocolIdentifier that = (ProtocolIdentifier) o;
         return Objects.equals(protocolName, that.protocolName) &&
                 Objects.equals(protocolTag, that.protocolTag);
     }

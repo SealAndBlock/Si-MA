@@ -1,6 +1,6 @@
 package sima.core.environment.event;
 
-import sima.core.protocol.ProtocolIdentificator;
+import sima.core.protocol.ProtocolIdentifier;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -30,7 +30,7 @@ public abstract class Message extends Event {
      * @param protocolTargeted the protocol targeted
      * @throws NullPointerException if the sender is null
      */
-    public Message(UUID sender, UUID receiver, ProtocolIdentificator protocolTargeted,
+    public Message(UUID sender, UUID receiver, ProtocolIdentifier protocolTargeted,
                    Serializable content) {
         super(sender, receiver, protocolTargeted);
 

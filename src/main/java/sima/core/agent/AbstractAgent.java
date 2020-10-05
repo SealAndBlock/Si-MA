@@ -9,7 +9,7 @@ import sima.core.environment.event.Event;
 import sima.core.environment.event.EventCatcher;
 import sima.core.environment.event.NoProtocolEvent;
 import sima.core.protocol.Protocol;
-import sima.core.protocol.ProtocolIdentificator;
+import sima.core.protocol.ProtocolIdentifier;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -47,9 +47,9 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * The several protocols that the agent can use.
      * <p>
-     * Associate the {@link ProtocolIdentificator} and the instance of the protocol.
+     * Associate the {@link ProtocolIdentifier} and the instance of the protocol.
      */
-    private final Map<ProtocolIdentificator, Protocol> mapProtocol;
+    private final Map<ProtocolIdentifier, Protocol> mapProtocol;
 
     /**
      * True if the agent is started, else false.
@@ -307,11 +307,11 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * @param protocolIdentificator the string which identify the protocol
+     * @param protocolIdentifier the string which identify the protocol
      * @return the protocol associate to the protocol class, if no protocol is associated to this class, return null.
      */
-    public Protocol getProtocol(ProtocolIdentificator protocolIdentificator) {
-        return this.mapProtocol.get(protocolIdentificator);
+    public Protocol getProtocol(ProtocolIdentifier protocolIdentifier) {
+        return this.mapProtocol.get(protocolIdentifier);
     }
 
     /**
@@ -426,7 +426,7 @@ public abstract class AbstractAgent implements EventCatcher {
         return Collections.unmodifiableMap(this.mapBehaviors);
     }
 
-    public Map<ProtocolIdentificator, Protocol> getMapProtocol() {
+    public Map<ProtocolIdentifier, Protocol> getMapProtocol() {
         return Collections.unmodifiableMap(this.mapProtocol);
     }
 

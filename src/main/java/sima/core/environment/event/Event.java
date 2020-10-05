@@ -2,7 +2,7 @@ package sima.core.environment.event;
 
 import sima.core.agent.AbstractAgent;
 import sima.core.protocol.Protocol;
-import sima.core.protocol.ProtocolIdentificator;
+import sima.core.protocol.ProtocolIdentifier;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -40,7 +40,7 @@ public abstract class Event implements Serializable {
      *
      * @see NoProtocolEvent
      */
-    private final ProtocolIdentificator protocolTargeted;
+    private final ProtocolIdentifier protocolTargeted;
 
     // Constructors.
 
@@ -59,7 +59,7 @@ public abstract class Event implements Serializable {
      * @throws NullPointerException if the sender is null
      * @see Protocol#processEvent(Event)
      */
-    public Event(UUID sender, UUID receiver, ProtocolIdentificator protocolTargeted) {
+    public Event(UUID sender, UUID receiver, ProtocolIdentifier protocolTargeted) {
         this.sender = sender;
         if (this.sender == null)
             throw new NullPointerException("The sender cannot be null");
@@ -90,7 +90,7 @@ public abstract class Event implements Serializable {
         return receiver;
     }
 
-    public ProtocolIdentificator getProtocolTargeted() {
+    public ProtocolIdentifier getProtocolTargeted() {
         return protocolTargeted;
     }
 }

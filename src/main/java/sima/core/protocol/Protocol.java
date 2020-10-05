@@ -24,9 +24,9 @@ public abstract class Protocol implements EventCatcher {
     private static final Object PROTOCOL_IDENTIFICATOR_LOCK = new Object();
 
     /**
-     * The {@link ProtocolIdentificator} of the protocol.
+     * The {@link ProtocolIdentifier} of the protocol.
      */
-    private static ProtocolIdentificator PROTOCOL_IDENTIFICATOR;
+    private static ProtocolIdentifier PROTOCOL_IDENTIFICATOR;
 
     // Variables.
 
@@ -77,22 +77,22 @@ public abstract class Protocol implements EventCatcher {
     protected abstract void processArgument(String[] args);
 
     /**
-     * Returns the {@link ProtocolIdentificator} of the protocol. The protocol identificator must allow an agent to
+     * Returns the {@link ProtocolIdentifier} of the protocol. The protocol identificator must allow an agent to
      * identify which protocol is called and for two different agents which use the same set of protocols, for a same
-     * instance of a {@link ProtocolIdentificator}, the method {@link AbstractAgent#getProtocol(ProtocolIdentificator)}
+     * instance of a {@link ProtocolIdentifier}, the method {@link AbstractAgent#getProtocol(ProtocolIdentifier)}
      * must returns the same protocol for both agents.
      * <p>
-     * The base implementation is the use of a singleton of {@link ProtocolIdentificator} instantiates at the first call
+     * The base implementation is the use of a singleton of {@link ProtocolIdentifier} instantiates at the first call
      * of the method.
      * <p>
      * This method is thread safe and the thread lock is the static variable {@link #PROTOCOL_IDENTIFICATOR_LOCK}.
      *
-     * @return the {@link ProtocolIdentificator} of the protocol. It never returns null.
+     * @return the {@link ProtocolIdentifier} of the protocol. It never returns null.
      */
-    public ProtocolIdentificator getIdentificator() {
+    public ProtocolIdentifier getIdentificator() {
         synchronized (PROTOCOL_IDENTIFICATOR_LOCK) {
             if (PROTOCOL_IDENTIFICATOR == null) {
-                PROTOCOL_IDENTIFICATOR = new ProtocolIdentificator(this.getClass().getName(), this.protocolTag);
+                PROTOCOL_IDENTIFICATOR = new ProtocolIdentifier(this.getClass().getName(), this.protocolTag);
             }
 
             return PROTOCOL_IDENTIFICATOR;
