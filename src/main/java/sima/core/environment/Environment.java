@@ -4,7 +4,7 @@ import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentInfo;
 import sima.core.environment.event.Event;
 import sima.core.environment.event.EventCatcher;
-import sima.core.environment.event.GeneralEvent;
+import sima.core.environment.event.NoProtocolEvent;
 import sima.core.environment.event.Message;
 import sima.core.environment.exception.NotEvolvingAgentInEnvironmentException;
 import sima.core.environment.exception.UnknownEventException;
@@ -18,22 +18,16 @@ import java.util.*;
  * For example, you can create an environment where agent are mobil and move. Each agent has a maximum scope and can
  * communicate only with agent which are in this scope.
  * <p>
- * With the method {@link #sendEvent(Event)}, it is possible to send two types of {@link Event}:
- * <blockquote><pre>
- *     - {@link Message}
- *     - {@link GeneralEvent}
- * </pre></blockquote>
+ * With the method {@link #sendEvent(Event)}, it is possible to send {@link Event}. This method first verifies if the
+ * agent sender is evolving in the environment and after that, the methods
+ * {@link #eventCanBeSentTo(AbstractAgent, Event)} and {@link #scheduleEventReceptionToOneAgent(AbstractAgent, Event)}
+ * are called.
  * <p>
- * For both types of event it is possible to determine the condition of if an event can be sent or not and schedule
- * when the receiver agent(s) received the event. In that way it is easy to simulate all type of environment and
- * network.
+ * First, the method verifies if the {@code Event} can be sent to the specified agent receiver, it is in the method that
+ * the network and the connection between agents are simulated.
  * <p>
- * You can for example simulate a mobile environment where agents move and have communication range, is that way, an
- * agent can send a message to an other agent only if the second agent is at range. This feature can be implemented in
- * the method {@link #messageCanBeSent(Message)}.
- * <p>
- * After that, if the send it message is possible, therefore it is possible to simulate the time transfer with the
- * method {@link #scheduleMessageReceptionToOneAgent(AbstractAgent, Message)}.
+ * If the {@code Event} can be sent to the specified agent receiver, therefore the second method is called to schedule
+ * the moment when the agent receiver will receive the {@code Event}.
  *
  * @author guilr
  */
@@ -163,28 +157,16 @@ public abstract class Environment implements EventCatcher {
      * This method verifies in first if the {@link Event#getSender()} is evolving in the environment and do the same
      * for the receiver. If it is not the case, a {@link NotEvolvingAgentInEnvironmentException} is thrown.
      * <p>
-     * After that, if the receiver is not null, then the event is destined to one agent, in the other case, the event is
-     * a broadcast event destined to all agents in the environment.
+     * After that, if the receiver is not null, then the event is destined to one agent and the function
+     * {@link #verifyAndScheduleEvent(AbstractAgent, Event)} is called to try to send the {@code Event} to the agent
+     * receiver.
      * <p>
-     * In function of the type of the {@link Event}, the methods called are different. Indeed if the event is a
-     * {@link Message}, therefore the method called is {@link #verifyAndScheduleMessage(AbstractAgent, Message)} which
-     * uses the method {@link #messageCanBeSent(Message)} and the method
-     * {@link #scheduleMessageReceptionToOneAgent(AbstractAgent, Message)}.
-     * <p>
-     * If the event is a {@link GeneralEvent}, therefore the method called is
-     * {@link #verifyAndScheduleGeneralEvent(AbstractAgent, GeneralEvent)} which uses the method
-     * {@link #generalEventCanBeSent(GeneralEvent)} and the method
-     * {@link #scheduleGeneralEventReceptionToOneAgent(AbstractAgent, GeneralEvent)}.
+     * If the agent receiver is null, therefore the method {@link #sendEventWithoutReceiver(Event)} is called to
+     * manage which agents must receive the {@code Event}.
      *
      * @param event the event to send
      * @throws NotEvolvingAgentInEnvironmentException if the sender and/or the receiver agent are not evolving in the
      *                                                environment
-     * @see #verifyAndScheduleMessage(AbstractAgent, Message)
-     * @see #verifyAndScheduleGeneralEvent(AbstractAgent, GeneralEvent)
-     * @see #messageCanBeSent(Message)
-     * @see #generalEventCanBeSent(GeneralEvent)
-     * @see #scheduleMessageReceptionToOneAgent(AbstractAgent, Message)
-     * @see #scheduleGeneralEventReceptionToOneAgent(AbstractAgent, GeneralEvent)
      */
     public void sendEvent(Event event) throws NotEvolvingAgentInEnvironmentException {
         if (event != null) {
@@ -193,10 +175,11 @@ public abstract class Environment implements EventCatcher {
 
             if (this.isEvolving(sender)) {
                 if (event.getReceiver() == null) {
-                    // Broadcast event
-                    this.evolvingAgents.forEach(agent -> this.verifyAndScheduleEvent(agent, event));
+                    // No receiver for the event
+                    this.sendEventWithoutReceiver(event);
                 } else {
                     // Event destined for one identified agent.
+                    // getAgent() detects if the agent is evolving or not in the environment
                     AbstractAgent receiver = this.getAgent(event.getReceiver());
                     this.verifyAndScheduleEvent(receiver, event);
                 }
@@ -208,134 +191,55 @@ public abstract class Environment implements EventCatcher {
     }
 
     /**
-     * Verifies if the event is an instance of a {@link Message} or of a {@link GeneralEvent}. If it is not the case
-     * throws an {@link UnknownEventException}.
+     * Method called in the function {@link #sendEvent(Event)} when the sender is correctly identified but the receiver
+     * is null.
+     *
+     * @param event the event without receiver to send
+     */
+    protected abstract void sendEventWithoutReceiver(Event event);
+
+    /**
+     * This method verifies if it is possible to send the event to the specified agent. Return true if the event can be
+     * sent to the receiver, else false.
      * <p>
-     * After that, calls in function of the type of the event, the method
-     * {@link #verifyAndScheduleMessage(AbstractAgent, Message)} if the event is a {@code Message} or
-     * {@link #verifyAndScheduleGeneralEvent(AbstractAgent, GeneralEvent)} if the event is a {@code GeneralEvent}.
+     * It is in this method that we can simulate the network link. For example, If two agents are not connected, maybe
+     * the event cannot be sent to the agent receiver.
+     *
+     * @param receiver the agent receiver
+     * @param event    the event to send to the receiver
+     * @return true if the event can be sent to the receiver, else false.
+     */
+    protected abstract boolean eventCanBeSentTo(AbstractAgent receiver, Event event);
+
+    /**
+     * Schedules the moment when the agent receiver will receive the event. In other words, schedules the moment when
+     * the agent receiver will call the method {@link AbstractAgent#processEvent(Event)}.
+     *
+     * @param receiver the agent receiver
+     * @param event    the event to send to the receiver
+     */
+    protected abstract void scheduleEventReceptionToOneAgent(AbstractAgent receiver, Event event);
+
+    /**
+     * First verifies if the event can be sent to the agent receiver with the function
+     * {@link #eventCanBeSentTo(AbstractAgent, Event)}. If it is the case, calls the function
+     * {@link #scheduleEventReceptionToOneAgent(AbstractAgent, Event)} to schedule the moment when the agent receiver
+     * will receive the {@code Event}.
+     * <p>
+     * This method is called in the method {@link #sendEvent(Event)} when the sender has been correctly identified and
+     * that the receiver of the {@code Event} is not null.
      *
      * @param receiver the agent receiver
      * @param event    the event to receiver
-     * @throws UnknownEventException if the event is not a {@link Message} or a {@link GeneralEvent}
+     * @throws UnknownEventException if the event is not a {@link Message} or a {@link NoProtocolEvent}
      * @see #sendEvent(Event)
-     * @see #verifyAndScheduleMessage(AbstractAgent, Message)
-     * @see #verifyAndScheduleGeneralEvent(AbstractAgent, GeneralEvent)
+     * @see #eventCanBeSentTo(AbstractAgent, Event)
+     * @see #scheduleEventReceptionToOneAgent(AbstractAgent, Event)
      */
     private void verifyAndScheduleEvent(AbstractAgent receiver, Event event) {
-        if (event instanceof Message) {
-            this.verifyAndScheduleMessage(receiver, (Message) event);
-        } else if (event instanceof GeneralEvent) {
-            this.verifyAndScheduleGeneralEvent(receiver, (GeneralEvent) event);
-        } else {
-            throw new UnknownEventException("The event: " + event);
+        if (this.eventCanBeSentTo(receiver, event)) {
+            this.scheduleEventReceptionToOneAgent(receiver, event);
         }
-    }
-
-    /**
-     * Verifies if the message can be sent or not. If the message is null, returns false.
-     * <p>
-     * In this method, the {@link Environment} verifies if the message can be sent or not. It is in this method that for
-     * example it can be simulated that two agents are not within range to send messages to each other. It can be also
-     * simulate that randomly, messages are not sent, etc.
-     * <p>
-     * This method is called in the method {@link #sendEvent(Event)} when all verifications have been done and that
-     * the sender and the receiver have been correctly identified.
-     *
-     * @param message the message to send
-     * @return true if the message can be sent, else false.
-     * @see #sendEvent(Event)
-     * @see #verifyAndScheduleMessage(AbstractAgent, Message)
-     */
-    protected abstract boolean messageCanBeSent(Message message);
-
-    /**
-     * This method schedules the reception of the message for the specified agent.
-     * <p>
-     * It is in this methods where it is specified at what time the message is received by the specified agent, in
-     * other word, this method schedule the call of the method {@link AbstractAgent#processEvent(Event)} of the agent.
-     * <p>
-     * This method is called in the method {@link #sendEvent(Event)} after that the method
-     * {@link #messageCanBeSent(Message)} has returned true.
-     *
-     * @param receiver the agent receiver
-     * @param message  the message to receive
-     * @see #sendEvent(Event)
-     * @see #messageCanBeSent(Message)
-     * @see #verifyAndScheduleMessage(AbstractAgent, Message)
-     */
-    protected abstract void scheduleMessageReceptionToOneAgent(AbstractAgent receiver, Message message);
-
-    /**
-     * This method verifies if the message can be sent with the method {@link #messageCanBeSent(Message)} and if the
-     * message can be sent, then calls the method {@link #scheduleMessageReceptionToOneAgent(AbstractAgent, Message)}
-     * to schedule the reception of the message by the receiver agent.
-     * <p>
-     * This method is called in the method {@link #sendEvent(Event)} if the event is an instance of a {@link Message}
-     *
-     * @param receiver the receiver agent
-     * @param message  the message to receive
-     * @see #sendEvent(Event)
-     * @see #messageCanBeSent(Message)
-     * @see #scheduleMessageReceptionToOneAgent(AbstractAgent, Message)
-     */
-    private void verifyAndScheduleMessage(AbstractAgent receiver, Message message) {
-        if (this.messageCanBeSent(message))
-            this.scheduleMessageReceptionToOneAgent(receiver, message);
-    }
-
-    /**
-     * Verifies if the general event can be sent or not. If the general event is null, returns false.
-     * <p>
-     * In this method, the {@link Environment} verifies if the general event can be sent or not. It is in this method
-     * that it is possible or not to an agent to receive the event or not (for example, the agent is to far to received
-     * the event)
-     * <p>
-     * This method is called in the method {@link #sendEvent(Event)} when all verifications
-     * have been done and that the sender and the receiver have been correctly identified.
-     *
-     * @param event the event to send
-     * @return true if the event can be sent, else false.
-     * @see #sendEvent(Event)
-     * @see #verifyAndScheduleGeneralEvent(AbstractAgent, GeneralEvent)
-     */
-    protected abstract boolean generalEventCanBeSent(GeneralEvent event);
-
-    /**
-     * This method schedules the reception of the general event for the specified agent.
-     * <p>
-     * It is in this methods where it is specified at what time the general event is received by the specified agent, in
-     * other word, this method schedule the call of the method {@link AbstractAgent#processEvent(Event)} of the agent.
-     * <p>
-     * This method is called in the method {@link #sendEvent(Event)}  after that the method
-     * {@link #generalEventCanBeSent(GeneralEvent)} has returned true.
-     *
-     * @param receiver the agent receiver
-     * @param event    the event to receive
-     * @see #sendEvent(Event)
-     * @see #generalEventCanBeSent(GeneralEvent)
-     * @see #verifyAndScheduleGeneralEvent(AbstractAgent, GeneralEvent)
-     */
-    protected abstract void scheduleGeneralEventReceptionToOneAgent(AbstractAgent receiver, GeneralEvent event);
-
-    /**
-     * This method verifies if the general event can be sent with the method
-     * {@link #generalEventCanBeSent(GeneralEvent)}} and if the general event can be sent, then calls the method
-     * {@link #scheduleGeneralEventReceptionToOneAgent(AbstractAgent, GeneralEvent)} to schedule the reception of the
-     * event by the receiver agent.
-     * <p>
-     * This method is called in the method {@link #sendEvent(Event)} if the event is an instance of a
-     * {@link GeneralEvent}
-     *
-     * @param receiver the receiver agent
-     * @param event    the event to receive
-     * @see #sendEvent(Event)
-     * @see #generalEventCanBeSent(GeneralEvent)
-     * @see #scheduleGeneralEventReceptionToOneAgent(AbstractAgent, GeneralEvent)
-     */
-    private void verifyAndScheduleGeneralEvent(AbstractAgent receiver, GeneralEvent event) {
-        if (this.generalEventCanBeSent(event))
-            this.scheduleGeneralEventReceptionToOneAgent(receiver, event);
     }
 
     // Getters ans Setters.

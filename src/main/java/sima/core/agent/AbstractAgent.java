@@ -7,7 +7,7 @@ import sima.core.behavior.Behavior;
 import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
 import sima.core.environment.event.EventCatcher;
-import sima.core.environment.event.GeneralEvent;
+import sima.core.environment.event.NoProtocolEvent;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentificator;
 
@@ -366,12 +366,12 @@ public abstract class AbstractAgent implements EventCatcher {
      * among all protocol that the agent possesses, the method {@link #treatEventWithNotFindProtocol(Event)} is called.
      *
      * @param event the event received
-     * @see GeneralEvent
-     * @see Event#isGeneralEvent()
+     * @see NoProtocolEvent
+     * @see Event#isNoProtocolEvent()
      */
     @Override
     public void processEvent(Event event) {
-        if (event.isGeneralEvent()) {
+        if (event.isNoProtocolEvent()) {
             Protocol protocolTarget = this.getProtocol(event.getProtocolTargeted());
             if (protocolTarget != null) {
                 protocolTarget.processEvent(event);
@@ -388,8 +388,8 @@ public abstract class AbstractAgent implements EventCatcher {
      * general event that it receives.
      *
      * @param event the event received
-     * @see GeneralEvent
-     * @see Event#isGeneralEvent()
+     * @see NoProtocolEvent
+     * @see Event#isNoProtocolEvent()
      */
     protected abstract void treatGeneralEvent(Event event);
 
