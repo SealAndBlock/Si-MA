@@ -19,14 +19,14 @@ public abstract class Protocol implements EventCatcher {
     // Singletons.
 
     /**
-     * The thread lock for manipulate the static variable {@link #PROTOCOL_IDENTIFICATOR}.
+     * The thread lock for manipulate the static variable {@link #PROTOCOL_IDENTIFIER}.
      */
-    private static final Object PROTOCOL_IDENTIFICATOR_LOCK = new Object();
+    private static final Object PROTOCOL_IDENTIFIER_LOCK = new Object();
 
     /**
      * The {@link ProtocolIdentifier} of the protocol.
      */
-    private static ProtocolIdentifier PROTOCOL_IDENTIFICATOR;
+    private static ProtocolIdentifier PROTOCOL_IDENTIFIER;
 
     // Variables.
 
@@ -85,17 +85,17 @@ public abstract class Protocol implements EventCatcher {
      * The base implementation is the use of a singleton of {@link ProtocolIdentifier} instantiates at the first call
      * of the method.
      * <p>
-     * This method is thread safe and the thread lock is the static variable {@link #PROTOCOL_IDENTIFICATOR_LOCK}.
+     * This method is thread safe and the thread lock is the static variable {@link #PROTOCOL_IDENTIFIER_LOCK}.
      *
      * @return the {@link ProtocolIdentifier} of the protocol. It never returns null.
      */
     public ProtocolIdentifier getIdentificator() {
-        synchronized (PROTOCOL_IDENTIFICATOR_LOCK) {
-            if (PROTOCOL_IDENTIFICATOR == null) {
-                PROTOCOL_IDENTIFICATOR = new ProtocolIdentifier(this.getClass().getName(), this.protocolTag);
+        synchronized (PROTOCOL_IDENTIFIER_LOCK) {
+            if (PROTOCOL_IDENTIFIER == null) {
+                PROTOCOL_IDENTIFIER = new ProtocolIdentifier(this.getClass().getName(), this.protocolTag);
             }
 
-            return PROTOCOL_IDENTIFICATOR;
+            return PROTOCOL_IDENTIFIER;
         }
     }
 
