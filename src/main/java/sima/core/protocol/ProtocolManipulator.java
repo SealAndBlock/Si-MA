@@ -1,7 +1,5 @@
 package sima.core.protocol;
 
-import java.util.Optional;
-
 /**
  * Allows a {@link Protocol} to define several methods which can be control by the {@link ProtocolManipulator}. In that
  * way, it is possible to change the behavior of a protocol only by changing is current protocol manipulator and not by
@@ -14,7 +12,7 @@ public abstract class ProtocolManipulator {
     /**
      * The manipulated protocol.
      */
-    private Optional<Protocol> manipulatedProtocol;
+    private Protocol manipulatedProtocol;
 
     // Constructors.
 
@@ -25,7 +23,9 @@ public abstract class ProtocolManipulator {
      * @throws NullPointerException if the manipulated protocol is null
      */
     public ProtocolManipulator(Protocol manipulatedProtocol) {
-        this.manipulatedProtocol = Optional.of(manipulatedProtocol);
+        this.manipulatedProtocol = manipulatedProtocol;
+        if (this.manipulatedProtocol == null)
+            throw new NullPointerException("The protocol cannot be null");
     }
 
     // Methods.
@@ -33,7 +33,7 @@ public abstract class ProtocolManipulator {
     // Getters and Setters.
 
     public Protocol getManipulatedProtocol() {
-        return manipulatedProtocol.get();
+        return manipulatedProtocol;
     }
 
     /**
@@ -41,6 +41,8 @@ public abstract class ProtocolManipulator {
      * @throws NullPointerException if the manipulated protocol is null
      */
     public void setManipulatedProtocol(Protocol manipulatedProtocol) {
-        this.manipulatedProtocol = Optional.of(manipulatedProtocol);
+        this.manipulatedProtocol = manipulatedProtocol;
+        if (this.manipulatedProtocol == null)
+            throw new NullPointerException("The protocol cannot be null");
     }
 }
