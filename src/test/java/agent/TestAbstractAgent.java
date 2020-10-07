@@ -11,6 +11,11 @@ import sima.core.behavior.exception.BehaviorCannotBePlayedByAgentException;
 import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
 import sima.core.environment.exception.NotEvolvingAgentInEnvironmentException;
+import sima.core.protocol.Protocol;
+import sima.core.protocol.ProtocolManipulator;
+
+import java.util.Map;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -109,7 +114,39 @@ public class TestAbstractAgent {
 
     @Test
     public void testAddBehavior() {
+        assertFalse(AGENT_1.addBehavior(BehaviorTestImpl.class, null));
+        assertTrue(AGENT_0.addBehavior(BehaviorTestImpl.class, null));
 
+        AGENT_0.startPlayingBehavior(BehaviorTestImpl.class);
+        assertFalse(AGENT_0.isPlayingBehavior(BehaviorTestImpl.class));
+
+        AGENT_0.start();
+        AGENT_0.startPlayingBehavior(BehaviorTestImpl.class);
+        assertTrue(AGENT_0.isPlayingBehavior(BehaviorTestImpl.class));
+
+        Map<String, Behavior> behaviorMap = AGENT_0.getMapBehaviors();
+        BehaviorTestImpl b = (BehaviorTestImpl) behaviorMap.get(BehaviorTestImpl.class.getName());
+        assertNotNull(b);
+        assertTrue(b.isPassToStartPlaying);
+        assertFalse(b.isPassToStopPlaying);
+
+        AGENT_0.stopPlayingBehavior(BehaviorTestImpl.class);
+        assertTrue(b.isPassToStopPlaying);
+        assertNotNull(behaviorMap.get(BehaviorTestImpl.class.getName()));
+    }
+
+    @Test
+    public void testAddProtocol() {
+        ProtocolTestImpl p0 = new ProtocolTestImpl("TAG_0", null);
+        ProtocolTestImpl p1 = new ProtocolTestImpl("TAG_1", null);
+
+        AGENT_0.addProtocol(p0);
+        AGENT_0.addProtocol(p1);
+
+        assertNotNull(AGENT_0.getProtocol(p0.getIdentifier()));
+        assertNotNull(AGENT_0.getProtocol(p1.getIdentifier()));
+
+        assertNotEquals(AGENT_0.getProtocol(p0.getIdentifier()), AGENT_0.getProtocol(p1.getIdentifier()));
     }
 
     // Inner classes.
@@ -197,7 +234,12 @@ public class TestAbstractAgent {
         }
     }
 
-    private static class BehaviorTestImpl extends Behavior {
+    public static class BehaviorTestImpl extends Behavior {
+
+        // Variables.
+
+        public boolean isPassToStartPlaying = false;
+        public boolean isPassToStopPlaying = false;
 
         // Constructors.
 
@@ -214,16 +256,48 @@ public class TestAbstractAgent {
 
         @Override
         public boolean canBePlayedBy(AbstractAgent agent) {
-            return true;
+            return Objects.equals(agent, AGENT_0);
         }
 
         @Override
         public void onStartPlaying() {
-
+            this.isPassToStartPlaying = true;
         }
 
         @Override
         public void onStopPlaying() {
+            this.isPassToStopPlaying = true;
+        }
+
+        public void reset() {
+            this.isPassToStartPlaying = true;
+            this.isPassToStopPlaying = true;
+        }
+    }
+
+    private static class ProtocolTestImpl extends Protocol {
+
+        // Constructors.
+
+        public ProtocolTestImpl(String protocolTag, String[] args) {
+            super(protocolTag, args);
+        }
+
+        // Methods.
+
+        @Override
+        protected void processArgument(String[] args) {
+
+        }
+
+        @Override
+        protected ProtocolManipulator getDefaultProtocolManipulator() {
+            return new ProtocolManipulator(this) {
+            };
+        }
+
+        @Override
+        public void processEvent(Event event) {
 
         }
     }
