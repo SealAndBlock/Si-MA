@@ -9,6 +9,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestProtocol {
 
+    /**
+     * Test if for a {@link Protocol} which returns null with the method which give the default
+     * {@link ProtocolManipulator}, a {@link NullPointerException} is thrown.
+     */
     @Test
     public void testProtocolDefaultProtocolManipulatorConstructor() {
         assertThrows(NullPointerException.class, () -> new Protocol("P0", null) {
@@ -47,6 +51,10 @@ public class TestProtocol {
         }
     }
 
+    /**
+     * Test if a protocol can set a other {@link ProtocolManipulator} and can reset its default
+     * {@code ProtocolManipulator} after.
+     */
     @Test
     public void testSetProtocolManipulator() {
         ProtocolTestImpl p = new ProtocolTestImpl("P0", null);
@@ -61,6 +69,49 @@ public class TestProtocol {
 
         p.resetDefaultProtocolManipulator();
         assertEquals(p.getDefaultProtocolManipulator(), p.getProtocolManipulator());
+
+        assertEquals(p, p.getProtocolManipulator().getManipulatedProtocol());
+    }
+
+    /**
+     * Test if a {@link Protocol} can reset its default {@link ProtocolManipulator}.
+     */
+    @Test
+    public void testResetDefaultProtocolManipulator() {
+        Protocol p = new Protocol("P0", null) {
+            private int i;
+
+            @Override
+            protected void processArgument(String[] args) {
+            }
+
+            @Override
+            protected ProtocolManipulator getDefaultProtocolManipulator() {
+                if (this.i == 0) {
+                    this.i = this.i + 1;
+                    return new ProtocolManipulator(this) {
+                    };
+                } else
+                    return null;
+            }
+
+            @Override
+            public void processEvent(Event event) {
+            }
+        };
+
+        assertThrows(NullPointerException.class, p::resetDefaultProtocolManipulator);
+
+        ProtocolTestImpl p1 = new ProtocolTestImpl("P0", null);
+        assertEquals(p1.getDefaultProtocolManipulator(), p1.getProtocolManipulator());
+
+        ProtocolManipulator pm = new ProtocolManipulator(p1) {
+        };
+        p1.setProtocolManipulator(pm);
+        assertEquals(pm, p1.getProtocolManipulator());
+
+        p1.resetDefaultProtocolManipulator();
+        assertEquals(p1.getDefaultProtocolManipulator(), p1.getProtocolManipulator());
     }
 
     // Inner classes
