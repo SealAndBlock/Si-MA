@@ -21,6 +21,9 @@ public abstract class AbstractAgent implements EventCatcher {
 
     /**
      * The {@link UUID} of the agent.
+     * <p>
+     * This id is use for the simulation to identify several agent. It can be also use in simulation to identify agent
+     * but it can be ignore and the identification of agent can be done with protocols defined by the user.
      */
     private final UUID uuid;
 
