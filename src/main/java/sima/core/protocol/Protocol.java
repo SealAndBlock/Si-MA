@@ -41,16 +41,37 @@ public abstract class Protocol implements EventCatcher {
     // Constructors.
 
     /**
+     * Create a protocol with a tag and an array of arguments.
+     * <p>
+     * This constructors set the protocolManipulator with the method {@link #getDefaultProtocolManipulator()}. This
+     * method must never returns null, however, if it is the case, a {@link NullPointerException} is thrown.
+     * <p>
+     * If the tag is null, throws a {@link NullPointerException}.
+     * <p>
+     * This constructor must always be implemented by inherited class. In that way, the java reflexivity can be used.
+     *
+     * @param protocolTag the tag of the protocol (must be not null)
+     * @param args        the array of arguments to transfer to the protocol
+     * @throws NullPointerException if the protocol tag and/or the protocol manipulator is null
+     */
+    protected Protocol(String protocolTag, String[] args) {
+        this.protocolTag = Optional.of(protocolTag).get();
+
+        this.protocolManipulator = Optional.of(this.getDefaultProtocolManipulator()).get();
+
+        if (args != null)
+            this.processArgument(args);
+    }
+
+    /**
      * Create a protocol with a tag and a protocol manipulator which not be null. Throws a {@link NullPointerException}
      * if the protocol tag or the protocol manipulator is null.
      * <p>
-     * This constructor must always call by inherited class in their constructor. An inherited class of
-     * {@link Protocol} must always have the same form of constructor: <strong>Protocol(Sting protocolTag, String[]
-     * <p>
-     * args)</strong>.
+     * This constructor must always be implemented by inherited class. In that way, the java reflexivity can be used.
      *
      * @param protocolTag         the tag of the protocol (must be not null)
      * @param protocolManipulator the protocol manipulator (must be not null)
+     * @param args                the array of arguments to transfer to the protocol
      * @throws NullPointerException if the protocol tag and/or the protocol manipulator is null
      */
     protected Protocol(String protocolTag, ProtocolManipulator protocolManipulator, String[] args) {
@@ -89,10 +110,20 @@ public abstract class Protocol implements EventCatcher {
     }
 
     /**
+     * Returns the default protocol manipulator of the protocol. This method never returns null. If the implementation
+     * is not correct and this method returns null, the risk is that some methods throw a {@link NullPointerException}.
+     *
+     * @return the default protocol manipulator of the protocol, never returns null.
+     */
+    protected abstract ProtocolManipulator getDefaultProtocolManipulator();
+
+    /**
      * Reset the default manipulator of the protocol. In that way, the property {@link #protocolManipulator} is never
      * null.
      */
-    public abstract void resetDefaultProtocolManipulator();
+    public void resetDefaultProtocolManipulator() {
+        this.protocolManipulator = Optional.of(this.getDefaultProtocolManipulator()).get();
+    }
 
     // Getters and Setters.
 

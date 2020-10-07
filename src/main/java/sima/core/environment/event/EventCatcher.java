@@ -6,7 +6,8 @@ package sima.core.environment.event;
 public interface EventCatcher {
 
     /**
-     * Method called when an {@link Event} occurred.
+     * Method called when an {@link Event} occurred and is destined for the current instance for which is called this
+     * method.
      *
      * @param event the occurred event
      */
