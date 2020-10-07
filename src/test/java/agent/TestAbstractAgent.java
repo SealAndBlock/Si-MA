@@ -6,6 +6,8 @@ import sima.core.agent.AbstractAgent;
 import sima.core.agent.exception.AlreadyKilledAgentException;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
+import sima.core.behavior.Behavior;
+import sima.core.behavior.exception.BehaviorCannotBePlayedByAgentException;
 import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
 import sima.core.environment.exception.NotEvolvingAgentInEnvironmentException;
@@ -80,12 +82,34 @@ public class TestAbstractAgent {
 
         assertTrue(AGENT_0.joinEnvironment(ENV));
         assertTrue(ENV.isEvolving(AGENT_0));
+        assertTrue(AGENT_0.isEvolvingInEnvironment(ENV.getEnvironmentName()));
+        assertTrue(AGENT_0.isEvolvingInEnvironment(ENV));
 
         try {
             assertEquals(AGENT_0, ENV.getAgent(AGENT_0.getUUID()));
         } catch (NotEvolvingAgentInEnvironmentException e) {
             fail();
         }
+    }
+
+    @Test
+    public void testLeaveEnvironment() {
+        assertTrue(AGENT_0.joinEnvironment(ENV));
+        assertTrue(ENV.isEvolving(AGENT_0));
+
+        AGENT_0.leaveEnvironment(ENV);
+        assertFalse(ENV.isEvolving(AGENT_0));
+
+        assertTrue(AGENT_0.joinEnvironment(ENV));
+        assertTrue(ENV.isEvolving(AGENT_0));
+
+        AGENT_0.leaveEnvironment(ENV.getEnvironmentName());
+        assertFalse(ENV.isEvolving(AGENT_0));
+    }
+
+    @Test
+    public void testAddBehavior() {
+
     }
 
     // Inner classes.
@@ -169,6 +193,37 @@ public class TestAbstractAgent {
 
         @Override
         protected void treatEventWithNotFindProtocol(Event event) {
+
+        }
+    }
+
+    private static class BehaviorTestImpl extends Behavior {
+
+        // Constructors.
+
+        public BehaviorTestImpl(AbstractAgent agent, String[] args) throws BehaviorCannotBePlayedByAgentException {
+            super(agent, args);
+        }
+
+        // Methods.
+
+        @Override
+        protected void processArgument(String[] args) {
+
+        }
+
+        @Override
+        public boolean canBePlayedBy(AbstractAgent agent) {
+            return true;
+        }
+
+        @Override
+        public void onStartPlaying() {
+
+        }
+
+        @Override
+        public void onStopPlaying() {
 
         }
     }
