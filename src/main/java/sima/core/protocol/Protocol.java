@@ -19,19 +19,17 @@ public abstract class Protocol implements EventCatcher {
     // Singletons.
 
     /**
-     * The thread lock for manipulate the static variable {@link #PROTOCOL_IDENTIFIER}.
-     */
-    private static final Object PROTOCOL_IDENTIFIER_LOCK = new Object();
-
-    /**
      * The {@link ProtocolIdentifier} of the protocol.
      */
-    private static ProtocolIdentifier PROTOCOL_IDENTIFIER;
+    private ProtocolIdentifier protocolIdentifier;
 
     // Variables.
 
     /**
      * A tag for the protocol to allow its identification among all other protocols which can have the same class.
+     * <p>
+     * In other word, if an agent use two instance of a same protocol class, both protocols must imperatively have
+     * two different tag.
      */
     private final String protocolTag;
 
@@ -56,9 +54,7 @@ public abstract class Protocol implements EventCatcher {
      * @throws NullPointerException if the protocol tag and/or the protocol manipulator is null
      */
     protected Protocol(String protocolTag, ProtocolManipulator protocolManipulator, String[] args) {
-        this.protocolTag = protocolTag;
-        if (this.protocolTag == null)
-            throw new NullPointerException();
+        this.protocolTag = Optional.of(protocolTag).get();
 
         this.protocolManipulator = Optional.of(protocolManipulator).get();
 
@@ -77,26 +73,19 @@ public abstract class Protocol implements EventCatcher {
     protected abstract void processArgument(String[] args);
 
     /**
-     * Returns the {@link ProtocolIdentifier} of the protocol. The protocol identificator must allow an agent to
+     * Returns the {@link ProtocolIdentifier} of the protocol. The protocol identifier must allow an agent to
      * identify which protocol is called and for two different agents which use the same set of protocols, for a same
      * instance of a {@link ProtocolIdentifier}, the method {@link AbstractAgent#getProtocol(ProtocolIdentifier)}
      * must returns the same protocol for both agents.
-     * <p>
-     * The base implementation is the use of a singleton of {@link ProtocolIdentifier} instantiates at the first call
-     * of the method.
-     * <p>
-     * This method is thread safe and the thread lock is the static variable {@link #PROTOCOL_IDENTIFIER_LOCK}.
      *
      * @return the {@link ProtocolIdentifier} of the protocol. It never returns null.
      */
     public ProtocolIdentifier getIdentifier() {
-        synchronized (PROTOCOL_IDENTIFIER_LOCK) {
-            if (PROTOCOL_IDENTIFIER == null) {
-                PROTOCOL_IDENTIFIER = new ProtocolIdentifier(this.getClass().getName(), this.protocolTag);
-            }
-
-            return PROTOCOL_IDENTIFIER;
+        if (this.protocolIdentifier == null) {
+            this.protocolIdentifier = new ProtocolIdentifier(this.getClass().getName(), this.protocolTag);
         }
+
+        return protocolIdentifier;
     }
 
     /**
