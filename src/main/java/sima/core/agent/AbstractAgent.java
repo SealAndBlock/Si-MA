@@ -328,9 +328,9 @@ public abstract class AbstractAgent implements EventCatcher {
      */
     public boolean addProtocol(Protocol protocol) {
         if (protocol != null) {
-            Protocol older = this.getProtocol(protocol.getIdentificator());
+            Protocol older = this.getProtocol(protocol.getIdentifier());
             if (older == null) {
-                this.mapProtocol.put(protocol.getIdentificator(), protocol);
+                this.mapProtocol.put(protocol.getIdentifier(), protocol);
                 return true;
             } else {
                 return false;
@@ -352,7 +352,7 @@ public abstract class AbstractAgent implements EventCatcher {
             Class<? extends Protocol> protocolClass = protocol.getClass();
             String className = protocolClass.getName();
 
-            this.mapProtocol.put(protocol.getIdentificator(), protocol);
+            this.mapProtocol.put(protocol.getIdentifier(), protocol);
             return true;
         } else
             return false;

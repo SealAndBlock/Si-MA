@@ -38,7 +38,7 @@ public abstract class Protocol implements EventCatcher {
     /**
      * The protocol manipulator. Must be not null.
      */
-    private Optional<ProtocolManipulator> protocolManipulator;
+    private ProtocolManipulator protocolManipulator;
 
     // Constructors.
 
@@ -60,7 +60,7 @@ public abstract class Protocol implements EventCatcher {
         if (this.protocolTag == null)
             throw new NullPointerException();
 
-        this.protocolManipulator = Optional.of(protocolManipulator);
+        this.protocolManipulator = Optional.of(protocolManipulator).get();
 
         if (args != null)
             this.processArgument(args);
@@ -89,7 +89,7 @@ public abstract class Protocol implements EventCatcher {
      *
      * @return the {@link ProtocolIdentifier} of the protocol. It never returns null.
      */
-    public ProtocolIdentifier getIdentificator() {
+    public ProtocolIdentifier getIdentifier() {
         synchronized (PROTOCOL_IDENTIFIER_LOCK) {
             if (PROTOCOL_IDENTIFIER == null) {
                 PROTOCOL_IDENTIFIER = new ProtocolIdentifier(this.getClass().getName(), this.protocolTag);
@@ -112,7 +112,7 @@ public abstract class Protocol implements EventCatcher {
     }
 
     public ProtocolManipulator getProtocolManipulator() {
-        return protocolManipulator.get();
+        return protocolManipulator;
     }
 
     /**
@@ -124,8 +124,7 @@ public abstract class Protocol implements EventCatcher {
      * @throws NullPointerException if the protocol manipulator is null
      */
     public void setProtocolManipulator(ProtocolManipulator protocolManipulator) {
-        this.protocolManipulator = Optional.of(protocolManipulator);
-        ProtocolManipulator pM = this.protocolManipulator.get();
-        pM.setManipulatedProtocol(this);
+        this.protocolManipulator = Optional.of(protocolManipulator).get();
+        this.protocolManipulator.setManipulatedProtocol(this);
     }
 }
