@@ -63,26 +63,6 @@ public abstract class Protocol implements EventCatcher {
             this.processArgument(args);
     }
 
-    /**
-     * Create a protocol with a tag and a protocol manipulator which not be null. Throws a {@link NullPointerException}
-     * if the protocol tag or the protocol manipulator is null.
-     * <p>
-     * This constructor must always be implemented by inherited class. In that way, the java reflexivity can be used.
-     *
-     * @param protocolTag         the tag of the protocol (must be not null)
-     * @param protocolManipulator the protocol manipulator (must be not null)
-     * @param args                the array of arguments to transfer to the protocol
-     * @throws NullPointerException if the protocol tag and/or the protocol manipulator is null
-     */
-    protected Protocol(String protocolTag, ProtocolManipulator protocolManipulator, String[] args) {
-        this.protocolTag = Optional.of(protocolTag).get();
-
-        this.protocolManipulator = Optional.of(protocolManipulator).get();
-
-        if (args != null)
-            this.processArgument(args);
-    }
-
     // Methods.
 
     /**
