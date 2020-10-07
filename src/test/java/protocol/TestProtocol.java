@@ -47,4 +47,54 @@ public class TestProtocol {
         }
     }
 
+    @Test
+    public void testSetProtocolManipulator() {
+        ProtocolTestImpl p = new ProtocolTestImpl("P0", null);
+        assertEquals(p.getDefaultProtocolManipulator(), p.getProtocolManipulator());
+
+        assertThrows(NullPointerException.class, () -> p.setProtocolManipulator(null));
+
+        ProtocolManipulator pm = new ProtocolManipulator(p) {
+        };
+        p.setProtocolManipulator(pm);
+        assertEquals(pm, p.getProtocolManipulator());
+
+        p.resetDefaultProtocolManipulator();
+        assertEquals(p.getDefaultProtocolManipulator(), p.getProtocolManipulator());
+    }
+
+    // Inner classes
+
+    private static class ProtocolTestImpl extends Protocol {
+
+        // Variables.
+
+        public ProtocolManipulator defaultProtocolManipulator;
+
+        // Constructors.
+
+        public ProtocolTestImpl(String protocolTag, String[] args) {
+            super(protocolTag, args);
+        }
+
+        // Methods.
+
+        @Override
+        protected void processArgument(String[] args) {
+        }
+
+        @Override
+        protected ProtocolManipulator getDefaultProtocolManipulator() {
+            if (this.defaultProtocolManipulator == null) {
+                this.defaultProtocolManipulator = new ProtocolManipulator(this) {
+                };
+            }
+            return this.defaultProtocolManipulator;
+        }
+
+        @Override
+        public void processEvent(Event event) {
+        }
+    }
+
 }
