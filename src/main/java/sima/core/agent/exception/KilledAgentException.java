@@ -1,6 +1,6 @@
 package sima.core.agent.exception;
 
-public class KilledAgentException extends AgentException {
+public class KilledAgentException extends RuntimeException {
 
     // Constructors.
 

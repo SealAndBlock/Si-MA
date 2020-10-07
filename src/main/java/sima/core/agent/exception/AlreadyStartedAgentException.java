@@ -1,6 +1,6 @@
 package sima.core.agent.exception;
 
-public class AlreadyStartedAgentException extends AgentException {
+public class AlreadyStartedAgentException extends RuntimeException {
 
     // Constructors.
 
