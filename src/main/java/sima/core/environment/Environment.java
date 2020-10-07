@@ -128,7 +128,7 @@ public abstract class Environment implements EventCatcher {
      * @throws NotEvolvingAgentInEnvironmentException if there is no agent with the specify uuid evolving in the
      *                                                environment
      */
-    protected AbstractAgent getAgent(UUID agentID) throws NotEvolvingAgentInEnvironmentException {
+    public AbstractAgent getAgent(UUID agentID) throws NotEvolvingAgentInEnvironmentException {
         if (agentID == null)
             return null;
 
