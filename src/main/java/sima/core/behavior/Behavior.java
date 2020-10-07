@@ -18,7 +18,7 @@ public abstract class Behavior {
     /**
      * The agent which has the behavior.
      */
-    private final Optional<AbstractAgent> agent;
+    private final AbstractAgent agent;
 
     /**
      * True if the {@link #agent} is playing the behavior, else false.
@@ -40,10 +40,10 @@ public abstract class Behavior {
      * @throws BehaviorCannotBePlayedByAgentException if the behavior cannot be played by the agent
      */
     public Behavior(AbstractAgent agent, String[] args) throws BehaviorCannotBePlayedByAgentException {
-        this.agent = Optional.of(agent);
+        this.agent = Optional.of(agent).get();
 
-        if (!this.canBePlayedBy(this.agent.get()))
-            throw new BehaviorCannotBePlayedByAgentException("The agent : " + this.agent.get() + " cannot play the " +
+        if (!this.canBePlayedBy(this.agent))
+            throw new BehaviorCannotBePlayedByAgentException("The agent : " + this.agent + " cannot play the " +
                     "behavior " + this.getClass().getName());
 
         if (args != null)
@@ -104,7 +104,7 @@ public abstract class Behavior {
     // Getters and Setters.
 
     public AbstractAgent getAgent() {
-        return agent.orElse(null);
+        return agent;
     }
 
     public boolean isPlaying() {
