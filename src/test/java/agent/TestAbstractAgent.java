@@ -1,14 +1,35 @@
 package agent;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sima.core.agent.AbstractAgent;
+import sima.core.agent.exception.AlreadyKilledAgentException;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
+import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
+import sima.core.environment.exception.NotEvolvingAgentInEnvironmentException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestAbstractAgent {
+
+    // Variables.
+
+    private static AgentTestImpl AGENT_0;
+    private static AgentTestImpl AGENT_1;
+
+    private static EnvironmentTestImpl ENV;
+
+    // Setup.
+
+    @BeforeEach
+    void setUp() {
+        AGENT_0 = new AgentTestImpl("AGENT_0");
+        AGENT_1 = new AgentTestImpl("AGENT_1");
+
+        ENV = new EnvironmentTestImpl("ENV");
+    }
 
     // Tests.
 
@@ -18,12 +39,10 @@ public class TestAbstractAgent {
      */
     @Test
     public void testAgentConstructor() {
-        AgentTestImpl a0 = new AgentTestImpl("AGENT_0");
         AgentTestImpl a0_1 = new AgentTestImpl("AGENT_0");
-        AgentTestImpl a1 = new AgentTestImpl("AGENT_1");
 
-        assertNotEquals(a1.getUUID(), a0.getUUID());
-        assertNotEquals(a0, a0_1);
+        assertNotEquals(AGENT_1.getUUID(), AGENT_0.getUUID());
+        assertNotEquals(AGENT_0, a0_1);
     }
 
     /**
@@ -32,20 +51,96 @@ public class TestAbstractAgent {
      */
     @Test
     public void testStart() {
-        AgentTestImpl a0 = new AgentTestImpl("AGENT_0");
+        AGENT_0.start();
 
-        a0.start();
+        assertTrue(AGENT_0.isStarted());
+        assertThrows(AlreadyStartedAgentException.class, AGENT_0::start);
+        assertTrue(AGENT_0.isStarted());
 
-        assertTrue(a0.isStarted());
-        assertThrows(AlreadyStartedAgentException.class, a0::start);
-        assertTrue(a0.isStarted());
-
-        a0.kill();
-        assertThrows(KilledAgentException.class, a0::start);
+        AGENT_0.kill();
+        assertThrows(KilledAgentException.class, AGENT_0::start);
 
     }
 
+    @Test
+    public void testKill() {
+        assertFalse(AGENT_0.isKilled());
+        AGENT_0.kill();
+        assertTrue(AGENT_0.isKilled());
+        assertThrows(AlreadyKilledAgentException.class, AGENT_0::kill);
+        assertTrue(AGENT_0.isKilled());
+        assertThrows(KilledAgentException.class, AGENT_0::start);
+        assertTrue(AGENT_0.isKilled());
+    }
+
+    @Test
+    public void testJoinEnvironment() {
+        assertFalse(AGENT_1.joinEnvironment(ENV));
+        assertFalse(ENV.isEvolving(AGENT_1));
+
+        assertTrue(AGENT_0.joinEnvironment(ENV));
+        assertTrue(ENV.isEvolving(AGENT_0));
+
+        try {
+            assertEquals(AGENT_0, ENV.getAgent(AGENT_0.getUUID()));
+        } catch (NotEvolvingAgentInEnvironmentException e) {
+            fail();
+        }
+    }
+
     // Inner classes.
+
+    private static class EnvironmentTestImpl extends Environment {
+
+        public boolean isPassToSendEventWithoutReceiver = false;
+        public boolean isPassToScheduleEventReceptionToOneAgent = false;
+
+        // Constructors.
+
+        public EnvironmentTestImpl(String environmentName) {
+            super(environmentName);
+        }
+
+        // Methods.
+
+        /**
+         * @param abstractAgent the agent to verify
+         * @return true if the specified agent is to {@link #AGENT_0}, else false.
+         */
+        @Override
+        protected boolean agentCanBeAccepted(AbstractAgent abstractAgent) {
+            return abstractAgent.equals(AGENT_0);
+        }
+
+        @Override
+        protected void agentIsLeaving(AbstractAgent leavingAgent) {
+
+        }
+
+        @Override
+        protected void sendEventWithoutReceiver(Event event) {
+            this.isPassToSendEventWithoutReceiver = true;
+        }
+
+        @Override
+        protected boolean eventCanBeSentTo(AbstractAgent receiver, Event event) {
+            return true;
+        }
+
+        @Override
+        protected void scheduleEventReceptionToOneAgent(AbstractAgent receiver, Event event) {
+            this.isPassToScheduleEventReceptionToOneAgent = true;
+        }
+
+        @Override
+        public void processEvent(Event event) {
+        }
+
+        public void reset() {
+            this.isPassToSendEventWithoutReceiver = false;
+            this.isPassToScheduleEventReceptionToOneAgent = false;
+        }
+    }
 
     private static class AgentTestImpl extends AbstractAgent {
 
