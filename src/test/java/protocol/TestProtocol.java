@@ -3,6 +3,7 @@ package protocol;
 import org.junit.jupiter.api.Test;
 import sima.core.environment.event.Event;
 import sima.core.protocol.Protocol;
+import sima.core.protocol.ProtocolIdentifier;
 import sima.core.protocol.ProtocolManipulator;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -112,6 +113,24 @@ public class TestProtocol {
 
         p1.resetDefaultProtocolManipulator();
         assertEquals(p1.getDefaultProtocolManipulator(), p1.getProtocolManipulator());
+    }
+
+    /**
+     * Test if two instances of a same class of {@link Protocol} with different tag have two not equal
+     * {@link ProtocolIdentifier} and if two instances of a same class of {@code Protocol} with the same tag have two
+     * equal {@code ProtocolIdentifier}.
+     */
+    @Test
+    public void testProtocolIdentifier() {
+        Protocol p0 = new ProtocolTestImpl("P0", null);
+        Protocol p1 = new ProtocolTestImpl("P1", null);
+        Protocol p2 = new ProtocolTestImpl("P0", null);
+
+        ProtocolIdentifier pI = p0.getIdentifier();
+
+        assertEquals(pI, p0.getIdentifier());
+        assertNotEquals(pI, p1.getIdentifier());
+        assertEquals(pI, p2.getIdentifier());
     }
 
     // Inner classes
