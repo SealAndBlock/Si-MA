@@ -362,7 +362,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * Method called by an environment when an event occurs and that the receiver is the agent. This method is here to
      * allow the agent to manage how the event must be treated.
      * <p>
-     * If the event is a <i>general event</i>, the method {@link #treatGeneralEvent(Event)} is called.
+     * If the event is a <i>general event</i>, the method {@link #treatNoProtocolEvent(Event)} is called.
      * <p>
      * If the event has a protocol targeted, then the agent search the associated protocol and call the method
      * {@link Protocol#processEvent(Event)} is the protocol is find. In the case where the targeted protocol is not find
@@ -382,7 +382,7 @@ public abstract class AbstractAgent implements EventCatcher {
                 this.treatEventWithNotFindProtocol(event);
             }
         } else {
-            this.treatGeneralEvent(event);
+            this.treatNoProtocolEvent(event);
         }
     }
 
@@ -394,7 +394,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @see NoProtocolEvent
      * @see Event#isNoProtocolEvent()
      */
-    protected abstract void treatGeneralEvent(Event event);
+    protected abstract void treatNoProtocolEvent(Event event);
 
     /**
      * This method is called whe the agent received an event with a target protocol, but the agent does not have this

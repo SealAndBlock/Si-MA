@@ -257,7 +257,7 @@ public class TestEnvironment {
         }
 
         @Override
-        protected void treatGeneralEvent(Event event) {
+        protected void treatNoProtocolEvent(Event event) {
 
         }
 
