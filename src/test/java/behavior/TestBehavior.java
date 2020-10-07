@@ -1,4 +1,4 @@
-package agent;
+package behavior;
 
 public class TestBehavior {
 }
