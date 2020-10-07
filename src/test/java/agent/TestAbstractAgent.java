@@ -26,13 +26,23 @@ public class TestAbstractAgent {
         assertNotEquals(a0, a0_1);
     }
 
+    /**
+     * Test the method {@link AbstractAgent#start()}. Verifies if all exceptions are thrown in function of the state of
+     * the agent.
+     */
     @Test
     public void testStart() {
         AgentTestImpl a0 = new AgentTestImpl("AGENT_0");
 
         a0.start();
 
-        assertThrows(AlreadyStartedAgentException)
+        assertTrue(a0.isStarted());
+        assertThrows(AlreadyStartedAgentException.class, a0::start);
+        assertTrue(a0.isStarted());
+
+        a0.kill();
+        assertThrows(KilledAgentException.class, a0::start);
+
     }
 
     // Inner classes.
