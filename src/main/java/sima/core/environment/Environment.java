@@ -83,6 +83,12 @@ public abstract class Environment implements EventCatcher {
      * {@link Environment}, in that case, the methods returns false. If the sima.core.agent has already been accepted in
      * the {@code Environment}, this method does not accept the {@code AgentInfo} and returns false.
      *
+     * <strong>WARNING!</strong> An agent is only identify by the couple {@link AbstractAgent#getUUID()} and
+     * {@link AbstractAgent#getAgentName()}. When the environment accept the agent, the only significant values are
+     * {@link AgentInfo#getAgentID()} and {@link AgentInfo#getAgentName()}, the other values of {@link AgentInfo} can
+     * change during the time after the acceptation. In that way, it must be ask the agent directly with the method
+     * {@link AbstractAgent#getInfo()} if we want update value.
+     *
      * @param evolvingAgentInfo the {@link AgentInfo} of the agent which will evolve in the environment
      * @return true if the {@code Environment} accept the sima.core.agent, else false.
      */
@@ -144,6 +150,12 @@ public abstract class Environment implements EventCatcher {
     /**
      * Finds the agent which is evolving in the {@link Environment} and which has the same uuid of the specified uuid.
      * If the agent is not find, returns null.
+     *
+     * <strong>WARNING!</strong> The {@link AgentInfo} returns is the {@code AgentInfo} which was accepted when the
+     * method {@link #acceptAgent(AgentInfo)} has been called. If we want update {@code AgentInfo}, we must call
+     * the method {@link AbstractAgent#getInfo()}.
+     * <p>
+     * TODO after the addition of the Simulation object, it will be possible to take via the Simulation the update AgentInfo
      *
      * @param agentID the uuid of the wanted sima.core.agent
      * @return the agent which has the uuid specified. If the agent is not find in the {@code Environment}, returns

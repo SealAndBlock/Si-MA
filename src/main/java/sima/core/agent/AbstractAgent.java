@@ -400,7 +400,7 @@ public abstract class AbstractAgent implements EventCatcher {
      */
     public AgentInfo getInfo() {
         return new AgentInfo(this.uuid, this.agentName, new ArrayList<>(this.mapBehaviors.keySet()),
-                new ArrayList<>(this.mapProtocol.keySet()));
+                new ArrayList<>(this.mapProtocol.keySet()), new ArrayList<>(this.mapEnvironments.keySet()));
     }
 
     // Getters and Setters.
