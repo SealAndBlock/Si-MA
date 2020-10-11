@@ -2,6 +2,7 @@ package sima.core.agent;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import sima.core.agent.AbstractAgent;
 import sima.core.agent.exception.AlreadyKilledAgentException;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
@@ -37,11 +38,6 @@ public class TestAbstractAgent {
     }
 
     // Tests.
-
-    @Test
-    public void wrongTest() {
-        fail();
-    }
 
     /**
      * Test the constructor of {@link AbstractAgent} and if each instance are always different with different
