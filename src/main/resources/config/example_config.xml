@@ -1,33 +1,32 @@
 <?xml version = "1.0"?>
 <sim>
-    <protocols>
-        <!--Same class of protocol but not the same tag-->
-        <protocol tag="BitcoinProtocol">
-            <class>sima.core.protocol.Blockchain</class>
-        </protocol>
-        <protocol tag="EtherumProtocol">
-            <class>sima.core.protocol.Blockchain</class>
-            <arg>Argument1</arg>
-        </protocol>
-    </protocols>
-
-    <behaviors>
-        <behavior tag="GreedyBlockchain">
-            <class>sima.core.behavior.GreedyBlockchain</class>
-            <arg>Argument1</arg>
-            <arg>Argument2</arg>
-        </behavior>
-    </behaviors>
-
     <agents>
-        <agent name="Agent1">
+        <agent name=">BLOCKCHAIN_Agent_%nb%" nb="10">
             <protocols>
-                <protocol>BitcoinProtocol</protocol>
-                <protocol>EtherumProtocol</protocol>
+                <protocol tag="BitcoinProtocol">
+                    <class>sima.core.protocol.Blockchain</class>
+                    <arg name="blockSize">10</arg>
+                </protocol>
+                <protocol tag="EtherumProtocol">
+                    <class>sima.core.protocol.Blockchain</class>
+                    <arg name="coinbaseValue">15</arg>
+                </protocol>
             </protocols>
             <behaviors>
-                <behavior>GreedyBlockchain</behavior>
+                <behavior tag="GreedyBlockchain">
+                    <class>sima.core.behavior.GreedyBlockchain</class>
+                    <arg>Argument1</arg>
+                    <arg>Argument2</arg>
+                </behavior>
             </behaviors>
+        </agent>
+
+        <agent name="CHORD_AGENT_%nb%" nb="1">
+            <protocols>
+                <protocol tag="BitcoinProtocol">
+                    <class>sima.core.protocol.CHORD</class>
+                </protocol>
+            </protocols>
         </agent>
     </agents>
 </sim>
