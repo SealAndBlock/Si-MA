@@ -399,7 +399,8 @@ public abstract class AbstractAgent implements EventCatcher {
      * @return a new instance of {@link AgentInfo} which contains all information about the sima.core.agent.
      */
     public AgentInfo getInfo() {
-        return new AgentInfo(this.uuid, this.agentName);
+        return new AgentInfo(this.uuid, this.agentName, new ArrayList<>(this.mapBehaviors.keySet()),
+                new ArrayList<>(this.mapProtocol.keySet()));
     }
 
     // Getters and Setters.

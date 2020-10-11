@@ -1,8 +1,9 @@
 package sima.core.agent;
 
+import sima.core.protocol.ProtocolIdentifier;
+
 import java.io.Serializable;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * All infos of an {@link AbstractAgent}. This class is {@link Serializable}.
@@ -15,27 +16,45 @@ public class AgentInfo implements Serializable {
 
     private final String agentName;
 
+    private final List<String> behaviors;
+
+    private final List<ProtocolIdentifier> protocols;
+
     // Constructors.
 
-    public AgentInfo(UUID agentID, String agentName) {
-        this.agentID = agentID;
-        this.agentName = agentName;
+    /**
+     * Create an {@link AgentInfo}. All specified list must be {@link Serializable}.
+     *
+     * @param agentID   the agent {@link UUID}
+     * @param agentName the agent name
+     * @param behaviors the agent behavior list
+     * @param protocols the agent protocol list
+     * @throws NullPointerException if the agentID or the agentName is null.
+     */
+    public AgentInfo(UUID agentID, String agentName, List<String> behaviors, List<ProtocolIdentifier> protocols) {
+        this.agentID = Optional.of(agentID).get();
+        this.agentName = Optional.of(agentName).get();
+
+        this.behaviors = Objects.requireNonNullElse(behaviors, Collections.emptyList());
+        this.protocols = Objects.requireNonNullElse(protocols, Collections.emptyList());
     }
 
     // Methods.
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(agentID, agentName);
-    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof AgentInfo)) return false;
         AgentInfo agentInfo = (AgentInfo) o;
-        return Objects.equals(agentID, agentInfo.agentID) &&
-                Objects.equals(agentName, agentInfo.agentName);
+        return agentID.equals(agentInfo.agentID) &&
+                agentName.equals(agentInfo.agentName) &&
+                behaviors.equals(agentInfo.behaviors) &&
+                protocols.equals(agentInfo.protocols);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(agentID, agentName, behaviors, protocols);
     }
 
     // Getters and Setters.
@@ -46,5 +65,13 @@ public class AgentInfo implements Serializable {
 
     public String getAgentName() {
         return agentName;
+    }
+
+    public List<String> getBehaviors() {
+        return behaviors;
+    }
+
+    public List<ProtocolIdentifier> getProtocols() {
+        return protocols;
     }
 }
