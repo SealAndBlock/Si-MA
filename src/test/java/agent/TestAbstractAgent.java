@@ -151,14 +151,14 @@ public class TestAbstractAgent {
 
         // Constructors.
 
-        public EnvironmentTestImpl(String environmentName, String[] args) {
+        public EnvironmentTestImpl(String environmentName, Map<String, String> args) {
             super(environmentName, args);
         }
 
         // Methods.
 
         @Override
-        protected void processArgument(String[] args) {
+        protected void processArgument(Map<String, String> args) {
         }
 
         /**
