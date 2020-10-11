@@ -47,7 +47,15 @@ public abstract class Environment implements EventCatcher {
 
     // Constructors.
 
-    public Environment(String environmentName, String[] args) {
+    /**
+     * Constructs an {@link Environment} with an unique name and an map of arguments.
+     * <p>
+     * All inherited classes must have this constructor to allow the use of the java reflexivity.
+     *
+     * @param environmentName the environment name
+     * @param args            the arrays of arguments to transfer to the environment
+     */
+    protected Environment(String environmentName, String[] args) {
         this.environmentName = environmentName;
 
         if (this.environmentName == null)
