@@ -1,7 +1,7 @@
 <?xml version = "1.0"?>
 <sim>
     <agents>
-        <agent name=">BLOCKCHAIN_Agent_%nb%" nb="10">
+        <agent name=">BLOCKCHAIN_AGENT" nb="10">
             <protocols>
                 <protocol tag="BitcoinProtocol">
                     <class>sima.core.protocol.Blockchain</class>
@@ -21,7 +21,7 @@
             </behaviors>
         </agent>
 
-        <agent name="CHORD_AGENT_%nb%" nb="1">
+        <agent name="CHORD_AGENT" nb="1">
             <protocols>
                 <protocol tag="BitcoinProtocol">
                     <class>sima.core.protocol.CHORD</class>
