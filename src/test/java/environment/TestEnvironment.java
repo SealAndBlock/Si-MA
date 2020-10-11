@@ -30,7 +30,7 @@ public class TestEnvironment {
         AGENT_0 = new AgentTestImpl("AGENT_0");
         AGENT_1 = new AgentTestImpl("AGENT_1");
 
-        ENV = new EnvironmentTestImpl("ENV_TEST");
+        ENV = new EnvironmentTestImpl("ENV_TEST", null);
     }
 
     // Tests.
@@ -156,11 +156,15 @@ public class TestEnvironment {
 
         // Constructors.
 
-        public EnvironmentTestImpl(String environmentName) {
-            super(environmentName);
+        public EnvironmentTestImpl(String environmentName, String[] args) {
+            super(environmentName, args);
         }
 
         // Methods.
+
+        @Override
+        protected void processArgument(String[] args) {
+        }
 
         /**
          * @param abstractAgent the agent to verify

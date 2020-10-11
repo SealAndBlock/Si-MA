@@ -4,8 +4,8 @@ import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentInfo;
 import sima.core.environment.event.Event;
 import sima.core.environment.event.EventCatcher;
-import sima.core.environment.event.NoProtocolEvent;
 import sima.core.environment.event.Message;
+import sima.core.environment.event.NoProtocolEvent;
 import sima.core.environment.exception.NotEvolvingAgentInEnvironmentException;
 import sima.core.environment.exception.UnknownEventException;
 
@@ -47,16 +47,27 @@ public abstract class Environment implements EventCatcher {
 
     // Constructors.
 
-    public Environment(String environmentName) {
+    public Environment(String environmentName, String[] args) {
         this.environmentName = environmentName;
 
         if (this.environmentName == null)
             throw new NullPointerException("The environment name cannot be null.");
 
         this.evolvingAgents = new HashSet<>();
+
+        if (args != null)
+            this.processArgument(args);
     }
 
     // Methods.
+
+    /**
+     * Method called in the constructors. It is this method which make all treatment associated to all arguments
+     * received.
+     *
+     * @param args arguments array
+     */
+    protected abstract void processArgument(String[] args);
 
     /**
      * Add the agent in the environment. The agent can be not accept in the environment, in that case, the methods
