@@ -129,16 +129,23 @@ public class TestAbstractAgent {
 
     @Test
     public void testAddProtocol() {
-        ProtocolTestImpl p0 = new ProtocolTestImpl("TAG_0", AGENT_0, null);
-        ProtocolTestImpl p1 = new ProtocolTestImpl("TAG_1", AGENT_0, null);
+        ProtocolTestImpl protocolTest = new ProtocolTestImpl("P0", AGENT_0, null);
 
-        AGENT_0.addProtocol(p0);
-        AGENT_0.addProtocol(p1);
+        assertTrue(AGENT_0.addProtocol(ProtocolTestImpl.class, "P0", null));
+        assertFalse(AGENT_0.addProtocol(ProtocolTestImpl.class, "P0", null));
 
-        assertNotNull(AGENT_0.getProtocol(p0.getIdentifier()));
-        assertNotNull(AGENT_0.getProtocol(p1.getIdentifier()));
+        assertTrue(AGENT_1.addProtocol(ProtocolTestImpl.class, "P0", null));
 
-        assertNotEquals(AGENT_0.getProtocol(p0.getIdentifier()), AGENT_0.getProtocol(p1.getIdentifier()));
+        Protocol protocol0 = AGENT_0.getProtocol(protocolTest.getIdentifier());
+        Protocol protocol1 = AGENT_1.getProtocol(protocolTest.getIdentifier());
+
+        assertNotNull(protocol0);
+        assertNotNull(protocol1);
+
+        assertEquals(AGENT_0, protocol0.getAgentOwner());
+        assertEquals(AGENT_1, protocol1.getAgentOwner());
+
+        assertEquals(protocol0.getIdentifier(), protocol1.getIdentifier());
     }
 
     // Inner classes.
