@@ -36,7 +36,7 @@ public class TestEnvironment {
     // Tests.
 
     /**
-     * Test the method {@link sima.core.environment.Environment#acceptAgent(AbstractAgent)}.
+     * Test the method {@link sima.core.environment.Environment#acceptAgent(AgentInfo)}.
      * <p>
      * Test in first if the null sima.core.agent and {@link #AGENT_0} and {@link #AGENT_1} are not evolving in the sima.core.environment.
      * <p>
@@ -49,16 +49,16 @@ public class TestEnvironment {
     @Test
     public void testAcceptingAgent() {
         assertFalse(ENV.isEvolving(null));
-        assertFalse(ENV.isEvolving(AGENT_0));
-        assertFalse(ENV.isEvolving(AGENT_1));
+        assertFalse(ENV.isEvolving(AGENT_0.getInfo()));
+        assertFalse(ENV.isEvolving(AGENT_1.getInfo()));
 
         assertFalse(ENV.acceptAgent(null));
-        assertTrue(ENV.acceptAgent(AGENT_0));
-        assertFalse(ENV.acceptAgent(AGENT_1));
+        assertTrue(ENV.acceptAgent(AGENT_0.getInfo()));
+        assertFalse(ENV.acceptAgent(AGENT_1.getInfo()));
 
         assertFalse(ENV.isEvolving(null));
-        assertTrue(ENV.isEvolving(AGENT_0));
-        assertFalse(ENV.isEvolving(AGENT_1));
+        assertTrue(ENV.isEvolving(AGENT_0.getInfo()));
+        assertFalse(ENV.isEvolving(AGENT_1.getInfo()));
     }
 
     /**
@@ -67,20 +67,20 @@ public class TestEnvironment {
     @Test
     public void testLeavingAgent() {
         assertFalse(ENV.isEvolving(null));
-        assertFalse(ENV.isEvolving(AGENT_0));
-        assertFalse(ENV.isEvolving(AGENT_1));
+        assertFalse(ENV.isEvolving(AGENT_0.getInfo()));
+        assertFalse(ENV.isEvolving(AGENT_1.getInfo()));
 
         assertFalse(ENV.acceptAgent(null));
-        assertTrue(ENV.acceptAgent(AGENT_0));
-        assertFalse(ENV.acceptAgent(AGENT_1));
+        assertTrue(ENV.acceptAgent(AGENT_0.getInfo()));
+        assertFalse(ENV.acceptAgent(AGENT_1.getInfo()));
 
         ENV.leave(null);
-        ENV.leave(AGENT_0);
-        ENV.leave(AGENT_1);
+        ENV.leave(AGENT_0.getInfo());
+        ENV.leave(AGENT_1.getInfo());
 
         assertFalse(ENV.isEvolving(null));
-        assertFalse(ENV.isEvolving(AGENT_0));
-        assertFalse(ENV.isEvolving(AGENT_1));
+        assertFalse(ENV.isEvolving(AGENT_0.getInfo()));
+        assertFalse(ENV.isEvolving(AGENT_1.getInfo()));
     }
 
     /**
@@ -90,12 +90,12 @@ public class TestEnvironment {
     @Test
     public void testGetEvolvingAgentsInfo() {
         assertFalse(ENV.isEvolving(null));
-        assertFalse(ENV.isEvolving(AGENT_0));
-        assertFalse(ENV.isEvolving(AGENT_1));
+        assertFalse(ENV.isEvolving(AGENT_0.getInfo()));
+        assertFalse(ENV.isEvolving(AGENT_1.getInfo()));
 
         assertFalse(ENV.acceptAgent(null));
-        assertTrue(ENV.acceptAgent(AGENT_0));
-        assertFalse(ENV.acceptAgent(AGENT_1));
+        assertTrue(ENV.acceptAgent(AGENT_0.getInfo()));
+        assertFalse(ENV.acceptAgent(AGENT_1.getInfo()));
 
         List<AgentInfo> agentInfos = ENV.getEvolvingAgentsInfo();
         assertEquals(agentInfos.size(), 1);
@@ -103,8 +103,8 @@ public class TestEnvironment {
         assertFalse(agentInfos.contains(AGENT_1.getInfo()));
 
         ENV.leave(null);
-        ENV.leave(AGENT_0);
-        ENV.leave(AGENT_1);
+        ENV.leave(AGENT_0.getInfo());
+        ENV.leave(AGENT_1.getInfo());
 
         agentInfos = ENV.getEvolvingAgentsInfo();
         assertEquals(agentInfos.size(), 0);
@@ -114,9 +114,9 @@ public class TestEnvironment {
 
     @Test
     public void testSendEvent() {
-        assertFalse(ENV.isEvolving(AGENT_0));
+        assertFalse(ENV.isEvolving(AGENT_0.getInfo()));
 
-        assertTrue(ENV.acceptAgent(AGENT_0));
+        assertTrue(ENV.acceptAgent(AGENT_0.getInfo()));
 
         assertThrows(NullPointerException.class, () -> ENV.sendEvent(null));
 
@@ -171,13 +171,12 @@ public class TestEnvironment {
          * @return true if the specified sima.core.agent is to {@link #AGENT_0}, else false.
          */
         @Override
-        protected boolean agentCanBeAccepted(AbstractAgent abstractAgent) {
-            return abstractAgent.equals(AGENT_0);
+        protected boolean agentCanBeAccepted(AgentInfo abstractAgent) {
+            return abstractAgent.equals(AGENT_0.getInfo());
         }
 
         @Override
-        protected void agentIsLeaving(AbstractAgent leavingAgent) {
-
+        protected void agentIsLeaving(AgentInfo leavingAgent) {
         }
 
         @Override
@@ -186,12 +185,12 @@ public class TestEnvironment {
         }
 
         @Override
-        protected boolean eventCanBeSentTo(AbstractAgent receiver, Event event) {
+        protected boolean eventCanBeSentTo(AgentInfo receiver, Event event) {
             return true;
         }
 
         @Override
-        protected void scheduleEventReceptionToOneAgent(AbstractAgent receiver, Event event) {
+        protected void scheduleEventReceptionToOneAgent(AgentInfo receiver, Event event) {
             this.isPassToScheduleEventReceptionToOneAgent = true;
         }
 

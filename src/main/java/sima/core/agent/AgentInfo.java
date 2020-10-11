@@ -25,6 +25,11 @@ public class AgentInfo implements Serializable {
     // Methods.
 
     @Override
+    public int hashCode() {
+        return Objects.hash(agentID, agentName);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof AgentInfo)) return false;
