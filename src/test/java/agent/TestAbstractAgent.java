@@ -10,7 +10,6 @@ import sima.core.behavior.Behavior;
 import sima.core.behavior.exception.BehaviorCannotBePlayedByAgentException;
 import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
-import sima.core.environment.exception.NotEvolvingAgentInEnvironmentException;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolManipulator;
 
@@ -35,7 +34,7 @@ public class TestAbstractAgent {
         AGENT_0 = new AgentTestImpl("AGENT_0");
         AGENT_1 = new AgentTestImpl("AGENT_1");
 
-        ENV = new EnvironmentTestImpl("ENV");
+        ENV = new EnvironmentTestImpl("ENV", null);
     }
 
     // Tests.
@@ -152,11 +151,15 @@ public class TestAbstractAgent {
 
         // Constructors.
 
-        public EnvironmentTestImpl(String environmentName) {
-            super(environmentName);
+        public EnvironmentTestImpl(String environmentName, String[] args) {
+            super(environmentName, args);
         }
 
         // Methods.
+
+        @Override
+        protected void processArgument(String[] args) {
+        }
 
         /**
          * @param abstractAgent the agent to verify
