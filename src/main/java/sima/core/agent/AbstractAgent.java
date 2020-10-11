@@ -22,8 +22,9 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * The {@link UUID} of the sima.core.agent.
      * <p>
-     * This id is use for the simulation to identify several sima.core.agent. It can be also use in simulation to identify sima.core.agent
-     * but it can be ignore and the identification of sima.core.agent can be done with protocols defined by the user.
+     * This id is use for the simulation to identify several sima.core.agent. It can be also use in simulation to
+     * identify sima.core.agent but it can be ignore and the identification of sima.core.agent can be done with
+     * protocols defined by the user.
      */
     private final UUID uuid;
 
@@ -35,8 +36,8 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * The several environments where the sima.core.agent evolves.
      * <p>
-     * Associate the sima.core.environment name get with the method {@link Environment#getEnvironmentName()} and the instance of the
-     * sima.core.environment.
+     * Associate the sima.core.environment name get with the method {@link Environment#getEnvironmentName()} and the
+     * instance of the sima.core.environment.
      */
     private final Map<String, Environment> mapEnvironments;
 
@@ -60,8 +61,8 @@ public abstract class AbstractAgent implements EventCatcher {
     private boolean isStarted = false;
 
     /**
-     * True if the sima.core.agent is killed, else false. If an sima.core.agent is killed, it stops to be started and cannot become
-     * started again.
+     * True if the sima.core.agent is killed, else false. If an sima.core.agent is killed, it stops to be started and
+     * cannot become started again.
      */
     private boolean isKilled = false;
 
@@ -102,8 +103,8 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * Compute the hash code of the sima.core.agent. Use only the attribute {@link #uuid} and {@link #agentName} to compute the
-     * hash code.
+     * Compute the hash code of the sima.core.agent. Use only the attribute {@link #uuid} and {@link #agentName} to
+     * compute the hash code.
      *
      * @return the hash code of the sima.core.agent.
      */
@@ -142,8 +143,8 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * Kill the sima.core.agent. When an sima.core.agent is killed, it cannot be restarted.
      * <p>
-     * When an sima.core.agent is killed, it stops to play all its behaviors, leaves all the environments where it was evolving
-     * and call the method {@link #onKill()}.
+     * When an sima.core.agent is killed, it stops to play all its behaviors, leaves all the environments where it was
+     * evolving and call the method {@link #onKill()}.
      *
      * @throws AlreadyKilledAgentException if the sima.core.agent have already been killed
      */
@@ -313,51 +314,39 @@ public abstract class AbstractAgent implements EventCatcher {
 
     /**
      * @param protocolIdentifier the string which identify the sima.core.protocol
-     * @return the sima.core.protocol associate to the sima.core.protocol class, if no sima.core.protocol is associated to this class, return null.
+     * @return the sima.core.protocol associate to the sima.core.protocol class, if no sima.core.protocol is associated
+     * to this class, return null.
      */
     public Protocol getProtocol(ProtocolIdentifier protocolIdentifier) {
         return this.mapProtocol.get(protocolIdentifier);
     }
 
     /**
-     * Add the sima.core.protocol to the sima.core.agent. If the sima.core.agent has already an instance of sima.core.protocol which has the class than the
-     * specified sima.core.protocol, the sima.core.protocol is not added. To update a sima.core.protocol which has already been added, use
-     * {@link #updateProtocol(Protocol)}. If the specified sima.core.protocol is null, nothing is done and returns false.
+     * Creates a new instance of the specified protocol class. After that, verifies if the agent has already not an
+     * instance of protocol with the same {@link ProtocolIdentifier}. If it not the case, the protocol is add to
+     * the agent, else the protocol is not add to the agent and returns false.
      *
-     * @param protocol the sima.core.protocol (must be not null)
-     * @return true if the sima.core.protocol is added, else false.
-     * @see #updateProtocol(Protocol)
+     * @param protocolClass the class of the protocol
+     * @param protocolTag   the tag of the protocol
+     * @param args          the arguments map to transfer to the protocol
+     * @return true if the instance of the protocol is added to the agent, else false.
      */
-    public boolean addProtocol(Protocol protocol) {
-        if (protocol != null) {
-            Protocol older = this.getProtocol(protocol.getIdentifier());
-            if (older == null) {
-                this.mapProtocol.put(protocol.getIdentifier(), protocol);
+    public boolean addProtocol(Class<? extends Protocol> protocolClass, String protocolTag, Map<String, String> args) {
+        try {
+            Constructor<? extends Protocol> protocolClassConstructor = protocolClass.getConstructor(String.class,
+                    AbstractAgent.class, Map.class);
+            Protocol protocol = protocolClassConstructor.newInstance(protocolTag, this, args);
+            ProtocolIdentifier protocolIdentifier = protocol.getIdentifier();
+            if (!this.mapProtocol.containsKey(protocolIdentifier)) {
+                this.mapProtocol.put(protocolIdentifier, protocol);
                 return true;
             } else {
                 return false;
             }
-        } else
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
+                | InvocationTargetException e) {
             return false;
-    }
-
-    /**
-     * Update the sima.core.protocol of the sima.core.agent. It is the same sima.core.behavior that the method {@link #addProtocol(Protocol)},
-     * however the sima.core.protocol is update even if there is already an instance of sima.core.protocol with the same class if the
-     * specified class in the sima.core.agent.
-     *
-     * @param protocol the sima.core.protocol (must be not null)
-     * @return true if the sima.core.protocol is update, else false.
-     */
-    public boolean updateProtocol(Protocol protocol) {
-        if (protocol != null) {
-            Class<? extends Protocol> protocolClass = protocol.getClass();
-            String className = protocolClass.getName();
-
-            this.mapProtocol.put(protocol.getIdentifier(), protocol);
-            return true;
-        } else
-            return false;
+        }
     }
 
     /**
