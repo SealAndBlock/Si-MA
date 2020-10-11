@@ -1,4 +1,4 @@
-package agent;
+package sima.core.agent;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +53,7 @@ public class TestAbstractAgent {
 
     /**
      * Test the method {@link AbstractAgent#start()}. Verifies if all exceptions are thrown in function of the state of
-     * the agent.
+     * the sima.core.agent.
      */
     @Test
     public void testStart() {
@@ -162,8 +162,8 @@ public class TestAbstractAgent {
         }
 
         /**
-         * @param abstractAgent the agent to verify
-         * @return true if the specified agent is to {@link #AGENT_0}, else false.
+         * @param abstractAgent the sima.core.agent to verify
+         * @return true if the specified sima.core.agent is to {@link #AGENT_0}, else false.
          */
         @Override
         protected boolean agentCanBeAccepted(AbstractAgent abstractAgent) {

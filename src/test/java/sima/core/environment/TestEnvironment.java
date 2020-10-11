@@ -1,10 +1,9 @@
-package environment;
+package sima.core.environment;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentInfo;
-import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
 import sima.core.environment.exception.NotEvolvingAgentInEnvironmentException;
 import sima.core.protocol.ProtocolIdentifier;
@@ -39,13 +38,13 @@ public class TestEnvironment {
     /**
      * Test the method {@link sima.core.environment.Environment#acceptAgent(AbstractAgent)}.
      * <p>
-     * Test in first if the null agent and {@link #AGENT_0} and {@link #AGENT_1} are not evolving in the environment.
+     * Test in first if the null sima.core.agent and {@link #AGENT_0} and {@link #AGENT_1} are not evolving in the sima.core.environment.
      * <p>
-     * After that, try to accept the null agent, the agent {@link #AGENT_0} and the {@link #AGENT_1}. Only the
+     * After that, try to accept the null sima.core.agent, the sima.core.agent {@link #AGENT_0} and the {@link #AGENT_1}. Only the
      * {@link #AGENT_0} must be accepted.
      * <p>
-     * Verifies if only the agent {@link #AGENT_0} is evolving in the environment. The agent {@link #AGENT_1} is not
-     * accepted agent in the implementation of {@link EnvironmentTestImpl}.
+     * Verifies if only the sima.core.agent {@link #AGENT_0} is evolving in the sima.core.environment. The sima.core.agent {@link #AGENT_1} is not
+     * accepted sima.core.agent in the implementation of {@link EnvironmentTestImpl}.
      */
     @Test
     public void testAcceptingAgent() {
@@ -63,7 +62,7 @@ public class TestEnvironment {
     }
 
     /**
-     * Test if after accept some agent, the environment remove the agents which leave it.
+     * Test if after accept some sima.core.agent, the sima.core.environment remove the agents which leave it.
      */
     @Test
     public void testLeavingAgent() {
@@ -86,7 +85,7 @@ public class TestEnvironment {
 
     /**
      * Test if the list returns by the method {@link Environment#getEvolvingAgentsInfo()} coincides with the current
-     * agents evolving in the environment.
+     * agents evolving in the sima.core.environment.
      */
     @Test
     public void testGetEvolvingAgentsInfo() {
@@ -168,8 +167,8 @@ public class TestEnvironment {
         }
 
         /**
-         * @param abstractAgent the agent to verify
-         * @return true if the specified agent is to {@link #AGENT_0}, else false.
+         * @param abstractAgent the sima.core.agent to verify
+         * @return true if the specified sima.core.agent is to {@link #AGENT_0}, else false.
          */
         @Override
         protected boolean agentCanBeAccepted(AbstractAgent abstractAgent) {

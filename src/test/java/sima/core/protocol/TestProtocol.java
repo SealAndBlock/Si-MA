@@ -1,10 +1,7 @@
-package protocol;
+package sima.core.protocol;
 
 import org.junit.jupiter.api.Test;
 import sima.core.environment.event.Event;
-import sima.core.protocol.Protocol;
-import sima.core.protocol.ProtocolIdentifier;
-import sima.core.protocol.ProtocolManipulator;
 
 import java.util.Map;
 
@@ -55,7 +52,7 @@ public class TestProtocol {
     }
 
     /**
-     * Test if a protocol can set a other {@link ProtocolManipulator} and can reset its default
+     * Test if a sima.core.protocol can set a other {@link ProtocolManipulator} and can reset its default
      * {@code ProtocolManipulator} after.
      */
     @Test

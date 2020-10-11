@@ -20,47 +20,47 @@ public abstract class AbstractAgent implements EventCatcher {
     // Variables.
 
     /**
-     * The {@link UUID} of the agent.
+     * The {@link UUID} of the sima.core.agent.
      * <p>
-     * This id is use for the simulation to identify several agent. It can be also use in simulation to identify agent
-     * but it can be ignore and the identification of agent can be done with protocols defined by the user.
+     * This id is use for the simulation to identify several sima.core.agent. It can be also use in simulation to identify sima.core.agent
+     * but it can be ignore and the identification of sima.core.agent can be done with protocols defined by the user.
      */
     private final UUID uuid;
 
     /**
-     * The name of the agent
+     * The name of the sima.core.agent
      */
     private final String agentName;
 
     /**
-     * The several environments where the agent evolves.
+     * The several environments where the sima.core.agent evolves.
      * <p>
-     * Associate the environment name get with the method {@link Environment#getEnvironmentName()} and the instance of the
-     * environment.
+     * Associate the sima.core.environment name get with the method {@link Environment#getEnvironmentName()} and the instance of the
+     * sima.core.environment.
      */
     private final Map<String, Environment> mapEnvironments;
 
     /**
-     * The several behaviors that the agent can have.
+     * The several behaviors that the sima.core.agent can have.
      * <p>
-     * Associate the name of the class of the behavior and the instance of the behavior.
+     * Associate the name of the class of the sima.core.behavior and the instance of the sima.core.behavior.
      */
     private final Map<String, Behavior> mapBehaviors;
 
     /**
-     * The several protocols that the agent can use.
+     * The several protocols that the sima.core.agent can use.
      * <p>
-     * Associate the {@link ProtocolIdentifier} and the instance of the protocol.
+     * Associate the {@link ProtocolIdentifier} and the instance of the sima.core.protocol.
      */
     private final Map<ProtocolIdentifier, Protocol> mapProtocol;
 
     /**
-     * True if the agent is started, else false.
+     * True if the sima.core.agent is started, else false.
      */
     private boolean isStarted = false;
 
     /**
-     * True if the agent is killed, else false. If an agent is killed, it stops to be started and cannot become
+     * True if the sima.core.agent is killed, else false. If an sima.core.agent is killed, it stops to be started and cannot become
      * started again.
      */
     private boolean isKilled = false;
@@ -68,16 +68,16 @@ public abstract class AbstractAgent implements EventCatcher {
     // Constructors.
 
     /**
-     * Constructs an agent with a name and no environments, behaviors and protocols.
+     * Constructs an sima.core.agent with a name and no environments, behaviors and protocols.
      *
-     * @param agentName the agent name
+     * @param agentName the sima.core.agent name
      */
     protected AbstractAgent(String agentName) {
         this.uuid = UUID.randomUUID();
 
         this.agentName = agentName;
         if (this.agentName == null)
-            throw new NullPointerException("The agent name cannot be null.");
+            throw new NullPointerException("The sima.core.agent name cannot be null.");
 
         this.mapEnvironments = new HashMap<>();
         this.mapBehaviors = new HashMap<>();
@@ -89,8 +89,8 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * Only use the attributes {@link #uuid} and {@link #agentName} to compare two agents.
      *
-     * @param o the object to compare to the agent
-     * @return true if the object is equal to the agent.
+     * @param o the object to compare to the sima.core.agent
+     * @return true if the object is equal to the sima.core.agent.
      */
     @Override
     public boolean equals(Object o) {
@@ -102,10 +102,10 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * Compute the hash code of the agent. Use only the attribute {@link #uuid} and {@link #agentName} to compute the
+     * Compute the hash code of the sima.core.agent. Use only the attribute {@link #uuid} and {@link #agentName} to compute the
      * hash code.
      *
-     * @return the hash code of the agent.
+     * @return the hash code of the sima.core.agent.
      */
     @Override
     public int hashCode() {
@@ -113,12 +113,12 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * Start the agent.
+     * Start the sima.core.agent.
      * <p>
-     * When an agent is starting, the method {@link #onStart()} is called.
+     * When an sima.core.agent is starting, the method {@link #onStart()} is called.
      *
-     * @throws KilledAgentException         if the agent is killed
-     * @throws AlreadyStartedAgentException if the agent have already been started
+     * @throws KilledAgentException         if the sima.core.agent is killed
+     * @throws AlreadyStartedAgentException if the sima.core.agent have already been started
      */
     public void start() {
         if (!this.isKilled && !this.isStarted) {
@@ -135,17 +135,17 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * Method call when the agent is started in the method {@link #start()}.
+     * Method call when the sima.core.agent is started in the method {@link #start()}.
      */
     public abstract void onStart();
 
     /**
-     * Kill the agent. When an agent is killed, it cannot be restarted.
+     * Kill the sima.core.agent. When an sima.core.agent is killed, it cannot be restarted.
      * <p>
-     * When an agent is killed, it stops to play all its behaviors, leaves all the environments where it was evolving
+     * When an sima.core.agent is killed, it stops to play all its behaviors, leaves all the environments where it was evolving
      * and call the method {@link #onKill()}.
      *
-     * @throws AlreadyKilledAgentException if the agent have already been killed
+     * @throws AlreadyKilledAgentException if the sima.core.agent have already been killed
      */
     public void kill() {
         if (!this.isKilled()) {
@@ -171,13 +171,13 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * Method call when the agent is killed in the method {@link #kill()}
+     * Method call when the sima.core.agent is killed in the method {@link #kill()}
      */
     public abstract void onKill();
 
     /**
-     * @param environment the environment that the agent want join
-     * @return true if the agent has joined the environment, else false.
+     * @param environment the sima.core.environment that the sima.core.agent want join
+     * @return true if the sima.core.agent has joined the sima.core.environment, else false.
      */
     public boolean joinEnvironment(Environment environment) {
         if (this.mapEnvironments.get(environment.getEnvironmentName()) == null) {
@@ -191,16 +191,16 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * @param environment the environment
-     * @return true if the agent is evolving in the environment, else false.
+     * @param environment the sima.core.environment
+     * @return true if the sima.core.agent is evolving in the sima.core.environment, else false.
      */
     public boolean isEvolvingInEnvironment(Environment environment) {
         return environment.isEvolving(this);
     }
 
     /**
-     * @param environmentName the environment name
-     * @return true if the agent is evolving in the environment, else false.
+     * @param environmentName the sima.core.environment name
+     * @return true if the sima.core.agent is evolving in the sima.core.environment, else false.
      */
     public boolean isEvolvingInEnvironment(String environmentName) {
         Environment environment = this.mapEnvironments.get(environmentName);
@@ -213,9 +213,9 @@ public abstract class AbstractAgent implements EventCatcher {
 
 
     /**
-     * Makes that the agent leaves the environment.
+     * Makes that the sima.core.agent leaves the sima.core.environment.
      *
-     * @param environment the environment to leave
+     * @param environment the sima.core.environment to leave
      */
     public void leaveEnvironment(Environment environment) {
         environment.leave(this);
@@ -223,9 +223,9 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * Makes that the agent leaves the environment.
+     * Makes that the sima.core.agent leaves the sima.core.environment.
      *
-     * @param environmentName the environment name
+     * @param environmentName the sima.core.environment name
      */
     public void leaveEnvironment(String environmentName) {
         Environment environment = this.mapEnvironments.get(environmentName);
@@ -236,15 +236,15 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * Add the behavior to the agent. If the agent already have this behavior, nothing is done and returns false.
+     * Add the sima.core.behavior to the sima.core.agent. If the sima.core.agent already have this sima.core.behavior, nothing is done and returns false.
      * <p>
-     * In the case where the agent has not already the behavior, this method creates a new instance of the behavior
-     * class. If the creation of the instance is a success, the behavior is added to the agent and returns true, else
-     * the behavior is not added in the agent and returns false.
+     * In the case where the sima.core.agent has not already the sima.core.behavior, this method creates a new instance of the sima.core.behavior
+     * class. If the creation of the instance is a success, the sima.core.behavior is added to the sima.core.agent and returns true, else
+     * the sima.core.behavior is not added in the sima.core.agent and returns false.
      *
-     * @param behaviorClass the behavior class
-     * @param args          the argument to transfer to the behavior
-     * @return true if the behavior has been added to the agent, else false.
+     * @param behaviorClass the sima.core.behavior class
+     * @param args          the argument to transfer to the sima.core.behavior
+     * @return true if the sima.core.behavior has been added to the sima.core.agent, else false.
      */
     public boolean addBehavior(Class<? extends Behavior> behaviorClass, Map<String, String> args) {
         if (this.mapBehaviors.get(behaviorClass.getName()) == null)
@@ -263,10 +263,10 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * Search if the behavior is a behavior of the agent, if it is the case, call the method
+     * Search if the sima.core.behavior is a sima.core.behavior of the sima.core.agent, if it is the case, call the method
      * {@link Behavior#startPlaying()}.
      *
-     * @param behaviorClass the class of the behavior that we want starting to play
+     * @param behaviorClass the class of the sima.core.behavior that we want starting to play
      */
     public void startPlayingBehavior(Class<? extends Behavior> behaviorClass) {
         if (this.isStarted) {
@@ -277,10 +277,10 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * Search if the behavior is a behavior of the agent, if it is the case, call the method
+     * Search if the sima.core.behavior is a sima.core.behavior of the sima.core.agent, if it is the case, call the method
      * {@link Behavior#stopPlaying()}.
      *
-     * @param behaviorClass the class of the behavior that we want stopping to play
+     * @param behaviorClass the class of the sima.core.behavior that we want stopping to play
      */
     public void stopPlayingBehavior(Class<? extends Behavior> behaviorClass) {
         Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
@@ -289,18 +289,18 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * @param behavior the behavior
-     * @return true if the agent can play the specified behavior, else false.
+     * @param behavior the sima.core.behavior
+     * @return true if the sima.core.agent can play the specified sima.core.behavior, else false.
      */
     public boolean canPlayBehavior(Behavior behavior) {
         return behavior.canBePlayedBy(this);
     }
 
     /**
-     * Look if the behavior is playing by the agent by calling the function {@link Behavior#isPlaying()}
+     * Look if the sima.core.behavior is playing by the sima.core.agent by calling the function {@link Behavior#isPlaying()}
      *
-     * @param behaviorClass the class of the behavior
-     * @return true if the specified behavior is playing by the agent, else false.
+     * @param behaviorClass the class of the sima.core.behavior
+     * @return true if the specified sima.core.behavior is playing by the sima.core.agent, else false.
      */
     public boolean isPlayingBehavior(Class<? extends Behavior> behaviorClass) {
         Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
@@ -312,20 +312,20 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * @param protocolIdentifier the string which identify the protocol
-     * @return the protocol associate to the protocol class, if no protocol is associated to this class, return null.
+     * @param protocolIdentifier the string which identify the sima.core.protocol
+     * @return the sima.core.protocol associate to the sima.core.protocol class, if no sima.core.protocol is associated to this class, return null.
      */
     public Protocol getProtocol(ProtocolIdentifier protocolIdentifier) {
         return this.mapProtocol.get(protocolIdentifier);
     }
 
     /**
-     * Add the protocol to the agent. If the agent has already an instance of protocol which has the class than the
-     * specified protocol, the protocol is not added. To update a protocol which has already been added, use
-     * {@link #updateProtocol(Protocol)}. If the specified protocol is null, nothing is done and returns false.
+     * Add the sima.core.protocol to the sima.core.agent. If the sima.core.agent has already an instance of sima.core.protocol which has the class than the
+     * specified sima.core.protocol, the sima.core.protocol is not added. To update a sima.core.protocol which has already been added, use
+     * {@link #updateProtocol(Protocol)}. If the specified sima.core.protocol is null, nothing is done and returns false.
      *
-     * @param protocol the protocol (must be not null)
-     * @return true if the protocol is added, else false.
+     * @param protocol the sima.core.protocol (must be not null)
+     * @return true if the sima.core.protocol is added, else false.
      * @see #updateProtocol(Protocol)
      */
     public boolean addProtocol(Protocol protocol) {
@@ -342,12 +342,12 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * Update the protocol of the agent. It is the same behavior that the method {@link #addProtocol(Protocol)},
-     * however the protocol is update even if there is already an instance of protocol with the same class if the
-     * specified class in the agent.
+     * Update the sima.core.protocol of the sima.core.agent. It is the same sima.core.behavior that the method {@link #addProtocol(Protocol)},
+     * however the sima.core.protocol is update even if there is already an instance of sima.core.protocol with the same class if the
+     * specified class in the sima.core.agent.
      *
-     * @param protocol the protocol (must be not null)
-     * @return true if the protocol is update, else false.
+     * @param protocol the sima.core.protocol (must be not null)
+     * @return true if the sima.core.protocol is update, else false.
      */
     public boolean updateProtocol(Protocol protocol) {
         if (protocol != null) {
@@ -361,14 +361,14 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * Method called by an environment when an event occurs and that the receiver is the agent. This method is here to
-     * allow the agent to manage how the event must be treated.
+     * Method called by an sima.core.environment when an event occurs and that the receiver is the sima.core.agent. This method is here to
+     * allow the sima.core.agent to manage how the event must be treated.
      * <p>
      * If the event is a <i>general event</i>, the method {@link #treatNoProtocolEvent(Event)} is called.
      * <p>
-     * If the event has a protocol targeted, then the agent search the associated protocol and call the method
-     * {@link Protocol#processEvent(Event)} is the protocol is find. In the case where the targeted protocol is not find
-     * among all protocol that the agent possesses, the method {@link #treatEventWithNotFindProtocol(Event)} is called.
+     * If the event has a sima.core.protocol targeted, then the sima.core.agent search the associated sima.core.protocol and call the method
+     * {@link Protocol#processEvent(Event)} is the sima.core.protocol is find. In the case where the targeted sima.core.protocol is not find
+     * among all sima.core.protocol that the sima.core.agent possesses, the method {@link #treatEventWithNotFindProtocol(Event)} is called.
      *
      * @param event the event received
      * @see NoProtocolEvent
@@ -389,7 +389,7 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * This method is called when the agent received a <i>general event</i>. This method allows the agent to treat all
+     * This method is called when the sima.core.agent received a <i>general event</i>. This method allows the sima.core.agent to treat all
      * general event that it receives.
      *
      * @param event the event received
@@ -399,15 +399,15 @@ public abstract class AbstractAgent implements EventCatcher {
     protected abstract void treatNoProtocolEvent(Event event);
 
     /**
-     * This method is called whe the agent received an event with a target protocol, but the agent does not have this
-     * protocol. This method allows the agent to treat this type of event.
+     * This method is called whe the sima.core.agent received an event with a target sima.core.protocol, but the sima.core.agent does not have this
+     * sima.core.protocol. This method allows the sima.core.agent to treat this type of event.
      *
      * @param event the event received
      */
     protected abstract void treatEventWithNotFindProtocol(Event event);
 
     /**
-     * @return a new instance of {@link AgentInfo} which contains all information about the agent.
+     * @return a new instance of {@link AgentInfo} which contains all information about the sima.core.agent.
      */
     public AgentInfo getInfo() {
         return new AgentInfo(this.uuid, this.agentName);

@@ -1,9 +1,8 @@
-package behavior;
+package sima.core.behavior;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sima.core.agent.AbstractAgent;
-import sima.core.behavior.Behavior;
 import sima.core.behavior.exception.BehaviorCannotBePlayedByAgentException;
 import sima.core.environment.event.Event;
 
@@ -30,7 +29,7 @@ public class TestBehavior {
     // Tests.
 
     /**
-     * Test if the {@link Behavior} constructors works correctly and throws an exception if the agent in parameter
+     * Test if the {@link Behavior} constructors works correctly and throws an exception if the sima.core.agent in parameter
      * cannot play the {@code Behavior}.
      */
     @Test
