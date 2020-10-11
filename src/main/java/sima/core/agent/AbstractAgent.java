@@ -182,7 +182,7 @@ public abstract class AbstractAgent implements EventCatcher {
      */
     public boolean joinEnvironment(Environment environment) {
         if (this.mapEnvironments.get(environment.getEnvironmentName()) == null) {
-            if (environment.acceptAgent(this)) {
+            if (environment.acceptAgent(this.getInfo())) {
                 this.mapEnvironments.put(environment.getEnvironmentName(), environment);
                 return true;
             } else
@@ -196,7 +196,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @return true if the sima.core.agent is evolving in the sima.core.environment, else false.
      */
     public boolean isEvolvingInEnvironment(Environment environment) {
-        return environment.isEvolving(this);
+        return environment.isEvolving(this.getInfo());
     }
 
     /**
@@ -206,7 +206,7 @@ public abstract class AbstractAgent implements EventCatcher {
     public boolean isEvolvingInEnvironment(String environmentName) {
         Environment environment = this.mapEnvironments.get(environmentName);
         if (environment != null) {
-            return environment.isEvolving(this);
+            return environment.isEvolving(this.getInfo());
         }
 
         return false;
@@ -219,7 +219,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @param environment the sima.core.environment to leave
      */
     public void leaveEnvironment(Environment environment) {
-        environment.leave(this);
+        environment.leave(this.getInfo());
         this.mapEnvironments.remove(environment.getEnvironmentName());
     }
 
@@ -231,7 +231,7 @@ public abstract class AbstractAgent implements EventCatcher {
     public void leaveEnvironment(String environmentName) {
         Environment environment = this.mapEnvironments.get(environmentName);
         if (environment != null) {
-            environment.leave(this);
+            environment.leave(this.getInfo());
             this.mapEnvironments.remove(environmentName);
         }
     }
@@ -399,7 +399,8 @@ public abstract class AbstractAgent implements EventCatcher {
      * @return a new instance of {@link AgentInfo} which contains all information about the sima.core.agent.
      */
     public AgentInfo getInfo() {
-        return new AgentInfo(this.uuid, this.agentName);
+        return new AgentInfo(this.uuid, this.agentName, new ArrayList<>(this.mapBehaviors.keySet()),
+                new ArrayList<>(this.mapProtocol.keySet()), new ArrayList<>(this.mapEnvironments.keySet()));
     }
 
     // Getters and Setters.

@@ -81,10 +81,10 @@ public class TestAbstractAgent {
     @Test
     public void testJoinEnvironment() {
         assertFalse(AGENT_1.joinEnvironment(ENV));
-        assertFalse(ENV.isEvolving(AGENT_1));
+        assertFalse(ENV.isEvolving(AGENT_1.getInfo()));
 
         assertTrue(AGENT_0.joinEnvironment(ENV));
-        assertTrue(ENV.isEvolving(AGENT_0));
+        assertTrue(ENV.isEvolving(AGENT_0.getInfo()));
         assertTrue(AGENT_0.isEvolvingInEnvironment(ENV.getEnvironmentName()));
         assertTrue(AGENT_0.isEvolvingInEnvironment(ENV));
     }
@@ -92,16 +92,16 @@ public class TestAbstractAgent {
     @Test
     public void testLeaveEnvironment() {
         assertTrue(AGENT_0.joinEnvironment(ENV));
-        assertTrue(ENV.isEvolving(AGENT_0));
+        assertTrue(ENV.isEvolving(AGENT_0.getInfo()));
 
         AGENT_0.leaveEnvironment(ENV);
-        assertFalse(ENV.isEvolving(AGENT_0));
+        assertFalse(ENV.isEvolving(AGENT_0.getInfo()));
 
         assertTrue(AGENT_0.joinEnvironment(ENV));
-        assertTrue(ENV.isEvolving(AGENT_0));
+        assertTrue(ENV.isEvolving(AGENT_0.getInfo()));
 
         AGENT_0.leaveEnvironment(ENV.getEnvironmentName());
-        assertFalse(ENV.isEvolving(AGENT_0));
+        assertFalse(ENV.isEvolving(AGENT_0.getInfo()));
     }
 
     @Test
@@ -168,16 +168,16 @@ public class TestAbstractAgent {
         }
 
         /**
-         * @param abstractAgent the sima.core.agent to verify
+         * @param abstractAgentInfo the sima.core.agent to verify
          * @return true if the specified sima.core.agent is to {@link #AGENT_0}, else false.
          */
         @Override
-        protected boolean agentCanBeAccepted(AbstractAgent abstractAgent) {
-            return abstractAgent.equals(AGENT_0);
+        protected boolean agentCanBeAccepted(AgentInfo abstractAgentInfo) {
+            return abstractAgentInfo.equals(AGENT_0.getInfo());
         }
 
         @Override
-        protected void agentIsLeaving(AbstractAgent leavingAgent) {
+        protected void agentIsLeaving(AgentInfo leavingAgent) {
 
         }
 
@@ -187,12 +187,12 @@ public class TestAbstractAgent {
         }
 
         @Override
-        protected boolean eventCanBeSentTo(AbstractAgent receiver, Event event) {
+        protected boolean eventCanBeSentTo(AgentInfo receiver, Event event) {
             return true;
         }
 
         @Override
-        protected void scheduleEventReceptionToOneAgent(AbstractAgent receiver, Event event) {
+        protected void scheduleEventReceptionToOneAgent(AgentInfo receiver, Event event) {
             this.isPassToScheduleEventReceptionToOneAgent = true;
         }
 
