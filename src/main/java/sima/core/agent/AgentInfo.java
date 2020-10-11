@@ -46,6 +46,12 @@ public class AgentInfo implements Serializable {
 
     // Methods.
 
+    /**
+     * Only use the fields {@link #agentName} and {@link #agentID}.
+     *
+     * @param o the object to compare
+     * @return true if the object is equal to the {@code AgentInfo}, else false.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -55,6 +61,11 @@ public class AgentInfo implements Serializable {
                 agentName.equals(agentInfo.agentName);
     }
 
+    /**
+     * Only use the fields {@link #agentName} and {@link #agentID}.
+     *
+     * @return the hash code of the {@code AgentInfo}.
+     */
     @Override
     public int hashCode() {
         return Objects.hash(agentID, agentName);
