@@ -89,12 +89,6 @@ public class TestAbstractAgent {
         assertTrue(ENV.isEvolving(AGENT_0));
         assertTrue(AGENT_0.isEvolvingInEnvironment(ENV.getEnvironmentName()));
         assertTrue(AGENT_0.isEvolvingInEnvironment(ENV));
-
-        try {
-            assertEquals(AGENT_0, ENV.getAgent(AGENT_0.getUUID()));
-        } catch (NotEvolvingAgentInEnvironmentException e) {
-            fail();
-        }
     }
 
     @Test

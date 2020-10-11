@@ -62,41 +62,6 @@ public class TestEnvironment {
     }
 
     /**
-     * Test if the environment returns the correct agent with the method {@link Environment#getAgent(UUID)}.
-     * <p>
-     * The test is done on null agent, the agent {@link #AGENT_0} which is evolving in the environment and the agent
-     * {@link #AGENT_1} which is not evolving in the environment.
-     */
-    @Test
-    public void testGetAgent() {
-        assertFalse(ENV.isEvolving(null));
-        assertFalse(ENV.isEvolving(AGENT_0));
-        assertFalse(ENV.isEvolving(AGENT_1));
-
-        assertFalse(ENV.acceptAgent(null));
-        assertTrue(ENV.acceptAgent(AGENT_0));
-        assertFalse(ENV.acceptAgent(AGENT_1));
-
-        assertFalse(ENV.isEvolving(null));
-        assertTrue(ENV.isEvolving(AGENT_0));
-        assertFalse(ENV.isEvolving(AGENT_1));
-
-        try {
-            assertNull(ENV.getAgent(null));
-        } catch (NotEvolvingAgentInEnvironmentException e) {
-            fail();
-        }
-
-        try {
-            assertEquals(AGENT_0, ENV.getAgent(AGENT_0.getUUID()));
-        } catch (NotEvolvingAgentInEnvironmentException e) {
-            fail();
-        }
-
-        assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> ENV.getAgent(AGENT_1.getUUID()));
-    }
-
-    /**
      * Test if after accept some agent, the environment remove the agents which leave it.
      */
     @Test
