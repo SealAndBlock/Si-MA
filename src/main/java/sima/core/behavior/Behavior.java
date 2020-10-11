@@ -3,12 +3,13 @@ package sima.core.behavior;
 import sima.core.agent.AbstractAgent;
 import sima.core.behavior.exception.BehaviorCannotBePlayedByAgentException;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
  * Represents the behavior that an {@link AbstractAgent} can have.
  * <p>
- * All inherited classes of {@link Behavior} must have the same constructor {@link #Behavior(AbstractAgent, String[])}.
+ * All inherited classes of {@link Behavior} must have the same constructor {@link #Behavior(AbstractAgent, Map)}.
  * In that way, it allow the use of java reflexivity.
  */
 public abstract class Behavior {
@@ -28,18 +29,18 @@ public abstract class Behavior {
     // Constructors.
 
     /**
-     * Initiate the behavior with the instance of the agent which will play it and an array of arguments. Verifies if
+     * Initiate the behavior with the instance of the agent which will play it and an map of arguments. Verifies if
      * the specified agent can play the behavior, if it is not the case, throws a
      * {@link BehaviorCannotBePlayedByAgentException}.
      * <p>
      * All inherited classes of {@link Behavior} must have this constructor with sames arguments of this constructor.
      *
      * @param agent the agent which play the behavior
-     * @param args  arguments array
+     * @param args  arguments map (map argument name with the argument)
      * @throws NullPointerException                   if the agent is null
      * @throws BehaviorCannotBePlayedByAgentException if the behavior cannot be played by the agent
      */
-    public Behavior(AbstractAgent agent, String[] args) throws BehaviorCannotBePlayedByAgentException {
+    public Behavior(AbstractAgent agent, Map<String, String> args) throws BehaviorCannotBePlayedByAgentException {
         this.agent = Optional.of(agent).get();
 
         if (!this.canBePlayedBy(this.agent))
@@ -56,9 +57,9 @@ public abstract class Behavior {
      * Method called in the constructors. It is this method which make all treatment associated to all arguments
      * received.
      *
-     * @param args arguments array
+     * @param args arguments map (map argument name with the argument)
      */
-    protected abstract void processArgument(String[] args);
+    protected abstract void processArgument(Map<String, String> args);
 
     /**
      * Verify if the agent can play the behavior or not.

@@ -151,14 +151,14 @@ public class TestAbstractAgent {
 
         // Constructors.
 
-        public EnvironmentTestImpl(String environmentName, String[] args) {
+        public EnvironmentTestImpl(String environmentName, Map<String, String> args) {
             super(environmentName, args);
         }
 
         // Methods.
 
         @Override
-        protected void processArgument(String[] args) {
+        protected void processArgument(Map<String, String> args) {
         }
 
         /**
@@ -240,14 +240,14 @@ public class TestAbstractAgent {
 
         // Constructors.
 
-        public BehaviorTestImpl(AbstractAgent agent, String[] args) throws BehaviorCannotBePlayedByAgentException {
+        public BehaviorTestImpl(AbstractAgent agent, Map<String, String> args) throws BehaviorCannotBePlayedByAgentException {
             super(agent, args);
         }
 
         // Methods.
 
         @Override
-        protected void processArgument(String[] args) {
+        protected void processArgument(Map<String, String> args) {
 
         }
 
@@ -276,14 +276,14 @@ public class TestAbstractAgent {
 
         // Constructors.
 
-        public ProtocolTestImpl(String protocolTag, String[] args) {
+        public ProtocolTestImpl(String protocolTag, Map<String, String> args) {
             super(protocolTag, args);
         }
 
         // Methods.
 
         @Override
-        protected void processArgument(String[] args) {
+        protected void processArgument(Map<String, String> args) {
 
         }
 

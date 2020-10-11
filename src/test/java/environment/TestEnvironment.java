@@ -10,6 +10,7 @@ import sima.core.environment.exception.NotEvolvingAgentInEnvironmentException;
 import sima.core.protocol.ProtocolIdentifier;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -156,14 +157,14 @@ public class TestEnvironment {
 
         // Constructors.
 
-        public EnvironmentTestImpl(String environmentName, String[] args) {
+        public EnvironmentTestImpl(String environmentName, Map<String, String> args) {
             super(environmentName, args);
         }
 
         // Methods.
 
         @Override
-        protected void processArgument(String[] args) {
+        protected void processArgument(Map<String, String> args) {
         }
 
         /**

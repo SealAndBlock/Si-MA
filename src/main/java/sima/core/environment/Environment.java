@@ -53,9 +53,9 @@ public abstract class Environment implements EventCatcher {
      * All inherited classes must have this constructor to allow the use of the java reflexivity.
      *
      * @param environmentName the environment name
-     * @param args            the arrays of arguments to transfer to the environment
+     * @param args            arguments map (map argument name with the argument)
      */
-    protected Environment(String environmentName, String[] args) {
+    protected Environment(String environmentName, Map<String, String> args) {
         this.environmentName = environmentName;
 
         if (this.environmentName == null)
@@ -73,9 +73,9 @@ public abstract class Environment implements EventCatcher {
      * Method called in the constructors. It is this method which make all treatment associated to all arguments
      * received.
      *
-     * @param args arguments array
+     * @param args arguments map (map argument name with the argument)
      */
-    protected abstract void processArgument(String[] args);
+    protected abstract void processArgument(Map<String, String> args);
 
     /**
      * Add the agent in the environment. The agent can be not accept in the environment, in that case, the methods

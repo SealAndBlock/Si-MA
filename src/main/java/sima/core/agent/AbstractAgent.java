@@ -246,11 +246,11 @@ public abstract class AbstractAgent implements EventCatcher {
      * @param args          the argument to transfer to the behavior
      * @return true if the behavior has been added to the agent, else false.
      */
-    public boolean addBehavior(Class<? extends Behavior> behaviorClass, String[] args) {
+    public boolean addBehavior(Class<? extends Behavior> behaviorClass, Map<String, String> args) {
         if (this.mapBehaviors.get(behaviorClass.getName()) == null)
             try {
-                Constructor<? extends Behavior> constructor = behaviorClass.getConstructor(AbstractAgent.class,
-                        String[].class);
+                Constructor<? extends Behavior> constructor = behaviorClass.
+                        getConstructor(AbstractAgent.class, Map.class);
                 Behavior behavior = constructor.newInstance(this, args);
                 this.mapBehaviors.put(behaviorClass.getName(), behavior);
                 return true;
