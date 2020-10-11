@@ -1,6 +1,7 @@
 package sima.core.protocol;
 
 import org.junit.jupiter.api.Test;
+import sima.core.agent.AbstractAgent;
 import sima.core.environment.event.Event;
 
 import java.util.Map;
@@ -9,13 +10,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestProtocol {
 
+    private static final AgentTestImpl OWNER = new AgentTestImpl("OWNER");
+
     /**
      * Test if for a {@link Protocol} which returns null with the method which give the default
      * {@link ProtocolManipulator}, a {@link NullPointerException} is thrown.
      */
     @Test
     public void testProtocolDefaultProtocolManipulatorConstructor() {
-        assertThrows(NullPointerException.class, () -> new Protocol("P0", null) {
+        assertThrows(NullPointerException.class, () -> new Protocol("P0", OWNER, null) {
             @Override
             public void processEvent(Event event) {
             }
@@ -30,22 +33,10 @@ public class TestProtocol {
             }
         });
 
+        assertThrows(NullPointerException.class, () -> new ProtocolTestImpl("P0", null, null));
+
         try {
-            Protocol p = new Protocol("P0", null) {
-                @Override
-                public void processEvent(Event event) {
-                }
-
-                @Override
-                protected void processArgument(Map<String, String> args) {
-                }
-
-                @Override
-                protected ProtocolManipulator getDefaultProtocolManipulator() {
-                    return new ProtocolManipulator(this) {
-                    };
-                }
-            };
+            Protocol p = new ProtocolTestImpl("P0", OWNER, null);
         } catch (NullPointerException e) {
             fail();
         }
@@ -57,7 +48,7 @@ public class TestProtocol {
      */
     @Test
     public void testSetProtocolManipulator() {
-        ProtocolTestImpl p = new ProtocolTestImpl("P0", null);
+        ProtocolTestImpl p = new ProtocolTestImpl("P0", OWNER, null);
         assertEquals(p.getDefaultProtocolManipulator(), p.getProtocolManipulator());
 
         assertThrows(NullPointerException.class, () -> p.setProtocolManipulator(null));
@@ -78,7 +69,7 @@ public class TestProtocol {
      */
     @Test
     public void testResetDefaultProtocolManipulator() {
-        Protocol p = new Protocol("P0", null) {
+        Protocol p = new Protocol("P0", OWNER, null) {
             private int i;
 
             @Override
@@ -102,7 +93,7 @@ public class TestProtocol {
 
         assertThrows(NullPointerException.class, p::resetDefaultProtocolManipulator);
 
-        ProtocolTestImpl p1 = new ProtocolTestImpl("P0", null);
+        ProtocolTestImpl p1 = new ProtocolTestImpl("P0", OWNER, null);
         assertEquals(p1.getDefaultProtocolManipulator(), p1.getProtocolManipulator());
 
         ProtocolManipulator pm = new ProtocolManipulator(p1) {
@@ -121,9 +112,9 @@ public class TestProtocol {
      */
     @Test
     public void testProtocolIdentifier() {
-        Protocol p0 = new ProtocolTestImpl("P0", null);
-        Protocol p1 = new ProtocolTestImpl("P1", null);
-        Protocol p2 = new ProtocolTestImpl("P0", null);
+        Protocol p0 = new ProtocolTestImpl("P0", OWNER, null);
+        Protocol p1 = new ProtocolTestImpl("P1", OWNER, null);
+        Protocol p2 = new ProtocolTestImpl("P0", OWNER, null);
 
         ProtocolIdentifier pI = p0.getIdentifier();
 
@@ -142,8 +133,8 @@ public class TestProtocol {
 
         // Constructors.
 
-        public ProtocolTestImpl(String protocolTag, Map<String, String> args) {
-            super(protocolTag, args);
+        public ProtocolTestImpl(String protocolTag, AbstractAgent agentOwner, Map<String, String> args) {
+            super(protocolTag, agentOwner, args);
         }
 
         // Methods.
@@ -163,6 +154,37 @@ public class TestProtocol {
 
         @Override
         public void processEvent(Event event) {
+        }
+    }
+
+    private static class AgentTestImpl extends AbstractAgent {
+
+        // Constructors.
+
+        public AgentTestImpl(String agentName) {
+            super(agentName);
+        }
+
+        // Methods.
+
+        @Override
+        public void onStart() {
+
+        }
+
+        @Override
+        public void onKill() {
+
+        }
+
+        @Override
+        protected void treatNoProtocolEvent(Event event) {
+
+        }
+
+        @Override
+        protected void treatEventWithNotFindProtocol(Event event) {
+
         }
     }
 

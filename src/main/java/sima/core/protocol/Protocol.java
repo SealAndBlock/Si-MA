@@ -34,6 +34,8 @@ public abstract class Protocol implements EventCatcher {
      */
     private final String protocolTag;
 
+    private final AbstractAgent agentOwner;
+
     /**
      * The sima.core.protocol manipulator. Must be not null.
      */
@@ -42,21 +44,25 @@ public abstract class Protocol implements EventCatcher {
     // Constructors.
 
     /**
-     * Create a sima.core.protocol with a tag and an map of arguments.
+     * Create a sima.core.protocol with a unique tag, an agent owner and an map of arguments.
      * <p>
      * This constructors set the protocolManipulator with the method {@link #getDefaultProtocolManipulator()}. This
      * method must never returns null, however, if it is the case, a {@link NullPointerException} is thrown.
      * <p>
-     * If the tag is null, throws a {@link NullPointerException}.
+     * If the tag or the agent owner is null, throws a {@link NullPointerException}.
      * <p>
      * This constructor must always be implemented by inherited class. In that way, the java reflexivity can be used.
      *
      * @param protocolTag the tag of the sima.core.protocol (must be not null)
+     * @param agentOwner  the agent which use the instance of the protocol (must be not null)
      * @param args        arguments map (map argument name with the argument)
-     * @throws NullPointerException if the sima.core.protocol tag and/or the sima.core.protocol manipulator is null
+     * @throws NullPointerException if the sima.core.protocol tag or the sima.core.protocol manipulator or the agent
+     *                              owner is null.
      */
-    protected Protocol(String protocolTag, Map<String, String> args) {
+    protected Protocol(String protocolTag, AbstractAgent agentOwner, Map<String, String> args) {
         this.protocolTag = Optional.of(protocolTag).get();
+
+        this.agentOwner = Optional.of(agentOwner).get();
 
         this.protocolManipulator = Optional.of(this.getDefaultProtocolManipulator()).get();
 
@@ -110,6 +116,10 @@ public abstract class Protocol implements EventCatcher {
 
     public String getProtocolTag() {
         return protocolTag;
+    }
+
+    public AbstractAgent getAgentOwner() {
+        return agentOwner;
     }
 
     public ProtocolManipulator getProtocolManipulator() {

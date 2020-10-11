@@ -2,7 +2,6 @@ package sima.core.agent;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import sima.core.agent.AbstractAgent;
 import sima.core.agent.exception.AlreadyKilledAgentException;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
@@ -130,8 +129,8 @@ public class TestAbstractAgent {
 
     @Test
     public void testAddProtocol() {
-        ProtocolTestImpl p0 = new ProtocolTestImpl("TAG_0", null);
-        ProtocolTestImpl p1 = new ProtocolTestImpl("TAG_1", null);
+        ProtocolTestImpl p0 = new ProtocolTestImpl("TAG_0", AGENT_0, null);
+        ProtocolTestImpl p1 = new ProtocolTestImpl("TAG_1", AGENT_0, null);
 
         AGENT_0.addProtocol(p0);
         AGENT_0.addProtocol(p1);
@@ -276,8 +275,8 @@ public class TestAbstractAgent {
 
         // Constructors.
 
-        public ProtocolTestImpl(String protocolTag, Map<String, String> args) {
-            super(protocolTag, args);
+        public ProtocolTestImpl(String protocolTag, AbstractAgent agentOwner, Map<String, String> args) {
+            super(protocolTag, agentOwner, args);
         }
 
         // Methods.
