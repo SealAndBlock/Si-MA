@@ -39,6 +39,11 @@ public class TestAbstractAgent {
 
     // Tests.
 
+    @Test
+    public void testWrong() {
+        fail();
+    }
+
     /**
      * Test the constructor of {@link AbstractAgent} and if each instance are always different with different
      * {@link java.util.UUID}.
