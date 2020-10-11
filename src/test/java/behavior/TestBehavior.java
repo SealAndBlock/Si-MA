@@ -7,6 +7,8 @@ import sima.core.behavior.Behavior;
 import sima.core.behavior.exception.BehaviorCannotBePlayedByAgentException;
 import sima.core.environment.event.Event;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -35,7 +37,7 @@ public class TestBehavior {
     public void testBehaviorConstructor() {
         assertThrows(BehaviorCannotBePlayedByAgentException.class, () -> new Behavior(AGENT_1, null) {
             @Override
-            protected void processArgument(String[] args) {
+            protected void processArgument(Map<String, String> args) {
             }
 
             @Override
@@ -55,7 +57,7 @@ public class TestBehavior {
         try {
             new Behavior(AGENT_0, null) {
                 @Override
-                protected void processArgument(String[] args) {
+                protected void processArgument(Map<String, String> args) {
                 }
 
                 @Override
