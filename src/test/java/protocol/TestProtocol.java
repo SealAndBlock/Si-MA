@@ -6,6 +6,8 @@ import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
 import sima.core.protocol.ProtocolManipulator;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestProtocol {
@@ -22,7 +24,7 @@ public class TestProtocol {
             }
 
             @Override
-            protected void processArgument(String[] args) {
+            protected void processArgument(Map<String, String> args) {
             }
 
             @Override
@@ -38,7 +40,7 @@ public class TestProtocol {
                 }
 
                 @Override
-                protected void processArgument(String[] args) {
+                protected void processArgument(Map<String, String> args) {
                 }
 
                 @Override
@@ -83,7 +85,7 @@ public class TestProtocol {
             private int i;
 
             @Override
-            protected void processArgument(String[] args) {
+            protected void processArgument(Map<String, String> args) {
             }
 
             @Override
@@ -143,14 +145,14 @@ public class TestProtocol {
 
         // Constructors.
 
-        public ProtocolTestImpl(String protocolTag, String[] args) {
+        public ProtocolTestImpl(String protocolTag, Map<String, String> args) {
             super(protocolTag, args);
         }
 
         // Methods.
 
         @Override
-        protected void processArgument(String[] args) {
+        protected void processArgument(Map<String, String> args) {
         }
 
         @Override

@@ -29,7 +29,7 @@ public abstract class Behavior {
     // Constructors.
 
     /**
-     * Initiate the behavior with the instance of the agent which will play it and an array of arguments. Verifies if
+     * Initiate the behavior with the instance of the agent which will play it and an map of arguments. Verifies if
      * the specified agent can play the behavior, if it is not the case, throws a
      * {@link BehaviorCannotBePlayedByAgentException}.
      * <p>

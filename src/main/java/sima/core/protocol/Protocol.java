@@ -4,6 +4,7 @@ import sima.core.agent.AbstractAgent;
 import sima.core.behavior.Behavior;
 import sima.core.environment.event.EventCatcher;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -41,7 +42,7 @@ public abstract class Protocol implements EventCatcher {
     // Constructors.
 
     /**
-     * Create a protocol with a tag and an array of arguments.
+     * Create a protocol with a tag and an map of arguments.
      * <p>
      * This constructors set the protocolManipulator with the method {@link #getDefaultProtocolManipulator()}. This
      * method must never returns null, however, if it is the case, a {@link NullPointerException} is thrown.
@@ -51,10 +52,10 @@ public abstract class Protocol implements EventCatcher {
      * This constructor must always be implemented by inherited class. In that way, the java reflexivity can be used.
      *
      * @param protocolTag the tag of the protocol (must be not null)
-     * @param args        the array of arguments to transfer to the protocol
+     * @param args        arguments map (map argument name with the argument)
      * @throws NullPointerException if the protocol tag and/or the protocol manipulator is null
      */
-    protected Protocol(String protocolTag, String[] args) {
+    protected Protocol(String protocolTag, Map<String, String> args) {
         this.protocolTag = Optional.of(protocolTag).get();
 
         this.protocolManipulator = Optional.of(this.getDefaultProtocolManipulator()).get();
@@ -69,9 +70,9 @@ public abstract class Protocol implements EventCatcher {
      * Method called in the constructors. It is this method which make all treatment associated to all arguments
      * received.
      *
-     * @param args arguments array
+     * @param args arguments map (map argument name with the argument)
      */
-    protected abstract void processArgument(String[] args);
+    protected abstract void processArgument(Map<String, String> args);
 
     /**
      * Returns the {@link ProtocolIdentifier} of the protocol. The protocol identifier must allow an agent to

@@ -276,14 +276,14 @@ public class TestAbstractAgent {
 
         // Constructors.
 
-        public ProtocolTestImpl(String protocolTag, String[] args) {
+        public ProtocolTestImpl(String protocolTag, Map<String, String> args) {
             super(protocolTag, args);
         }
 
         // Methods.
 
         @Override
-        protected void processArgument(String[] args) {
+        protected void processArgument(Map<String, String> args) {
 
         }
 
