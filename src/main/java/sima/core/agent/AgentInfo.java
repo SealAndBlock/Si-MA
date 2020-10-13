@@ -16,6 +16,8 @@ public class AgentInfo implements Serializable {
 
     private final String agentName;
 
+    private final int agentNumberId;
+
     private final List<String> behaviors;
 
     private final List<ProtocolIdentifier> protocols;
@@ -27,17 +29,19 @@ public class AgentInfo implements Serializable {
     /**
      * Create an {@link AgentInfo}. All specified list must be {@link Serializable}.
      *
-     * @param agentID      the agent {@link UUID}
-     * @param agentName    the agent name
-     * @param behaviors    the agent behavior list
-     * @param protocols    the agent protocol list
-     * @param environments the agent environment list
+     * @param agentID       the agent {@link UUID}
+     * @param agentName     the agent name
+     * @param agentNumberId the agent number id
+     * @param behaviors     the agent behavior list
+     * @param protocols     the agent protocol list
+     * @param environments  the agent environment list
      * @throws NullPointerException if the agentID or the agentName is null.
      */
-    public AgentInfo(UUID agentID, String agentName, List<String> behaviors, List<ProtocolIdentifier> protocols,
+    public AgentInfo(UUID agentID, String agentName, int agentNumberId, List<String> behaviors, List<ProtocolIdentifier> protocols,
                      List<String> environments) {
         this.agentID = Optional.of(agentID).get();
         this.agentName = Optional.of(agentName).get();
+        this.agentNumberId = agentNumberId;
 
         this.behaviors = Optional.ofNullable(behaviors).orElse(Collections.emptyList());
         this.protocols = Optional.ofNullable(protocols).orElse(Collections.emptyList());
@@ -75,6 +79,10 @@ public class AgentInfo implements Serializable {
 
     public UUID getAgentID() {
         return agentID;
+    }
+
+    public int getAgentNumberId() {
+        return agentNumberId;
     }
 
     public String getAgentName() {
