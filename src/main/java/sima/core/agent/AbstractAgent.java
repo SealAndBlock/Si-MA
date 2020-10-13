@@ -34,6 +34,11 @@ public abstract class AbstractAgent implements EventCatcher {
     private final String agentName;
 
     /**
+     * A number greater or equal to 0. This number is define by the {@code Simulator}.
+     */
+    private final int numberId;
+
+    /**
      * The several environments where the sima.core.agent evolves.
      * <p>
      * Associate the sima.core.environment name get with the method {@link Environment#getEnvironmentName()} and the
@@ -72,9 +77,16 @@ public abstract class AbstractAgent implements EventCatcher {
      * Constructs an sima.core.agent with a name and no environments, behaviors and protocols.
      *
      * @param agentName the sima.core.agent name
+     * @throws NullPointerException     if the agentName is null.
+     * @throws IllegalArgumentException if the numberId is less than 0.
      */
-    protected AbstractAgent(String agentName) {
+    protected AbstractAgent(String agentName, int numberId) {
         this.uuid = UUID.randomUUID();
+
+        this.numberId = numberId;
+        if (this.numberId < 0)
+            throw new IllegalArgumentException("The numberId must be greater or equal to 0, the current numberId = " +
+                    this.numberId);
 
         this.agentName = agentName;
         if (this.agentName == null)
