@@ -422,7 +422,11 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     public String getAgentName() {
-        return agentName;
+        return this.agentName;
+    }
+
+    public int getNumberId() {
+        return this.numberId;
     }
 
     public Map<String, Environment> getMapEnvironments() {
