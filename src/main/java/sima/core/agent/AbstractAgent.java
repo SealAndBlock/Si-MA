@@ -76,11 +76,13 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * Constructs an sima.core.agent with a name and no environments, behaviors and protocols.
      *
-     * @param agentName the sima.core.agent name
+     * @param agentName the agent name
+     * @param numberId the number Id of the agent
+     * @param args the map of argument
      * @throws NullPointerException     if the agentName is null.
      * @throws IllegalArgumentException if the numberId is less than 0.
      */
-    protected AbstractAgent(String agentName, int numberId) {
+    protected AbstractAgent(String agentName, int numberId, Map<String, String> args) {
         this.uuid = UUID.randomUUID();
 
         this.numberId = numberId;
@@ -95,9 +97,20 @@ public abstract class AbstractAgent implements EventCatcher {
         this.mapEnvironments = new HashMap<>();
         this.mapBehaviors = new HashMap<>();
         this.mapProtocol = new HashMap<>();
+
+        if (args != null)
+            this.processArgument(args);
     }
 
     // Methods.
+
+    /**
+     * Method called in the constructors. It is this method which make all treatment associated to all arguments
+     * received.
+     *
+     * @param args arguments map (map argument name with the argument)
+     */
+    protected abstract void processArgument(Map<String, String> args);
 
     /**
      * Only use the attributes {@link #uuid} and {@link #agentName} to compare two agents.
