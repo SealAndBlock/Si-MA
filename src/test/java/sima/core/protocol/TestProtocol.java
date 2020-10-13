@@ -162,7 +162,7 @@ public class TestProtocol {
         // Constructors.
 
         public AgentTestImpl(String agentName) {
-            super(agentName);
+            super(agentName, 0);
         }
 
         // Methods.
