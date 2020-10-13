@@ -84,10 +84,14 @@ public class TestBehavior {
         // Constructors.
 
         public AgentTestImpl(String agentName) {
-            super(agentName, 0);
+            super(agentName, 0, null);
         }
 
         // Methods.
+
+        @Override
+        protected void processArgument(Map<String, String> args) {
+        }
 
         @Override
         public void onStart() {
