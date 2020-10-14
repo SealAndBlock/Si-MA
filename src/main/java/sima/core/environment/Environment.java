@@ -155,7 +155,6 @@ public abstract class Environment implements EventCatcher {
      * method {@link #acceptAgent(AgentIdentifier)} has been called. If we want update {@code AgentIdentifier}, we must call
      * the method {@link AbstractAgent#getInfo()}.
      * <p>
-     * TODO after the addition of the Simulation object, it will be possible to take via the Simulation the update AgentIdentifier
      *
      * @param agentID the uuid of the wanted sima.core.agent
      * @return the agent which has the uuid specified. If the agent is not find in the {@code Environment}, returns
@@ -164,6 +163,8 @@ public abstract class Environment implements EventCatcher {
      *                                                the {@code Environment}
      */
     protected AgentIdentifier getAgentIdentifier(UUID agentID) throws NotEvolvingAgentInEnvironmentException {
+        // TODO after the addition of the Simulation object, it will be possible to take via the Simulation the update AgentIdentifier
+
         if (agentID == null)
             return null;
 
