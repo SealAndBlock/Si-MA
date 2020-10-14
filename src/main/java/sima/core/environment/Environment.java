@@ -199,23 +199,26 @@ public abstract class Environment implements EventCatcher {
      * manage which agents must receive the {@code Event}.
      *
      * @param event the event to send
-     * @throws NotEvolvingAgentInEnvironmentException if the sender and/or the receiver sima.core.agent are not evolving in the
-     *                                                sima.core.environment
+     * @throws NotEvolvingAgentInEnvironmentException if the sender and/or the receiver agent are not evolving in the
+     *                                                {@link Environment}.
      */
     public void sendEvent(Event event) throws NotEvolvingAgentInEnvironmentException {
         if (event != null) {
-            UUID senderID = event.getSender();
-            AgentIdentifier sender = this.getAgentIdentifier(senderID);
+            AgentIdentifier sender = event.getSender();
 
             if (this.isEvolving(sender)) {
                 if (event.getReceiver() == null) {
                     // No receiver for the event
                     this.sendEventWithoutReceiver(event);
                 } else {
-                    // Event destined for one identified sima.core.agent.
+                    // Event destined for one identified agent.
                     // getAgent() detects if the sima.core.agent is evolving or not in the sima.core.environment
-                    AgentIdentifier receiver = this.getAgentIdentifier(event.getReceiver());
-                    this.verifyAndScheduleEvent(receiver, event);
+                    AgentIdentifier receiver = event.getReceiver();
+                    if (this.isEvolving(receiver))
+                        this.verifyAndScheduleEvent(receiver, event);
+                    else
+                        throw new NotEvolvingAgentInEnvironmentException("The receiver agent " + receiver + " is " +
+                                "not evolving in the environment " + this.getEnvironmentName());
                 }
             } else
                 throw new NotEvolvingAgentInEnvironmentException("The sender sima.core.agent " + sender + " is not " +

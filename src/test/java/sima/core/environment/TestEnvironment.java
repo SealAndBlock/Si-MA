@@ -10,7 +10,6 @@ import sima.core.protocol.ProtocolIdentifier;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -120,13 +119,14 @@ public class TestEnvironment {
 
         assertThrows(NullPointerException.class, () -> ENV.sendEvent(null));
 
-        EventTestImpl e0 = new EventTestImpl(AGENT_1.getUUID(), AGENT_0.getUUID(), null);
+        EventTestImpl e0 = new EventTestImpl(AGENT_1.getAgentIdentifier(), AGENT_0.getAgentIdentifier(), null);
         assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> ENV.sendEvent(e0));
 
-        EventTestImpl e1 = new EventTestImpl(AGENT_0.getUUID(), AGENT_1.getUUID(), null);
+        // AGENT_1 not evolving in environment
+        EventTestImpl e1 = new EventTestImpl(AGENT_0.getAgentIdentifier(), AGENT_1.getAgentIdentifier(), null);
         assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> ENV.sendEvent(e1));
 
-        EventTestImpl e2 = new EventTestImpl(AGENT_0.getUUID(), AGENT_0.getUUID(), null);
+        EventTestImpl e2 = new EventTestImpl(AGENT_0.getAgentIdentifier(), AGENT_0.getAgentIdentifier(), null);
         try {
             ENV.sendEvent(e2);
             assertTrue(((EnvironmentTestImpl) ENV).isPassToScheduleEventReceptionToOneAgent);
@@ -136,14 +136,14 @@ public class TestEnvironment {
             fail();
         }
 
-        EventTestImpl e3 = new EventTestImpl(AGENT_0.getUUID(), null, null);
+        EventTestImpl e3 = new EventTestImpl(AGENT_0.getAgentIdentifier(), null, null);
         try {
             ENV.sendEvent(e3);
             assertFalse(((EnvironmentTestImpl) ENV).isPassToScheduleEventReceptionToOneAgent);
             assertTrue(((EnvironmentTestImpl) ENV).isPassToSendEventWithoutReceiver);
             ((EnvironmentTestImpl) ENV).reset();
         } catch (NotEvolvingAgentInEnvironmentException e) {
-            e.printStackTrace();
+            fail();
         }
     }
 
@@ -243,7 +243,7 @@ public class TestEnvironment {
 
         // Constructors.
 
-        public EventTestImpl(UUID sender, UUID receiver, ProtocolIdentifier protocolTargeted) {
+        public EventTestImpl(AgentIdentifier sender, AgentIdentifier receiver, ProtocolIdentifier protocolTargeted) {
             super(sender, receiver, protocolTargeted);
         }
     }
