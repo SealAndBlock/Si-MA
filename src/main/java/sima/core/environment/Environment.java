@@ -148,37 +148,6 @@ public abstract class Environment implements EventCatcher {
     }
 
     /**
-     * Finds the agent which is evolving in the {@link Environment} and which has the same uuid of the specified uuid.
-     * If the agent is not find, returns null.
-     *
-     * <strong>WARNING!</strong> The {@link AgentIdentifier} returns is the {@code AgentIdentifier} which was accepted when the
-     * method {@link #acceptAgent(AgentIdentifier)} has been called. If we want update {@code AgentIdentifier}, we must call
-     * the method {@link AbstractAgent#getInfo()}.
-     * <p>
-     *
-     * @param agentID the uuid of the wanted sima.core.agent
-     * @return the agent which has the uuid specified. If the agent is not find in the {@code Environment}, returns
-     * null.
-     * @throws NotEvolvingAgentInEnvironmentException if there is no sima.core.agent with the specify uuid evolving in
-     *                                                the {@code Environment}
-     */
-    protected AgentIdentifier getAgentIdentifier(UUID agentID) throws NotEvolvingAgentInEnvironmentException {
-        // TODO after the addition of the Simulation object, it will be possible to take via the Simulation the update AgentIdentifier
-
-        if (agentID == null)
-            return null;
-
-        for (AgentIdentifier agent : this.evolvingAgents) {
-            if (agent.getAgentUUID().equals(agentID)) {
-                return agent;
-            }
-        }
-
-        throw new NotEvolvingAgentInEnvironmentException("No sima.core.agent with the uuid " + agentID + " is evolving " +
-                "in the sima.core.environment.");
-    }
-
-    /**
      * @return the list of all {@link AgentIdentifier} of all agents evolving in the sima.core.environment, if there is no sima.core.agent,
      * returns an empty list but never null.
      */
