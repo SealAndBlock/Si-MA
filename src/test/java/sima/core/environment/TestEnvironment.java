@@ -3,7 +3,7 @@ package sima.core.environment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sima.core.agent.AbstractAgent;
-import sima.core.agent.AgentInfo;
+import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
 import sima.core.environment.exception.NotEvolvingAgentInEnvironmentException;
 import sima.core.protocol.ProtocolIdentifier;
@@ -36,7 +36,7 @@ public class TestEnvironment {
     // Tests.
 
     /**
-     * Test the method {@link sima.core.environment.Environment#acceptAgent(AgentInfo)}.
+     * Test the method {@link sima.core.environment.Environment#acceptAgent(AgentIdentifier)}.
      * <p>
      * Test in first if the null sima.core.agent and {@link #AGENT_0} and {@link #AGENT_1} are not evolving in the sima.core.environment.
      * <p>
@@ -49,16 +49,16 @@ public class TestEnvironment {
     @Test
     public void testAcceptingAgent() {
         assertFalse(ENV.isEvolving(null));
-        assertFalse(ENV.isEvolving(AGENT_0.getInfo()));
-        assertFalse(ENV.isEvolving(AGENT_1.getInfo()));
+        assertFalse(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
+        assertFalse(ENV.isEvolving(AGENT_1.getAgentIdentifier()));
 
         assertFalse(ENV.acceptAgent(null));
-        assertTrue(ENV.acceptAgent(AGENT_0.getInfo()));
-        assertFalse(ENV.acceptAgent(AGENT_1.getInfo()));
+        assertTrue(ENV.acceptAgent(AGENT_0.getAgentIdentifier()));
+        assertFalse(ENV.acceptAgent(AGENT_1.getAgentIdentifier()));
 
         assertFalse(ENV.isEvolving(null));
-        assertTrue(ENV.isEvolving(AGENT_0.getInfo()));
-        assertFalse(ENV.isEvolving(AGENT_1.getInfo()));
+        assertTrue(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
+        assertFalse(ENV.isEvolving(AGENT_1.getAgentIdentifier()));
     }
 
     /**
@@ -67,56 +67,56 @@ public class TestEnvironment {
     @Test
     public void testLeavingAgent() {
         assertFalse(ENV.isEvolving(null));
-        assertFalse(ENV.isEvolving(AGENT_0.getInfo()));
-        assertFalse(ENV.isEvolving(AGENT_1.getInfo()));
+        assertFalse(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
+        assertFalse(ENV.isEvolving(AGENT_1.getAgentIdentifier()));
 
         assertFalse(ENV.acceptAgent(null));
-        assertTrue(ENV.acceptAgent(AGENT_0.getInfo()));
-        assertFalse(ENV.acceptAgent(AGENT_1.getInfo()));
+        assertTrue(ENV.acceptAgent(AGENT_0.getAgentIdentifier()));
+        assertFalse(ENV.acceptAgent(AGENT_1.getAgentIdentifier()));
 
         ENV.leave(null);
-        ENV.leave(AGENT_0.getInfo());
-        ENV.leave(AGENT_1.getInfo());
+        ENV.leave(AGENT_0.getAgentIdentifier());
+        ENV.leave(AGENT_1.getAgentIdentifier());
 
         assertFalse(ENV.isEvolving(null));
-        assertFalse(ENV.isEvolving(AGENT_0.getInfo()));
-        assertFalse(ENV.isEvolving(AGENT_1.getInfo()));
+        assertFalse(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
+        assertFalse(ENV.isEvolving(AGENT_1.getAgentIdentifier()));
     }
 
     /**
-     * Test if the list returns by the method {@link Environment#getEvolvingAgentsInfo()} coincides with the current
+     * Test if the list returns by the method {@link Environment#getEvolvingAgentIdentifiers()} coincides with the current
      * agents evolving in the sima.core.environment.
      */
     @Test
     public void testGetEvolvingAgentsInfo() {
         assertFalse(ENV.isEvolving(null));
-        assertFalse(ENV.isEvolving(AGENT_0.getInfo()));
-        assertFalse(ENV.isEvolving(AGENT_1.getInfo()));
+        assertFalse(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
+        assertFalse(ENV.isEvolving(AGENT_1.getAgentIdentifier()));
 
         assertFalse(ENV.acceptAgent(null));
-        assertTrue(ENV.acceptAgent(AGENT_0.getInfo()));
-        assertFalse(ENV.acceptAgent(AGENT_1.getInfo()));
+        assertTrue(ENV.acceptAgent(AGENT_0.getAgentIdentifier()));
+        assertFalse(ENV.acceptAgent(AGENT_1.getAgentIdentifier()));
 
-        List<AgentInfo> agentInfos = ENV.getEvolvingAgentsInfo();
-        assertEquals(agentInfos.size(), 1);
-        assertTrue(agentInfos.contains(AGENT_0.getInfo()));
-        assertFalse(agentInfos.contains(AGENT_1.getInfo()));
+        List<AgentIdentifier> agentIdentifiers = ENV.getEvolvingAgentIdentifiers();
+        assertEquals(agentIdentifiers.size(), 1);
+        assertTrue(agentIdentifiers.contains(AGENT_0.getAgentIdentifier()));
+        assertFalse(agentIdentifiers.contains(AGENT_1.getAgentIdentifier()));
 
         ENV.leave(null);
-        ENV.leave(AGENT_0.getInfo());
-        ENV.leave(AGENT_1.getInfo());
+        ENV.leave(AGENT_0.getAgentIdentifier());
+        ENV.leave(AGENT_1.getAgentIdentifier());
 
-        agentInfos = ENV.getEvolvingAgentsInfo();
-        assertEquals(agentInfos.size(), 0);
-        assertFalse(agentInfos.contains(AGENT_0.getInfo()));
-        assertFalse(agentInfos.contains(AGENT_1.getInfo()));
+        agentIdentifiers = ENV.getEvolvingAgentIdentifiers();
+        assertEquals(agentIdentifiers.size(), 0);
+        assertFalse(agentIdentifiers.contains(AGENT_0.getAgentIdentifier()));
+        assertFalse(agentIdentifiers.contains(AGENT_1.getAgentIdentifier()));
     }
 
     @Test
     public void testSendEvent() {
-        assertFalse(ENV.isEvolving(AGENT_0.getInfo()));
+        assertFalse(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
 
-        assertTrue(ENV.acceptAgent(AGENT_0.getInfo()));
+        assertTrue(ENV.acceptAgent(AGENT_0.getAgentIdentifier()));
 
         assertThrows(NullPointerException.class, () -> ENV.sendEvent(null));
 
@@ -167,16 +167,16 @@ public class TestEnvironment {
         }
 
         /**
-         * @param abstractAgent the sima.core.agent to verify
+         * @param abstractAgentIdentifier the sima.core.agent to verify
          * @return true if the specified sima.core.agent is to {@link #AGENT_0}, else false.
          */
         @Override
-        protected boolean agentCanBeAccepted(AgentInfo abstractAgent) {
-            return abstractAgent.equals(AGENT_0.getInfo());
+        protected boolean agentCanBeAccepted(AgentIdentifier abstractAgentIdentifier) {
+            return abstractAgentIdentifier.equals(AGENT_0.getAgentIdentifier());
         }
 
         @Override
-        protected void agentIsLeaving(AgentInfo leavingAgent) {
+        protected void agentIsLeaving(AgentIdentifier leavingAgentIdentifier) {
         }
 
         @Override
@@ -185,12 +185,12 @@ public class TestEnvironment {
         }
 
         @Override
-        protected boolean eventCanBeSentTo(AgentInfo receiver, Event event) {
+        protected boolean eventCanBeSentTo(AgentIdentifier receiver, Event event) {
             return true;
         }
 
         @Override
-        protected void scheduleEventReceptionToOneAgent(AgentInfo receiver, Event event) {
+        protected void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event) {
             this.isPassToScheduleEventReceptionToOneAgent = true;
         }
 

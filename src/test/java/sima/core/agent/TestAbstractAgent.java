@@ -81,10 +81,10 @@ public class TestAbstractAgent {
     @Test
     public void testJoinEnvironment() {
         assertFalse(AGENT_1.joinEnvironment(ENV));
-        assertFalse(ENV.isEvolving(AGENT_1.getInfo()));
+        assertFalse(ENV.isEvolving(AGENT_1.getAgentIdentifier()));
 
         assertTrue(AGENT_0.joinEnvironment(ENV));
-        assertTrue(ENV.isEvolving(AGENT_0.getInfo()));
+        assertTrue(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
         assertTrue(AGENT_0.isEvolvingInEnvironment(ENV.getEnvironmentName()));
         assertTrue(AGENT_0.isEvolvingInEnvironment(ENV));
     }
@@ -92,16 +92,16 @@ public class TestAbstractAgent {
     @Test
     public void testLeaveEnvironment() {
         assertTrue(AGENT_0.joinEnvironment(ENV));
-        assertTrue(ENV.isEvolving(AGENT_0.getInfo()));
+        assertTrue(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
 
         AGENT_0.leaveEnvironment(ENV);
-        assertFalse(ENV.isEvolving(AGENT_0.getInfo()));
+        assertFalse(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
 
         assertTrue(AGENT_0.joinEnvironment(ENV));
-        assertTrue(ENV.isEvolving(AGENT_0.getInfo()));
+        assertTrue(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
 
         AGENT_0.leaveEnvironment(ENV.getEnvironmentName());
-        assertFalse(ENV.isEvolving(AGENT_0.getInfo()));
+        assertFalse(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
     }
 
     @Test
@@ -168,16 +168,16 @@ public class TestAbstractAgent {
         }
 
         /**
-         * @param abstractAgentInfo the sima.core.agent to verify
+         * @param abstractAgentIdentifier the sima.core.agent to verify
          * @return true if the specified sima.core.agent is to {@link #AGENT_0}, else false.
          */
         @Override
-        protected boolean agentCanBeAccepted(AgentInfo abstractAgentInfo) {
-            return abstractAgentInfo.equals(AGENT_0.getInfo());
+        protected boolean agentCanBeAccepted(AgentIdentifier abstractAgentIdentifier) {
+            return abstractAgentIdentifier.equals(AGENT_0.getAgentIdentifier());
         }
 
         @Override
-        protected void agentIsLeaving(AgentInfo leavingAgent) {
+        protected void agentIsLeaving(AgentIdentifier leavingAgentIdentifier) {
 
         }
 
@@ -187,12 +187,12 @@ public class TestAbstractAgent {
         }
 
         @Override
-        protected boolean eventCanBeSentTo(AgentInfo receiver, Event event) {
+        protected boolean eventCanBeSentTo(AgentIdentifier receiver, Event event) {
             return true;
         }
 
         @Override
-        protected void scheduleEventReceptionToOneAgent(AgentInfo receiver, Event event) {
+        protected void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event) {
             this.isPassToScheduleEventReceptionToOneAgent = true;
         }
 
