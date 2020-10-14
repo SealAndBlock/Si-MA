@@ -2,7 +2,7 @@ package sima.core.scheduler;
 
 import sima.core.agent.AgentIdentifier;
 
-public abstract class Action {
+public abstract class Action implements Executable {
 
     // Variables.
 
@@ -23,11 +23,6 @@ public abstract class Action {
     }
 
     // Methods.
-
-    /**
-     * The method to call to execute the {@link Action}.
-     */
-    public abstract void execute();
 
     // Getters and Setters.
 
