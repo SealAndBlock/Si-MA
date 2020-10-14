@@ -38,6 +38,8 @@ public abstract class AbstractAgent implements EventCatcher {
      */
     private final int numberId;
 
+    private final AgentIdentifier agentIdentifier;
+
     /**
      * The several environments where the sima.core.agent evolves.
      * <p>
@@ -77,8 +79,8 @@ public abstract class AbstractAgent implements EventCatcher {
      * Constructs an sima.core.agent with a name and no environments, behaviors and protocols.
      *
      * @param agentName the agent name
-     * @param numberId the number Id of the agent
-     * @param args the map of argument
+     * @param numberId  the number Id of the agent
+     * @param args      the map of argument
      * @throws NullPointerException     if the agentName is null.
      * @throws IllegalArgumentException if the numberId is less than 0.
      */
@@ -93,6 +95,8 @@ public abstract class AbstractAgent implements EventCatcher {
         this.agentName = agentName;
         if (this.agentName == null)
             throw new NullPointerException("The sima.core.agent name cannot be null.");
+
+        this.agentIdentifier = new AgentIdentifier(this.uuid, this.agentName, this.numberId);
 
         this.mapEnvironments = new HashMap<>();
         this.mapBehaviors = new HashMap<>();
@@ -207,7 +211,7 @@ public abstract class AbstractAgent implements EventCatcher {
      */
     public boolean joinEnvironment(Environment environment) {
         if (this.mapEnvironments.get(environment.getEnvironmentName()) == null) {
-            if (environment.acceptAgent(this.getInfo())) {
+            if (environment.acceptAgent(this.getAgentIdentifier())) {
                 this.mapEnvironments.put(environment.getEnvironmentName(), environment);
                 return true;
             } else
@@ -221,7 +225,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @return true if the sima.core.agent is evolving in the sima.core.environment, else false.
      */
     public boolean isEvolvingInEnvironment(Environment environment) {
-        return environment.isEvolving(this.getInfo());
+        return environment.isEvolving(this.getAgentIdentifier());
     }
 
     /**
@@ -231,7 +235,7 @@ public abstract class AbstractAgent implements EventCatcher {
     public boolean isEvolvingInEnvironment(String environmentName) {
         Environment environment = this.mapEnvironments.get(environmentName);
         if (environment != null) {
-            return environment.isEvolving(this.getInfo());
+            return environment.isEvolving(this.getAgentIdentifier());
         }
 
         return false;
@@ -244,7 +248,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @param environment the sima.core.environment to leave
      */
     public void leaveEnvironment(Environment environment) {
-        environment.leave(this.getInfo());
+        environment.leave(this.getAgentIdentifier());
         this.mapEnvironments.remove(environment.getEnvironmentName());
     }
 
@@ -256,7 +260,7 @@ public abstract class AbstractAgent implements EventCatcher {
     public void leaveEnvironment(String environmentName) {
         Environment environment = this.mapEnvironments.get(environmentName);
         if (environment != null) {
-            environment.leave(this.getInfo());
+            environment.leave(this.getAgentIdentifier());
             this.mapEnvironments.remove(environmentName);
         }
     }
@@ -420,11 +424,15 @@ public abstract class AbstractAgent implements EventCatcher {
      */
     protected abstract void treatEventWithNotFindProtocol(Event event);
 
+    public AgentIdentifier getAgentIdentifier() {
+        return this.agentIdentifier;
+    }
+
     /**
      * @return a new instance of {@link AgentInfo} which contains all information about the sima.core.agent.
      */
     public AgentInfo getInfo() {
-        return new AgentInfo(this.uuid, this.agentName, this.numberId, new ArrayList<>(this.mapBehaviors.keySet()),
+        return new AgentInfo(this.getAgentIdentifier(), new ArrayList<>(this.mapBehaviors.keySet()),
                 new ArrayList<>(this.mapProtocol.keySet()), new ArrayList<>(this.mapEnvironments.keySet()));
     }
 

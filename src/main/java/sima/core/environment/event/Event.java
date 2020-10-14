@@ -1,11 +1,12 @@
 package sima.core.environment.event;
 
 import sima.core.agent.AbstractAgent;
+import sima.core.agent.AgentIdentifier;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
 
 import java.io.Serializable;
-import java.util.UUID;
+import java.util.Optional;
 
 /**
  * Represents an event which can occur during the simulation.
@@ -24,14 +25,14 @@ public abstract class Event implements Serializable {
     // Variables.
 
     /**
-     * The sima.core.agent sender of the event.
+     * The agent sender of the event.
      */
-    private final UUID sender;
+    private final AgentIdentifier sender;
 
     /**
-     * The sima.core.agent receiver of the event.
+     * The agent receiver of the event.
      */
-    private final UUID receiver;
+    private final AgentIdentifier receiver;
 
     /**
      * The class of the sima.core.protocol which will process the event. An event can have a null instance of this property. In
@@ -59,10 +60,8 @@ public abstract class Event implements Serializable {
      * @throws NullPointerException if the sender is null
      * @see Protocol#processEvent(Event)
      */
-    public Event(UUID sender, UUID receiver, ProtocolIdentifier protocolTargeted) {
-        this.sender = sender;
-        if (this.sender == null)
-            throw new NullPointerException("The sender cannot be null");
+    public Event(AgentIdentifier sender, AgentIdentifier receiver, ProtocolIdentifier protocolTargeted) {
+        this.sender = Optional.of(sender).get();
 
         this.receiver = receiver;
 
@@ -82,11 +81,11 @@ public abstract class Event implements Serializable {
 
     // Getters and Setters.
 
-    public UUID getSender() {
+    public AgentIdentifier getSender() {
         return sender;
     }
 
-    public UUID getReceiver() {
+    public AgentIdentifier getReceiver() {
         return receiver;
     }
 

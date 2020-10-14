@@ -1,5 +1,7 @@
 package sima.core.environment.event;
 
+import sima.core.agent.AgentIdentifier;
+
 import java.util.UUID;
 
 /**
@@ -15,7 +17,7 @@ public abstract class NoProtocolEvent extends Event {
      * @param sender   the sima.core.agent sender (cannot be null)
      * @param receiver the sima.core.agent receiver
      */
-    public NoProtocolEvent(UUID sender, UUID receiver) {
+    public NoProtocolEvent(AgentIdentifier sender, AgentIdentifier receiver) {
         super(sender, receiver, null);
     }
 
