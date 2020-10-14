@@ -38,6 +38,8 @@ public abstract class AbstractAgent implements EventCatcher {
      */
     private final int numberId;
 
+    private final AgentIdentifier agentIdentifier;
+
     /**
      * The several environments where the sima.core.agent evolves.
      * <p>
@@ -93,6 +95,8 @@ public abstract class AbstractAgent implements EventCatcher {
         this.agentName = agentName;
         if (this.agentName == null)
             throw new NullPointerException("The sima.core.agent name cannot be null.");
+
+        this.agentIdentifier = new AgentIdentifier(this.uuid, this.agentName, this.numberId);
 
         this.mapEnvironments = new HashMap<>();
         this.mapBehaviors = new HashMap<>();
@@ -421,7 +425,7 @@ public abstract class AbstractAgent implements EventCatcher {
     protected abstract void treatEventWithNotFindProtocol(Event event);
 
     public AgentIdentifier getAgentIdentifier() {
-        return new AgentIdentifier(this.uuid, this.agentName, this.numberId);
+        return this.agentIdentifier;
     }
 
     /**
