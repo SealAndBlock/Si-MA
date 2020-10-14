@@ -28,10 +28,27 @@ public interface Scheduler {
     void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode, int executionTimeStep);
 
     /**
+     * Schedule the execution of the {@link Executable} at a specific time in the simulation. In other words, schedule
+     * the moment in the simulation when the method {@link Executable#execute()} is called and execute.
+     *
+     * @param executable             the executable to schedule
+     * @param simulationSpecificTime the specific time of the simulation when the executable is execute (greater or
+     *                               equal to 0 if in repeated mod)
+     * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 0.
+     * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is already pass
+     *                                                                   or is greater than the terminate time of the
+     *                                                                   simulation
+     */
+    void scheduleExecutableAtSpecificTime(Executable executable, long simulationSpecificTime);
+
+    /**
      * Schedule one time the executable.
      *
      * @param executable  the executable to schedule
      * @param waitingTime the waiting time before begin the schedule of the executable (greater or equal to 0)
+     * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 0.
+     * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is greater than
+     *                                                                   the terminate time of the simulation
      * @see #scheduleExecutable(Executable, long, ScheduleMode, int)
      */
     default void scheduleExecutableOnce(Executable executable, long waitingTime) {
@@ -45,6 +62,9 @@ public interface Scheduler {
      * @param executable        the executable to schedule
      * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 0)
      * @param executionTimeStep the time between each execution (greater or equal to 0 if in repeated mod)
+     * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 0.
+     * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is greater than
+     *                                                                   the terminate time of the simulation
      * @see #scheduleExecutable(Executable, long, ScheduleMode, int)
      */
     default void scheduleExecutableRepeated(Executable executable, long waitingTime, int executionTimeStep) {
@@ -56,6 +76,9 @@ public interface Scheduler {
      *
      * @param executable  the executable to schedule
      * @param waitingTime the waiting time before begin the schedule of the executable (greater or equal to 0)
+     * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 0.
+     * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is greater than
+     *                                                                   the terminate time of the simulation
      */
     default void scheduleExecutableInfinitely(Executable executable, long waitingTime) {
         this.scheduleExecutable(executable, waitingTime, ScheduleMode.INFINITELY, -1);
@@ -69,8 +92,9 @@ public interface Scheduler {
      *
      * @param event       the event to schedule
      * @param waitingTime the time to wait before send the event
-     * @throws IllegalArgumentException if the waitingTime is less than 0.
-     * @throws NullPointerException     if the {@link Event#getReceiver()} is null
+     * @throws IllegalArgumentException                                  if the waitingTime is less than 0.
+     * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is greater than
+     *                                                                   the terminate time of the simulation
      */
     void scheduleEvent(Event event, long waitingTime);
 
