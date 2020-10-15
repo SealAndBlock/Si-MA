@@ -3,28 +3,41 @@ package sima.core.scheduler;
 import sima.core.agent.AgentIdentifier;
 import sima.core.scheduler.exception.NotSchedulableTimeException;
 
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MultiThreadScheduler implements Scheduler {
 
     // Variables.
 
+    /**
+     * Lock use for pass at the next time step.
+     */
+    private final Object stepLock;
+
     private long currentTime;
 
     private long endSimulationTime;
 
+    private boolean isStarted = false;
+
+    private int nbExecutorThread;
+
+    private boolean allIsDone = false;
+
     /**
      * Maps for each time of the simulation agent actions.
      */
-    private final Map<Long, Map<AgentIdentifier, LinkedList<Action>>> mapAgentExecutable;
+    private final Map<Long, Map<AgentIdentifier, LinkedList<Executable>>> mapAgentExecutable;
 
     /**
      * Maps for each time of the simulation executables which are not agent actions.
      */
     private final Map<Long, LinkedList<Executable>> mapExecutable;
+
+    private ExecutorService executor;
 
     // Constructors.
 
@@ -32,10 +45,117 @@ public class MultiThreadScheduler implements Scheduler {
         this.mapAgentExecutable = new ConcurrentHashMap<>();
 
         this.mapExecutable = new ConcurrentHashMap<>();
+
+        this.stepLock = new Object();
+    }
+
+    @Override
+    public synchronized void start() {
+        if (!this.isStarted) {
+            this.executor = Executors.newFixedThreadPool(this.nbExecutorThread);
+            this.isStarted = true;
+            this.executeNextExecutable();
+        }
+    }
+
+    private void executeNextExecutable() {
+        final List<ExecutorThread> executorThreadList = new ArrayList<>();
+
+        long nextTime = -1;
+
+        // Create executors for agent actions.
+        Set<Long> setKeyMapActionAgent = this.mapAgentExecutable.keySet();
+        List<Long> sortedKeyMapActionAgent = new ArrayList<>(setKeyMapActionAgent);
+        sortedKeyMapActionAgent.sort(Comparator.comparingLong(l -> l));
+        if (sortedKeyMapActionAgent.size() > 0) {
+            // Set the next time.
+            nextTime = sortedKeyMapActionAgent.get(0);
+
+            // Fill the executor thread list.
+            Map<AgentIdentifier, LinkedList<Executable>> mapAgentActionList = this.mapAgentExecutable.get(nextTime);
+            mapAgentActionList.forEach(((agentIdentifier, actions) -> {
+                ExecutorThread executorThread = new ExecutorThread(actions);
+                executorThreadList.add(executorThread);
+            }));
+        }
+
+        // Create executor for all other executables.
+        Set<Long> setKeyMapExecutable = this.mapExecutable.keySet();
+        List<Long> sorterKeyMapExecutable = new ArrayList<>(setKeyMapExecutable);
+        sorterKeyMapExecutable.sort(Comparator.comparingLong(l -> l));
+        if (sorterKeyMapExecutable.size() > 0) {
+            if (nextTime == -1) {
+                // There is no agent actions.
+                // Set the next time.
+                nextTime = sorterKeyMapExecutable.get(0);
+
+                // Fill the executor thread list.
+                ExecutorThread executorThread = new ExecutorThread(this.mapExecutable.get(nextTime));
+                executorThreadList.add(executorThread);
+            } else {
+                // Already set the nextTime.
+                long n = sorterKeyMapExecutable.get(0);
+                if (nextTime == n) {
+                    // Same time that the time of all agent action taken.
+                    ExecutorThread executorThread = new ExecutorThread(this.mapExecutable.get(nextTime));
+                    executorThreadList.add(executorThread);
+                } else {
+                    if (n < nextTime) {
+                        // We must execute this executable before execute agent action taken.
+                        nextTime = n;
+
+                        /* We clear the current executorThreadList because it contains actions agent that it must not
+                         be executed for the moment.*/
+                        executorThreadList.clear();
+
+                        ExecutorThread executorThread = new ExecutorThread(this.mapExecutable.get(nextTime));
+                        executorThreadList.add(executorThread);
+                    }
+                    // else -> (n > nextTime) We do nothing
+                }
+            }
+        }
+
+        if (executorThreadList.isEmpty()) {
+            // No executable find to execute -> end of the simulation
+            this.allIsDone = true;
+            // TODO Call end of simulation
+        } else {
+            Thread finishExecutionWatcher = new Thread(() -> {
+                synchronized (this.stepLock) {
+                    boolean allFinished = true;
+                    for (ExecutorThread executorThread : executorThreadList) {
+                        if (!executorThread.isFinished) {
+                            allFinished = false;
+                            break;
+                        }
+                    }
+
+                    while (!allFinished) {
+                        try {
+                            this.stepLock.wait();
+                            allFinished = true;
+                            for (ExecutorThread executorThread : executorThreadList) {
+                                if (!executorThread.isFinished) {
+                                    allFinished = false;
+                                    break;
+                                }
+                            }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    this.executeNextExecutable();
+                }
+            });
+            finishExecutionWatcher.start();
+
+            this.currentTime = nextTime;
+            executorThreadList.forEach(executorThread -> this.executor.execute(executorThread));
+        }
     }
 
     // Methods.
-
     @Override
     public void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode,
                                    int executionTimeStep) {
@@ -105,19 +225,19 @@ public class MultiThreadScheduler implements Scheduler {
      * @param time   the time where the action must be executed
      */
     private void addAgentActionAtTime(Action action, long time) {
-        Map<AgentIdentifier, LinkedList<Action>> mapAgentAction = this.mapAgentExecutable
+        Map<AgentIdentifier, LinkedList<Executable>> mapAgentAction = this.mapAgentExecutable
                 .computeIfAbsent(time, k -> new ConcurrentHashMap<>());
 
         if (action.getExecutorAgent() == null)
             throw new IllegalArgumentException("The action does not have executor agent");
 
-        LinkedList<Action> agentActions = mapAgentAction
+        LinkedList<Executable> agentActions = mapAgentAction
                 .computeIfAbsent(action.getExecutorAgent(), k -> new LinkedList<>());
 
         // Synchronized on the action list of the agent.
         synchronized (agentActions) {
             agentActions.add(action);
-            agentActions.sort(Comparator.comparingInt(a -> a.getExecutorAgent().hashCode()));
+            agentActions.sort(Comparator.comparingInt(a -> ((Action) a).getExecutorAgent().hashCode()));
         }
     }
 
@@ -126,13 +246,46 @@ public class MultiThreadScheduler implements Scheduler {
      * @param time            the time for when we want the action agent list
      * @return the action agent list of the specified agent for the specific time if it exists, else return null.
      */
-    private LinkedList<Action> getAgentActionList(AgentIdentifier agentIdentifier, long time) {
-        Map<AgentIdentifier, LinkedList<Action>> mapAgentAction = this.mapAgentExecutable.get(time);
+    private LinkedList<Executable> getAgentActionList(AgentIdentifier agentIdentifier, long time) {
+        Map<AgentIdentifier, LinkedList<Executable>> mapAgentAction = this.mapAgentExecutable.get(time);
         if (mapAgentAction != null) {
             return mapAgentAction.get(agentIdentifier);
         } else
             return null;
     }
 
-    // Inner Thread.
+    // Inner classes.
+
+    private class ExecutorThread implements Runnable {
+
+        // Variables.
+
+        private final Queue<Executable> executables;
+
+        private boolean isFinished = false;
+
+        // Constructors.
+
+        public ExecutorThread(Queue<Executable> executables) {
+            this.executables = executables;
+        }
+
+        // Methods.
+
+        @Override
+        public void run() {
+            this.executables.forEach(Executable::execute);
+
+            synchronized (MultiThreadScheduler.this.stepLock) {
+                this.isFinished = true;
+                MultiThreadScheduler.this.stepLock.notifyAll();
+            }
+        }
+
+        // Getters and Setters.
+
+        public boolean isFinished() {
+            return isFinished;
+        }
+    }
 }

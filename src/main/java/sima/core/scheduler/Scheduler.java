@@ -14,6 +14,13 @@ public interface Scheduler {
     long NOW = 0;
 
     /**
+     * Start the scheduler.
+     * <p>
+     * If the scheduler has been started, it cannot be started an second time.
+     */
+    void start();
+
+    /**
      * Schedule the execution of the {@link Executable}. In other words, schedule the moment when the method
      * {@link Executable#execute()} is called and execute. The waiting time is the number of time unit that the
      * scheduler must wait after the call of this method to execute the {@code Executable}. The {@link ScheduleMode}
