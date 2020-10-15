@@ -37,6 +37,10 @@ public class MultiThreadScheduler implements Scheduler {
      */
     private final Map<Long, LinkedList<Executable>> mapExecutable;
 
+    private List<ExecutorThread> executorThreadList;
+
+    private StepFinishWatcher stepFinishWatcher;
+
     private ExecutorService executor;
 
     // Constructors.
@@ -54,12 +58,27 @@ public class MultiThreadScheduler implements Scheduler {
         if (!this.isStarted) {
             this.executor = Executors.newFixedThreadPool(this.nbExecutorThread);
             this.isStarted = true;
+
+            this.stepFinishWatcher = new StepFinishWatcher();
+            Thread finishExecutionWatcher = new Thread(this.stepFinishWatcher);
+            finishExecutionWatcher.start();
+
             this.executeNextExecutable();
         }
     }
 
+    /**
+     * Search and execute next executables to execute in the simulation.
+     * <p>
+     * Set the {@link #currentTime} to the next time find.
+     * <p>
+     * If there is no others executable to execute. Finish the simulation.
+     */
     private void executeNextExecutable() {
-        final List<ExecutorThread> executorThreadList = new ArrayList<>();
+        if (this.executorThreadList == null)
+            this.executorThreadList = new ArrayList<>();
+        else
+            this.executorThreadList.clear();
 
         long nextTime = -1;
 
@@ -91,14 +110,14 @@ public class MultiThreadScheduler implements Scheduler {
 
                 // Fill the executor thread list.
                 ExecutorThread executorThread = new ExecutorThread(this.mapExecutable.get(nextTime));
-                executorThreadList.add(executorThread);
+                this.executorThreadList.add(executorThread);
             } else {
                 // Already set the nextTime.
                 long n = sorterKeyMapExecutable.get(0);
                 if (nextTime == n) {
                     // Same time that the time of all agent action taken.
                     ExecutorThread executorThread = new ExecutorThread(this.mapExecutable.get(nextTime));
-                    executorThreadList.add(executorThread);
+                    this.executorThreadList.add(executorThread);
                 } else {
                     if (n < nextTime) {
                         // We must execute this executable before execute agent action taken.
@@ -117,40 +136,16 @@ public class MultiThreadScheduler implements Scheduler {
         }
 
         if (executorThreadList.isEmpty()) {
-            // No executable find to execute -> end of the simulation
+            // No executable find to execute -> end of the simulation.
             this.allIsDone = true;
             // TODO Call end of simulation
         } else {
-            Thread finishExecutionWatcher = new Thread(() -> {
-                synchronized (this.stepLock) {
-                    boolean allFinished = true;
-                    for (ExecutorThread executorThread : executorThreadList) {
-                        if (!executorThread.isFinished) {
-                            allFinished = false;
-                            break;
-                        }
-                    }
-
-                    while (!allFinished) {
-                        try {
-                            this.stepLock.wait();
-                            allFinished = true;
-                            for (ExecutorThread executorThread : executorThreadList) {
-                                if (!executorThread.isFinished) {
-                                    allFinished = false;
-                                    break;
-                                }
-                            }
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    this.executeNextExecutable();
-                }
-            });
-            finishExecutionWatcher.start();
-
             this.currentTime = nextTime;
+
+            // Remove all executables which have been taken in account.
+            this.mapAgentExecutable.remove(this.currentTime);
+            this.mapExecutable.remove(this.currentTime);
+
             executorThreadList.forEach(executorThread -> this.executor.execute(executorThread));
         }
     }
@@ -210,15 +205,6 @@ public class MultiThreadScheduler implements Scheduler {
     }
 
     /**
-     * @param time the time for when we want the executable list
-     * @return the executable list of all executables which must be executed at the specified time if it exists, else
-     * null.
-     */
-    private LinkedList<Executable> getExecutableList(long time) {
-        return this.mapExecutable.get(time);
-    }
-
-    /**
      * Add the action in the list associated to the executor agent at the specified time of the simulation.
      *
      * @param action the agent action to add
@@ -239,19 +225,6 @@ public class MultiThreadScheduler implements Scheduler {
             agentActions.add(action);
             agentActions.sort(Comparator.comparingInt(a -> ((Action) a).getExecutorAgent().hashCode()));
         }
-    }
-
-    /**
-     * @param agentIdentifier the agent identifier
-     * @param time            the time for when we want the action agent list
-     * @return the action agent list of the specified agent for the specific time if it exists, else return null.
-     */
-    private LinkedList<Executable> getAgentActionList(AgentIdentifier agentIdentifier, long time) {
-        Map<AgentIdentifier, LinkedList<Executable>> mapAgentAction = this.mapAgentExecutable.get(time);
-        if (mapAgentAction != null) {
-            return mapAgentAction.get(agentIdentifier);
-        } else
-            return null;
     }
 
     // Inner classes.
@@ -286,6 +259,52 @@ public class MultiThreadScheduler implements Scheduler {
 
         public boolean isFinished() {
             return isFinished;
+        }
+    }
+
+    private class StepFinishWatcher implements Runnable {
+
+        private boolean stopped = false;
+
+        @Override
+        public void run() {
+            while (!this.stopped)
+                synchronized (MultiThreadScheduler.this.stepLock) {
+                    while (!this.allExecutionsFinished()) {
+                        try {
+                            MultiThreadScheduler.this.stepLock.wait();
+
+                            if (this.stopped)
+                                break;
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    MultiThreadScheduler.this.executeNextExecutable();
+                }
+        }
+
+        /**
+         * @return true if all {@link ExecutorThread} in {@link #executorThreadList} have finished, else false.
+         */
+        private boolean allExecutionsFinished() {
+            for (ExecutorThread executorThread : MultiThreadScheduler.this.executorThreadList) {
+                if (!executorThread.isFinished()) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /**
+         * Kill the thread.
+         */
+        public void kill() {
+            synchronized (MultiThreadScheduler.this.stepLock) {
+                this.stopped = true;
+                MultiThreadScheduler.this.stepLock.notifyAll();
+            }
         }
     }
 }
