@@ -34,14 +34,14 @@ public interface Scheduler {
     /**
      * Schedule the execution of the {@link Executable} at a specific time in the simulation. In other words, schedule
      * the moment in the simulation when the method {@link Executable#execute()} is called and execute.
+     * <p>
+     * If the simulationSpecificTime is greater than the end of the simulation, nothing id done.
      *
      * @param executable             the executable to schedule
      * @param simulationSpecificTime the specific time of the simulation when the executable is execute (greater or
      *                               equal to 0 if in repeated mod)
      * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 0.
      * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is already pass
-     *                                                                   or is greater than the terminate time of the
-     *                                                                   simulation
      */
     void scheduleExecutableAtSpecificTime(Executable executable, long simulationSpecificTime);
 
