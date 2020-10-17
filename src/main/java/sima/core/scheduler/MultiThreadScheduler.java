@@ -253,22 +253,82 @@ public class MultiThreadScheduler implements Scheduler {
     }
 
     @Override
-    public void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode,
+    public void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode, int nbRepeated,
                                    int executionTimeStep) {
+        if (waitingTime < 1)
+            throw new IllegalArgumentException("Waiting time cannot be less than 1.");
+
         if (executable instanceof Action) {
             Action action = (Action) executable;
             if (action.getExecutorAgent() != null) {
                 // Agent action
                 // +1 because we does not add an action on the current time.
-                this.addAgentActionAtTime(action, this.currentTime + 1 + waitingTime);
+                this.addAgentActionWithScheduleMode(action, waitingTime, scheduleMode, nbRepeated, executionTimeStep);
             } else {
                 // Not agent action
                 // +1 because we does not add an action on the current time.
-                this.addExecutableAtTime(action, this.currentTime + 1 + waitingTime);
+                this.addExecutableWithScheduleMode(action, waitingTime, scheduleMode, nbRepeated, executionTimeStep);
             }
         } else
             // +1 because we does not add an action on the current time.
-            this.addExecutableAtTime(executable, this.currentTime + 1 + waitingTime);
+            this.addExecutableWithScheduleMode(executable, waitingTime, scheduleMode, nbRepeated, executionTimeStep);
+    }
+
+    private void addAgentActionWithScheduleMode(Action action, long waitingTime, ScheduleMode scheduleMode,
+                                                int nbRepeated, int executionTimeStep) {
+        switch (scheduleMode) {
+            case ONCE -> this.addAgentActionAtTime(action, this.currentTime + waitingTime);
+            case REPEATED -> {
+                if (nbRepeated < 1)
+                    throw new IllegalArgumentException("NbRepeated must be greater or equal to 1");
+
+                long time = this.currentTime + waitingTime;
+                this.addAgentActionAtTime(action, time);
+                for (int i = 1; i < nbRepeated; i++) {
+                    time += executionTimeStep;
+                    this.addAgentActionAtTime(action, time);
+                }
+            }
+            case INFINITELY -> {
+                if (nbRepeated < 1)
+                    throw new IllegalArgumentException("NbRepeated must be greater or equal to 1");
+
+                long time = this.currentTime + waitingTime;
+                this.addAgentActionAtTime(action, time);
+                while (time <= this.endSimulationTime) {
+                    time += executionTimeStep;
+                    this.addAgentActionAtTime(action, time);
+                }
+            }
+        }
+    }
+
+    private void addExecutableWithScheduleMode(Executable executable, long waitingTime, ScheduleMode scheduleMode,
+                                               int nbRepeated, int executionTimeStep) {
+        switch (scheduleMode) {
+            case ONCE -> this.addExecutableAtTime(executable, this.currentTime + waitingTime);
+            case REPEATED -> {
+                if (nbRepeated < 1)
+                    throw new IllegalArgumentException("NbRepeated must be greater or equal to 1");
+                long time = this.currentTime + waitingTime;
+                this.addExecutableAtTime(executable, time);
+                for (int i = 1; i < nbRepeated; i++) {
+                    time += executionTimeStep;
+                    this.addExecutableAtTime(executable, time);
+                }
+            }
+            case INFINITELY -> {
+                if (nbRepeated < 1)
+                    throw new IllegalArgumentException("NbRepeated must be greater or equal to 1");
+
+                long time = this.currentTime + waitingTime;
+                this.addExecutableAtTime(executable, time);
+                while (time <= this.endSimulationTime) {
+                    time += executionTimeStep;
+                    this.addExecutableAtTime(executable, time);
+                }
+            }
+        }
     }
 
     @Override
