@@ -158,6 +158,8 @@ public class MultiThreadScheduler implements Scheduler {
      * Set the {@link #currentTime} to the next time find.
      * <p>
      * If there is no others executable to execute. Finish the simulation.
+     * <p>
+     * This method is not thread safe, however, it is never called in parallel way.
      */
     private void executeNextExecutable() {
         if (this.executorThreadList == null)
@@ -167,10 +169,12 @@ public class MultiThreadScheduler implements Scheduler {
 
         long nextTime = -1;
 
-        // Create executors for agent actions.
+        // Creates executors for agent actions.
         Set<Long> setKeyMapActionAgent = this.mapAgentExecutable.keySet();
         List<Long> sortedKeyMapActionAgent = new ArrayList<>(setKeyMapActionAgent);
         sortedKeyMapActionAgent.sort(Comparator.comparingLong(l -> l));
+
+        // Verifies if there is action agent to execute.
         if (sortedKeyMapActionAgent.size() > 0) {
             // Set the next time.
             nextTime = sortedKeyMapActionAgent.get(0);
@@ -183,10 +187,12 @@ public class MultiThreadScheduler implements Scheduler {
             }));
         }
 
-        // Create executor for all other executables.
+        // Creates executor for all other executables.
         Set<Long> setKeyMapExecutable = this.mapExecutable.keySet();
         List<Long> sorterKeyMapExecutable = new ArrayList<>(setKeyMapExecutable);
         sorterKeyMapExecutable.sort(Comparator.comparingLong(l -> l));
+
+        // Verifies if there is others executable to execute.
         if (sorterKeyMapExecutable.size() > 0) {
             if (nextTime == -1) {
                 // There is no agent actions.
@@ -205,15 +211,15 @@ public class MultiThreadScheduler implements Scheduler {
                     this.executorThreadList.add(executorThread);
                 } else {
                     if (n < nextTime) {
-                        // We must execute this executable before execute agent action taken.
+                        // We must execute theses executables before execute agent action taken before.
                         nextTime = n;
 
                         /* We clear the current executorThreadList because it contains actions agent that it must not
                          be executed for the moment.*/
-                        executorThreadList.clear();
+                        this.executorThreadList.clear();
 
                         ExecutorThread executorThread = new ExecutorThread(this.mapExecutable.get(nextTime));
-                        executorThreadList.add(executorThread);
+                        this.executorThreadList.add(executorThread);
                     }
                     // else -> (n > nextTime) We do nothing
                 }
@@ -232,8 +238,9 @@ public class MultiThreadScheduler implements Scheduler {
                 this.mapAgentExecutable.remove(this.currentTime);
                 this.mapExecutable.remove(this.currentTime);
 
-                executorThreadList.forEach(executorThread -> this.executor.execute(executorThread));
+                this.executorThreadList.forEach(executorThread -> this.executor.execute(executorThread));
             } else {
+                // End of the simulation reach.
                 this.updateSchedulerWatcherOnSimulationEndTimeReach();
             }
         }
@@ -313,6 +320,16 @@ public class MultiThreadScheduler implements Scheduler {
             agentActions.add(action);
             agentActions.sort(Comparator.comparingInt(a -> ((Action) a).getExecutorAgent().hashCode()));
         }
+    }
+
+    // Getters and Setters.
+
+    public long getCurrentTime() {
+        return currentTime;
+    }
+
+    public boolean isStarted() {
+        return isStarted;
     }
 
     // Inner classes.
