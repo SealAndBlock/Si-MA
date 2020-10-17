@@ -154,9 +154,7 @@ public interface Scheduler {
      *
      * @param event       the event to schedule
      * @param waitingTime the time to wait before send the event (greater or equal to 1 if in repeated mod)
-     * @throws IllegalArgumentException                                  if the waitingTime is less than 1.
-     * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is greater than
-     *                                                                   the terminate time of the simulation
+     * @throws IllegalArgumentException if the waitingTime is less than 1 or if the event receiver is null.
      */
     default void scheduleEvent(Event event, long waitingTime) {
         if (event.getReceiver() != null) {
@@ -169,8 +167,13 @@ public interface Scheduler {
             };
             this.scheduleExecutableOnce(eventAction, waitingTime);
         } else
-            throw new NullPointerException("The Event receiver is null");
+            throw new IllegalArgumentException("The Event receiver is null");
     }
+
+    /**
+     * @return the current time of the simulation.
+     */
+    long getCurrentTime();
 
     /**
      * Enum to specify how many time an {@link Action} or a {@link Controller} can be schedule.

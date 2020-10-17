@@ -450,11 +450,12 @@ public class MultiThreadScheduler implements Scheduler {
         }
     }
 
-    // Getters and Setters.
-
+    @Override
     public long getCurrentTime() {
         return currentTime;
     }
+
+    // Getters and Setters.
 
     public boolean isStarted() {
         return isStarted;

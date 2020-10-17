@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
+import sima.core.protocol.ProtocolIdentifier;
 
 import java.util.LinkedList;
 import java.util.Map;
@@ -369,7 +370,342 @@ public class TestMultiThreadScheduler {
         SCHEDULER.kill();
     }
 
+
+    @Test
+    public void testExecutionOfScheduledAction() {
+        TestAction a1 = new TestAction(AGENT_0.getAgentIdentifier());
+
+        TestSchedulerWatcher testSchedulerWatcher = new TestSchedulerWatcher();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        long time = 500;
+
+        SCHEDULER.scheduleExecutableOnce(a1, time);
+
+        assertTrue(SCHEDULER.start());
+
+        synchronized (a1) {
+            while (a1.isExecuted == 0) {
+                try {
+                    a1.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, a1.isExecuted);
+        }
+
+        assertEquals(time, SCHEDULER.getCurrentTime());
+    }
+
+    @Test
+    public void testExecutionOfSeveralScheduledActions() {
+        TestAction a1 = new TestAction(AGENT_0.getAgentIdentifier());
+        TestAction a2 = new TestAction(AGENT_1.getAgentIdentifier());
+
+        TestSchedulerWatcher testSchedulerWatcher = new TestSchedulerWatcher();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        long t1 = 500;
+        long t2 = 750;
+
+        SCHEDULER.scheduleExecutableOnce(a1, t1);
+        SCHEDULER.scheduleExecutableOnce(a2, t2);
+
+        assertTrue(SCHEDULER.start());
+
+        synchronized (a1) {
+            while (a1.isExecuted == 0) {
+                try {
+                    a1.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, a1.isExecuted);
+        }
+
+        synchronized (a2) {
+            while (a2.isExecuted == 0) {
+                try {
+                    a2.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, a2.isExecuted);
+        }
+
+        assertEquals(t2, SCHEDULER.getCurrentTime());
+    }
+
+    @Test
+    public void TestReachEndOfSimulationWithAgentAction() {
+        TestAction a1 = new TestAction(AGENT_0.getAgentIdentifier());
+        TestAction a2 = new TestAction(AGENT_1.getAgentIdentifier());
+        TestAction a3 = new TestAction(AGENT_0.getAgentIdentifier());
+
+        TestSchedulerWatcherBlocking testSchedulerWatcher = new TestSchedulerWatcherBlocking();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        long t1 = 500;
+        long t2 = 750;
+        long t3 = END_SIMULATION + 50;
+
+        SCHEDULER.scheduleExecutableOnce(a1, t1);
+        SCHEDULER.scheduleExecutableOnce(a2, t2);
+        SCHEDULER.scheduleExecutableOnce(a3, t3);
+
+        assertTrue(SCHEDULER.start());
+
+        synchronized (a1) {
+            while (a1.isExecuted == 0) {
+                try {
+                    a1.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, a1.isExecuted);
+        }
+
+        synchronized (a2) {
+            while (a2.isExecuted == 0) {
+                try {
+                    a2.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, a2.isExecuted);
+        }
+
+        synchronized (testSchedulerWatcher.LOCK_END) {
+            while (testSchedulerWatcher.isPassToSimulationEndTimeReach() == 0) {
+                try {
+                    testSchedulerWatcher.LOCK_END.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, testSchedulerWatcher.isPassToSimulationEndTimeReach());
+        }
+
+        assertEquals(0, a3.isExecuted);
+        assertEquals(t3, SCHEDULER.getCurrentTime());
+    }
+
+    @Test
+    public void TestReachEndOfSimulationWithExecutable() {
+        TestExecutable e1 = new TestExecutable();
+        TestExecutable e2 = new TestExecutable();
+        TestExecutable e3 = new TestExecutable();
+
+        TestSchedulerWatcherBlocking testSchedulerWatcher = new TestSchedulerWatcherBlocking();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        long t1 = 500;
+        long t2 = 750;
+        long t3 = END_SIMULATION + 50;
+
+        SCHEDULER.scheduleExecutableOnce(e1, t1);
+        SCHEDULER.scheduleExecutableOnce(e2, t2);
+        SCHEDULER.scheduleExecutableOnce(e3, t3);
+
+        assertTrue(SCHEDULER.start());
+
+        synchronized (e1) {
+            while (e1.isExecuted == 0) {
+                try {
+                    e1.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, e1.isExecuted);
+        }
+
+        synchronized (e2) {
+            while (e2.isExecuted == 0) {
+                try {
+                    e2.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, e2.isExecuted);
+        }
+
+        synchronized (testSchedulerWatcher.LOCK_END) {
+            while (testSchedulerWatcher.isPassToSimulationEndTimeReach() == 0) {
+                try {
+                    testSchedulerWatcher.LOCK_END.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, testSchedulerWatcher.isPassToSimulationEndTimeReach());
+        }
+
+        assertEquals(0, e3.isExecuted);
+        assertEquals(t3, SCHEDULER.getCurrentTime());
+    }
+
+    @Test
+    public void testExecutionCombineAgentActionAndExecutable() {
+        TestAction a1 = new TestAction(AGENT_0.getAgentIdentifier());
+        TestAction a2 = new TestAction(AGENT_1.getAgentIdentifier());
+        TestAction a3 = new TestAction(AGENT_0.getAgentIdentifier());
+
+        TestExecutable e1 = new TestExecutable();
+        TestExecutable e2 = new TestExecutable();
+        TestExecutable e3 = new TestExecutable();
+
+        TestSchedulerWatcherBlocking testSchedulerWatcher = new TestSchedulerWatcherBlocking();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        long t1 = 500;
+        long t2 = 750;
+        long t3 = END_SIMULATION + 50;
+
+        SCHEDULER.scheduleExecutableOnce(a1, t1);
+        SCHEDULER.scheduleExecutableOnce(a2, t2);
+        SCHEDULER.scheduleExecutableOnce(a3, t3);
+
+        SCHEDULER.scheduleExecutableOnce(e1, t1);
+        SCHEDULER.scheduleExecutableOnce(e2, t2);
+        SCHEDULER.scheduleExecutableOnce(e3, t3);
+
+        assertTrue(SCHEDULER.start());
+
+        synchronized (e1) {
+            while (e1.isExecuted == 0) {
+                try {
+                    e1.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, e1.isExecuted);
+        }
+
+        synchronized (e2) {
+            while (e2.isExecuted == 0) {
+                try {
+                    e2.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, e2.isExecuted);
+        }
+
+        synchronized (a1) {
+            while (a1.isExecuted == 0) {
+                try {
+                    a1.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, a1.isExecuted);
+        }
+
+        synchronized (a2) {
+            while (a2.isExecuted == 0) {
+                try {
+                    a2.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, a2.isExecuted);
+        }
+
+        synchronized (testSchedulerWatcher.LOCK_END) {
+            while (testSchedulerWatcher.isPassToSimulationEndTimeReach() == 0) {
+                try {
+                    testSchedulerWatcher.LOCK_END.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, testSchedulerWatcher.isPassToSimulationEndTimeReach());
+        }
+
+        assertEquals(0, a3.getIsExecuted());
+        assertEquals(0, e3.getIsExecuted());
+        assertEquals(t3, SCHEDULER.getCurrentTime());
+    }
+
+    @Test
+    public void testExecutionFeedSchedule() {
+        TestExecutableFeeder e1 = new TestExecutableFeeder(SCHEDULER, 1);
+
+        TestSchedulerWatcherBlocking testSchedulerWatcher = new TestSchedulerWatcherBlocking();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        SCHEDULER.scheduleExecutableOnce(e1, 1);
+
+        assertTrue(SCHEDULER.start());
+
+        synchronized (testSchedulerWatcher.LOCK_END) {
+            while (testSchedulerWatcher.isPassToSimulationEndTimeReach() == 0) {
+                try {
+                    testSchedulerWatcher.LOCK_END.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, testSchedulerWatcher.isPassToSimulationEndTimeReach());
+        }
+
+        assertEquals(END_SIMULATION + 1, SCHEDULER.getCurrentTime());
+    }
+
+    @Test
+    public void testScheduleEventThrows() {
+        TestEvent e1 = new TestEvent(AGENT_0.getAgentIdentifier(), AGENT_1.getAgentIdentifier(), null);
+        TestEvent e2 = new TestEvent(AGENT_0.getAgentIdentifier(), null, null);
+
+        assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleEvent(e1, -1));
+        assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleEvent(e2, 1));
+    }
+
     // Inner classes.
+
+    private static class TestEvent extends Event {
+
+        // Constructors.
+
+        public TestEvent(AgentIdentifier sender, AgentIdentifier receiver, ProtocolIdentifier protocolTargeted) {
+            super(sender, receiver, protocolTargeted);
+        }
+    }
+
+    private static class TestExecutableFeeder implements Executable {
+
+        // Variables.
+
+        private final Scheduler scheduler;
+        private final long mustBeExecutedAt;
+
+        // Constructors.
+
+        public TestExecutableFeeder(Scheduler scheduler, long mustBeExecutedAt) {
+            this.scheduler = scheduler;
+            this.mustBeExecutedAt = mustBeExecutedAt;
+        }
+
+        // Methods.
+
+        @Override
+        public void execute() {
+            assertEquals(this.mustBeExecutedAt, this.scheduler.getCurrentTime());
+            this.scheduler.scheduleExecutableOnce(new TestExecutableFeeder(this.scheduler,
+                    this.scheduler.getCurrentTime() + 1), 1);
+        }
+    }
 
     private static class AgentTestImpl extends AbstractAgent {
 
@@ -404,6 +740,52 @@ public class TestMultiThreadScheduler {
         protected void treatEventWithNotFindProtocol(Event event) {
 
         }
+    }
+
+    private static class TestSchedulerWatcherBlocking extends TestSchedulerWatcher {
+
+        // Variables.
+
+        final Object LOCK_START = new Object();
+        final Object LOCK_KILLED = new Object();
+        final Object LOCK_END = new Object();
+        final Object LOCK_NO_EXECUTABLE = new Object();
+
+
+        // Methods.
+
+        @Override
+        public void schedulerStarted() {
+            synchronized (LOCK_START) {
+                super.schedulerStarted();
+                LOCK_START.notifyAll();
+            }
+        }
+
+        @Override
+        public void schedulerKilled() {
+            synchronized (LOCK_KILLED) {
+                super.schedulerKilled();
+                LOCK_KILLED.notifyAll();
+            }
+        }
+
+        @Override
+        public void simulationEndTimeReach() {
+            synchronized (LOCK_END) {
+                super.simulationEndTimeReach();
+                LOCK_END.notifyAll();
+            }
+        }
+
+        @Override
+        public void noExecutableToExecute() {
+            synchronized (LOCK_NO_EXECUTABLE) {
+                super.noExecutableToExecute();
+                LOCK_NO_EXECUTABLE.notifyAll();
+            }
+        }
+
     }
 
     private static class TestSchedulerWatcher implements Scheduler.SchedulerWatcher {
@@ -479,7 +861,10 @@ public class TestMultiThreadScheduler {
 
         @Override
         public void execute() {
-            this.isExecuted++;
+            synchronized (this) {
+                this.isExecuted++;
+                this.notify();
+            }
         }
 
         // Getters and Setters.
@@ -499,7 +884,10 @@ public class TestMultiThreadScheduler {
 
         @Override
         public void execute() {
-            this.isExecuted++;
+            synchronized (this) {
+                this.isExecuted++;
+                this.notifyAll();
+            }
         }
 
         // Getters and Setters.
