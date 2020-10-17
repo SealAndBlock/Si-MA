@@ -1,10 +1,117 @@
 package sima.core.scheduler;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestMultiThreadScheduler {
+
+    // Variables.
+
+    private static final long END_SIMULATION = 1000;
+
+    private static MultiThreadScheduler SCHEDULER;
+
+    // Setup.
+
+    @BeforeEach
+    void setUp() {
+        SCHEDULER = new MultiThreadScheduler(END_SIMULATION, 5);
+    }
+
+    // Tests.
+
+    @Test
+    public void testAddSchedulerWatcher() {
+        TestSchedulerWatcher testSchedulerWatcher = new TestSchedulerWatcher();
+
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+        assertFalse(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+    }
+
+    @Test
+    public void testRemoveSchedulerWatcher() {
+        TestSchedulerWatcher testSchedulerWatcher = new TestSchedulerWatcher();
+
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+        assertFalse(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        SCHEDULER.removeSchedulerWatcher(testSchedulerWatcher);
+
+        // The watcher can be re adding because it has been removed.
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+    }
+
+    @Test
+    public void testStart() {
+        assertFalse(SCHEDULER.isStarted());
+
+        assertTrue(SCHEDULER.start());
+        assertTrue(SCHEDULER.isStarted());
+
+        assertFalse(SCHEDULER.start());
+        assertTrue(SCHEDULER.isStarted());
+
+        // Kill to kill the ExecutorService
+        assertTrue(SCHEDULER.kill());
+    }
+
+    @Test
+    public void testKill() {
+        assertFalse(SCHEDULER.isStarted());
+
+        assertFalse(SCHEDULER.kill());
+
+        assertTrue(SCHEDULER.start());
+        assertTrue(SCHEDULER.isStarted());
+
+        assertTrue(SCHEDULER.kill());
+        assertFalse(SCHEDULER.isStarted());
+
+        assertFalse(SCHEDULER.kill());
+    }
+
+    @Test
+    public void testReStart() {
+        assertFalse(SCHEDULER.isStarted());
+
+        assertTrue(SCHEDULER.start());
+        assertTrue(SCHEDULER.isStarted());
+
+        assertTrue(SCHEDULER.kill());
+        assertFalse(SCHEDULER.isStarted());
+
+        assertTrue(SCHEDULER.start());
+        assertTrue(SCHEDULER.isStarted());
+
+        // Kill to kill the ExecutorService
+        assertTrue(SCHEDULER.kill());
+    }
+
+    @Test
+    public void testWatcherReceivedStartedAndKilledNotification() {
+        TestSchedulerWatcher testSchedulerWatcher = new TestSchedulerWatcher();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        assertTrue(SCHEDULER.start());
+        assertFalse(SCHEDULER.start());
+        assertTrue(SCHEDULER.kill());
+        assertFalse(SCHEDULER.kill());
+
+        assertEquals(1, testSchedulerWatcher.isPassToSchedulerStarted);
+        assertEquals(1, testSchedulerWatcher.isPassToSchedulerKilled);
+
+        assertTrue(SCHEDULER.start());
+        assertTrue(SCHEDULER.kill());
+
+        assertEquals(2, testSchedulerWatcher.isPassToSchedulerStarted);
+        assertEquals(2, testSchedulerWatcher.isPassToSchedulerKilled);
+    }
 
     // Inner classes.
 
-    private class TestSchedulerWatcher implements Scheduler.SchedulerWatcher {
+    private static class TestSchedulerWatcher implements Scheduler.SchedulerWatcher {
 
         // Variables.
 

@@ -29,19 +29,26 @@ public interface Scheduler {
     /**
      * Start the scheduler.
      * <p>
-     * If the scheduler has been started, it cannot be started an second time.
+     * If the scheduler has been started, it cannot be started an second time and returns false.
+     * <p>
+     * A {@code Scheduler} can be re started if it at been kill.
+     *
+     * @return true if the {@code Scheduler} is started, else false.
      */
-    void start();
+    boolean start();
 
     /**
      * Kill the scheduler.
      * <p>
-     * Only kill the scheduler if it was already started before. If the scheduler was not started, nothing is done.
+     * Only kill the scheduler if it was already started before. If the scheduler was not started, nothing is done and
+     * returns false.
      * <p>
      * After to be killed, the scheduler can be restarted with the method start, however all information contains in
      * the scheduler are clear except {@link SchedulerWatcher}.
+     *
+     * @return true if the {@code Scheduler} has been killed, else false.
      */
-    void kill();
+    boolean kill();
 
     /**
      * Schedule the execution of the {@link Executable}. In other words, schedule the moment when the method

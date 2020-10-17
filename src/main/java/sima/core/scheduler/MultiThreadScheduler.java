@@ -119,7 +119,7 @@ public class MultiThreadScheduler implements Scheduler {
     }
 
     @Override
-    public synchronized void start() {
+    public synchronized boolean start() {
         if (!this.isStarted) {
             this.isStarted = true;
 
@@ -132,11 +132,14 @@ public class MultiThreadScheduler implements Scheduler {
             this.executeNextExecutable();
 
             this.updateSchedulerWatcherOnSchedulerStarted();
-        }
+
+            return true;
+        } else
+            return false;
     }
 
     @Override
-    public synchronized void kill() {
+    public synchronized boolean kill() {
         if (this.isStarted) {
             this.isStarted = false;
 
@@ -149,7 +152,10 @@ public class MultiThreadScheduler implements Scheduler {
             this.mapExecutable.clear();
 
             this.updateSchedulerWatcherOnSchedulerKilled();
-        }
+
+            return true;
+        } else
+            return false;
     }
 
     /**
