@@ -99,14 +99,14 @@ public class TestMultiThreadScheduler {
         assertTrue(SCHEDULER.kill());
         assertFalse(SCHEDULER.kill());
 
-        assertEquals(1, testSchedulerWatcher.isPassToSchedulerStarted);
-        assertEquals(1, testSchedulerWatcher.isPassToSchedulerKilled);
+        assertEquals(1, testSchedulerWatcher.isPassToSchedulerStarted());
+        assertEquals(1, testSchedulerWatcher.isPassToSchedulerKilled());
 
         assertTrue(SCHEDULER.start());
         assertTrue(SCHEDULER.kill());
 
-        assertEquals(2, testSchedulerWatcher.isPassToSchedulerStarted);
-        assertEquals(2, testSchedulerWatcher.isPassToSchedulerKilled);
+        assertEquals(2, testSchedulerWatcher.isPassToSchedulerStarted());
+        assertEquals(2, testSchedulerWatcher.isPassToSchedulerKilled());
     }
 
     // Inner classes.
