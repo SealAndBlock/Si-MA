@@ -355,20 +355,6 @@ public class MultiThreadScheduler implements Scheduler {
     }
 
     /**
-     * Add the executable in the list which contains all executable which must be executed at the specified time.
-     *
-     * @param executable the executable to add
-     * @param time       the time where the executable must be executed
-     */
-    private void addExecutableAtTime(Executable executable, long time) {
-        LinkedList<Executable> executables = this.mapExecutable.computeIfAbsent(time, k -> new LinkedList<>());
-        synchronized (executables) {
-            executables.add(executable);
-            executables.sort(Comparator.comparingInt(Object::hashCode));
-        }
-    }
-
-    /**
      * Add the action in the list associated to the executor agent at the specified time of the simulation.
      *
      * @param action the agent action to add
@@ -388,6 +374,20 @@ public class MultiThreadScheduler implements Scheduler {
         synchronized (agentActions) {
             agentActions.add(action);
             agentActions.sort(Comparator.comparingInt(a -> ((Action) a).getExecutorAgent().hashCode()));
+        }
+    }
+
+    /**
+     * Add the executable in the list which contains all executable which must be executed at the specified time.
+     *
+     * @param executable the executable to add
+     * @param time       the time where the executable must be executed
+     */
+    private void addExecutableAtTime(Executable executable, long time) {
+        LinkedList<Executable> executables = this.mapExecutable.computeIfAbsent(time, k -> new LinkedList<>());
+        synchronized (executables) {
+            executables.add(executable);
+            executables.sort(Comparator.comparingInt(Object::hashCode));
         }
     }
 
