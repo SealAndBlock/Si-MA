@@ -308,9 +308,6 @@ public class MultiThreadScheduler implements Scheduler {
                 }
             }
             case INFINITELY -> {
-                if (nbRepetitions < 1)
-                    throw new IllegalArgumentException("NbRepeated must be greater or equal to 1");
-
                 if (executionTimeStep < 1)
                     throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
 
@@ -357,9 +354,6 @@ public class MultiThreadScheduler implements Scheduler {
                 }
             }
             case INFINITELY -> {
-                if (nbRepetitions < 1)
-                    throw new IllegalArgumentException("NbRepeated must be greater or equal to 1");
-
                 if (executionTimeStep < 1)
                     throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
 

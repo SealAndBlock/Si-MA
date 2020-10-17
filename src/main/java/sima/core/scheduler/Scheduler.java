@@ -131,14 +131,16 @@ public interface Scheduler {
      * <strong>Remark,</strong> if the waitingTime is equal to 0, the {@code Executable} will be executed at the
      * {@code currentTime + 1} because it is not possible to schedule an {@code Executable} in the current time.
      *
-     * @param executable  the executable to schedule
-     * @param waitingTime the waiting time before begin the schedule of the executable (greater or equal to 1)
+     * @param executable        the executable to schedule
+     * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 1)
+     * @param executionTimeStep the time between each execution (greater or equal to 1 if in repeated mod)
      * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is greater than
      *                                                                   the terminate time of the simulation
-     * @throws IllegalArgumentException                                  if waitingTime is less than 1.
+     * @throws IllegalArgumentException                                  if waitingTime or executionTimeStep is less
+     *                                                                   than 1.
      */
-    default void scheduleExecutableInfinitely(Executable executable, long waitingTime) {
-        this.scheduleExecutable(executable, waitingTime, ScheduleMode.INFINITELY, -1, -1);
+    default void scheduleExecutableInfinitely(Executable executable, long waitingTime, int executionTimeStep) {
+        this.scheduleExecutable(executable, waitingTime, ScheduleMode.INFINITELY, -1, executionTimeStep);
     }
 
     /**
