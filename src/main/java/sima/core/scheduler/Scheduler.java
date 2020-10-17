@@ -55,24 +55,24 @@ public interface Scheduler {
      * {@link Executable#execute()} is called and execute. The waiting time is the number of time unit that the
      * scheduler must wait after the call of this method to execute the {@code Executable}. The {@link ScheduleMode}
      * define if the {@code Executable} will be executed once time or in repeated way or in infinitely way. If the
-     * {@code ScheduleMode} is {@link ScheduleMode#REPEATED}, then the specified executionTimeStep is the time between
-     * each execution of the {@link Executable}. For other mods, this parameter is ignored.
+     * {@code ScheduleMode} is {@link ScheduleMode#REPEATED}, then the specified nbRepetitions and executionTimeStep are
+     * not ignored.
      * <p>
      * The waitingTime must be greater or equal to 1, it is not possible to schedule an {@code Executable} on the
-     * {@code currentTime}.
+     * {@code currentTime}. If it is not the case throws {@link IllegalArgumentException}.
+     * <p>
+     * The nbRepetitions must be  greater or equal to 1, else throws {@link IllegalArgumentException}.
      *
      * @param executable        the executable to schedule
      * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 1)
      * @param scheduleMode      the schedule mode
-     * @param nbRepeated        the number of times that the executable will be repeated, only take in account if
+     * @param nbRepetitions     the number of times that the executable will be repeated, only take in account if
      *                          scheduleMode equal {@link ScheduleMode#REPEATED}.
      * @param executionTimeStep the time between each execution of the executable if the schedule mode is
-     *                          {@link ScheduleMode#REPEATED} (greater or equal to 0 if in repeated mod)
-     * @throws IllegalArgumentException if the waitingTime is less than 1 or if the schedule mode is
-     *                                  {@link ScheduleMode#REPEATED} or if nbRepeated is less than 1 or if the
-     *                                  executionTimeStep is less than 0.
+     *                          {@link ScheduleMode#REPEATED} (greater or equal to 1 if in repeated mod)
+     * @throws IllegalArgumentException if waitingTime, nbRepetitions or executionTimeStep is less than 1.
      */
-    void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode, int nbRepeated,
+    void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode, int nbRepetitions,
                             int executionTimeStep);
 
     /**
@@ -87,10 +87,8 @@ public interface Scheduler {
      * @param executable             the executable to schedule
      * @param simulationSpecificTime the specific time of the simulation when the executable is execute (greater or
      *                               equal to 0 if in repeated mod)
-     * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 0 or
-     *                                                                   if the simulationSpecificTime is less or equal
-     *                                                                   to the {@code currentTime}.
-     * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is already pass
+     * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 0.
+     * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is already pass.
      */
     void scheduleExecutableAtSpecificTime(Executable executable, long simulationSpecificTime);
 
@@ -99,7 +97,7 @@ public interface Scheduler {
      *
      * @param executable  the executable to schedule
      * @param waitingTime the waiting time before begin the schedule of the executable (greater or equal to 1)
-     * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 0.
+     * @throws IllegalArgumentException                                  if the waitingTime is less than 1.
      * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is greater than
      *                                                                   the terminate time of the simulation
      * @see #scheduleExecutable(Executable, long, ScheduleMode, int, int)
@@ -110,20 +108,21 @@ public interface Scheduler {
 
     /**
      * Schedule repeatedly the execution of the {@link Executable}. The time between each execution is the
-     * executionTimeStep.
+     * executionTimeStep and the number of repetitions is nbRepetitions
      * <p>
      * The waitingTime must be greater or equal to 1, it is not possible to schedule an {@code Executable} on the
      * {@code currentTime}.
      *
      * @param executable        the executable to schedule
-     * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to10)
-     * @param nbRepeated        the number of times that the executable will be repeated
+     * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 1)
+     * @param nbRepetitions     the number of times that the executable will be repeated
      * @param executionTimeStep the time between each execution (greater or equal to 1 if in repeated mod)
+     * @throws IllegalArgumentException if waitingTime, nbRepetitions or executionTimeStep is less than 1.
      * @see #scheduleExecutable(Executable, long, ScheduleMode, int, int)
      */
-    default void scheduleExecutableRepeated(Executable executable, long waitingTime, int nbRepeated,
+    default void scheduleExecutableRepeated(Executable executable, long waitingTime, int nbRepetitions,
                                             int executionTimeStep) {
-        this.scheduleExecutable(executable, waitingTime, ScheduleMode.REPEATED, nbRepeated, executionTimeStep);
+        this.scheduleExecutable(executable, waitingTime, ScheduleMode.REPEATED, nbRepetitions, executionTimeStep);
     }
 
     /**
@@ -134,9 +133,9 @@ public interface Scheduler {
      *
      * @param executable  the executable to schedule
      * @param waitingTime the waiting time before begin the schedule of the executable (greater or equal to 1)
-     * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 0.
      * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is greater than
      *                                                                   the terminate time of the simulation
+     * @throws IllegalArgumentException                                  if waitingTime is less than 1.
      */
     default void scheduleExecutableInfinitely(Executable executable, long waitingTime) {
         this.scheduleExecutable(executable, waitingTime, ScheduleMode.INFINITELY, -1, -1);
@@ -152,7 +151,7 @@ public interface Scheduler {
      * {@code currentTime}.
      *
      * @param event       the event to schedule
-     * @param waitingTime the time to wait before send the event
+     * @param waitingTime the time to wait before send the event (greater or equal to 1 if in repeated mod)
      * @throws IllegalArgumentException                                  if the waitingTime is less than 1.
      * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is greater than
      *                                                                   the terminate time of the simulation

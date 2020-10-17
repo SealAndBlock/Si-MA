@@ -253,8 +253,8 @@ public class MultiThreadScheduler implements Scheduler {
     }
 
     @Override
-    public void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode, int nbRepeated,
-                                   int executionTimeStep) {
+    public void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode,
+                                   int nbRepetitions, int executionTimeStep) {
         if (waitingTime < 1)
             throw new IllegalArgumentException("Waiting time cannot be less than 1.");
 
@@ -263,35 +263,56 @@ public class MultiThreadScheduler implements Scheduler {
             if (action.getExecutorAgent() != null) {
                 // Agent action
                 // +1 because we does not add an action on the current time.
-                this.addAgentActionWithScheduleMode(action, waitingTime, scheduleMode, nbRepeated, executionTimeStep);
+                this.addAgentActionWithScheduleMode(action, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
             } else {
                 // Not agent action
                 // +1 because we does not add an action on the current time.
-                this.addExecutableWithScheduleMode(action, waitingTime, scheduleMode, nbRepeated, executionTimeStep);
+                this.addExecutableWithScheduleMode(action, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
             }
         } else
             // +1 because we does not add an action on the current time.
-            this.addExecutableWithScheduleMode(executable, waitingTime, scheduleMode, nbRepeated, executionTimeStep);
+            this.addExecutableWithScheduleMode(executable, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
     }
 
+    /**
+     * Add the {@link Action} in function of the {@link sima.core.scheduler.Scheduler.ScheduleMode}.
+     * <p>
+     * If the scheduleMode is equal to {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED} or
+     * {@link sima.core.scheduler.Scheduler.ScheduleMode#INFINITELY}, the action is add the number of times that it must
+     * be added. It is the same instance which is added at each times, there is no copy of the {@code Action}.
+     *
+     * @param action            the action to add
+     * @param waitingTime       the waiting time before execute the action
+     * @param scheduleMode      the schedule mode
+     * @param nbRepetitions     the number of times that the action must be repeated if the
+     *                          {@link sima.core.scheduler.Scheduler.ScheduleMode} is equal to
+     *                          {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED}
+     * @param executionTimeStep the time between each execution of a repeated action
+     */
     private void addAgentActionWithScheduleMode(Action action, long waitingTime, ScheduleMode scheduleMode,
-                                                int nbRepeated, int executionTimeStep) {
+                                                int nbRepetitions, int executionTimeStep) {
         switch (scheduleMode) {
             case ONCE -> this.addAgentActionAtTime(action, this.currentTime + waitingTime);
             case REPEATED -> {
-                if (nbRepeated < 1)
+                if (nbRepetitions < 1)
                     throw new IllegalArgumentException("NbRepeated must be greater or equal to 1");
+
+                if (executionTimeStep < 1)
+                    throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
 
                 long time = this.currentTime + waitingTime;
                 this.addAgentActionAtTime(action, time);
-                for (int i = 1; i < nbRepeated; i++) {
+                for (int i = 1; i < nbRepetitions; i++) {
                     time += executionTimeStep;
                     this.addAgentActionAtTime(action, time);
                 }
             }
             case INFINITELY -> {
-                if (nbRepeated < 1)
+                if (nbRepetitions < 1)
                     throw new IllegalArgumentException("NbRepeated must be greater or equal to 1");
+
+                if (executionTimeStep < 1)
+                    throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
 
                 long time = this.currentTime + waitingTime;
                 this.addAgentActionAtTime(action, time);
@@ -303,23 +324,44 @@ public class MultiThreadScheduler implements Scheduler {
         }
     }
 
+    /**
+     * Add the {@link Executable} in function of the {@link sima.core.scheduler.Scheduler.ScheduleMode}.
+     * <p>
+     * If the scheduleMode is equal to {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED} or
+     * {@link sima.core.scheduler.Scheduler.ScheduleMode#INFINITELY}, the executable is add the number of times that it
+     * must be added. It is the same instance which is added at each times, there is no copy of the {@code Executable}.
+     *
+     * @param executable    the executable to add
+     * @param waitingTime   the waiting time before execute the action
+     * @param scheduleMode  the schedule mode
+     * @param nbRepetitions the number of times that the action must be repeated if the
+     *                      {@link sima.core.scheduler.Scheduler.ScheduleMode} is equal to
+     *                      {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED}
+     */
     private void addExecutableWithScheduleMode(Executable executable, long waitingTime, ScheduleMode scheduleMode,
-                                               int nbRepeated, int executionTimeStep) {
+                                               int nbRepetitions, int executionTimeStep) {
         switch (scheduleMode) {
             case ONCE -> this.addExecutableAtTime(executable, this.currentTime + waitingTime);
             case REPEATED -> {
-                if (nbRepeated < 1)
+                if (nbRepetitions < 1)
                     throw new IllegalArgumentException("NbRepeated must be greater or equal to 1");
+
+                if (executionTimeStep < 1)
+                    throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
+
                 long time = this.currentTime + waitingTime;
                 this.addExecutableAtTime(executable, time);
-                for (int i = 1; i < nbRepeated; i++) {
+                for (int i = 1; i < nbRepetitions; i++) {
                     time += executionTimeStep;
                     this.addExecutableAtTime(executable, time);
                 }
             }
             case INFINITELY -> {
-                if (nbRepeated < 1)
+                if (nbRepetitions < 1)
                     throw new IllegalArgumentException("NbRepeated must be greater or equal to 1");
+
+                if (executionTimeStep < 1)
+                    throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
 
                 long time = this.currentTime + waitingTime;
                 this.addExecutableAtTime(executable, time);
