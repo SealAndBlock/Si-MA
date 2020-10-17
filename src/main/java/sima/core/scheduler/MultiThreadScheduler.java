@@ -17,12 +17,24 @@ public class MultiThreadScheduler implements Scheduler {
      */
     private final Object stepLock;
 
+    /**
+     * The currentTime of the simulation.
+     */
     private long currentTime;
 
+    /**
+     * The end of the simulation.
+     */
     private final long endSimulationTime;
 
+    /**
+     * True if the {@link Scheduler} is started, else false.
+     */
     private boolean isStarted = false;
 
+    /**
+     * The number of thread use to execute all {@link Executable}.
+     */
     private final int nbExecutorThread;
 
     /**
@@ -55,11 +67,16 @@ public class MultiThreadScheduler implements Scheduler {
     /**
      * @param endSimulationTime the end of the simulation
      * @param nbExecutorThread  the number of executor thread
+     * @throws IllegalArgumentException if the endSimulationTime or the nbExecutorThread is less than 1.
      */
     public MultiThreadScheduler(long endSimulationTime, int nbExecutorThread) {
         this.endSimulationTime = endSimulationTime;
+        if (this.endSimulationTime < 1)
+            throw new IllegalArgumentException("The end simulation time must be greater or equal to 1.");
 
         this.nbExecutorThread = nbExecutorThread;
+        if (this.nbExecutorThread < 1)
+            throw new IllegalArgumentException("The number of executor thread must be greater or equal to 1.");
 
         this.schedulerWatchers = new Vector<>();
 
@@ -73,7 +90,7 @@ public class MultiThreadScheduler implements Scheduler {
     // Methods.
 
     @Override
-    public boolean addSchedulerWatcher(SchedulerWatcher schedulerWatcher) {
+    public synchronized boolean addSchedulerWatcher(SchedulerWatcher schedulerWatcher) {
         if (this.schedulerWatchers.contains(schedulerWatcher))
             return false;
 

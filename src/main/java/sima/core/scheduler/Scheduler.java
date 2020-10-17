@@ -14,6 +14,8 @@ public interface Scheduler {
     long NOW = 0;
 
     /**
+     * Add the scheduler watcher. If the scheduler watcher is already added, nothing is done.
+     *
      * @param schedulerWatcher the scheduler watcher
      * @return true if the schedulerWatcher has been added, else false.
      */
