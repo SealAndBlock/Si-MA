@@ -253,13 +253,16 @@ public class MultiThreadScheduler implements Scheduler {
             Action action = (Action) executable;
             if (action.getExecutorAgent() != null) {
                 // Agent action
-                this.addAgentActionAtTime(action, this.currentTime + waitingTime);
+                // +1 because we does not add an action on the current time.
+                this.addAgentActionAtTime(action, this.currentTime + 1 + waitingTime);
             } else {
                 // Not agent action
-                this.addExecutableAtTime(action, this.currentTime + waitingTime);
+                // +1 because we does not add an action on the current time.
+                this.addExecutableAtTime(action, this.currentTime + 1 + waitingTime);
             }
         } else
-            this.addExecutableAtTime(executable, this.currentTime + waitingTime);
+            // +1 because we does not add an action on the current time.
+            this.addExecutableAtTime(executable, this.currentTime + 1 + waitingTime);
     }
 
     @Override

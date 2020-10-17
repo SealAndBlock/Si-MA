@@ -50,6 +50,9 @@ public interface Scheduler {
      * define if the {@code Executable} will be executed once time or in repeated way or in infinitely way. If the
      * {@code ScheduleMode} is {@link ScheduleMode#REPEATED}, then the specified executionTimeStep is the time between
      * each execution of the {@link Executable}. For other mods, this parameter is ignored.
+     * <p>
+     * <strong>Remark,</strong> if the waitingTime is equal to 0, the {@code Executable} will be executed at the
+     * {@code currentTime + 1} because it is not possible to schedule an {@code Executable} in the current time.
      *
      * @param executable        the executable to schedule
      * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 0)
@@ -65,12 +68,17 @@ public interface Scheduler {
      * Schedule the execution of the {@link Executable} at a specific time in the simulation. In other words, schedule
      * the moment in the simulation when the method {@link Executable#execute()} is called and execute.
      * <p>
+     * If the simulationSpecificTime is less or equal to the {@code currentTime}, throws
+     * {@link IllegalArgumentException}.
+     * <p>
      * If the simulationSpecificTime is greater than the end of the simulation, nothing id done.
      *
      * @param executable             the executable to schedule
      * @param simulationSpecificTime the specific time of the simulation when the executable is execute (greater or
      *                               equal to 0 if in repeated mod)
-     * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 0.
+     * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 0 or
+     *                                                                   if the simulationSpecificTime is less or equal
+     *                                                                   to the {@code currentTime}.
      * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is already pass
      */
     void scheduleExecutableAtSpecificTime(Executable executable, long simulationSpecificTime);
@@ -92,6 +100,9 @@ public interface Scheduler {
     /**
      * Schedule repeatedly the execution of the {@link Executable}. The time between each execution is the
      * executionTimeStep.
+     * <p>
+     * <strong>Remark,</strong> if the waitingTime is equal to 0, the {@code Executable} will be executed at the
+     * {@code currentTime + 1} because it is not possible to schedule an {@code Executable} in the current time.
      *
      * @param executable        the executable to schedule
      * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 0)
@@ -107,6 +118,9 @@ public interface Scheduler {
 
     /**
      * Schedule infinitely the execution of the {@link Executable}.
+     * <p>
+     * <strong>Remark,</strong> if the waitingTime is equal to 0, the {@code Executable} will be executed at the
+     * {@code currentTime + 1} because it is not possible to schedule an {@code Executable} in the current time.
      *
      * @param executable  the executable to schedule
      * @param waitingTime the waiting time before begin the schedule of the executable (greater or equal to 0)
@@ -123,6 +137,9 @@ public interface Scheduler {
      * {@link sima.core.agent.AbstractAgent#processEvent(Event)} of the {@link Event#getReceiver()} agent is called.
      * Therefore, the specified {@code Event} must have a not null receiver, else throws an
      * {@link NullPointerException}.
+     * <p>
+     * <strong>Remark,</strong> if the waitingTime is equal to 0, the {@code Executable} will be executed at the
+     * {@code currentTime + 1} because it is not possible to schedule an {@code Executable} in the current time.
      *
      * @param event       the event to schedule
      * @param waitingTime the time to wait before send the event
