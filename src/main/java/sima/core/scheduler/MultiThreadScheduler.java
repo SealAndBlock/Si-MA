@@ -123,15 +123,18 @@ public class MultiThreadScheduler implements Scheduler {
         if (!this.isStarted) {
             this.isStarted = true;
 
+            this.updateSchedulerWatcherOnSchedulerStarted();
+
             this.executor = Executors.newFixedThreadPool(this.nbExecutorThread);
 
+            // ORDER VERY IMPORTANT -> always instantiate this.stepFinishWatcher before this.executeNextExecutable()
             this.stepFinishWatcher = new StepFinishWatcher();
-            Thread finishExecutionWatcher = new Thread(this.stepFinishWatcher);
-            finishExecutionWatcher.start();
 
             this.executeNextExecutable();
 
-            this.updateSchedulerWatcherOnSchedulerStarted();
+            // ORDER VERY IMPORTANT -> always start the thread after this.executeNextExecutable()
+            Thread finishExecutionWatcher = new Thread(this.stepFinishWatcher);
+            finishExecutionWatcher.start();
 
             return true;
         } else
@@ -232,9 +235,9 @@ public class MultiThreadScheduler implements Scheduler {
             }
         }
 
-        if (executorThreadList.isEmpty()) {
+        if (this.executorThreadList.isEmpty()) {
             // No executable find to execute -> end of the simulation.
-            this.updateSchedulerWatcherOnNoExecutableToExecute();
+            this.endByNoExecutableToExecution();
         } else {
             this.currentTime = nextTime;
 
@@ -247,9 +250,29 @@ public class MultiThreadScheduler implements Scheduler {
                 this.executorThreadList.forEach(executorThread -> this.executor.execute(executorThread));
             } else {
                 // End of the simulation reach.
-                this.updateSchedulerWatcherOnSimulationEndTimeReach();
+                this.endByReachEndSimulationTime();
             }
         }
+    }
+
+    /**
+     * Kill itself and notify all {@link sima.core.scheduler.Scheduler.SchedulerWatcher} that the {@link Scheduler} has
+     * finish by no executable to execute
+     */
+    private void endByNoExecutableToExecution() {
+        this.kill();
+
+        this.updateSchedulerWatcherOnNoExecutableToExecute();
+    }
+
+    /**
+     * Kill itself and notify all {@link sima.core.scheduler.Scheduler.SchedulerWatcher} that the {@link Scheduler} has
+     * finish by reaching the end time of the simulation.
+     */
+    private void endByReachEndSimulationTime() {
+        this.kill();
+
+        this.updateSchedulerWatcherOnSimulationEndTimeReach();
     }
 
     @Override
@@ -466,6 +489,10 @@ public class MultiThreadScheduler implements Scheduler {
         return res;
     }
 
+    public List<ExecutorThread> getExecutorThreadList() {
+        return Collections.unmodifiableList(this.executorThreadList);
+    }
+
     // Inner classes.
 
     private class ExecutorThread implements Runnable {
@@ -507,26 +534,37 @@ public class MultiThreadScheduler implements Scheduler {
 
         @Override
         public void run() {
-            while (!this.stopped)
-                synchronized (MultiThreadScheduler.this.stepLock) {
-                    while (!this.allExecutionsFinished()) {
-                        try {
-                            MultiThreadScheduler.this.stepLock.wait();
+            synchronized (MultiThreadScheduler.this.stepLock) {
+                while (!this.stopped) {
+                    try {
+                        while (!this.allExecutionsFinished()) {
+                            try {
+                                MultiThreadScheduler.this.stepLock.wait();
 
-                            if (this.stopped)
-                                break;
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                                if (this.stopped)
+                                    break;
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
+                    } catch (EmptyExecutorException e) {
+                        // Empty list of executable -> end of simulation.
+                        this.stopped = true;
                     }
-                    MultiThreadScheduler.this.executeNextExecutable();
+
+                    if (!this.stopped)
+                        MultiThreadScheduler.this.executeNextExecutable();
                 }
+            }
         }
 
         /**
          * @return true if all {@link ExecutorThread} in {@link #executorThreadList} have finished, else false.
          */
-        private boolean allExecutionsFinished() {
+        private boolean allExecutionsFinished() throws EmptyExecutorException {
+            if (MultiThreadScheduler.this.executorThreadList.isEmpty())
+                throw new EmptyExecutorException();
+
             for (ExecutorThread executorThread : MultiThreadScheduler.this.executorThreadList) {
                 if (!executorThread.isFinished()) {
                     return false;
@@ -543,6 +581,32 @@ public class MultiThreadScheduler implements Scheduler {
             synchronized (MultiThreadScheduler.this.stepLock) {
                 this.stopped = true;
                 MultiThreadScheduler.this.stepLock.notifyAll();
+            }
+        }
+
+        // Inner class
+
+        private class EmptyExecutorException extends Exception {
+
+            // Constructors.
+
+            public EmptyExecutorException() {
+            }
+
+            public EmptyExecutorException(String message) {
+                super(message);
+            }
+
+            public EmptyExecutorException(String message, Throwable cause) {
+                super(message, cause);
+            }
+
+            public EmptyExecutorException(Throwable cause) {
+                super(cause);
+            }
+
+            public EmptyExecutorException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+                super(message, cause, enableSuppression, writableStackTrace);
             }
         }
     }

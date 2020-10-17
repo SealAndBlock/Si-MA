@@ -27,6 +27,7 @@ public class TestMultiThreadScheduler {
     @BeforeEach
     void setUp() {
         SCHEDULER = new MultiThreadScheduler(END_SIMULATION, 5);
+
         AGENT_0 = new AgentTestImpl("AGENT_0");
         AGENT_1 = new AgentTestImpl("AGENT_1");
     }
@@ -56,65 +57,74 @@ public class TestMultiThreadScheduler {
 
     @Test
     public void testStart() {
+        // Kill directly after the start because no executable to execute
+
         assertFalse(SCHEDULER.isStarted());
 
         assertTrue(SCHEDULER.start());
-        assertTrue(SCHEDULER.isStarted());
+        /*assertTrue(SCHEDULER.isStarted());*/
 
-        assertFalse(SCHEDULER.start());
-        assertTrue(SCHEDULER.isStarted());
+        /*assertFalse(SCHEDULER.start());*/
+        /*assertTrue(SCHEDULER.isStarted());*/
 
         // Kill to kill the ExecutorService
-        assertTrue(SCHEDULER.kill());
+        SCHEDULER.kill();
     }
 
     @Test
     public void testKill() {
+        // Kill directly after the start because no executable to execute
+
         assertFalse(SCHEDULER.isStarted());
 
         assertFalse(SCHEDULER.kill());
 
         assertTrue(SCHEDULER.start());
-        assertTrue(SCHEDULER.isStarted());
+        /*assertTrue(SCHEDULER.isStarted());*/
 
-        assertTrue(SCHEDULER.kill());
-        assertFalse(SCHEDULER.isStarted());
+        /*assertTrue(SCHEDULER.kill());*/
+        /*assertFalse(SCHEDULER.isStarted());*/
 
-        assertFalse(SCHEDULER.kill());
+        SCHEDULER.kill();
     }
 
     @Test
     public void testReStart() {
+        // Kill directly after the start because no executable to execute
+
         assertFalse(SCHEDULER.isStarted());
 
         assertTrue(SCHEDULER.start());
-        assertTrue(SCHEDULER.isStarted());
-
-        assertTrue(SCHEDULER.kill());
-        assertFalse(SCHEDULER.isStarted());
-
         assertTrue(SCHEDULER.start());
-        assertTrue(SCHEDULER.isStarted());
+        /*assertTrue(SCHEDULER.isStarted());*/
+
+        /*assertTrue(SCHEDULER.kill());
+        assertFalse(SCHEDULER.isStarted());*/
+
+        /*assertTrue(SCHEDULER.start());
+        assertTrue(SCHEDULER.isStarted());*/
 
         // Kill to kill the ExecutorService
-        assertTrue(SCHEDULER.kill());
+        SCHEDULER.kill();
     }
 
     @Test
     public void testWatcherReceivedStartedAndKilledNotification() {
+        // Kill directly after the start because no executable to execute
+
         TestSchedulerWatcher testSchedulerWatcher = new TestSchedulerWatcher();
         assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
 
         assertTrue(SCHEDULER.start());
-        assertFalse(SCHEDULER.start());
-        assertTrue(SCHEDULER.kill());
-        assertFalse(SCHEDULER.kill());
+        /*assertFalse(SCHEDULER.start());*/
+        /*assertTrue(SCHEDULER.kill());
+        assertFalse(SCHEDULER.kill());*/
 
         assertEquals(1, testSchedulerWatcher.isPassToSchedulerStarted());
         assertEquals(1, testSchedulerWatcher.isPassToSchedulerKilled());
 
         assertTrue(SCHEDULER.start());
-        assertTrue(SCHEDULER.kill());
+        /*assertTrue(SCHEDULER.kill());*/
 
         assertEquals(2, testSchedulerWatcher.isPassToSchedulerStarted());
         assertEquals(2, testSchedulerWatcher.isPassToSchedulerKilled());
@@ -341,6 +351,22 @@ public class TestMultiThreadScheduler {
         assertNotNull(listExecutable);
         assertEquals(1, listExecutable.size());
         assertTrue(listExecutable.contains(executable));
+    }
+
+    @Test
+    public void testWatcherNoExecutableToExecute() {
+        // Kill directly after the start because no executable to execute
+
+        TestSchedulerWatcher testSchedulerWatcher = new TestSchedulerWatcher();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        assertTrue(SCHEDULER.start());
+
+        assertEquals(1, testSchedulerWatcher.isPassToSchedulerStarted());
+        assertEquals(1, testSchedulerWatcher.isPassToNoExecutionToExecute());
+
+        // Kill to kill the ExecutorService
+        SCHEDULER.kill();
     }
 
     // Inner classes.
