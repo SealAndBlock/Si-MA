@@ -14,11 +14,32 @@ public interface Scheduler {
     long NOW = 0;
 
     /**
+     * @param schedulerWatcher the scheduler watcher
+     * @return true if the schedulerWatcher has been added, else false.
+     */
+    boolean addSchedulerWatcher(SchedulerWatcher schedulerWatcher);
+
+    /**
+     * @param schedulerWatcher the scheduler watcher to remove
+     */
+    void removeSchedulerWatcher(SchedulerWatcher schedulerWatcher);
+
+    /**
      * Start the scheduler.
      * <p>
      * If the scheduler has been started, it cannot be started an second time.
      */
     void start();
+
+    /**
+     * Kill the scheduler.
+     * <p>
+     * Only kill the scheduler if it was already started before. If the scheduler was not started, nothing is done.
+     * <p>
+     * After to be killed, the scheduler can be restarted with the method start, however all information contains in
+     * the scheduler are clear except {@link SchedulerWatcher}.
+     */
+    void kill();
 
     /**
      * Schedule the execution of the {@link Executable}. In other words, schedule the moment when the method
@@ -126,5 +147,28 @@ public interface Scheduler {
      */
     enum ScheduleMode {
         ONCE, REPEATED, INFINITELY
+    }
+
+    interface SchedulerWatcher {
+
+        /**
+         * Called when the {@link Scheduler} is started with the method {@link #start()}.
+         */
+        void schedulerStarted();
+
+        /**
+         * Called whe the {@link Scheduler} is killed with the method {@link #kill()}.
+         */
+        void schedulerKilled();
+
+        /**
+         * Call when the {@link Scheduler} has reach the end simulation time.
+         */
+        void simulationEndTimeReach();
+
+        /**
+         * Call when the {@link Scheduler} has not anymore {@link Executable} to execute.
+         */
+        void noExecutableToExecute();
     }
 }

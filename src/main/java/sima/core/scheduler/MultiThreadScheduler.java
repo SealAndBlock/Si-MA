@@ -19,13 +19,16 @@ public class MultiThreadScheduler implements Scheduler {
 
     private long currentTime;
 
-    private long endSimulationTime;
+    private final long endSimulationTime;
 
     private boolean isStarted = false;
 
-    private int nbExecutorThread;
+    private final int nbExecutorThread;
 
-    private boolean allIsDone = false;
+    /**
+     * The list of all {@link sima.core.scheduler.Scheduler.SchedulerWatcher}.
+     */
+    private final List<SchedulerWatcher> schedulerWatchers;
 
     /**
      * Maps for each time of the simulation agent actions.
@@ -39,13 +42,27 @@ public class MultiThreadScheduler implements Scheduler {
 
     private List<ExecutorThread> executorThreadList;
 
+    /**
+     * The runnable which for each step, wait for that all executables of the step has been executed and call
+     * the method {@link #executeNextExecutable()} to pass to the next step time.
+     */
     private StepFinishWatcher stepFinishWatcher;
 
     private ExecutorService executor;
 
     // Constructors.
 
-    public MultiThreadScheduler() {
+    /**
+     * @param endSimulationTime the end of the simulation
+     * @param nbExecutorThread  the number of executor thread
+     */
+    public MultiThreadScheduler(long endSimulationTime, int nbExecutorThread) {
+        this.endSimulationTime = endSimulationTime;
+
+        this.nbExecutorThread = nbExecutorThread;
+
+        this.schedulerWatchers = new Vector<>();
+
         this.mapAgentExecutable = new ConcurrentHashMap<>();
 
         this.mapExecutable = new ConcurrentHashMap<>();
@@ -53,17 +70,68 @@ public class MultiThreadScheduler implements Scheduler {
         this.stepLock = new Object();
     }
 
+    // Methods.
+
+    @Override
+    public boolean addSchedulerWatcher(SchedulerWatcher schedulerWatcher) {
+        if (this.schedulerWatchers.contains(schedulerWatcher))
+            return false;
+
+        return this.schedulerWatchers.add(schedulerWatcher);
+    }
+
+    @Override
+    public void removeSchedulerWatcher(SchedulerWatcher schedulerWatcher) {
+        this.schedulerWatchers.remove(schedulerWatcher);
+    }
+
+    private void updateSchedulerWatcherOnSchedulerStarted() {
+        this.schedulerWatchers.forEach(SchedulerWatcher::schedulerStarted);
+    }
+
+    private void updateSchedulerWatcherOnSchedulerKilled() {
+        this.schedulerWatchers.forEach(SchedulerWatcher::schedulerKilled);
+    }
+
+    private void updateSchedulerWatcherOnSimulationEndTimeReach() {
+        this.schedulerWatchers.forEach(SchedulerWatcher::simulationEndTimeReach);
+    }
+
+    private void updateSchedulerWatcherOnNoExecutableToExecute() {
+        this.schedulerWatchers.forEach(SchedulerWatcher::noExecutableToExecute);
+    }
+
     @Override
     public synchronized void start() {
         if (!this.isStarted) {
-            this.executor = Executors.newFixedThreadPool(this.nbExecutorThread);
             this.isStarted = true;
+
+            this.executor = Executors.newFixedThreadPool(this.nbExecutorThread);
 
             this.stepFinishWatcher = new StepFinishWatcher();
             Thread finishExecutionWatcher = new Thread(this.stepFinishWatcher);
             finishExecutionWatcher.start();
 
             this.executeNextExecutable();
+
+            this.updateSchedulerWatcherOnSchedulerStarted();
+        }
+    }
+
+    @Override
+    public synchronized void kill() {
+        if (this.isStarted) {
+            this.isStarted = false;
+
+            this.executor.shutdownNow();
+
+            this.stepFinishWatcher.kill();
+
+            this.mapAgentExecutable.clear();
+
+            this.mapExecutable.clear();
+
+            this.updateSchedulerWatcherOnSchedulerKilled();
         }
     }
 
@@ -137,20 +205,23 @@ public class MultiThreadScheduler implements Scheduler {
 
         if (executorThreadList.isEmpty()) {
             // No executable find to execute -> end of the simulation.
-            this.allIsDone = true;
-            // TODO Call end of simulation
+            this.updateSchedulerWatcherOnNoExecutableToExecute();
         } else {
             this.currentTime = nextTime;
 
-            // Remove all executables which have been taken in account.
-            this.mapAgentExecutable.remove(this.currentTime);
-            this.mapExecutable.remove(this.currentTime);
+            // Verify if the next time is always in the simulation.
+            if (this.currentTime <= this.endSimulationTime) {
+                // Remove all executables which have been taken in account.
+                this.mapAgentExecutable.remove(this.currentTime);
+                this.mapExecutable.remove(this.currentTime);
 
-            executorThreadList.forEach(executorThread -> this.executor.execute(executorThread));
+                executorThreadList.forEach(executorThread -> this.executor.execute(executorThread));
+            } else {
+                this.updateSchedulerWatcherOnSimulationEndTimeReach();
+            }
         }
     }
 
-    // Methods.
     @Override
     public void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode,
                                    int executionTimeStep) {
