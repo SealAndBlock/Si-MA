@@ -471,7 +471,8 @@ public class MultiThreadScheduler implements Scheduler {
 
         return res;
     }
-// Inner classes.
+
+    // Inner classes.
 
     private class ExecutorThread implements Runnable {
 
