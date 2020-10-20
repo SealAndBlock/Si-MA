@@ -2,6 +2,7 @@ package sima.core.simulation;
 
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
+import sima.core.scheduler.Scheduler;
 import sima.core.simulation.exception.TwoAgentWithSameIdentifierException;
 
 import java.util.List;
@@ -16,9 +17,18 @@ public class SimaSimulation {
 
     private AgentManager agentManager;
 
+    private Scheduler scheduler;
+
     // Constructors.
 
     // Methods.
+
+    /**
+     * @return the scheduler of the simulation. Never returns null.
+     */
+    public static Scheduler getScheduler() {
+        return SIMA_SIMULATION.scheduler;
+    }
 
     /**
      * Finds in the {@link #agentManager} the agent which as the same {@link AgentIdentifier} than the specified agent
