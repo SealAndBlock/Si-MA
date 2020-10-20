@@ -2,6 +2,7 @@ package sima.core.scheduler;
 
 import sima.core.agent.AbstractAgent;
 import sima.core.environment.event.Event;
+import sima.core.simulation.SimaSimulation;
 
 /**
  * Provides methods to schedule {@link Event}, {@link Action} or {@link Controller} during the simulation.
@@ -161,7 +162,7 @@ public interface Scheduler {
             Action eventAction = new Action(event.getReceiver()) {
                 @Override
                 public void execute() {
-                    AbstractAgent receiver = null; // TODO get the receiver agent from the simulation
+                    AbstractAgent receiver = SimaSimulation.getAgentFromIdentifier(event.getReceiver());
                     receiver.processEvent(event);
                 }
             };
