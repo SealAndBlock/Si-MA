@@ -37,6 +37,14 @@ public class SimaSimulation {
     }
 
     /**
+     * @return the current time of the simulation.
+     * @see Scheduler#getCurrentTime()
+     */
+    public static long currentTime() {
+        return SIMA_SIMULATION.scheduler.getCurrentTime();
+    }
+
+    /**
      * Finds in the {@link #agentManager} the agent which as the same {@link AgentIdentifier} than the specified agent
      * identifier.
      *
