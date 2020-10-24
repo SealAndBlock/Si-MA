@@ -63,6 +63,9 @@ public interface Scheduler {
      * {@code currentTime}. If it is not the case throws {@link IllegalArgumentException}.
      * <p>
      * The nbRepetitions must be  greater or equal to 1, else throws {@link IllegalArgumentException}.
+     * <p>
+     * <strong>WARNING!</strong> If the Simulation time mode is
+     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable        the executable to schedule
      * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 1)
@@ -84,6 +87,9 @@ public interface Scheduler {
      * {@link IllegalArgumentException}.
      * <p>
      * If the simulationSpecificTime is greater than the end of the simulation, nothing id done.
+     * <p>
+     * <strong>WARNING!</strong> If the Simulation time mode is
+     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable             the executable to schedule
      * @param simulationSpecificTime the specific time of the simulation when the executable is execute (greater or
@@ -95,6 +101,9 @@ public interface Scheduler {
 
     /**
      * Schedule one time the executable.
+     * <p>
+     * <strong>WARNING!</strong> If the Simulation time mode is
+     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable  the executable to schedule
      * @param waitingTime the waiting time before begin the schedule of the executable (greater or equal to 1)
@@ -113,6 +122,9 @@ public interface Scheduler {
      * <p>
      * The waitingTime must be greater or equal to 1, it is not possible to schedule an {@code Executable} on the
      * {@code currentTime}.
+     * <p>
+     * <strong>WARNING!</strong> If the Simulation time mode is
+     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable        the executable to schedule
      * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 1)
@@ -131,6 +143,9 @@ public interface Scheduler {
      * <p>
      * <strong>Remark,</strong> if the waitingTime is equal to 0, the {@code Executable} will be executed at the
      * {@code currentTime + 1} because it is not possible to schedule an {@code Executable} in the current time.
+     * <p>
+     * <strong>WARNING!</strong> If the Simulation time mode is
+     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable        the executable to schedule
      * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 1)
@@ -152,6 +167,9 @@ public interface Scheduler {
      * <p>
      * The waitingTime must be greater or equal to 1, it is not possible to schedule an {@code Executable} on the
      * {@code currentTime}.
+     * <p>
+     * <strong>WARNING!</strong> If the Simulation time mode is
+     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param event       the event to schedule
      * @param waitingTime the time to wait before send the event (greater or equal to 1 if in repeated mod)

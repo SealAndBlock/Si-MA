@@ -606,7 +606,8 @@ public class MultiThreadScheduler implements Scheduler {
                 super(cause);
             }
 
-            public EmptyExecutorException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+            public EmptyExecutorException(String message, Throwable cause, boolean enableSuppression,
+                                          boolean writableStackTrace) {
                 super(message, cause, enableSuppression, writableStackTrace);
             }
         }
