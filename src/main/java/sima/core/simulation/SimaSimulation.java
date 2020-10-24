@@ -43,6 +43,9 @@ public class SimaSimulation {
 
     // Constructors.
 
+    private SimaSimulation() {
+    }
+
     // Methods.
 
     public synchronized static void runSimulation(TimeMode simulationTimeMode, SchedulerType simulationSchedulerType,
