@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MultiThreadScheduler implements Scheduler {
+public class DiscreteTimeMultiThreadScheduler implements Scheduler {
 
     // Variables.
 
@@ -25,7 +25,7 @@ public class MultiThreadScheduler implements Scheduler {
     /**
      * The end of the simulation.
      */
-    private final long endSimulationTime;
+    private final long endSimulation;
 
     /**
      * True if the {@link Scheduler} is started, else false.
@@ -65,13 +65,13 @@ public class MultiThreadScheduler implements Scheduler {
     // Constructors.
 
     /**
-     * @param endSimulationTime the end of the simulation
-     * @param nbExecutorThread  the number of executor thread
+     * @param endSimulation    the end of the simulation
+     * @param nbExecutorThread the number of executor thread
      * @throws IllegalArgumentException if the endSimulationTime or the nbExecutorThread is less than 1.
      */
-    public MultiThreadScheduler(long endSimulationTime, int nbExecutorThread) {
-        this.endSimulationTime = endSimulationTime;
-        if (this.endSimulationTime < 1)
+    public DiscreteTimeMultiThreadScheduler(long endSimulation, int nbExecutorThread) {
+        this.endSimulation = endSimulation;
+        if (this.endSimulation < 1)
             throw new IllegalArgumentException("The end simulation time must be greater or equal to 1.");
 
         this.nbExecutorThread = nbExecutorThread;
@@ -242,7 +242,7 @@ public class MultiThreadScheduler implements Scheduler {
             this.currentTime = nextTime;
 
             // Verify if the next time is always in the simulation.
-            if (this.currentTime <= this.endSimulationTime) {
+            if (this.currentTime <= this.endSimulation) {
                 // Remove all executables which have been taken in account.
                 this.mapAgentExecutable.remove(this.currentTime);
                 this.mapExecutable.remove(this.currentTime);
@@ -277,7 +277,7 @@ public class MultiThreadScheduler implements Scheduler {
 
     @Override
     public void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode,
-                                   int nbRepetitions, int executionTimeStep) {
+                                   long nbRepetitions, long executionTimeStep) {
         if (waitingTime < 1)
             throw new IllegalArgumentException("Waiting time cannot be less than 1.");
 
@@ -285,11 +285,9 @@ public class MultiThreadScheduler implements Scheduler {
             Action action = (Action) executable;
             if (action.getExecutorAgent() != null) {
                 // Agent action
-                // +1 because we does not add an action on the current time.
                 this.addAgentActionWithScheduleMode(action, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
             } else {
                 // Not agent action
-                // +1 because we does not add an action on the current time.
                 this.addExecutableWithScheduleMode(action, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
             }
         } else
@@ -313,7 +311,7 @@ public class MultiThreadScheduler implements Scheduler {
      * @param executionTimeStep the time between each execution of a repeated action
      */
     private void addAgentActionWithScheduleMode(Action action, long waitingTime, ScheduleMode scheduleMode,
-                                                int nbRepetitions, int executionTimeStep) {
+                                                long nbRepetitions, long executionTimeStep) {
         switch (scheduleMode) {
             case ONCE -> this.addAgentActionAtTime(action, this.currentTime + waitingTime);
             case REPEATED -> {
@@ -336,7 +334,7 @@ public class MultiThreadScheduler implements Scheduler {
 
                 long time = this.currentTime + waitingTime;
                 this.addAgentActionAtTime(action, time);
-                while (time <= this.endSimulationTime) {
+                while (time <= this.endSimulation) {
                     time += executionTimeStep;
                     this.addAgentActionAtTime(action, time);
                 }
@@ -359,7 +357,7 @@ public class MultiThreadScheduler implements Scheduler {
      *                      {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED}
      */
     private void addExecutableWithScheduleMode(Executable executable, long waitingTime, ScheduleMode scheduleMode,
-                                               int nbRepetitions, int executionTimeStep) {
+                                               long nbRepetitions, long executionTimeStep) {
         switch (scheduleMode) {
             case ONCE -> this.addExecutableAtTime(executable, this.currentTime + waitingTime);
             case REPEATED -> {
@@ -382,7 +380,7 @@ public class MultiThreadScheduler implements Scheduler {
 
                 long time = this.currentTime + waitingTime;
                 this.addExecutableAtTime(executable, time);
-                while (time <= this.endSimulationTime) {
+                while (time <= this.endSimulation) {
                     time += executionTimeStep;
                     this.addExecutableAtTime(executable, time);
                 }
@@ -392,10 +390,13 @@ public class MultiThreadScheduler implements Scheduler {
 
     @Override
     public void scheduleExecutableAtSpecificTime(Executable executable, long simulationSpecificTime) {
+        if (simulationSpecificTime < 1)
+            throw new IllegalArgumentException("SimulationSpecificTime must be greater or equal to 1");
+
         if (simulationSpecificTime <= this.currentTime)
             throw new NotSchedulableTimeException("SimulationSpecificTime is already passed");
 
-        if (simulationSpecificTime > this.endSimulationTime)
+        if (simulationSpecificTime > this.endSimulation)
             // We does not take in account the executable but not throw an exception because the agent must not know
             // that it is in a simulation therefore does not know the end of the simulation.
             return;
@@ -516,9 +517,9 @@ public class MultiThreadScheduler implements Scheduler {
         public void run() {
             this.executables.forEach(Executable::execute);
 
-            synchronized (MultiThreadScheduler.this.stepLock) {
+            synchronized (DiscreteTimeMultiThreadScheduler.this.stepLock) {
                 this.isFinished = true;
-                MultiThreadScheduler.this.stepLock.notifyAll();
+                DiscreteTimeMultiThreadScheduler.this.stepLock.notifyAll();
             }
         }
 
@@ -535,12 +536,12 @@ public class MultiThreadScheduler implements Scheduler {
 
         @Override
         public void run() {
-            synchronized (MultiThreadScheduler.this.stepLock) {
+            synchronized (DiscreteTimeMultiThreadScheduler.this.stepLock) {
                 while (!this.stopped) {
                     try {
                         while (!this.allExecutionsFinished()) {
                             try {
-                                MultiThreadScheduler.this.stepLock.wait();
+                                DiscreteTimeMultiThreadScheduler.this.stepLock.wait();
 
                                 if (this.stopped)
                                     break;
@@ -554,7 +555,7 @@ public class MultiThreadScheduler implements Scheduler {
                     }
 
                     if (!this.stopped)
-                        MultiThreadScheduler.this.executeNextExecutable();
+                        DiscreteTimeMultiThreadScheduler.this.executeNextExecutable();
                 }
             }
         }
@@ -563,10 +564,10 @@ public class MultiThreadScheduler implements Scheduler {
          * @return true if all {@link ExecutorThread} in {@link #executorThreadList} have finished, else false.
          */
         private boolean allExecutionsFinished() throws EmptyExecutorException {
-            if (MultiThreadScheduler.this.executorThreadList.isEmpty())
+            if (DiscreteTimeMultiThreadScheduler.this.executorThreadList.isEmpty())
                 throw new EmptyExecutorException();
 
-            for (ExecutorThread executorThread : MultiThreadScheduler.this.executorThreadList) {
+            for (ExecutorThread executorThread : DiscreteTimeMultiThreadScheduler.this.executorThreadList) {
                 if (!executorThread.isFinished()) {
                     return false;
                 }
@@ -579,9 +580,9 @@ public class MultiThreadScheduler implements Scheduler {
          * Kill the thread.
          */
         public void kill() {
-            synchronized (MultiThreadScheduler.this.stepLock) {
+            synchronized (DiscreteTimeMultiThreadScheduler.this.stepLock) {
                 this.stopped = true;
-                MultiThreadScheduler.this.stepLock.notifyAll();
+                DiscreteTimeMultiThreadScheduler.this.stepLock.notifyAll();
             }
         }
 
@@ -606,7 +607,8 @@ public class MultiThreadScheduler implements Scheduler {
                 super(cause);
             }
 
-            public EmptyExecutorException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+            public EmptyExecutorException(String message, Throwable cause, boolean enableSuppression,
+                                          boolean writableStackTrace) {
                 super(message, cause, enableSuppression, writableStackTrace);
             }
         }

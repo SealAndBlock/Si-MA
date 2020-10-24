@@ -2,6 +2,7 @@ package sima.core.scheduler;
 
 import sima.core.agent.AbstractAgent;
 import sima.core.environment.event.Event;
+import sima.core.simulation.SimaSimulation;
 
 /**
  * Provides methods to schedule {@link Event}, {@link Action} or {@link Controller} during the simulation.
@@ -62,6 +63,9 @@ public interface Scheduler {
      * {@code currentTime}. If it is not the case throws {@link IllegalArgumentException}.
      * <p>
      * The nbRepetitions must be  greater or equal to 1, else throws {@link IllegalArgumentException}.
+     * <p>
+     * <strong>WARNING!</strong> If the Simulation time mode is
+     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable        the executable to schedule
      * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 1)
@@ -72,8 +76,8 @@ public interface Scheduler {
      *                          {@link ScheduleMode#REPEATED} (greater or equal to 1 if in repeated mod)
      * @throws IllegalArgumentException if waitingTime, nbRepetitions or executionTimeStep is less than 1.
      */
-    void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode, int nbRepetitions,
-                            int executionTimeStep);
+    void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode, long nbRepetitions,
+                            long executionTimeStep);
 
     /**
      * Schedule the execution of the {@link Executable} at a specific time in the simulation. In other words, schedule
@@ -83,6 +87,13 @@ public interface Scheduler {
      * {@link IllegalArgumentException}.
      * <p>
      * If the simulationSpecificTime is greater than the end of the simulation, nothing id done.
+     * <p>
+     * Here the simulationSpecificTime is based on the start of the scheduler. Therefore if the simulationSpecificTime
+     * is equal to 5, it is 5 time unit (or milliseconds if REAL_TIME mode) after the start of the scheduler and not
+     * 5 after the call of this method.
+     * <p>
+     * <strong>WARNING!</strong> If the Simulation time mode is
+     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable             the executable to schedule
      * @param simulationSpecificTime the specific time of the simulation when the executable is execute (greater or
@@ -94,13 +105,16 @@ public interface Scheduler {
 
     /**
      * Schedule one time the executable.
+     * <p>
+     * <strong>WARNING!</strong> If the Simulation time mode is
+     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable  the executable to schedule
      * @param waitingTime the waiting time before begin the schedule of the executable (greater or equal to 1)
      * @throws IllegalArgumentException                                  if the waitingTime is less than 1.
      * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is greater than
      *                                                                   the terminate time of the simulation
-     * @see #scheduleExecutable(Executable, long, ScheduleMode, int, int)
+     * @see #scheduleExecutable(Executable, long, ScheduleMode, long, long)
      */
     default void scheduleExecutableOnce(Executable executable, long waitingTime) {
         this.scheduleExecutable(executable, waitingTime, ScheduleMode.ONCE, -1, -1);
@@ -112,16 +126,19 @@ public interface Scheduler {
      * <p>
      * The waitingTime must be greater or equal to 1, it is not possible to schedule an {@code Executable} on the
      * {@code currentTime}.
+     * <p>
+     * <strong>WARNING!</strong> If the Simulation time mode is
+     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable        the executable to schedule
      * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 1)
      * @param nbRepetitions     the number of times that the executable will be repeated
      * @param executionTimeStep the time between each execution (greater or equal to 1 if in repeated mod)
      * @throws IllegalArgumentException if waitingTime, nbRepetitions or executionTimeStep is less than 1.
-     * @see #scheduleExecutable(Executable, long, ScheduleMode, int, int)
+     * @see #scheduleExecutable(Executable, long, ScheduleMode, long, long)
      */
-    default void scheduleExecutableRepeated(Executable executable, long waitingTime, int nbRepetitions,
-                                            int executionTimeStep) {
+    default void scheduleExecutableRepeated(Executable executable, long waitingTime, long nbRepetitions,
+                                            long executionTimeStep) {
         this.scheduleExecutable(executable, waitingTime, ScheduleMode.REPEATED, nbRepetitions, executionTimeStep);
     }
 
@@ -130,6 +147,9 @@ public interface Scheduler {
      * <p>
      * <strong>Remark,</strong> if the waitingTime is equal to 0, the {@code Executable} will be executed at the
      * {@code currentTime + 1} because it is not possible to schedule an {@code Executable} in the current time.
+     * <p>
+     * <strong>WARNING!</strong> If the Simulation time mode is
+     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable        the executable to schedule
      * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 1)
@@ -139,7 +159,7 @@ public interface Scheduler {
      * @throws IllegalArgumentException                                  if waitingTime or executionTimeStep is less
      *                                                                   than 1.
      */
-    default void scheduleExecutableInfinitely(Executable executable, long waitingTime, int executionTimeStep) {
+    default void scheduleExecutableInfinitely(Executable executable, long waitingTime, long executionTimeStep) {
         this.scheduleExecutable(executable, waitingTime, ScheduleMode.INFINITELY, -1, executionTimeStep);
     }
 
@@ -151,6 +171,9 @@ public interface Scheduler {
      * <p>
      * The waitingTime must be greater or equal to 1, it is not possible to schedule an {@code Executable} on the
      * {@code currentTime}.
+     * <p>
+     * <strong>WARNING!</strong> If the Simulation time mode is
+     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param event       the event to schedule
      * @param waitingTime the time to wait before send the event (greater or equal to 1 if in repeated mod)
@@ -161,7 +184,7 @@ public interface Scheduler {
             Action eventAction = new Action(event.getReceiver()) {
                 @Override
                 public void execute() {
-                    AbstractAgent receiver = null; // TODO get the receiver agent from the simulation
+                    AbstractAgent receiver = SimaSimulation.getAgentFromIdentifier(event.getReceiver());
                     receiver.processEvent(event);
                 }
             };
