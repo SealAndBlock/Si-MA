@@ -278,7 +278,7 @@ public class MultiThreadScheduler implements Scheduler {
 
     @Override
     public void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode,
-                                   int nbRepetitions, int executionTimeStep) {
+                                   long nbRepetitions, long executionTimeStep) {
         if (waitingTime < 1)
             throw new IllegalArgumentException("Waiting time cannot be less than 1.");
 
@@ -314,7 +314,7 @@ public class MultiThreadScheduler implements Scheduler {
      * @param executionTimeStep the time between each execution of a repeated action
      */
     private void addAgentActionWithScheduleMode(Action action, long waitingTime, ScheduleMode scheduleMode,
-                                                int nbRepetitions, int executionTimeStep) {
+                                                long nbRepetitions, long executionTimeStep) {
         switch (scheduleMode) {
             case ONCE -> this.addAgentActionAtTime(action, this.currentTime + waitingTime);
             case REPEATED -> {
@@ -360,7 +360,7 @@ public class MultiThreadScheduler implements Scheduler {
      *                      {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED}
      */
     private void addExecutableWithScheduleMode(Executable executable, long waitingTime, ScheduleMode scheduleMode,
-                                               int nbRepetitions, int executionTimeStep) {
+                                               long nbRepetitions, long executionTimeStep) {
         switch (scheduleMode) {
             case ONCE -> this.addExecutableAtTime(executable, this.currentTime + waitingTime);
             case REPEATED -> {

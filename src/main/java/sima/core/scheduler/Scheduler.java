@@ -73,8 +73,8 @@ public interface Scheduler {
      *                          {@link ScheduleMode#REPEATED} (greater or equal to 1 if in repeated mod)
      * @throws IllegalArgumentException if waitingTime, nbRepetitions or executionTimeStep is less than 1.
      */
-    void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode, int nbRepetitions,
-                            int executionTimeStep);
+    void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode, long nbRepetitions,
+                            long executionTimeStep);
 
     /**
      * Schedule the execution of the {@link Executable} at a specific time in the simulation. In other words, schedule
@@ -101,7 +101,7 @@ public interface Scheduler {
      * @throws IllegalArgumentException                                  if the waitingTime is less than 1.
      * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is greater than
      *                                                                   the terminate time of the simulation
-     * @see #scheduleExecutable(Executable, long, ScheduleMode, int, int)
+     * @see #scheduleExecutable(Executable, long, ScheduleMode, long, long)
      */
     default void scheduleExecutableOnce(Executable executable, long waitingTime) {
         this.scheduleExecutable(executable, waitingTime, ScheduleMode.ONCE, -1, -1);
@@ -119,10 +119,10 @@ public interface Scheduler {
      * @param nbRepetitions     the number of times that the executable will be repeated
      * @param executionTimeStep the time between each execution (greater or equal to 1 if in repeated mod)
      * @throws IllegalArgumentException if waitingTime, nbRepetitions or executionTimeStep is less than 1.
-     * @see #scheduleExecutable(Executable, long, ScheduleMode, int, int)
+     * @see #scheduleExecutable(Executable, long, ScheduleMode, long, long)
      */
-    default void scheduleExecutableRepeated(Executable executable, long waitingTime, int nbRepetitions,
-                                            int executionTimeStep) {
+    default void scheduleExecutableRepeated(Executable executable, long waitingTime, long nbRepetitions,
+                                            long executionTimeStep) {
         this.scheduleExecutable(executable, waitingTime, ScheduleMode.REPEATED, nbRepetitions, executionTimeStep);
     }
 
@@ -140,7 +140,7 @@ public interface Scheduler {
      * @throws IllegalArgumentException                                  if waitingTime or executionTimeStep is less
      *                                                                   than 1.
      */
-    default void scheduleExecutableInfinitely(Executable executable, long waitingTime, int executionTimeStep) {
+    default void scheduleExecutableInfinitely(Executable executable, long waitingTime, long executionTimeStep) {
         this.scheduleExecutable(executable, waitingTime, ScheduleMode.INFINITELY, -1, executionTimeStep);
     }
 
