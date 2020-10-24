@@ -4,6 +4,7 @@ import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.Environment;
 import sima.core.scheduler.DiscreteTimeMultiThreadScheduler;
+import sima.core.scheduler.RealTimeMultiThreadScheduler;
 import sima.core.scheduler.Scheduler;
 import sima.core.simulation.exception.EnvironmentConstructionException;
 import sima.core.simulation.exception.SimaSimulationAlreadyRunningException;
@@ -73,7 +74,15 @@ public final class SimaSimulation {
         // Update time mode.
         SIMA_SIMULATION.timeMode = simulationTimeMode;
         switch (SIMA_SIMULATION.timeMode) {
-            case REAL_TIME -> throw new UnsupportedOperationException("REAL_TIME simulation time mode not supported");
+            case REAL_TIME -> {
+                switch (simulationSchedulerType) {
+                    case MONO_THREAD -> throw new UnsupportedOperationException("Real Time Mono thread simulation" +
+                            " unsupported.");
+                    case MULTI_THREAD -> SIMA_SIMULATION.scheduler = new RealTimeMultiThreadScheduler(endSimulation,
+                            NB_THREAD_MULTI_THREAD_SCHEDULER);
+                }
+                throw new UnsupportedOperationException("REAL_TIME simulation time mode not supported");
+            }
             case DISCRETE_TIME -> {
                 // Create the Scheduler.
                 switch (simulationSchedulerType) {
