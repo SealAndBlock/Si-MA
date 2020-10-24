@@ -88,6 +88,10 @@ public interface Scheduler {
      * <p>
      * If the simulationSpecificTime is greater than the end of the simulation, nothing id done.
      * <p>
+     * Here the simulationSpecificTime is based on the start of the scheduler. Therefore if the simulationSpecificTime
+     * is equal to 5, it is 5 time unit (or milliseconds if REAL_TIME mode) after the start of the scheduler and not
+     * 5 after the call of this method.
+     * <p>
      * <strong>WARNING!</strong> If the Simulation time mode is
      * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
      *

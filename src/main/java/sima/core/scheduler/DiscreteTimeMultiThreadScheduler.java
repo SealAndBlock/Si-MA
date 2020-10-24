@@ -25,7 +25,7 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
     /**
      * The end of the simulation.
      */
-    private final long endSimulationTime;
+    private final long endSimulation;
 
     /**
      * True if the {@link Scheduler} is started, else false.
@@ -65,13 +65,13 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
     // Constructors.
 
     /**
-     * @param endSimulationTime the end of the simulation
-     * @param nbExecutorThread  the number of executor thread
+     * @param endSimulation    the end of the simulation
+     * @param nbExecutorThread the number of executor thread
      * @throws IllegalArgumentException if the endSimulationTime or the nbExecutorThread is less than 1.
      */
-    public DiscreteTimeMultiThreadScheduler(long endSimulationTime, int nbExecutorThread) {
-        this.endSimulationTime = endSimulationTime;
-        if (this.endSimulationTime < 1)
+    public DiscreteTimeMultiThreadScheduler(long endSimulation, int nbExecutorThread) {
+        this.endSimulation = endSimulation;
+        if (this.endSimulation < 1)
             throw new IllegalArgumentException("The end simulation time must be greater or equal to 1.");
 
         this.nbExecutorThread = nbExecutorThread;
@@ -242,7 +242,7 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
             this.currentTime = nextTime;
 
             // Verify if the next time is always in the simulation.
-            if (this.currentTime <= this.endSimulationTime) {
+            if (this.currentTime <= this.endSimulation) {
                 // Remove all executables which have been taken in account.
                 this.mapAgentExecutable.remove(this.currentTime);
                 this.mapExecutable.remove(this.currentTime);
@@ -336,7 +336,7 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
 
                 long time = this.currentTime + waitingTime;
                 this.addAgentActionAtTime(action, time);
-                while (time <= this.endSimulationTime) {
+                while (time <= this.endSimulation) {
                     time += executionTimeStep;
                     this.addAgentActionAtTime(action, time);
                 }
@@ -382,7 +382,7 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
 
                 long time = this.currentTime + waitingTime;
                 this.addExecutableAtTime(executable, time);
-                while (time <= this.endSimulationTime) {
+                while (time <= this.endSimulation) {
                     time += executionTimeStep;
                     this.addExecutableAtTime(executable, time);
                 }
@@ -392,10 +392,13 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
 
     @Override
     public void scheduleExecutableAtSpecificTime(Executable executable, long simulationSpecificTime) {
+        if (simulationSpecificTime < 1)
+            throw new IllegalArgumentException("SimulationSpecificTime must be greater or equal to 1");
+
         if (simulationSpecificTime <= this.currentTime)
             throw new NotSchedulableTimeException("SimulationSpecificTime is already passed");
 
-        if (simulationSpecificTime > this.endSimulationTime)
+        if (simulationSpecificTime > this.endSimulation)
             // We does not take in account the executable but not throw an exception because the agent must not know
             // that it is in a simulation therefore does not know the end of the simulation.
             return;
