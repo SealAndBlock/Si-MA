@@ -81,7 +81,6 @@ public final class SimaSimulation {
                     case MULTI_THREAD -> SIMA_SIMULATION.scheduler = new RealTimeMultiThreadScheduler(endSimulation,
                             NB_THREAD_MULTI_THREAD_SCHEDULER);
                 }
-                throw new UnsupportedOperationException("REAL_TIME simulation time mode not supported");
             }
             case DISCRETE_TIME -> {
                 // Create the Scheduler.
