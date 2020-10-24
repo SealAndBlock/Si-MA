@@ -285,11 +285,9 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
             Action action = (Action) executable;
             if (action.getExecutorAgent() != null) {
                 // Agent action
-                // +1 because we does not add an action on the current time.
                 this.addAgentActionWithScheduleMode(action, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
             } else {
                 // Not agent action
-                // +1 because we does not add an action on the current time.
                 this.addExecutableWithScheduleMode(action, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
             }
         } else
