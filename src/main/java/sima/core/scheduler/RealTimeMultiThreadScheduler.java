@@ -41,7 +41,7 @@ public class RealTimeMultiThreadScheduler implements Scheduler {
 
     private ScheduledExecutorService executor;
 
-    private final List<ExecutorThread> runnableList;
+    private final List<ExecutorThread> executorThreadList;
 
     // Constructors.
 
@@ -61,7 +61,7 @@ public class RealTimeMultiThreadScheduler implements Scheduler {
 
         this.schedulerWatchers = new Vector<>();
 
-        this.runnableList = new Vector<>();
+        this.executorThreadList = new Vector<>();
     }
 
     // Methods.
@@ -103,6 +103,7 @@ public class RealTimeMultiThreadScheduler implements Scheduler {
             this.updateSchedulerWatcherOnSchedulerStarted();
 
             this.executor = Executors.newScheduledThreadPool(this.nbExecutorThread);
+            this.executor.scheduleAtFixedRate(new FinishWatcher(), 1, 1, TimeUnit.SECONDS);
 
             return true;
         } else
@@ -118,7 +119,7 @@ public class RealTimeMultiThreadScheduler implements Scheduler {
 
             this.updateSchedulerWatcherOnSchedulerKilled();
 
-            this.runnableList.clear();
+            this.executorThreadList.clear();
 
             return true;
         } else
@@ -134,13 +135,13 @@ public class RealTimeMultiThreadScheduler implements Scheduler {
         switch (scheduleMode) {
             case ONCE -> {
                 ExecutorThread executorThread = new ExecutorThread(executable);
-                this.runnableList.add(executorThread);
+                this.executorThreadList.add(executorThread);
                 this.executor.schedule(executorThread, waitingTime, TimeUnit.MILLISECONDS);
             }
             case REPEATED -> {
                 for (int i = 0; i < nbRepetitions; i++) {
                     ExecutorThread executorThread = new ExecutorThread(executable);
-                    this.runnableList.add(executorThread);
+                    this.executorThreadList.add(executorThread);
                     this.executor.schedule(executorThread, waitingTime + (i * executionTimeStep),
                             TimeUnit.MILLISECONDS);
                 }
@@ -149,7 +150,7 @@ public class RealTimeMultiThreadScheduler implements Scheduler {
                 long currentTime = this.getCurrentTime();
                 for (int i = 0; currentTime + (i * executionTimeStep) <= this.endSimulation; i++) {
                     ExecutorThread executorThread = new ExecutorThread(executable);
-                    this.runnableList.add(executorThread);
+                    this.executorThreadList.add(executorThread);
                     this.executor.schedule(executorThread, waitingTime + (i * executionTimeStep),
                             TimeUnit.MILLISECONDS);
                 }
@@ -166,7 +167,7 @@ public class RealTimeMultiThreadScheduler implements Scheduler {
             throw new NotSchedulableTimeException("SimulationSpecificTime is already passed");
 
         ExecutorThread executorThread = new ExecutorThread(executable);
-        this.runnableList.add(executorThread);
+        this.executorThreadList.add(executorThread);
         this.executor.schedule(executorThread, simulationSpecificTime - this.getCurrentTime(),
                 TimeUnit.MILLISECONDS);
     }
@@ -200,8 +201,8 @@ public class RealTimeMultiThreadScheduler implements Scheduler {
         public void run() {
             this.executable.execute();
 
-            RealTimeMultiThreadScheduler.this.runnableList.remove(this);
-            if (RealTimeMultiThreadScheduler.this.runnableList.isEmpty()) {
+            RealTimeMultiThreadScheduler.this.executorThreadList.remove(this);
+            if (RealTimeMultiThreadScheduler.this.executorThreadList.isEmpty()) {
                 synchronized (RealTimeMultiThreadScheduler.this) {
                     if (RealTimeMultiThreadScheduler.this.isStarted) {
                         RealTimeMultiThreadScheduler.this.updateSchedulerWatcherOnNoExecutableToExecute();
@@ -210,6 +211,27 @@ public class RealTimeMultiThreadScheduler implements Scheduler {
                 }
             }
 
+        }
+    }
+
+    private class FinishWatcher implements Runnable {
+
+        // Variables.
+
+        // Constructors.
+
+        // Methods.
+
+        @Override
+        public void run() {
+            if (RealTimeMultiThreadScheduler.this.getCurrentTime() > RealTimeMultiThreadScheduler.this.endSimulation) {
+                synchronized (RealTimeMultiThreadScheduler.this) {
+                    if (RealTimeMultiThreadScheduler.this.isStarted) {
+                        RealTimeMultiThreadScheduler.this.updateSchedulerWatcherOnSimulationEndTimeReach();
+                        RealTimeMultiThreadScheduler.this.kill();
+                    }
+                }
+            }
         }
     }
 }
