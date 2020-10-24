@@ -48,6 +48,15 @@ public final class SimaSimulation {
 
     // Methods.
 
+    /**
+     * Run a simulation.
+     *
+     * @param simulationTimeMode      the simulation time mode
+     * @param simulationSchedulerType the simulation scheduler type
+     * @param endSimulation           the end of the simulation
+     * @param environments            the array of environments classes
+     * @param simulationSetupClass    the simulation setup class
+     */
     public synchronized static void runSimulation(TimeMode simulationTimeMode, SchedulerType simulationSchedulerType,
                                                   long endSimulation,
                                                   Class<? extends Environment>[] environments,
@@ -195,14 +204,14 @@ public final class SimaSimulation {
      * Time mode of the simulation.
      */
     public enum TimeMode {
-        REAL_TIME, DISCRETE_TIME;
+        REAL_TIME, DISCRETE_TIME
     }
 
     /**
      * Type of the scheduler. Mono-Thread or Multi-Thread.
      */
     public enum SchedulerType {
-        MULTI_THREAD, MONO_THREAD;
+        MULTI_THREAD, MONO_THREAD
     }
 
     // Inner classes.
