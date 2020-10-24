@@ -18,7 +18,7 @@ public class TestMultiThreadScheduler {
 
     private static final long END_SIMULATION = 1000;
 
-    private static MultiThreadScheduler SCHEDULER;
+    private static DiscreteTimeMultiThreadScheduler SCHEDULER;
 
     private static AgentTestImpl AGENT_0;
     private static AgentTestImpl AGENT_1;
@@ -27,7 +27,7 @@ public class TestMultiThreadScheduler {
 
     @BeforeEach
     void setUp() {
-        SCHEDULER = new MultiThreadScheduler(END_SIMULATION, 5);
+        SCHEDULER = new DiscreteTimeMultiThreadScheduler(END_SIMULATION, 5);
 
         AGENT_0 = new AgentTestImpl("AGENT_0");
         AGENT_1 = new AgentTestImpl("AGENT_1");

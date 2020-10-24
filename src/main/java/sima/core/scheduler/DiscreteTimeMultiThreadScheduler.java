@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MultiThreadScheduler implements Scheduler {
+public class DiscreteTimeMultiThreadScheduler implements Scheduler {
 
     // Variables.
 
@@ -69,7 +69,7 @@ public class MultiThreadScheduler implements Scheduler {
      * @param nbExecutorThread  the number of executor thread
      * @throws IllegalArgumentException if the endSimulationTime or the nbExecutorThread is less than 1.
      */
-    public MultiThreadScheduler(long endSimulationTime, int nbExecutorThread) {
+    public DiscreteTimeMultiThreadScheduler(long endSimulationTime, int nbExecutorThread) {
         this.endSimulationTime = endSimulationTime;
         if (this.endSimulationTime < 1)
             throw new IllegalArgumentException("The end simulation time must be greater or equal to 1.");
@@ -516,9 +516,9 @@ public class MultiThreadScheduler implements Scheduler {
         public void run() {
             this.executables.forEach(Executable::execute);
 
-            synchronized (MultiThreadScheduler.this.stepLock) {
+            synchronized (DiscreteTimeMultiThreadScheduler.this.stepLock) {
                 this.isFinished = true;
-                MultiThreadScheduler.this.stepLock.notifyAll();
+                DiscreteTimeMultiThreadScheduler.this.stepLock.notifyAll();
             }
         }
 
@@ -535,12 +535,12 @@ public class MultiThreadScheduler implements Scheduler {
 
         @Override
         public void run() {
-            synchronized (MultiThreadScheduler.this.stepLock) {
+            synchronized (DiscreteTimeMultiThreadScheduler.this.stepLock) {
                 while (!this.stopped) {
                     try {
                         while (!this.allExecutionsFinished()) {
                             try {
-                                MultiThreadScheduler.this.stepLock.wait();
+                                DiscreteTimeMultiThreadScheduler.this.stepLock.wait();
 
                                 if (this.stopped)
                                     break;
@@ -554,7 +554,7 @@ public class MultiThreadScheduler implements Scheduler {
                     }
 
                     if (!this.stopped)
-                        MultiThreadScheduler.this.executeNextExecutable();
+                        DiscreteTimeMultiThreadScheduler.this.executeNextExecutable();
                 }
             }
         }
@@ -563,10 +563,10 @@ public class MultiThreadScheduler implements Scheduler {
          * @return true if all {@link ExecutorThread} in {@link #executorThreadList} have finished, else false.
          */
         private boolean allExecutionsFinished() throws EmptyExecutorException {
-            if (MultiThreadScheduler.this.executorThreadList.isEmpty())
+            if (DiscreteTimeMultiThreadScheduler.this.executorThreadList.isEmpty())
                 throw new EmptyExecutorException();
 
-            for (ExecutorThread executorThread : MultiThreadScheduler.this.executorThreadList) {
+            for (ExecutorThread executorThread : DiscreteTimeMultiThreadScheduler.this.executorThreadList) {
                 if (!executorThread.isFinished()) {
                     return false;
                 }
@@ -579,9 +579,9 @@ public class MultiThreadScheduler implements Scheduler {
          * Kill the thread.
          */
         public void kill() {
-            synchronized (MultiThreadScheduler.this.stepLock) {
+            synchronized (DiscreteTimeMultiThreadScheduler.this.stepLock) {
                 this.stopped = true;
-                MultiThreadScheduler.this.stepLock.notifyAll();
+                DiscreteTimeMultiThreadScheduler.this.stepLock.notifyAll();
             }
         }
 

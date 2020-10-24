@@ -3,7 +3,7 @@ package sima.core.simulation;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.Environment;
-import sima.core.scheduler.MultiThreadScheduler;
+import sima.core.scheduler.DiscreteTimeMultiThreadScheduler;
 import sima.core.scheduler.Scheduler;
 import sima.core.simulation.exception.EnvironmentConstructionException;
 import sima.core.simulation.exception.SimaSimulationAlreadyRunningException;
@@ -21,7 +21,7 @@ public final class SimaSimulation {
     // Constants.
 
     /**
-     * The number of thread of the {@link MultiThreadScheduler}.
+     * The number of thread of the {@link DiscreteTimeMultiThreadScheduler}.
      */
     private static final int NB_THREAD_MULTI_THREAD_SCHEDULER = 8;
 
@@ -71,16 +71,18 @@ public final class SimaSimulation {
         SIMA_SIMULATION.agentManager = new LocalAgentManager();
 
         // Update time mode.
-        switch (simulationTimeMode) {
+        SIMA_SIMULATION.timeMode = simulationTimeMode;
+        switch (SIMA_SIMULATION.timeMode) {
             case REAL_TIME -> throw new UnsupportedOperationException("REAL_TIME simulation time mode not supported");
-            case DISCRETE_TIME -> SIMA_SIMULATION.timeMode = simulationTimeMode;
-        }
-
-        // Create the Scheduler.
-        switch (simulationSchedulerType) {
-            case MONO_THREAD -> throw new UnsupportedOperationException("Mono thread simulation unsupported.");
-            case MULTI_THREAD -> SIMA_SIMULATION.scheduler = new MultiThreadScheduler(endSimulation,
-                    NB_THREAD_MULTI_THREAD_SCHEDULER);
+            case DISCRETE_TIME -> {
+                // Create the Scheduler.
+                switch (simulationSchedulerType) {
+                    case MONO_THREAD -> throw new UnsupportedOperationException("Discrete Time Mono thread simulation" +
+                            " unsupported.");
+                    case MULTI_THREAD -> SIMA_SIMULATION.scheduler = new DiscreteTimeMultiThreadScheduler(endSimulation,
+                            NB_THREAD_MULTI_THREAD_SCHEDULER);
+                }
+            }
         }
 
         // Add a scheduler watcher.
@@ -117,6 +119,10 @@ public final class SimaSimulation {
                 | InvocationTargetException e) {
             throw new SimulationSetupConstructionException(e);
         }
+    }
+
+    public static boolean simulationIsRunning() {
+        return SIMA_SIMULATION != null;
     }
 
     /**
