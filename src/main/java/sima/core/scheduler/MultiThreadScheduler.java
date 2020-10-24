@@ -71,11 +71,6 @@ public class MultiThreadScheduler implements Scheduler {
      * @throws IllegalArgumentException if the endSimulationTime or the nbExecutorThread is less than 1.
      */
     public MultiThreadScheduler(long endSimulationTime, int nbExecutorThread) {
-        if (SimaSimulation.timeMode() == SimaSimulation.TimeMode.REAL_TIME) {
-            throw new UnsupportedOperationException("MultiThreadScheduler does not support REAL_TIME simulation time " +
-                    "mode");
-        }
-
         this.endSimulationTime = endSimulationTime;
         if (this.endSimulationTime < 1)
             throw new IllegalArgumentException("The end simulation time must be greater or equal to 1.");

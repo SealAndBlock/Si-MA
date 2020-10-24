@@ -71,7 +71,10 @@ public final class SimaSimulation {
         SIMA_SIMULATION.agentManager = new LocalAgentManager();
 
         // Update time mode.
-        SIMA_SIMULATION.timeMode = simulationTimeMode;
+        switch (simulationTimeMode) {
+            case REAL_TIME -> throw new UnsupportedOperationException("REAL_TIME simulation time mode not supported");
+            case DISCRETE_TIME -> SIMA_SIMULATION.timeMode = simulationTimeMode;
+        }
 
         // Create the Scheduler.
         switch (simulationSchedulerType) {
