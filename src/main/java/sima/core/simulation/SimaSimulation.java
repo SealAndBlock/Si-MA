@@ -23,7 +23,7 @@ public final class SimaSimulation {
     /**
      * The number of thread of the {@link MultiThreadScheduler}.
      */
-    private static final int NB_THREAD_MULTI_THREAD_SCHEDULER = 5;
+    private static final int NB_THREAD_MULTI_THREAD_SCHEDULER = 8;
 
     // Singleton.
 
