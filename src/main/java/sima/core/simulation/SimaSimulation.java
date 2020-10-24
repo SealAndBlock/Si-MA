@@ -198,6 +198,10 @@ public final class SimaSimulation {
         return this.environments.get(environmentName);
     }
 
+    public static TimeMode timeMode() {
+        return SIMA_SIMULATION.timeMode;
+    }
+
     // Enum.
 
     /**
