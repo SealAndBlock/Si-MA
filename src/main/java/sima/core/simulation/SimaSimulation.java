@@ -3,31 +3,121 @@ package sima.core.simulation;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.Environment;
+import sima.core.scheduler.MultiThreadScheduler;
 import sima.core.scheduler.Scheduler;
+import sima.core.simulation.exception.EnvironmentConstructionException;
+import sima.core.simulation.exception.SimaSimulationAlreadyRunningException;
+import sima.core.simulation.exception.SimulationSetupConstructionException;
 import sima.core.simulation.exception.TwoAgentWithSameIdentifierException;
-import sima.core.simulation.exception.TwoEnvironmentWithTheSameNameException;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
-public class SimaSimulation {
+public final class SimaSimulation {
+
+    // Constants.
+
+    /**
+     * The number of thread of the {@link MultiThreadScheduler}.
+     */
+    private static final int NB_THREAD_MULTI_THREAD_SCHEDULER = 8;
 
     // Singleton.
 
-    private static final SimaSimulation SIMA_SIMULATION = new SimaSimulation();
+    private static SimaSimulation SIMA_SIMULATION;
 
     // Variables
+
+    private SimulationSchedulerWatcher schedulerWatcher;
+
+    private TimeMode timeMode;
 
     private AgentManager agentManager;
 
     private Scheduler scheduler;
 
-    private Set<Environment> environments;
+    private HashMap<String, Environment> environments;
 
     // Constructors.
 
+    private SimaSimulation() {
+    }
+
     // Methods.
+
+    /**
+     * Run a simulation.
+     *
+     * @param simulationTimeMode      the simulation time mode
+     * @param simulationSchedulerType the simulation scheduler type
+     * @param endSimulation           the end of the simulation
+     * @param environments            the array of environments classes
+     * @param simulationSetupClass    the simulation setup class
+     */
+    public synchronized static void runSimulation(TimeMode simulationTimeMode, SchedulerType simulationSchedulerType,
+                                                  long endSimulation,
+                                                  Class<? extends Environment>[] environments,
+                                                  Class<? extends SimulationSetup> simulationSetupClass) {
+        // Create the singleton.
+        if (SIMA_SIMULATION == null)
+            SIMA_SIMULATION = new SimaSimulation();
+        else
+            throw new SimaSimulationAlreadyRunningException();
+
+        // Creates the agent manager.
+        SIMA_SIMULATION.agentManager = new LocalAgentManager();
+
+        // Update time mode.
+        switch (simulationTimeMode) {
+            case REAL_TIME -> throw new UnsupportedOperationException("REAL_TIME simulation time mode not supported");
+            case DISCRETE_TIME -> SIMA_SIMULATION.timeMode = simulationTimeMode;
+        }
+
+        // Create the Scheduler.
+        switch (simulationSchedulerType) {
+            case MONO_THREAD -> throw new UnsupportedOperationException("Mono thread simulation unsupported.");
+            case MULTI_THREAD -> SIMA_SIMULATION.scheduler = new MultiThreadScheduler(endSimulation,
+                    NB_THREAD_MULTI_THREAD_SCHEDULER);
+        }
+
+        // Add a scheduler watcher.
+        SIMA_SIMULATION.schedulerWatcher = new SimulationSchedulerWatcher();
+        SIMA_SIMULATION.scheduler.addSchedulerWatcher(SIMA_SIMULATION.schedulerWatcher);
+
+        // Create and add environments.
+        if (environments.length < 1)
+            throw new IllegalArgumentException("The simulation need to have at least 1 environments");
+
+        for (Class<? extends Environment> environmentClass : environments) {
+            try {
+                Constructor<? extends Environment> constructor = environmentClass.getConstructor(String.class,
+                        String[].class);
+                Environment env = constructor.newInstance(environmentClass.getName(), null);
+
+                if (SIMA_SIMULATION.findEnvironment(env.getEnvironmentName()) == null)
+                    SIMA_SIMULATION.environments.put(env.getEnvironmentName(), env);
+                else
+                    throw new IllegalArgumentException("Two environments with the same class");
+
+            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
+                    | InvocationTargetException e) {
+                throw new EnvironmentConstructionException(e);
+            }
+        }
+
+        // Create the SimSetup and calls the method setup.
+        try {
+            Constructor<? extends SimulationSetup> simSetupConstructor = simulationSetupClass.getConstructor();
+            SimulationSetup simulationSetup = simSetupConstructor.newInstance();
+            simulationSetup.setupSimulation();
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
+                | InvocationTargetException e) {
+            throw new SimulationSetupConstructionException(e);
+        }
+    }
 
     /**
      * @return the scheduler of the simulation. Never returns null.
@@ -88,7 +178,8 @@ public class SimaSimulation {
      * @return the list of all environments of the simulation.
      */
     public static List<Environment> getAllEnvironments() {
-        return new ArrayList<>(SIMA_SIMULATION.environments);
+        return SIMA_SIMULATION.environments.keySet().stream().collect(ArrayList::new, (list, s) ->
+                list.add(SIMA_SIMULATION.environments.get(s)), ArrayList::addAll);
     }
 
     /**
@@ -107,16 +198,54 @@ public class SimaSimulation {
         if (environmentName == null)
             throw new NullPointerException("The environment name cannot be null");
 
-        Environment res = null;
-        for (Environment environment : this.environments) {
-            if (environment.getEnvironmentName().equals(environmentName)) {
-                if (res == null)
-                    res = environment;
-                else
-                    throw new TwoEnvironmentWithTheSameNameException("Environment name = " + environmentName);
-            }
+        return this.environments.get(environmentName);
+    }
+
+    public static TimeMode timeMode() {
+        return SIMA_SIMULATION.timeMode;
+    }
+
+    // Enum.
+
+    /**
+     * Time mode of the simulation.
+     */
+    public enum TimeMode {
+        REAL_TIME, DISCRETE_TIME
+    }
+
+    /**
+     * Type of the scheduler. Mono-Thread or Multi-Thread.
+     */
+    public enum SchedulerType {
+        MULTI_THREAD, MONO_THREAD
+    }
+
+    // Inner classes.
+
+    /**
+     * The simulation scheduler watcher.
+     */
+    private static class SimulationSchedulerWatcher implements Scheduler.SchedulerWatcher {
+
+        @Override
+        public void schedulerStarted() {
+
         }
 
-        return res;
+        @Override
+        public void schedulerKilled() {
+
+        }
+
+        @Override
+        public void simulationEndTimeReach() {
+
+        }
+
+        @Override
+        public void noExecutableToExecute() {
+
+        }
     }
 }

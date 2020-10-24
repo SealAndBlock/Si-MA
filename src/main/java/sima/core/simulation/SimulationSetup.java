@@ -1,6 +1,9 @@
 package sima.core.simulation;
 
-public interface SimSetup {
+/**
+ * A {@link SimulationSetup} must always have a default constructor to allow the use of the java reflexivity.
+ */
+public interface SimulationSetup {
 
     /**
      * Called when the simulation is started and must be setup.

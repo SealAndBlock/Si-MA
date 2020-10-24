@@ -2,6 +2,7 @@ package sima.core.scheduler;
 
 import sima.core.agent.AgentIdentifier;
 import sima.core.scheduler.exception.NotSchedulableTimeException;
+import sima.core.simulation.SimaSimulation;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
