@@ -1,5 +1,6 @@
 package sima.core.agent;
 
+import sima.core.agent.exception.AgentNotStartedException;
 import sima.core.agent.exception.AlreadyKilledAgentException;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
@@ -150,7 +151,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @throws KilledAgentException         if the sima.core.agent is killed
      * @throws AlreadyStartedAgentException if the sima.core.agent have already been started
      */
-    public void start() {
+    public final void start() {
         if (!this.isKilled && !this.isStarted) {
             this.isStarted = true;
 
@@ -177,7 +178,7 @@ public abstract class AbstractAgent implements EventCatcher {
      *
      * @throws AlreadyKilledAgentException if the sima.core.agent have already been killed
      */
-    public void kill() {
+    public final void kill() {
         if (!this.isKilled()) {
             this.isStarted = false;
             this.isKilled = true;
@@ -389,20 +390,26 @@ public abstract class AbstractAgent implements EventCatcher {
      * among all sima.core.protocol that the sima.core.agent possesses, the method {@link #treatEventWithNotFindProtocol(Event)} is called.
      *
      * @param event the event received
+     * @throws AgentNotStartedException if the agent is not started
      * @see NoProtocolEvent
      * @see Event#isNoProtocolEvent()
      */
     @Override
-    public void processEvent(Event event) {
-        if (event.isNoProtocolEvent()) {
-            Protocol protocolTarget = this.getProtocol(event.getProtocolTargeted());
-            if (protocolTarget != null) {
-                protocolTarget.processEvent(event);
+    public final void processEvent(Event event) {
+        if (this.isStarted) {
+            if (event.isNoProtocolEvent()) {
+                Protocol protocolTarget = this.getProtocol(event.getProtocolTargeted());
+                if (protocolTarget != null) {
+                    protocolTarget.processEvent(event);
+                } else {
+                    this.treatEventWithNotFindProtocol(event);
+                }
             } else {
-                this.treatEventWithNotFindProtocol(event);
+                this.treatNoProtocolEvent(event);
             }
         } else {
-            this.treatNoProtocolEvent(event);
+            throw new AgentNotStartedException("The agent " + this.agentIdentifier + " is not started, cannot " +
+                    "process Event.");
         }
     }
 

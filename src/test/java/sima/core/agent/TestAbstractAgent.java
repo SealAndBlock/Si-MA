@@ -2,6 +2,7 @@ package sima.core.agent;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import sima.core.agent.exception.AgentNotStartedException;
 import sima.core.agent.exception.AlreadyKilledAgentException;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
@@ -10,6 +11,7 @@ import sima.core.behavior.exception.BehaviorCannotBePlayedByAgentException;
 import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
 import sima.core.protocol.Protocol;
+import sima.core.protocol.ProtocolIdentifier;
 import sima.core.protocol.ProtocolManipulator;
 
 import java.util.Map;
@@ -76,6 +78,67 @@ public class TestAbstractAgent {
         assertTrue(AGENT_0.isKilled());
         assertThrows(KilledAgentException.class, AGENT_0::start);
         assertTrue(AGENT_0.isKilled());
+    }
+
+    @Test
+    public void testNotProcessEventWhenNotStarted() {
+        assertThrows(AgentNotStartedException.class, () -> AGENT_0.processEvent(null)); // No need to add real event
+        AGENT_0.start();
+        assertThrows(NullPointerException.class, () -> AGENT_0.processEvent(null));
+
+        try {
+            AGENT_0.processEvent(new Event(AGENT_0.getAgentIdentifier(), AGENT_1.getAgentIdentifier(), null) {
+            });
+        } catch (AgentNotStartedException e) {
+            fail();
+        }
+
+        AGENT_0.kill();
+        assertThrows(AgentNotStartedException.class, () -> AGENT_0.processEvent(null)); // No need to add real event
+    }
+
+    @Test
+    public void testProcessEventOfTargetedProtocol() {
+        AGENT_0.start();
+
+        AGENT_0.addProtocol(ProtocolTestImpl.class, "PT", null);
+        ProtocolTestImpl protocolTest = (ProtocolTestImpl) AGENT_0.getProtocol(
+                new ProtocolIdentifier(ProtocolTestImpl.class.getName(), "PT"));
+
+        AGENT_0.processEvent(new Event(AGENT_0.getAgentIdentifier(), AGENT_1.getAgentIdentifier(),
+                protocolTest.getIdentifier()) {
+        });
+
+        assertEquals(1, protocolTest.passInProcessEvent);
+    }
+
+    @Test
+    public void testProcessEventWithNullProtocol() {
+        AGENT_0.start();
+
+        AGENT_0.addProtocol(ProtocolTestImpl.class, "PT", null);
+        ProtocolTestImpl protocolTest = (ProtocolTestImpl) AGENT_0.getProtocol(
+                new ProtocolIdentifier(ProtocolTestImpl.class.getName(), "PT"));
+
+        AGENT_0.processEvent(new Event(AGENT_0.getAgentIdentifier(), AGENT_1.getAgentIdentifier(),
+                null) {
+        });
+
+        assertEquals(0, protocolTest.passInProcessEvent);
+        assertEquals(1, AGENT_0.passInTreatNoProtocolEvent);
+        assertEquals(0, AGENT_0.passInTreatEventWithNotFindProtocol);
+    }
+
+    @Test
+    public void testProcessEventWithNotFindProtocol() {
+        AGENT_0.start();
+
+        AGENT_0.processEvent(new Event(AGENT_0.getAgentIdentifier(), AGENT_1.getAgentIdentifier(),
+                new ProtocolIdentifier(ProtocolTestImpl.class.getName(), "PT")) {
+        });
+
+        assertEquals(0, AGENT_0.passInTreatNoProtocolEvent);
+        assertEquals(1, AGENT_0.passInTreatEventWithNotFindProtocol);
     }
 
     @Test
@@ -208,6 +271,12 @@ public class TestAbstractAgent {
 
     private static class AgentTestImpl extends AbstractAgent {
 
+        // Variables.
+
+        private int passInTreatNoProtocolEvent = 0;
+
+        private int passInTreatEventWithNotFindProtocol = 0;
+
         // Constructors.
 
         public AgentTestImpl(String agentName) {
@@ -232,12 +301,27 @@ public class TestAbstractAgent {
 
         @Override
         protected void treatNoProtocolEvent(Event event) {
-
+            this.passInTreatNoProtocolEvent++;
         }
 
         @Override
         protected void treatEventWithNotFindProtocol(Event event) {
+            this.passInTreatEventWithNotFindProtocol++;
+        }
 
+        public void reset() {
+            this.passInTreatNoProtocolEvent = 0;
+            this.passInTreatEventWithNotFindProtocol = 0;
+        }
+
+        // Getters and Setters.
+
+        public int getPassInTreatNoProtocolEvent() {
+            return passInTreatNoProtocolEvent;
+        }
+
+        public int getPassInTreatEventWithNotFindProtocol() {
+            return passInTreatEventWithNotFindProtocol;
         }
     }
 
@@ -284,6 +368,10 @@ public class TestAbstractAgent {
 
     private static class ProtocolTestImpl extends Protocol {
 
+        // Variables.
+
+        private int passInProcessEvent = 0;
+
         // Constructors.
 
         public ProtocolTestImpl(String protocolTag, AbstractAgent agentOwner, Map<String, String> args) {
@@ -305,7 +393,17 @@ public class TestAbstractAgent {
 
         @Override
         public void processEvent(Event event) {
+            this.passInProcessEvent++;
+        }
 
+        public void reset() {
+            this.passInProcessEvent = 0;
+        }
+
+        // Getters and Setters.
+
+        public int getPassInProcessEvent() {
+            return passInProcessEvent;
         }
     }
 
