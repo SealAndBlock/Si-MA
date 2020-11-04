@@ -73,6 +73,7 @@ public class TestDiscreteTimeMultiThreadScheduler {
 
         // Kill to kill the ExecutorService
         SCHEDULER.kill();
+        assertFalse(SCHEDULER.isStarted());
     }
 
     @Test
