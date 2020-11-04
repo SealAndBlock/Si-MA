@@ -9,14 +9,13 @@ import sima.core.protocol.ProtocolIdentifier;
 import sima.core.scheduler.Action;
 import sima.core.scheduler.Executable;
 import sima.core.scheduler.Scheduler;
-import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 
 import java.util.LinkedList;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestMultiThreadScheduler {
+public class TestDiscreteTimeMultiThreadScheduler {
 
     // Variables.
 
