@@ -395,7 +395,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @see Event#isNoProtocolEvent()
      */
     @Override
-    public void processEvent(Event event) {
+    public final void processEvent(Event event) {
         if (this.isStarted) {
             if (event.isNoProtocolEvent()) {
                 Protocol protocolTarget = this.getProtocol(event.getProtocolTargeted());
