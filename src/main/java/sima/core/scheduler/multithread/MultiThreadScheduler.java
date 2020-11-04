@@ -1,4 +1,7 @@
-package sima.core.scheduler;
+package sima.core.scheduler.multithread;
+
+import sima.core.scheduler.Executable;
+import sima.core.scheduler.Scheduler;
 
 import java.util.List;
 import java.util.Vector;

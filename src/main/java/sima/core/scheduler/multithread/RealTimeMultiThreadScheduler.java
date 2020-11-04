@@ -1,5 +1,6 @@
-package sima.core.scheduler;
+package sima.core.scheduler.multithread;
 
+import sima.core.scheduler.Executable;
 import sima.core.scheduler.exception.NotSchedulableTimeException;
 
 import java.util.concurrent.Executors;

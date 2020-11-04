@@ -6,6 +6,7 @@ import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
 import sima.core.protocol.ProtocolIdentifier;
+import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 
 import java.util.LinkedList;
 import java.util.Map;

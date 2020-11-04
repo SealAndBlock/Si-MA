@@ -1,6 +1,9 @@
-package sima.core.scheduler;
+package sima.core.scheduler.multithread;
 
 import sima.core.agent.AgentIdentifier;
+import sima.core.scheduler.Action;
+import sima.core.scheduler.Executable;
+import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.exception.NotSchedulableTimeException;
 
 import java.util.*;
@@ -211,7 +214,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     }
 
     @Override
-    public void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode,
+    public void scheduleExecutable(Executable executable, long waitingTime, Scheduler.ScheduleMode scheduleMode,
                                    long nbRepetitions, long executionTimeStep) {
         if (waitingTime < 1)
             throw new IllegalArgumentException("Waiting time cannot be less than 1.");
@@ -245,7 +248,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      *                          {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED}
      * @param executionTimeStep the time between each execution of a repeated action
      */
-    private void addAgentActionWithScheduleMode(Action action, long waitingTime, ScheduleMode scheduleMode,
+    private void addAgentActionWithScheduleMode(Action action, long waitingTime, Scheduler.ScheduleMode scheduleMode,
                                                 long nbRepetitions, long executionTimeStep) {
         switch (scheduleMode) {
             case ONCE -> this.addAgentActionAtTime(action, this.currentTime + waitingTime);
@@ -291,7 +294,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      *                      {@link sima.core.scheduler.Scheduler.ScheduleMode} is equal to
      *                      {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED}
      */
-    private void addExecutableWithScheduleMode(Executable executable, long waitingTime, ScheduleMode scheduleMode,
+    private void addExecutableWithScheduleMode(Executable executable, long waitingTime, Scheduler.ScheduleMode scheduleMode,
                                                long nbRepetitions, long executionTimeStep) {
         switch (scheduleMode) {
             case ONCE -> this.addExecutableAtTime(executable, this.currentTime + waitingTime);
