@@ -151,7 +151,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @throws KilledAgentException         if the sima.core.agent is killed
      * @throws AlreadyStartedAgentException if the sima.core.agent have already been started
      */
-    public void start() {
+    public final void start() {
         if (!this.isKilled && !this.isStarted) {
             this.isStarted = true;
 
@@ -178,7 +178,7 @@ public abstract class AbstractAgent implements EventCatcher {
      *
      * @throws AlreadyKilledAgentException if the sima.core.agent have already been killed
      */
-    public void kill() {
+    public final void kill() {
         if (!this.isKilled()) {
             this.isStarted = false;
             this.isKilled = true;
