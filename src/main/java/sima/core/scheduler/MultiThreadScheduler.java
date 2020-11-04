@@ -2,6 +2,7 @@ package sima.core.scheduler;
 
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
 
 public abstract class MultiThreadScheduler implements Scheduler {
 
@@ -15,19 +16,21 @@ public abstract class MultiThreadScheduler implements Scheduler {
     /**
      * The end of the simulation.
      */
-    private final long endSimulation;
+    protected final long endSimulation;
 
     /**
      * The number of thread use to execute all {@link Executable}.
      */
-    private final int nbExecutorThread;
+    protected final int nbExecutorThread;
 
     /**
      * The list of all {@link sima.core.scheduler.Scheduler.SchedulerWatcher}.
      */
     private final List<SchedulerWatcher> schedulerWatchers;
 
-    private final List<ExecutorThread> executorThreadList;
+    protected final List<ExecutorThread> executorThreadList;
+
+    protected ExecutorService executor;
 
     // Constructors.
 
@@ -60,20 +63,42 @@ public abstract class MultiThreadScheduler implements Scheduler {
         this.schedulerWatchers.remove(schedulerWatcher);
     }
 
-    private void updateSchedulerWatcherOnSchedulerStarted() {
+    protected void updateSchedulerWatcherOnSchedulerStarted() {
         this.schedulerWatchers.forEach(SchedulerWatcher::schedulerStarted);
     }
 
-    private void updateSchedulerWatcherOnSchedulerKilled() {
+    protected void updateSchedulerWatcherOnSchedulerKilled() {
         this.schedulerWatchers.forEach(SchedulerWatcher::schedulerKilled);
     }
 
-    private void updateSchedulerWatcherOnSimulationEndTimeReach() {
+    protected void updateSchedulerWatcherOnSimulationEndTimeReach() {
         this.schedulerWatchers.forEach(SchedulerWatcher::simulationEndTimeReach);
     }
 
-    private void updateSchedulerWatcherOnNoExecutableToExecute() {
+    protected void updateSchedulerWatcherOnNoExecutableToExecute() {
         this.schedulerWatchers.forEach(SchedulerWatcher::noExecutableToExecute);
+    }
+
+    // Getters and Setters.
+
+    public boolean isStarted() {
+        return isStarted;
+    }
+
+    protected void setStarted(boolean started) {
+        isStarted = started;
+    }
+
+    protected ExecutorService getExecutor() {
+        return executor;
+    }
+
+    protected void setExecutor(ExecutorService executor) {
+        this.executor = executor;
+    }
+
+    protected List<ExecutorThread> getExecutorThreadList() {
+        return executorThreadList;
     }
 
     // Inner classes.

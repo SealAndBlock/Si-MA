@@ -5,10 +5,9 @@ import sima.core.scheduler.exception.NotSchedulableTimeException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class DiscreteTimeMultiThreadScheduler implements Scheduler {
+public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     // Variables.
 
@@ -23,26 +22,6 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
     private long currentTime;
 
     /**
-     * The end of the simulation.
-     */
-    private final long endSimulation;
-
-    /**
-     * True if the {@link Scheduler} is started, else false.
-     */
-    private boolean isStarted = false;
-
-    /**
-     * The number of thread use to execute all {@link Executable}.
-     */
-    private final int nbExecutorThread;
-
-    /**
-     * The list of all {@link sima.core.scheduler.Scheduler.SchedulerWatcher}.
-     */
-    private final List<SchedulerWatcher> schedulerWatchers;
-
-    /**
      * Maps for each time of the simulation agent actions.
      */
     private final Map<Long, Map<AgentIdentifier, LinkedList<Executable>>> mapAgentExecutable;
@@ -52,15 +31,11 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
      */
     private final Map<Long, LinkedList<Executable>> mapExecutable;
 
-    private List<ExecutorThread> executorThreadList;
-
     /**
      * The runnable which for each step, wait for that all executables of the step has been executed and call
      * the method {@link #executeNextExecutable()} to pass to the next step time.
      */
     private StepFinishWatcher stepFinishWatcher;
-
-    private ExecutorService executor;
 
     // Constructors.
 
@@ -70,15 +45,7 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
      * @throws IllegalArgumentException if the endSimulationTime or the nbExecutorThread is less than 1.
      */
     public DiscreteTimeMultiThreadScheduler(long endSimulation, int nbExecutorThread) {
-        this.endSimulation = endSimulation;
-        if (this.endSimulation < 1)
-            throw new IllegalArgumentException("The end simulation time must be greater or equal to 1.");
-
-        this.nbExecutorThread = nbExecutorThread;
-        if (this.nbExecutorThread < 1)
-            throw new IllegalArgumentException("The number of executor thread must be greater or equal to 1.");
-
-        this.schedulerWatchers = new Vector<>();
+        super(endSimulation, nbExecutorThread);
 
         this.mapAgentExecutable = new ConcurrentHashMap<>();
 
@@ -88,35 +55,6 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
     }
 
     // Methods.
-
-    @Override
-    public synchronized boolean addSchedulerWatcher(SchedulerWatcher schedulerWatcher) {
-        if (this.schedulerWatchers.contains(schedulerWatcher))
-            return false;
-
-        return this.schedulerWatchers.add(schedulerWatcher);
-    }
-
-    @Override
-    public void removeSchedulerWatcher(SchedulerWatcher schedulerWatcher) {
-        this.schedulerWatchers.remove(schedulerWatcher);
-    }
-
-    private void updateSchedulerWatcherOnSchedulerStarted() {
-        this.schedulerWatchers.forEach(SchedulerWatcher::schedulerStarted);
-    }
-
-    private void updateSchedulerWatcherOnSchedulerKilled() {
-        this.schedulerWatchers.forEach(SchedulerWatcher::schedulerKilled);
-    }
-
-    private void updateSchedulerWatcherOnSimulationEndTimeReach() {
-        this.schedulerWatchers.forEach(SchedulerWatcher::simulationEndTimeReach);
-    }
-
-    private void updateSchedulerWatcherOnNoExecutableToExecute() {
-        this.schedulerWatchers.forEach(SchedulerWatcher::noExecutableToExecute);
-    }
 
     @Override
     public synchronized boolean start() {
@@ -171,10 +109,7 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
      * This method is not thread safe, however, it is never called in parallel way.
      */
     private void executeNextExecutable() {
-        if (this.executorThreadList == null)
-            this.executorThreadList = new ArrayList<>();
-        else
-            this.executorThreadList.clear();
+        this.executorThreadList.clear();
 
         long nextTime = -1;
 
@@ -191,8 +126,8 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
             // Fill the executor thread list.
             Map<AgentIdentifier, LinkedList<Executable>> mapAgentActionList = this.mapAgentExecutable.get(nextTime);
             mapAgentActionList.forEach(((agentIdentifier, actions) -> {
-                ExecutorThread executorThread = new ExecutorThread(actions);
-                executorThreadList.add(executorThread);
+                DiscreteTimeExecutorThread discreteTimeExecutorThread = new DiscreteTimeExecutorThread(actions);
+                executorThreadList.add(discreteTimeExecutorThread);
             }));
         }
 
@@ -209,15 +144,15 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
                 nextTime = sorterKeyMapExecutable.get(0);
 
                 // Fill the executor thread list.
-                ExecutorThread executorThread = new ExecutorThread(this.mapExecutable.get(nextTime));
-                this.executorThreadList.add(executorThread);
+                DiscreteTimeExecutorThread discreteTimeExecutorThread = new DiscreteTimeExecutorThread(this.mapExecutable.get(nextTime));
+                this.executorThreadList.add(discreteTimeExecutorThread);
             } else {
                 // Already set the nextTime.
                 long n = sorterKeyMapExecutable.get(0);
                 if (nextTime == n) {
                     // Same time that the time of all agent action taken.
-                    ExecutorThread executorThread = new ExecutorThread(this.mapExecutable.get(nextTime));
-                    this.executorThreadList.add(executorThread);
+                    DiscreteTimeExecutorThread discreteTimeExecutorThread = new DiscreteTimeExecutorThread(this.mapExecutable.get(nextTime));
+                    this.executorThreadList.add(discreteTimeExecutorThread);
                 } else {
                     if (n < nextTime) {
                         // We must execute theses executables before execute agent action taken before.
@@ -227,8 +162,8 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
                          be executed for the moment.*/
                         this.executorThreadList.clear();
 
-                        ExecutorThread executorThread = new ExecutorThread(this.mapExecutable.get(nextTime));
-                        this.executorThreadList.add(executorThread);
+                        DiscreteTimeExecutorThread discreteTimeExecutorThread = new DiscreteTimeExecutorThread(this.mapExecutable.get(nextTime));
+                        this.executorThreadList.add(discreteTimeExecutorThread);
                     }
                     // else -> (n > nextTime) We do nothing
                 }
@@ -458,10 +393,6 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
 
     // Getters and Setters.
 
-    public boolean isStarted() {
-        return isStarted;
-    }
-
     /**
      * @return a copy of {@link #mapAgentExecutable}, all contained elements are also a copy except {@link Executable}.
      */
@@ -497,17 +428,15 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
 
     // Inner classes.
 
-    private class ExecutorThread implements Runnable {
+    private class DiscreteTimeExecutorThread extends ExecutorThread {
 
         // Variables.
 
         private final Queue<Executable> executables;
 
-        private boolean isFinished = false;
-
         // Constructors.
 
-        public ExecutorThread(Queue<Executable> executables) {
+        public DiscreteTimeExecutorThread(Queue<Executable> executables) {
             this.executables = executables;
         }
 
@@ -521,12 +450,6 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
                 this.isFinished = true;
                 DiscreteTimeMultiThreadScheduler.this.stepLock.notifyAll();
             }
-        }
-
-        // Getters and Setters.
-
-        public boolean isFinished() {
-            return isFinished;
         }
     }
 
@@ -561,14 +484,14 @@ public class DiscreteTimeMultiThreadScheduler implements Scheduler {
         }
 
         /**
-         * @return true if all {@link ExecutorThread} in {@link #executorThreadList} have finished, else false.
+         * @return true if all {@link DiscreteTimeExecutorThread} in {@link #executorThreadList} have finished, else false.
          */
         private boolean allExecutionsFinished() throws EmptyExecutorException {
             if (DiscreteTimeMultiThreadScheduler.this.executorThreadList.isEmpty())
                 throw new EmptyExecutorException();
 
-            for (ExecutorThread executorThread : DiscreteTimeMultiThreadScheduler.this.executorThreadList) {
-                if (!executorThread.isFinished()) {
+            for (ExecutorThread discreteTimeExecutorThread : DiscreteTimeMultiThreadScheduler.this.executorThreadList) {
+                if (!discreteTimeExecutorThread.isFinished()) {
                     return false;
                 }
             }
