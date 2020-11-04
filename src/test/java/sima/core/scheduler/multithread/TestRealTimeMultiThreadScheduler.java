@@ -9,9 +9,7 @@ import sima.core.scheduler.Action;
 import sima.core.scheduler.Executable;
 import sima.core.scheduler.Scheduler;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -167,6 +165,67 @@ public class TestRealTimeMultiThreadScheduler {
         assertTrue(executables.contains(a0));
         assertTrue(executables.contains(a1));
         assertEquals(3, executables.size());
+    }
+
+    @Test
+    public void testScheduleAgentActionRepeated() {
+        TestAction a0 = new TestAction(AGENT_0.getAgentIdentifier());
+        TestAction a1 = new TestAction(AGENT_1.getAgentIdentifier());
+
+        long time = 5;
+        long nbRepetitions = 3;
+        long executionTimeStep = 5;
+
+        SCHEDULER.scheduleExecutable(a0, time, Scheduler.ScheduleMode.REPEATED, nbRepetitions, executionTimeStep);
+        SCHEDULER.scheduleExecutable(a1, time, Scheduler.ScheduleMode.REPEATED, nbRepetitions, executionTimeStep);
+
+        List<MultiThreadScheduler.ExecutorThread> executorThreads = SCHEDULER.getExecutorThreadList();
+        List<Executable> executables = executorThreads.stream().collect(ArrayList::new,
+                (list, executorThread) ->
+                        list.add(((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executorThread).getExecutable())
+                , ArrayList::addAll);
+
+        assertEquals(nbRepetitions * 2, executables.size());
+
+        Map<Long, Executable> map = new HashMap<>();
+        executorThreads.forEach(executorThread ->
+                map.put(((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executorThread).getDelay(),
+                        ((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executorThread).getExecutable()));
+
+        for (int i = (int) time; i < (nbRepetitions + executionTimeStep) + time; i += executionTimeStep) {
+            assertNotNull(map.get((long) i));
+        }
+    }
+
+    @Test
+    public void testScheduleAgentActionInfinitely() {
+        TestAction a0 = new TestAction(AGENT_0.getAgentIdentifier());
+        TestAction a1 = new TestAction(AGENT_1.getAgentIdentifier());
+
+        long time = 5;
+        long executionTimeStep = 150;
+
+        SCHEDULER.scheduleExecutable(a0, time, Scheduler.ScheduleMode.INFINITELY, -1, executionTimeStep);
+        SCHEDULER.scheduleExecutable(a1, time, Scheduler.ScheduleMode.INFINITELY, -1, executionTimeStep);
+
+        List<MultiThreadScheduler.ExecutorThread> executorThreads = SCHEDULER.getExecutorThreadList();
+        List<Executable> executables = executorThreads.stream().collect(ArrayList::new,
+                (list, executorThread) ->
+                        list.add(((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executorThread).getExecutable())
+                , ArrayList::addAll);
+
+        executorThreads.forEach(executor -> assertTrue(
+                ((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executor).getDelay()
+                        <= END_SIMULATION));
+
+        Map<Long, Executable> map = new HashMap<>();
+        executorThreads.forEach(executorThread ->
+                map.put(((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executorThread).getDelay(),
+                        ((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executorThread).getExecutable()));
+
+        for (int i = (int) time; i <= END_SIMULATION; i += executionTimeStep) {
+            assertNotNull(map.get((long) i));
+        }
     }
 
     // Inner classes.

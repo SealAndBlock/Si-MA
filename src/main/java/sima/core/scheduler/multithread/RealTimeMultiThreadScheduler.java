@@ -113,13 +113,13 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
                 if (executionTimeStep < 1)
                     throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
 
-                long currentTime = this.getCurrentTime();
-                for (int i = 0; currentTime + (i * executionTimeStep) <= this.endSimulation; i++) {
+                for (long time = this.getCurrentTime() + waitingTime; time <= this.endSimulation;
+                     time += executionTimeStep) {
                     RealTimeExecutorThread realTimeExecutorThread = new RealTimeExecutorThread(executable,
-                            waitingTime + (i * executionTimeStep));
+                            time);
                     this.executorThreadList.add(realTimeExecutorThread);
                     if (this.getExecutor() != null)
-                        this.getExecutor().schedule(realTimeExecutorThread, waitingTime + (i * executionTimeStep),
+                        this.getExecutor().schedule(realTimeExecutorThread, time,
                                 TimeUnit.MILLISECONDS);
                 }
             }
@@ -149,11 +149,14 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     /**
      * @return the time elapsed between the start of the scheduler and the call of the method. The result is in
-     * milliseconds.
+     * milliseconds. If the scheduler is not started, return 0.
      */
     @Override
     public long getCurrentTime() {
-        return System.currentTimeMillis() - this.beginTime;
+        if (this.isStarted)
+            return System.currentTimeMillis() - this.beginTime;
+        else
+            return 0;
     }
 
     // Getters and Setters.
