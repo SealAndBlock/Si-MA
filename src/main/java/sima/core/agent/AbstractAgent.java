@@ -1,5 +1,6 @@
 package sima.core.agent;
 
+import sima.core.agent.exception.AgentNotStartedException;
 import sima.core.agent.exception.AlreadyKilledAgentException;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
@@ -389,20 +390,26 @@ public abstract class AbstractAgent implements EventCatcher {
      * among all sima.core.protocol that the sima.core.agent possesses, the method {@link #treatEventWithNotFindProtocol(Event)} is called.
      *
      * @param event the event received
+     * @throws AgentNotStartedException if the agent is not started
      * @see NoProtocolEvent
      * @see Event#isNoProtocolEvent()
      */
     @Override
     public void processEvent(Event event) {
-        if (event.isNoProtocolEvent()) {
-            Protocol protocolTarget = this.getProtocol(event.getProtocolTargeted());
-            if (protocolTarget != null) {
-                protocolTarget.processEvent(event);
+        if (this.isStarted) {
+            if (event.isNoProtocolEvent()) {
+                Protocol protocolTarget = this.getProtocol(event.getProtocolTargeted());
+                if (protocolTarget != null) {
+                    protocolTarget.processEvent(event);
+                } else {
+                    this.treatEventWithNotFindProtocol(event);
+                }
             } else {
-                this.treatEventWithNotFindProtocol(event);
+                this.treatNoProtocolEvent(event);
             }
         } else {
-            this.treatNoProtocolEvent(event);
+            throw new AgentNotStartedException("The agent " + this.agentIdentifier + " is not started, cannot " +
+                    "process Event.");
         }
     }
 

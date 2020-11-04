@@ -2,6 +2,7 @@ package sima.core.agent;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import sima.core.agent.exception.AgentNotStartedException;
 import sima.core.agent.exception.AlreadyKilledAgentException;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
@@ -76,6 +77,23 @@ public class TestAbstractAgent {
         assertTrue(AGENT_0.isKilled());
         assertThrows(KilledAgentException.class, AGENT_0::start);
         assertTrue(AGENT_0.isKilled());
+    }
+
+    @Test
+    public void testNotProcessEventWhenNotStarted() {
+        assertThrows(AgentNotStartedException.class, () -> AGENT_0.processEvent(null)); // No need to add real event
+        AGENT_0.start();
+        assertThrows(NullPointerException.class, () -> AGENT_0.processEvent(null));
+
+        try {
+            AGENT_0.processEvent(new Event(AGENT_0.getAgentIdentifier(), AGENT_1.getAgentIdentifier(), null) {
+            });
+        } catch (AgentNotStartedException e) {
+            fail();
+        }
+
+        AGENT_0.kill();
+        assertThrows(AgentNotStartedException.class, () -> AGENT_0.processEvent(null)); // No need to add real event
     }
 
     @Test
