@@ -105,6 +105,8 @@ public class RealTimeMultiThreadScheduler implements Scheduler {
             this.executor = Executors.newScheduledThreadPool(this.nbExecutorThread);
             this.executor.scheduleAtFixedRate(new FinishWatcher(), 1, 1, TimeUnit.SECONDS);
 
+            this.beginTime = System.currentTimeMillis();
+
             return true;
         } else
             return false;
