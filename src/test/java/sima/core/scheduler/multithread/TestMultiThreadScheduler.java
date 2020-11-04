@@ -1,4 +1,4 @@
-package sima.core.scheduler;
+package sima.core.scheduler.multithread;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -6,6 +6,9 @@ import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
 import sima.core.protocol.ProtocolIdentifier;
+import sima.core.scheduler.Action;
+import sima.core.scheduler.Executable;
+import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 
 import java.util.LinkedList;
