@@ -3,13 +3,17 @@ package sima.core.scheduler.multithread;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sima.core.agent.AbstractAgent;
+import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
+import sima.core.scheduler.Action;
+import sima.core.scheduler.Executable;
 import sima.core.scheduler.Scheduler;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestRealTimeMultiThreadScheduler {
 
@@ -101,6 +105,66 @@ public class TestRealTimeMultiThreadScheduler {
 
         // Kill to kill the ExecutorService
         SCHEDULER.kill();
+    }
+
+    @Test
+    public void testWatcherReceivedStartedAndKilledNotification() {
+        // Kill directly after the start because no executable to execute
+
+        TestSchedulerWatcher testSchedulerWatcher = new TestSchedulerWatcher();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        assertTrue(SCHEDULER.start());
+        assertFalse(SCHEDULER.start());
+        assertTrue(SCHEDULER.kill());
+        assertFalse(SCHEDULER.kill());
+
+        assertEquals(1, testSchedulerWatcher.isPassToSchedulerStarted());
+        assertEquals(1, testSchedulerWatcher.isPassToSchedulerKilled());
+
+        assertTrue(SCHEDULER.start());
+        assertTrue(SCHEDULER.kill());
+
+        assertEquals(2, testSchedulerWatcher.isPassToSchedulerStarted());
+        assertEquals(2, testSchedulerWatcher.isPassToSchedulerKilled());
+    }
+
+    @Test
+    public void testScheduleAgentActionException() {
+        TestAction a1 = new TestAction(AGENT_0.getAgentIdentifier());
+
+        // Test of exception
+
+        assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(a1, 0,
+                Scheduler.ScheduleMode.ONCE, -1, -1));
+        assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(a1, 1,
+                Scheduler.ScheduleMode.REPEATED, 0, 1));
+        assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(a1, 1,
+                Scheduler.ScheduleMode.REPEATED, 1, 0));
+        assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(a1, 1,
+                Scheduler.ScheduleMode.INFINITELY, 1, 0));
+    }
+
+    @Test
+    public void testScheduleAgentActionOnce() {
+        TestAction a0 = new TestAction(AGENT_0.getAgentIdentifier());
+        TestAction a1 = new TestAction(AGENT_1.getAgentIdentifier());
+
+        long time = 5;
+
+        SCHEDULER.scheduleExecutable(a0, time, Scheduler.ScheduleMode.ONCE, -1, -1);
+        SCHEDULER.scheduleExecutable(a0, time, Scheduler.ScheduleMode.ONCE, -1, -1);
+
+        SCHEDULER.scheduleExecutable(a1, time, Scheduler.ScheduleMode.ONCE, -1, -1);
+
+        List<MultiThreadScheduler.ExecutorThread> executorThreads = SCHEDULER.getExecutorThreadList();
+        List<Executable> executables = executorThreads.stream().collect(ArrayList::new,
+                (list, executorThread) ->
+                        list.add(((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executorThread).getExecutable())
+                , ArrayList::addAll);
+        assertTrue(executables.contains(a0));
+        assertTrue(executables.contains(a1));
+        assertEquals(3, executables.size());
     }
 
     // Inner classes.
@@ -240,6 +304,35 @@ public class TestRealTimeMultiThreadScheduler {
 
         public int isPassToNoExecutionToExecute() {
             return isPassToNoExecutionToExecute;
+        }
+    }
+
+    private static class TestAction extends Action {
+
+        // Variables.
+
+        private int isExecuted = 0;
+
+        // Constructors.
+
+        public TestAction(AgentIdentifier executorAgent) {
+            super(executorAgent);
+        }
+
+        // Methods.
+
+        @Override
+        public void execute() {
+            synchronized (this) {
+                this.isExecuted++;
+                this.notify();
+            }
+        }
+
+        // Getters and Setters.
+
+        public int getIsExecuted() {
+            return isExecuted;
         }
     }
 

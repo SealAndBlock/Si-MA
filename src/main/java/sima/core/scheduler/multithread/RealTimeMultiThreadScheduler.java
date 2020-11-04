@@ -75,6 +75,12 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
                 this.getExecutor().schedule(realTimeExecutorThread, waitingTime, TimeUnit.MILLISECONDS);
             }
             case REPEATED -> {
+                if (nbRepetitions < 1)
+                    throw new IllegalArgumentException("NbRepeated must be greater or equal to 1");
+
+                if (executionTimeStep < 1)
+                    throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
+
                 for (int i = 0; i < nbRepetitions; i++) {
                     RealTimeExecutorThread realTimeExecutorThread = new RealTimeExecutorThread(executable);
                     this.executorThreadList.add(realTimeExecutorThread);
@@ -83,6 +89,9 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
                 }
             }
             case INFINITELY -> {
+                if (executionTimeStep < 1)
+                    throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
+
                 long currentTime = this.getCurrentTime();
                 for (int i = 0; currentTime + (i * executionTimeStep) <= this.endSimulation; i++) {
                     RealTimeExecutorThread realTimeExecutorThread = new RealTimeExecutorThread(executable);
@@ -126,7 +135,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     // Inner class.
 
-    private class RealTimeExecutorThread extends MultiThreadScheduler.ExecutorThread {
+    public class RealTimeExecutorThread extends MultiThreadScheduler.ExecutorThread {
 
         // variables.
 
@@ -155,6 +164,12 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
             }
 
             this.isFinished = true;
+        }
+
+        // Getters and Setters.
+
+        public Executable getExecutable() {
+            return executable;
         }
     }
 
