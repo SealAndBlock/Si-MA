@@ -5,11 +5,15 @@ import org.junit.jupiter.api.Test;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
+import sima.core.protocol.ProtocolIdentifier;
 import sima.core.scheduler.Action;
 import sima.core.scheduler.Executable;
 import sima.core.scheduler.Scheduler;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -209,10 +213,6 @@ public class TestRealTimeMultiThreadScheduler {
         SCHEDULER.scheduleExecutable(a1, time, Scheduler.ScheduleMode.INFINITELY, -1, executionTimeStep);
 
         List<MultiThreadScheduler.ExecutorThread> executorThreads = SCHEDULER.getExecutorThreadList();
-        List<Executable> executables = executorThreads.stream().collect(ArrayList::new,
-                (list, executorThread) ->
-                        list.add(((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executorThread).getExecutable())
-                , ArrayList::addAll);
 
         executorThreads.forEach(executor -> assertTrue(
                 ((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executor).getDelay()
@@ -224,11 +224,349 @@ public class TestRealTimeMultiThreadScheduler {
                         ((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executorThread).getExecutable()));
 
         for (int i = (int) time; i <= END_SIMULATION; i += executionTimeStep) {
-            assertNotNull(map.get((long) i));
+            assertNotNull(map.get((long) i), "Time = " + i);
         }
     }
 
+    @Test
+    public void testScheduleAgentActionWithoutAgent() {
+        TestAction a0 = new TestAction(null);
+        TestAction a1 = new TestAction(null);
+
+        long time = 5;
+
+        SCHEDULER.scheduleExecutableOnce(a0, time);
+        SCHEDULER.scheduleExecutableOnce(a1, time);
+
+        List<MultiThreadScheduler.ExecutorThread> executorThreads = SCHEDULER.getExecutorThreadList();
+        assertEquals(2, executorThreads.size());
+    }
+
+    @Test
+    public void testWatcherNoExecutableToExecute() {
+        // Kill directly after the start because no executable to execute
+
+        TestSchedulerWatcher testSchedulerWatcher = new TestSchedulerWatcher();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        assertTrue(SCHEDULER.start());
+
+        assertEquals(1, testSchedulerWatcher.isPassToSchedulerStarted());
+        assertEquals(1, testSchedulerWatcher.isPassToNoExecutableToExecute());
+
+        // Kill to kill the ExecutorService
+        SCHEDULER.kill();
+    }
+
+    @Test
+    public void testExecutionOfScheduledAction() {
+        TestAction a1 = new TestAction(AGENT_0.getAgentIdentifier());
+
+        TestSchedulerWatcher testSchedulerWatcher = new TestSchedulerWatcher();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        long time = 500;
+
+        SCHEDULER.scheduleExecutableOnce(a1, time);
+
+        assertTrue(SCHEDULER.start());
+
+        synchronized (a1) {
+            while (a1.isExecuted == 0) {
+                try {
+                    a1.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, a1.isExecuted);
+        }
+
+        assertTrue(time <= SCHEDULER.getCurrentTime());
+    }
+
+    @Test
+    public void testExecutionOfSeveralScheduledActions() {
+        TestAction a1 = new TestAction(AGENT_0.getAgentIdentifier());
+        TestAction a2 = new TestAction(AGENT_1.getAgentIdentifier());
+
+        TestSchedulerWatcher testSchedulerWatcher = new TestSchedulerWatcher();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        long t1 = 500;
+        long t2 = 750;
+
+        SCHEDULER.scheduleExecutableOnce(a1, t1);
+        SCHEDULER.scheduleExecutableOnce(a2, t2);
+
+        assertTrue(SCHEDULER.start());
+
+        synchronized (a1) {
+            while (a1.isExecuted == 0) {
+                try {
+                    a1.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, a1.isExecuted);
+        }
+
+        synchronized (a2) {
+            while (a2.isExecuted == 0) {
+                try {
+                    a2.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, a2.isExecuted);
+        }
+
+        assertTrue(t2 <= SCHEDULER.getCurrentTime());
+    }
+
+    @Test
+    public void TestReachEndOfSimulationWithAgentAction() {
+        TestAction a1 = new TestAction(AGENT_0.getAgentIdentifier());
+        TestAction a2 = new TestAction(AGENT_1.getAgentIdentifier());
+        TestAction a3 = new TestAction(AGENT_0.getAgentIdentifier());
+
+        TestSchedulerWatcherBlocking testSchedulerWatcher = new TestSchedulerWatcherBlocking();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        long t1 = 500;
+        long t2 = 750;
+        long t3 = END_SIMULATION + 50;
+
+        SCHEDULER.scheduleExecutableOnce(a1, t1);
+        SCHEDULER.scheduleExecutableOnce(a2, t2);
+        SCHEDULER.scheduleExecutableOnce(a3, t3);
+
+        assertTrue(SCHEDULER.start());
+
+        synchronized (a1) {
+            while (a1.isExecuted == 0) {
+                try {
+                    a1.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, a1.isExecuted);
+        }
+
+        synchronized (a2) {
+            while (a2.isExecuted == 0) {
+                try {
+                    a2.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, a2.isExecuted);
+        }
+
+        synchronized (testSchedulerWatcher.LOCK_NO_EXECUTABLE) {
+            while (testSchedulerWatcher.isPassToNoExecutableToExecute() == 0) {
+                try {
+                    testSchedulerWatcher.LOCK_NO_EXECUTABLE.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, testSchedulerWatcher.isPassToNoExecutableToExecute());
+        }
+
+        assertEquals(0, a3.isExecuted);
+        assertTrue(t2 <= SCHEDULER.getCurrentTime());
+    }
+
+    @Test
+    public void TestReachEndOfSimulationWithExecutable() {
+        TestExecutable e1 = new TestExecutable();
+        TestExecutable e2 = new TestExecutable();
+        TestExecutable e3 = new TestExecutable();
+
+        TestSchedulerWatcherBlocking testSchedulerWatcher = new TestSchedulerWatcherBlocking();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        long t1 = 500;
+        long t2 = 750;
+        long t3 = END_SIMULATION + 50;
+
+        SCHEDULER.scheduleExecutableOnce(e1, t1);
+        SCHEDULER.scheduleExecutableOnce(e2, t2);
+        SCHEDULER.scheduleExecutableOnce(e3, t3);
+
+        assertTrue(SCHEDULER.start());
+
+        synchronized (e1) {
+            while (e1.isExecuted == 0) {
+                try {
+                    e1.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, e1.isExecuted);
+        }
+
+        synchronized (e2) {
+            while (e2.isExecuted == 0) {
+                try {
+                    e2.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, e2.isExecuted);
+        }
+
+        synchronized (testSchedulerWatcher.LOCK_NO_EXECUTABLE) {
+            while (testSchedulerWatcher.isPassToNoExecutableToExecute() == 0) {
+                try {
+                    testSchedulerWatcher.LOCK_NO_EXECUTABLE.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, testSchedulerWatcher.isPassToNoExecutableToExecute());
+        }
+
+        assertEquals(0, e3.isExecuted);
+        assertTrue(t2 <= SCHEDULER.getCurrentTime());
+    }
+
+    @Test
+    public void testExecutionCombineAgentActionAndExecutable() {
+        TestAction a1 = new TestAction(AGENT_0.getAgentIdentifier());
+        TestAction a2 = new TestAction(AGENT_1.getAgentIdentifier());
+        TestAction a3 = new TestAction(AGENT_0.getAgentIdentifier());
+
+        TestExecutable e1 = new TestExecutable();
+        TestExecutable e2 = new TestExecutable();
+        TestExecutable e3 = new TestExecutable();
+
+        TestSchedulerWatcherBlocking testSchedulerWatcher = new TestSchedulerWatcherBlocking();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        long t1 = 500;
+        long t2 = 750;
+        long t3 = END_SIMULATION + 50;
+
+        SCHEDULER.scheduleExecutableOnce(a1, t1);
+        SCHEDULER.scheduleExecutableOnce(a2, t2);
+        SCHEDULER.scheduleExecutableOnce(a3, t3);
+
+        SCHEDULER.scheduleExecutableOnce(e1, t1);
+        SCHEDULER.scheduleExecutableOnce(e2, t2);
+        SCHEDULER.scheduleExecutableOnce(e3, t3);
+
+        assertTrue(SCHEDULER.start());
+
+        synchronized (e1) {
+            while (e1.isExecuted == 0) {
+                try {
+                    e1.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, e1.isExecuted);
+        }
+
+        synchronized (e2) {
+            while (e2.isExecuted == 0) {
+                try {
+                    e2.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, e2.isExecuted);
+        }
+
+        synchronized (a1) {
+            while (a1.isExecuted == 0) {
+                try {
+                    a1.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, a1.isExecuted);
+        }
+
+        synchronized (a2) {
+            while (a2.isExecuted == 0) {
+                try {
+                    a2.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, a2.isExecuted);
+        }
+
+        synchronized (testSchedulerWatcher.LOCK_NO_EXECUTABLE) {
+            while (testSchedulerWatcher.isPassToNoExecutableToExecute() == 0) {
+                try {
+                    testSchedulerWatcher.LOCK_NO_EXECUTABLE.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, testSchedulerWatcher.isPassToNoExecutableToExecute());
+        }
+
+        assertEquals(0, a3.getIsExecuted());
+        assertEquals(0, e3.getIsExecuted());
+        assertTrue(t2 <= SCHEDULER.getCurrentTime());
+    }
+
+    @Test
+    public void testExecutionFeedSchedule() {
+        TestExecutableFeeder e1 = new TestExecutableFeeder(SCHEDULER, 100);
+
+        TestSchedulerWatcherBlocking testSchedulerWatcher = new TestSchedulerWatcherBlocking();
+        assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
+
+        SCHEDULER.scheduleExecutableOnce(e1, 100);
+
+        assertTrue(SCHEDULER.start());
+
+        synchronized (testSchedulerWatcher.LOCK_NO_EXECUTABLE) {
+            while (testSchedulerWatcher.isPassToNoExecutableToExecute() == 0) {
+                try {
+                    testSchedulerWatcher.LOCK_NO_EXECUTABLE.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            assertEquals(1, testSchedulerWatcher.isPassToNoExecutableToExecute());
+        }
+    }
+
+    @Test
+    public void testScheduleEventThrows() {
+        TestEvent e1 = new TestEvent(AGENT_0.getAgentIdentifier(), AGENT_1.getAgentIdentifier(), null);
+        TestEvent e2 = new TestEvent(AGENT_0.getAgentIdentifier(), null, null);
+
+        assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleEvent(e1, -1));
+        assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleEvent(e2, 1));
+    }
+
     // Inner classes.
+
+    private static class TestEvent extends Event {
+
+        // Constructors.
+
+        public TestEvent(AgentIdentifier sender, AgentIdentifier receiver, ProtocolIdentifier protocolTargeted) {
+            super(sender, receiver, protocolTargeted);
+        }
+    }
 
     private static class AgentTestImpl extends AbstractAgent {
 
@@ -363,7 +701,7 @@ public class TestRealTimeMultiThreadScheduler {
             return isPassToSimulationEndTimeReach;
         }
 
-        public int isPassToNoExecutionToExecute() {
+        public int isPassToNoExecutableToExecute() {
             return isPassToNoExecutionToExecute;
         }
     }
@@ -394,6 +732,53 @@ public class TestRealTimeMultiThreadScheduler {
 
         public int getIsExecuted() {
             return isExecuted;
+        }
+    }
+
+    private static class TestExecutable implements Executable {
+
+        // Variables.
+
+        private int isExecuted = 0;
+
+        // Methods.
+
+        @Override
+        public void execute() {
+            synchronized (this) {
+                this.isExecuted++;
+                this.notifyAll();
+            }
+        }
+
+        // Getters and Setters.
+
+        public int getIsExecuted() {
+            return isExecuted;
+        }
+    }
+
+    private static class TestExecutableFeeder implements Executable {
+
+        // Variables.
+
+        private final Scheduler scheduler;
+        private final long mustBeExecutedAt;
+
+        // Constructors.
+
+        public TestExecutableFeeder(Scheduler scheduler, long mustBeExecutedAt) {
+            this.scheduler = scheduler;
+            this.mustBeExecutedAt = mustBeExecutedAt;
+        }
+
+        // Methods.
+
+        @Override
+        public void execute() {
+            /*assertEquals(this.mustBeExecutedAt, this.scheduler.getCurrentTime());*/
+            this.scheduler.scheduleExecutableOnce(new TestExecutableFeeder(this.scheduler,
+                    this.scheduler.getCurrentTime() + 100), 100);
         }
     }
 
