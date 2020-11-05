@@ -10,18 +10,20 @@ import sima.core.scheduler.Action;
 import sima.core.scheduler.Executable;
 import sima.core.scheduler.Scheduler;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestDiscreteTimeMultiThreadScheduler {
+public class TestRealTimeMultiThreadScheduler {
 
     // Variables.
 
     private static final long END_SIMULATION = 1000;
 
-    private static DiscreteTimeMultiThreadScheduler SCHEDULER;
+    private static RealTimeMultiThreadScheduler SCHEDULER;
 
     private static AgentTestImpl AGENT_0;
     private static AgentTestImpl AGENT_1;
@@ -30,7 +32,7 @@ public class TestDiscreteTimeMultiThreadScheduler {
 
     @BeforeEach
     void setUp() {
-        SCHEDULER = new DiscreteTimeMultiThreadScheduler(END_SIMULATION, 5);
+        SCHEDULER = new RealTimeMultiThreadScheduler(END_SIMULATION, 5);
 
         AGENT_0 = new AgentTestImpl("AGENT_0");
         AGENT_1 = new AgentTestImpl("AGENT_1");
@@ -61,15 +63,13 @@ public class TestDiscreteTimeMultiThreadScheduler {
 
     @Test
     public void testStart() {
-        // Kill directly after the start because no executable to execute
-
         assertFalse(SCHEDULER.isStarted());
 
         assertTrue(SCHEDULER.start());
-        /*assertTrue(SCHEDULER.isStarted());*/
+        /*assertTrue(SCHEDULER.isStarted());
 
-        /*assertFalse(SCHEDULER.start());*/
-        /*assertTrue(SCHEDULER.isStarted());*/
+        assertFalse(SCHEDULER.start());
+        assertTrue(SCHEDULER.isStarted());*/
 
         // Kill to kill the ExecutorService
         SCHEDULER.kill();
@@ -78,8 +78,6 @@ public class TestDiscreteTimeMultiThreadScheduler {
 
     @Test
     public void testKill() {
-        // Kill directly after the start because no executable to execute
-
         assertFalse(SCHEDULER.isStarted());
 
         assertFalse(SCHEDULER.kill());
@@ -87,26 +85,26 @@ public class TestDiscreteTimeMultiThreadScheduler {
         assertTrue(SCHEDULER.start());
         /*assertTrue(SCHEDULER.isStarted());*/
 
-        /*assertTrue(SCHEDULER.kill());*/
-        /*assertFalse(SCHEDULER.isStarted());*/
+        /*assertTrue(SCHEDULER.kill());
+        assertFalse(SCHEDULER.isStarted());*/
 
         SCHEDULER.kill();
     }
 
     @Test
     public void testReStart() {
-        // Kill directly after the start because no executable to execute
-
         assertFalse(SCHEDULER.isStarted());
 
         assertTrue(SCHEDULER.start());
+
+        // Restart because already kill by no execution of executable
         assertTrue(SCHEDULER.start());
-        /*assertTrue(SCHEDULER.isStarted());*/
+        /*assertTrue(SCHEDULER.isStarted());
 
-        /*assertTrue(SCHEDULER.kill());
-        assertFalse(SCHEDULER.isStarted());*/
+        assertTrue(SCHEDULER.kill());
+        assertFalse(SCHEDULER.isStarted());
 
-        /*assertTrue(SCHEDULER.start());
+        assertTrue(SCHEDULER.start());
         assertTrue(SCHEDULER.isStarted());*/
 
         // Kill to kill the ExecutorService
@@ -121,8 +119,8 @@ public class TestDiscreteTimeMultiThreadScheduler {
         assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
 
         assertTrue(SCHEDULER.start());
-        /*assertFalse(SCHEDULER.start());*/
-        /*assertTrue(SCHEDULER.kill());
+        /*assertFalse(SCHEDULER.start());
+        assertTrue(SCHEDULER.kill());
         assertFalse(SCHEDULER.kill());*/
 
         assertEquals(1, testSchedulerWatcher.isPassToSchedulerStarted());
@@ -163,44 +161,14 @@ public class TestDiscreteTimeMultiThreadScheduler {
 
         SCHEDULER.scheduleExecutable(a1, time, Scheduler.ScheduleMode.ONCE, -1, -1);
 
-        Map<Long, Map<AgentIdentifier, LinkedList<Executable>>> map = SCHEDULER.getMapAgentExecutable();
-        Map<AgentIdentifier, LinkedList<Executable>> mapAgent = map.get(time);
-        assertNotNull(mapAgent);
-
-        LinkedList<Executable> listAction0 = mapAgent.get(AGENT_0.getAgentIdentifier());
-        assertNotNull(listAction0);
-        assertTrue(listAction0.contains(a0));
-        assertEquals(2, listAction0.size());
-
-        LinkedList<Executable> listAction1 = mapAgent.get(AGENT_1.getAgentIdentifier());
-        assertNotNull(listAction1);
-        assertTrue(listAction1.contains(a1));
-        assertEquals(1, listAction1.size());
-    }
-
-    @Test
-    public void testScheduleAgentActionOnce2() {
-        TestAction a0 = new TestAction(AGENT_0.getAgentIdentifier());
-        TestAction a1 = new TestAction(AGENT_1.getAgentIdentifier());
-
-        long time = 5;
-
-        SCHEDULER.scheduleExecutableOnce(a0, time);
-        SCHEDULER.scheduleExecutableOnce(a1, time);
-
-        Map<Long, Map<AgentIdentifier, LinkedList<Executable>>> map = SCHEDULER.getMapAgentExecutable();
-        Map<AgentIdentifier, LinkedList<Executable>> mapAgent = map.get(time);
-        assertNotNull(mapAgent);
-
-        LinkedList<Executable> listAction0 = mapAgent.get(AGENT_0.getAgentIdentifier());
-        assertNotNull(listAction0);
-        assertTrue(listAction0.contains(a0));
-        assertEquals(1, listAction0.size());
-
-        LinkedList<Executable> listAction1 = mapAgent.get(AGENT_1.getAgentIdentifier());
-        assertNotNull(listAction1);
-        assertTrue(listAction1.contains(a1));
-        assertEquals(1, listAction1.size());
+        List<MultiThreadScheduler.ExecutorThread> executorThreads = SCHEDULER.getExecutorThreadList();
+        List<Executable> executables = executorThreads.stream().collect(ArrayList::new,
+                (list, executorThread) ->
+                        list.add(((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executorThread).getExecutable())
+                , ArrayList::addAll);
+        assertTrue(executables.contains(a0));
+        assertTrue(executables.contains(a1));
+        assertEquals(3, executables.size());
     }
 
     @Test
@@ -209,55 +177,27 @@ public class TestDiscreteTimeMultiThreadScheduler {
         TestAction a1 = new TestAction(AGENT_1.getAgentIdentifier());
 
         long time = 5;
-        int nbRepetitions = 3;
-        int executionTimeStep = 5;
+        long nbRepetitions = 3;
+        long executionTimeStep = 5;
 
         SCHEDULER.scheduleExecutable(a0, time, Scheduler.ScheduleMode.REPEATED, nbRepetitions, executionTimeStep);
         SCHEDULER.scheduleExecutable(a1, time, Scheduler.ScheduleMode.REPEATED, nbRepetitions, executionTimeStep);
 
-        for (int i = (int) time; i < (nbRepetitions + executionTimeStep) + time; i += executionTimeStep) {
-            Map<Long, Map<AgentIdentifier, LinkedList<Executable>>> map = SCHEDULER.getMapAgentExecutable();
-            Map<AgentIdentifier, LinkedList<Executable>> mapAgent = map.get((long) i);
-            assertNotNull(mapAgent);
+        List<MultiThreadScheduler.ExecutorThread> executorThreads = SCHEDULER.getExecutorThreadList();
+        List<Executable> executables = executorThreads.stream().collect(ArrayList::new,
+                (list, executorThread) ->
+                        list.add(((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executorThread).getExecutable())
+                , ArrayList::addAll);
 
-            LinkedList<Executable> listAction0 = mapAgent.get(AGENT_0.getAgentIdentifier());
-            assertNotNull(listAction0);
-            assertTrue(listAction0.contains(a0));
-            assertEquals(1, listAction0.size());
+        assertEquals(nbRepetitions * 2, executables.size());
 
-            LinkedList<Executable> listAction1 = mapAgent.get(AGENT_1.getAgentIdentifier());
-            assertNotNull(listAction1);
-            assertTrue(listAction1.contains(a1));
-            assertEquals(1, listAction1.size());
-        }
-    }
-
-    @Test
-    public void testScheduleAgentActionRepeated2() {
-        TestAction a0 = new TestAction(AGENT_0.getAgentIdentifier());
-        TestAction a1 = new TestAction(AGENT_1.getAgentIdentifier());
-
-        long time = 5;
-        int nbRepetitions = 3;
-        int executionTimeStep = 5;
-
-        SCHEDULER.scheduleExecutableRepeated(a0, time, nbRepetitions, executionTimeStep);
-        SCHEDULER.scheduleExecutableRepeated(a1, time, nbRepetitions, executionTimeStep);
+        Map<Long, Executable> map = new HashMap<>();
+        executorThreads.forEach(executorThread ->
+                map.put(((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executorThread).getDelay(),
+                        ((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executorThread).getExecutable()));
 
         for (int i = (int) time; i < (nbRepetitions + executionTimeStep) + time; i += executionTimeStep) {
-            Map<Long, Map<AgentIdentifier, LinkedList<Executable>>> map = SCHEDULER.getMapAgentExecutable();
-            Map<AgentIdentifier, LinkedList<Executable>> mapAgent = map.get((long) i);
-            assertNotNull(mapAgent);
-
-            LinkedList<Executable> listAction0 = mapAgent.get(AGENT_0.getAgentIdentifier());
-            assertNotNull(listAction0);
-            assertTrue(listAction0.contains(a0));
-            assertEquals(1, listAction0.size());
-
-            LinkedList<Executable> listAction1 = mapAgent.get(AGENT_1.getAgentIdentifier());
-            assertNotNull(listAction1);
-            assertTrue(listAction1.contains(a1));
-            assertEquals(1, listAction1.size());
+            assertNotNull(map.get((long) i));
         }
     }
 
@@ -267,53 +207,24 @@ public class TestDiscreteTimeMultiThreadScheduler {
         TestAction a1 = new TestAction(AGENT_1.getAgentIdentifier());
 
         long time = 5;
-        int executionTimeStep = 150;
+        long executionTimeStep = 150;
 
         SCHEDULER.scheduleExecutable(a0, time, Scheduler.ScheduleMode.INFINITELY, -1, executionTimeStep);
         SCHEDULER.scheduleExecutable(a1, time, Scheduler.ScheduleMode.INFINITELY, -1, executionTimeStep);
 
-        for (int i = (int) time; i <= END_SIMULATION; i += executionTimeStep) {
-            Map<Long, Map<AgentIdentifier, LinkedList<Executable>>> map = SCHEDULER.getMapAgentExecutable();
-            Map<AgentIdentifier, LinkedList<Executable>> mapAgent = map.get((long) i);
-            assertNotNull(mapAgent);
+        List<MultiThreadScheduler.ExecutorThread> executorThreads = SCHEDULER.getExecutorThreadList();
 
-            LinkedList<Executable> listAction0 = mapAgent.get(AGENT_0.getAgentIdentifier());
-            assertNotNull(listAction0);
-            assertTrue(listAction0.contains(a0));
-            assertEquals(1, listAction0.size());
+        executorThreads.forEach(executor -> assertTrue(
+                ((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executor).getDelay()
+                        <= END_SIMULATION));
 
-            LinkedList<Executable> listAction1 = mapAgent.get(AGENT_1.getAgentIdentifier());
-            assertNotNull(listAction1);
-            assertTrue(listAction1.contains(a1));
-            assertEquals(1, listAction1.size());
-        }
-    }
-
-    @Test
-    public void testScheduleAgentActionInfinitely2() {
-        TestAction a0 = new TestAction(AGENT_0.getAgentIdentifier());
-        TestAction a1 = new TestAction(AGENT_1.getAgentIdentifier());
-
-        long time = 5;
-        int executionTimeStep = 150;
-
-        SCHEDULER.scheduleExecutableInfinitely(a0, time, executionTimeStep);
-        SCHEDULER.scheduleExecutableInfinitely(a1, time, executionTimeStep);
+        Map<Long, Executable> map = new HashMap<>();
+        executorThreads.forEach(executorThread ->
+                map.put(((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executorThread).getDelay(),
+                        ((RealTimeMultiThreadScheduler.RealTimeExecutorThread) executorThread).getExecutable()));
 
         for (int i = (int) time; i <= END_SIMULATION; i += executionTimeStep) {
-            Map<Long, Map<AgentIdentifier, LinkedList<Executable>>> map = SCHEDULER.getMapAgentExecutable();
-            Map<AgentIdentifier, LinkedList<Executable>> mapAgent = map.get((long) i);
-            assertNotNull(mapAgent);
-
-            LinkedList<Executable> listAction0 = mapAgent.get(AGENT_0.getAgentIdentifier());
-            assertNotNull(listAction0);
-            assertTrue(listAction0.contains(a0));
-            assertEquals(1, listAction0.size());
-
-            LinkedList<Executable> listAction1 = mapAgent.get(AGENT_1.getAgentIdentifier());
-            assertNotNull(listAction1);
-            assertTrue(listAction1.contains(a1));
-            assertEquals(1, listAction1.size());
+            assertNotNull(map.get((long) i), "Time = " + i);
         }
     }
 
@@ -327,35 +238,8 @@ public class TestDiscreteTimeMultiThreadScheduler {
         SCHEDULER.scheduleExecutableOnce(a0, time);
         SCHEDULER.scheduleExecutableOnce(a1, time);
 
-        Map<Long, Map<AgentIdentifier, LinkedList<Executable>>> map = SCHEDULER.getMapAgentExecutable();
-        Map<AgentIdentifier, LinkedList<Executable>> mapAgent = map.get(time);
-        assertNull(mapAgent);
-
-        Map<Long, LinkedList<Executable>> mapExecutable = SCHEDULER.getMapExecutable();
-        LinkedList<Executable> listExecutable = mapExecutable.get(time);
-        assertNotNull(listExecutable);
-        assertEquals(2, listExecutable.size());
-        assertTrue(listExecutable.contains(a0));
-        assertTrue(listExecutable.contains(a1));
-    }
-
-    @Test
-    public void testScheduleExecutable() {
-        TestExecutable executable = new TestExecutable();
-
-        long time = 5;
-
-        SCHEDULER.scheduleExecutable(executable, time, Scheduler.ScheduleMode.ONCE, -1, -1);
-
-        Map<Long, Map<AgentIdentifier, LinkedList<Executable>>> map = SCHEDULER.getMapAgentExecutable();
-        Map<AgentIdentifier, LinkedList<Executable>> mapAgent = map.get(time);
-        assertNull(mapAgent);
-
-        Map<Long, LinkedList<Executable>> mapExecutable = SCHEDULER.getMapExecutable();
-        LinkedList<Executable> listExecutable = mapExecutable.get(time);
-        assertNotNull(listExecutable);
-        assertEquals(1, listExecutable.size());
-        assertTrue(listExecutable.contains(executable));
+        List<MultiThreadScheduler.ExecutorThread> executorThreads = SCHEDULER.getExecutorThreadList();
+        assertEquals(2, executorThreads.size());
     }
 
     @Test
@@ -368,12 +252,11 @@ public class TestDiscreteTimeMultiThreadScheduler {
         assertTrue(SCHEDULER.start());
 
         assertEquals(1, testSchedulerWatcher.isPassToSchedulerStarted());
-        assertEquals(1, testSchedulerWatcher.isPassToNoExecutionToExecute());
+        assertEquals(1, testSchedulerWatcher.isPassToNoExecutableToExecute());
 
         // Kill to kill the ExecutorService
         SCHEDULER.kill();
     }
-
 
     @Test
     public void testExecutionOfScheduledAction() {
@@ -399,7 +282,7 @@ public class TestDiscreteTimeMultiThreadScheduler {
             assertEquals(1, a1.isExecuted);
         }
 
-        assertEquals(time, SCHEDULER.getCurrentTime());
+        assertTrue(time <= SCHEDULER.getCurrentTime());
     }
 
     @Test
@@ -440,7 +323,7 @@ public class TestDiscreteTimeMultiThreadScheduler {
             assertEquals(1, a2.isExecuted);
         }
 
-        assertEquals(t2, SCHEDULER.getCurrentTime());
+        assertTrue(t2 <= SCHEDULER.getCurrentTime());
     }
 
     @Test
@@ -484,19 +367,19 @@ public class TestDiscreteTimeMultiThreadScheduler {
             assertEquals(1, a2.isExecuted);
         }
 
-        synchronized (testSchedulerWatcher.LOCK_END) {
-            while (testSchedulerWatcher.isPassToSimulationEndTimeReach() == 0) {
+        synchronized (testSchedulerWatcher.LOCK_NO_EXECUTABLE) {
+            while (testSchedulerWatcher.isPassToNoExecutableToExecute() == 0) {
                 try {
-                    testSchedulerWatcher.LOCK_END.wait();
+                    testSchedulerWatcher.LOCK_NO_EXECUTABLE.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            assertEquals(1, testSchedulerWatcher.isPassToSimulationEndTimeReach());
+            assertEquals(1, testSchedulerWatcher.isPassToNoExecutableToExecute());
         }
 
         assertEquals(0, a3.isExecuted);
-        assertEquals(t3, SCHEDULER.getCurrentTime());
+        assertTrue(t2 <= SCHEDULER.getCurrentTime());
     }
 
     @Test
@@ -540,19 +423,19 @@ public class TestDiscreteTimeMultiThreadScheduler {
             assertEquals(1, e2.isExecuted);
         }
 
-        synchronized (testSchedulerWatcher.LOCK_END) {
-            while (testSchedulerWatcher.isPassToSimulationEndTimeReach() == 0) {
+        synchronized (testSchedulerWatcher.LOCK_NO_EXECUTABLE) {
+            while (testSchedulerWatcher.isPassToNoExecutableToExecute() == 0) {
                 try {
-                    testSchedulerWatcher.LOCK_END.wait();
+                    testSchedulerWatcher.LOCK_NO_EXECUTABLE.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            assertEquals(1, testSchedulerWatcher.isPassToSimulationEndTimeReach());
+            assertEquals(1, testSchedulerWatcher.isPassToNoExecutableToExecute());
         }
 
         assertEquals(0, e3.isExecuted);
-        assertEquals(t3, SCHEDULER.getCurrentTime());
+        assertTrue(t2 <= SCHEDULER.getCurrentTime());
     }
 
     @Test
@@ -626,45 +509,43 @@ public class TestDiscreteTimeMultiThreadScheduler {
             assertEquals(1, a2.isExecuted);
         }
 
-        synchronized (testSchedulerWatcher.LOCK_END) {
-            while (testSchedulerWatcher.isPassToSimulationEndTimeReach() == 0) {
+        synchronized (testSchedulerWatcher.LOCK_NO_EXECUTABLE) {
+            while (testSchedulerWatcher.isPassToNoExecutableToExecute() == 0) {
                 try {
-                    testSchedulerWatcher.LOCK_END.wait();
+                    testSchedulerWatcher.LOCK_NO_EXECUTABLE.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            assertEquals(1, testSchedulerWatcher.isPassToSimulationEndTimeReach());
+            assertEquals(1, testSchedulerWatcher.isPassToNoExecutableToExecute());
         }
 
         assertEquals(0, a3.getIsExecuted());
         assertEquals(0, e3.getIsExecuted());
-        assertEquals(t3, SCHEDULER.getCurrentTime());
+        assertTrue(t2 <= SCHEDULER.getCurrentTime());
     }
 
     @Test
     public void testExecutionFeedSchedule() {
-        TestExecutableFeeder e1 = new TestExecutableFeeder(SCHEDULER, 1);
+        TestExecutableFeeder e1 = new TestExecutableFeeder(SCHEDULER, 100);
 
         TestSchedulerWatcherBlocking testSchedulerWatcher = new TestSchedulerWatcherBlocking();
         assertTrue(SCHEDULER.addSchedulerWatcher(testSchedulerWatcher));
 
-        SCHEDULER.scheduleExecutableOnce(e1, 1);
+        SCHEDULER.scheduleExecutableOnce(e1, 100);
 
         assertTrue(SCHEDULER.start());
 
-        synchronized (testSchedulerWatcher.LOCK_END) {
-            while (testSchedulerWatcher.isPassToSimulationEndTimeReach() == 0) {
+        synchronized (testSchedulerWatcher.LOCK_NO_EXECUTABLE) {
+            while (testSchedulerWatcher.isPassToNoExecutableToExecute() == 0) {
                 try {
-                    testSchedulerWatcher.LOCK_END.wait();
+                    testSchedulerWatcher.LOCK_NO_EXECUTABLE.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            assertEquals(1, testSchedulerWatcher.isPassToSimulationEndTimeReach());
+            assertEquals(1, testSchedulerWatcher.isPassToNoExecutableToExecute());
         }
-
-        assertEquals(END_SIMULATION + 1, SCHEDULER.getCurrentTime());
     }
 
     @Test
@@ -684,30 +565,6 @@ public class TestDiscreteTimeMultiThreadScheduler {
 
         public TestEvent(AgentIdentifier sender, AgentIdentifier receiver, ProtocolIdentifier protocolTargeted) {
             super(sender, receiver, protocolTargeted);
-        }
-    }
-
-    private static class TestExecutableFeeder implements Executable {
-
-        // Variables.
-
-        private final Scheduler scheduler;
-        private final long mustBeExecutedAt;
-
-        // Constructors.
-
-        public TestExecutableFeeder(Scheduler scheduler, long mustBeExecutedAt) {
-            this.scheduler = scheduler;
-            this.mustBeExecutedAt = mustBeExecutedAt;
-        }
-
-        // Methods.
-
-        @Override
-        public void execute() {
-            assertEquals(this.mustBeExecutedAt, this.scheduler.getCurrentTime());
-            this.scheduler.scheduleExecutableOnce(new TestExecutableFeeder(this.scheduler,
-                    this.scheduler.getCurrentTime() + 1), 1);
         }
     }
 
@@ -844,7 +701,7 @@ public class TestDiscreteTimeMultiThreadScheduler {
             return isPassToSimulationEndTimeReach;
         }
 
-        public int isPassToNoExecutionToExecute() {
+        public int isPassToNoExecutableToExecute() {
             return isPassToNoExecutionToExecute;
         }
     }
@@ -898,6 +755,30 @@ public class TestDiscreteTimeMultiThreadScheduler {
 
         public int getIsExecuted() {
             return isExecuted;
+        }
+    }
+
+    private static class TestExecutableFeeder implements Executable {
+
+        // Variables.
+
+        private final Scheduler scheduler;
+        private final long mustBeExecutedAt;
+
+        // Constructors.
+
+        public TestExecutableFeeder(Scheduler scheduler, long mustBeExecutedAt) {
+            this.scheduler = scheduler;
+            this.mustBeExecutedAt = mustBeExecutedAt;
+        }
+
+        // Methods.
+
+        @Override
+        public void execute() {
+            /*assertEquals(this.mustBeExecutedAt, this.scheduler.getCurrentTime());*/
+            this.scheduler.scheduleExecutableOnce(new TestExecutableFeeder(this.scheduler,
+                    this.scheduler.getCurrentTime() + 100), 100);
         }
     }
 
