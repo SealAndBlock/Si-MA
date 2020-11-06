@@ -110,7 +110,7 @@ public final class SimaSimulation {
                 if (SIMA_SIMULATION.findEnvironment(env.getEnvironmentName()) == null)
                     SIMA_SIMULATION.environments.put(env.getEnvironmentName(), env);
                 else
-                    throw new IllegalArgumentException("Two environments with the same class");
+                    throw new IllegalArgumentException("Two environments with the same name");
 
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
                     | InvocationTargetException e) {
