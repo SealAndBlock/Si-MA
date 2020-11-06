@@ -210,7 +210,12 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
             if (RealTimeMultiThreadScheduler.this.executorThreadList.isEmpty()) {
                 synchronized (RealTimeMultiThreadScheduler.this) {
                     if (RealTimeMultiThreadScheduler.this.isStarted) {
-                        RealTimeMultiThreadScheduler.this.updateSchedulerWatcherOnNoExecutableToExecute();
+                        if (RealTimeMultiThreadScheduler.this.getCurrentTime()
+                                >= RealTimeMultiThreadScheduler.this.endSimulation) {
+                            RealTimeMultiThreadScheduler.this.updateSchedulerWatcherOnSimulationEndTimeReach();
+                        } else {
+                            RealTimeMultiThreadScheduler.this.updateSchedulerWatcherOnNoExecutableToExecute();
+                        }
                         RealTimeMultiThreadScheduler.this.kill();
                     } // Else the Scheduler has already be killed.
                 }
