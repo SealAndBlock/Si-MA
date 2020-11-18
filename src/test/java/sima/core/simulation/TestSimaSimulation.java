@@ -6,7 +6,9 @@ import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
 import sima.core.scheduler.Scheduler;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,8 +31,8 @@ public class TestSimaSimulation {
 
     @Test
     public void testRunSimulationMonoThreadRealTimeExceptions() {
-        Class<? extends Environment>[] envClasses = new Class[1];
-        envClasses[0] = TestEnvironment.class;
+        Set<Class<? extends Environment>> envClasses = new HashSet<>();
+        envClasses.add(TestEnvironment.class);
 
         TestSimulationSchedulerWatcher watcher = new TestSimulationSchedulerWatcher();
 
@@ -44,8 +46,8 @@ public class TestSimaSimulation {
 
     @Test
     public void testRunSimulationMonoThreadDiscreteTimeException() {
-        Class<? extends Environment>[] envClasses = new Class[1];
-        envClasses[0] = TestEnvironment.class;
+        Set<Class<? extends Environment>> envClasses = new HashSet<>();
+        envClasses.add(TestEnvironment.class);
 
         TestSimulationSchedulerWatcher watcher = new TestSimulationSchedulerWatcher();
 

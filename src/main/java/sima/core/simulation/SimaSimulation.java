@@ -13,10 +13,7 @@ import sima.core.simulation.exception.TwoAgentWithSameIdentifierException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 public final class SimaSimulation {
 
@@ -52,7 +49,7 @@ public final class SimaSimulation {
 
     /**
      * Kill the Simulation. After this call, the call of the method
-     * {@link #runSimulation(TimeMode, SchedulerType, long, Class[], Class, Scheduler.SchedulerWatcher)} is possible.
+     * {@link #runSimulation(TimeMode, SchedulerType, long, Set, Class, Scheduler.SchedulerWatcher)} is possible.
      */
     public synchronized static void killSimulation() {
         if (SIMA_SIMULATION.scheduler != null)
@@ -72,7 +69,7 @@ public final class SimaSimulation {
      */
     public synchronized static void runSimulation(TimeMode simulationTimeMode, SchedulerType simulationSchedulerType,
                                                   long endSimulation,
-                                                  Class<? extends Environment>[] environments,
+                                                  Set<Class<? extends Environment>> environments,
                                                   Class<? extends SimulationSetup> simulationSetupClass,
                                                   Scheduler.SchedulerWatcher schedulerWatcher) {
         // Create the singleton.
@@ -119,7 +116,7 @@ public final class SimaSimulation {
         SIMA_SIMULATION.scheduler.addSchedulerWatcher(SIMA_SIMULATION.schedulerWatcher);
 
         // Create and add environments.
-        if (environments.length < 1) {
+        if (environments == null || environments.size() < 1) {
             SimaSimulation.killSimulation();
             throw new IllegalArgumentException("The simulation need to have at least 1 environments");
         }
