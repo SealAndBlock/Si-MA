@@ -31,7 +31,7 @@ public class TestSimaSimulation {
     // Tests.
 
     @Test
-    public void testSimulationIsRunning() {
+    public void throwsNullPointerExceptionWhenSimulationNotRunning() {
         // Simulation not running.
         assertFalse(SimaSimulation.simulationIsRunning());
 
@@ -45,7 +45,7 @@ public class TestSimaSimulation {
     }
 
     @Test
-    public void testRunSimulationMonoThreadRealTimeExceptions() {
+    public void throwsExceptionWithMonoThreadRealTime() {
         Set<Class<? extends Environment>> envClasses = new HashSet<>();
         envClasses.add(TestEnvironment.class);
 
@@ -60,7 +60,7 @@ public class TestSimaSimulation {
     }
 
     @Test
-    public void testRunSimulationMonoThreadDiscreteTimeException() {
+    public void throwsExceptionWithMonoThreadDiscreteTime() {
         Set<Class<? extends Environment>> envClasses = new HashSet<>();
         envClasses.add(TestEnvironment.class);
 
