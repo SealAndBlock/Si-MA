@@ -32,6 +32,8 @@ public final class SimaSimulation {
 
     private SimulationSchedulerWatcher schedulerWatcher;
 
+    private SimaSimulationWatcher simaWatcher;
+
     private TimeMode timeMode;
 
     private AgentManager agentManager;
@@ -49,11 +51,14 @@ public final class SimaSimulation {
 
     /**
      * Kill the Simulation. After this call, the call of the method
-     * {@link #runSimulation(TimeMode, SchedulerType, long, Set, Class, Scheduler.SchedulerWatcher)} is possible.
+     * {@link #runSimulation(TimeMode, SchedulerType, long, Set, Class, Scheduler.SchedulerWatcher, SimaWatcher)} is
+     * possible.
      */
     public synchronized static void killSimulation() {
         if (SIMA_SIMULATION.scheduler != null)
             SIMA_SIMULATION.scheduler.kill();
+
+        SIMA_SIMULATION.simaWatcher.simulationKilled();
 
         SIMA_SIMULATION = null;
     }
@@ -71,7 +76,8 @@ public final class SimaSimulation {
                                                   long endSimulation,
                                                   Set<Class<? extends Environment>> environments,
                                                   Class<? extends SimulationSetup> simulationSetupClass,
-                                                  Scheduler.SchedulerWatcher schedulerWatcher) {
+                                                  Scheduler.SchedulerWatcher schedulerWatcher,
+                                                  SimaWatcher simaWatcher) {
         // Create the singleton.
         if (SIMA_SIMULATION == null)
             SIMA_SIMULATION = new SimaSimulation();
@@ -151,6 +157,14 @@ public final class SimaSimulation {
             SimaSimulation.killSimulation();
             throw new SimulationSetupConstructionException(e);
         }
+
+        // Create the SimaWatcher.
+        SIMA_SIMULATION.simaWatcher = new SimaSimulationWatcher();
+
+        if (simaWatcher != null)
+            SIMA_SIMULATION.simaWatcher.addSimaWatcher(simaWatcher);
+
+        SIMA_SIMULATION.simaWatcher.simulationStarted();
     }
 
     public static boolean simulationIsRunning() {
@@ -261,6 +275,49 @@ public final class SimaSimulation {
 
     // Inner classes.
 
+    public interface SimaWatcher {
+
+        /**
+         * Call back method, called when the simulation is started with a method run.
+         */
+        void simulationStarted();
+
+        /**
+         * Call back method, called when the simulation is killed with the method
+         * {@link SimaSimulation#killSimulation()}.
+         */
+        void simulationKilled();
+    }
+
+    private static class SimaSimulationWatcher implements SimaWatcher {
+
+        // Variables.
+
+        private final Vector<SimaWatcher> otherWatchers;
+
+        // Constructors.
+
+        public SimaSimulationWatcher() {
+            this.otherWatchers = new Vector<>();
+        }
+
+        // Methods.
+
+        public void addSimaWatcher(SimaWatcher simaWatcher) {
+            this.otherWatchers.add(simaWatcher);
+        }
+
+        @Override
+        public void simulationStarted() {
+            this.otherWatchers.forEach(SimaWatcher::simulationStarted);
+        }
+
+        @Override
+        public void simulationKilled() {
+            this.otherWatchers.forEach(SimaWatcher::simulationKilled);
+        }
+    }
+
     /**
      * The simulation scheduler watcher.
      */
@@ -278,8 +335,8 @@ public final class SimaSimulation {
 
         // Methods.
 
-        public boolean addSchedulerWatcher(Scheduler.SchedulerWatcher schedulerWatcher) {
-            return otherWatchers.add(schedulerWatcher);
+        public void addSchedulerWatcher(Scheduler.SchedulerWatcher schedulerWatcher) {
+            this.otherWatchers.add(schedulerWatcher);
         }
 
         @Override

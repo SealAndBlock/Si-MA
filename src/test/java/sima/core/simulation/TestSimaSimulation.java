@@ -1,5 +1,6 @@
 package sima.core.simulation;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.Environment;
@@ -14,6 +15,21 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestSimaSimulation {
+
+    // Static.
+
+    private static TestSimulationSchedulerWatcher SCHEDULER_WATCHER;
+    private static TestSimaWatcher SIMA_WATCHER;
+
+    // Set up.
+
+    @BeforeEach
+    void setUp() {
+        SCHEDULER_WATCHER = new TestSimulationSchedulerWatcher();
+        SIMA_WATCHER = new TestSimaWatcher();
+    }
+
+    // Tests.
 
     @Test
     public void testSimulationIsRunning() {
@@ -34,12 +50,10 @@ public class TestSimaSimulation {
         Set<Class<? extends Environment>> envClasses = new HashSet<>();
         envClasses.add(TestEnvironment.class);
 
-        TestSimulationSchedulerWatcher watcher = new TestSimulationSchedulerWatcher();
-
         assertThrows(UnsupportedOperationException.class, () ->
                 SimaSimulation.runSimulation(SimaSimulation.TimeMode.REAL_TIME,
                         SimaSimulation.SchedulerType.MONO_THREAD, 10_000L, envClasses, null,
-                        watcher));
+                        SCHEDULER_WATCHER, SIMA_WATCHER));
 
         assertFalse(SimaSimulation.simulationIsRunning());
     }
@@ -49,12 +63,10 @@ public class TestSimaSimulation {
         Set<Class<? extends Environment>> envClasses = new HashSet<>();
         envClasses.add(TestEnvironment.class);
 
-        TestSimulationSchedulerWatcher watcher = new TestSimulationSchedulerWatcher();
-
         assertThrows(UnsupportedOperationException.class, () ->
                 SimaSimulation.runSimulation(SimaSimulation.TimeMode.DISCRETE_TIME,
                         SimaSimulation.SchedulerType.MONO_THREAD, 10_000L, envClasses, null,
-                        watcher));
+                        SCHEDULER_WATCHER, SIMA_WATCHER));
 
         assertFalse(SimaSimulation.simulationIsRunning());
     }
@@ -115,6 +127,41 @@ public class TestSimaSimulation {
 
         public int isPassToNoExecutionToExecute() {
             return isPassToNoExecutionToExecute;
+        }
+    }
+
+    private static class TestSimaWatcher implements SimaSimulation.SimaWatcher {
+
+        // Variables.
+
+        private int isPassStarted = 0;
+        private int isPassKilled = 0;
+
+        // Methods.
+
+        public void reset() {
+            this.isPassStarted = 0;
+            this.isPassKilled = 0;
+        }
+
+        @Override
+        public void simulationStarted() {
+            this.isPassStarted++;
+        }
+
+        @Override
+        public void simulationKilled() {
+            this.isPassKilled++;
+        }
+
+        // Getters and Setters.
+
+        public int getIsPassStarted() {
+            return isPassStarted;
+        }
+
+        public int getIsPassKilled() {
+            return isPassKilled;
         }
     }
 
