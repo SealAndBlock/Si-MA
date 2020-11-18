@@ -84,6 +84,11 @@ public final class SimaSimulation {
         else
             throw new SimaSimulationAlreadyRunningException();
 
+        // Add a SimaWatcher.
+        SIMA_SIMULATION.simaWatcher = new SimaSimulationWatcher();
+
+        if (simaWatcher != null)
+            SIMA_SIMULATION.simaWatcher.addSimaWatcher(simaWatcher);
 
         // Creates the agent manager.
         SIMA_SIMULATION.agentManager = new LocalAgentManager();
@@ -118,7 +123,10 @@ public final class SimaSimulation {
 
         // Add a scheduler watcher.
         SIMA_SIMULATION.schedulerWatcher = new SimulationSchedulerWatcher();
-        SIMA_SIMULATION.schedulerWatcher.addSchedulerWatcher(schedulerWatcher);
+
+        if (schedulerWatcher != null)
+            SIMA_SIMULATION.schedulerWatcher.addSchedulerWatcher(schedulerWatcher);
+
         SIMA_SIMULATION.scheduler.addSchedulerWatcher(SIMA_SIMULATION.schedulerWatcher);
 
         // Create and add environments.
@@ -157,12 +165,6 @@ public final class SimaSimulation {
             SimaSimulation.killSimulation();
             throw new SimulationSetupConstructionException(e);
         }
-
-        // Create the SimaWatcher.
-        SIMA_SIMULATION.simaWatcher = new SimaSimulationWatcher();
-
-        if (simaWatcher != null)
-            SIMA_SIMULATION.simaWatcher.addSimaWatcher(simaWatcher);
 
         SIMA_SIMULATION.simaWatcher.simulationStarted();
     }
