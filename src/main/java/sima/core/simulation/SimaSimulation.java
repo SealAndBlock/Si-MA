@@ -3,9 +3,9 @@ package sima.core.simulation;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.Environment;
+import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 import sima.core.scheduler.multithread.RealTimeMultiThreadScheduler;
-import sima.core.scheduler.Scheduler;
 import sima.core.simulation.exception.EnvironmentConstructionException;
 import sima.core.simulation.exception.SimaSimulationAlreadyRunningException;
 import sima.core.simulation.exception.SimulationSetupConstructionException;
@@ -16,6 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 
 public final class SimaSimulation {
 
@@ -50,6 +51,17 @@ public final class SimaSimulation {
     // Methods.
 
     /**
+     * Kill the Simulation. After this call, the call of the method
+     * {@link #runSimulation(TimeMode, SchedulerType, long, Class[], Class, Scheduler.SchedulerWatcher)} is possible.
+     */
+    public synchronized static void killSimulation() {
+        if (SIMA_SIMULATION.scheduler != null)
+            SIMA_SIMULATION.scheduler.kill();
+
+        SIMA_SIMULATION = null;
+    }
+
+    /**
      * Run a simulation.
      *
      * @param simulationTimeMode      the simulation time mode
@@ -61,12 +73,14 @@ public final class SimaSimulation {
     public synchronized static void runSimulation(TimeMode simulationTimeMode, SchedulerType simulationSchedulerType,
                                                   long endSimulation,
                                                   Class<? extends Environment>[] environments,
-                                                  Class<? extends SimulationSetup> simulationSetupClass) {
+                                                  Class<? extends SimulationSetup> simulationSetupClass,
+                                                  Scheduler.SchedulerWatcher schedulerWatcher) {
         // Create the singleton.
         if (SIMA_SIMULATION == null)
             SIMA_SIMULATION = new SimaSimulation();
         else
             throw new SimaSimulationAlreadyRunningException();
+
 
         // Creates the agent manager.
         SIMA_SIMULATION.agentManager = new LocalAgentManager();
@@ -76,8 +90,11 @@ public final class SimaSimulation {
         switch (SIMA_SIMULATION.timeMode) {
             case REAL_TIME -> {
                 switch (simulationSchedulerType) {
-                    case MONO_THREAD -> throw new UnsupportedOperationException("Real Time Mono thread simulation" +
-                            " unsupported.");
+                    case MONO_THREAD -> {
+                        SimaSimulation.killSimulation();
+                        throw new UnsupportedOperationException("Real Time Mono thread simulation" +
+                                " unsupported.");
+                    }
                     case MULTI_THREAD -> SIMA_SIMULATION.scheduler = new RealTimeMultiThreadScheduler(endSimulation,
                             NB_THREAD_MULTI_THREAD_SCHEDULER);
                 }
@@ -85,8 +102,11 @@ public final class SimaSimulation {
             case DISCRETE_TIME -> {
                 // Create the Scheduler.
                 switch (simulationSchedulerType) {
-                    case MONO_THREAD -> throw new UnsupportedOperationException("Discrete Time Mono thread simulation" +
-                            " unsupported.");
+                    case MONO_THREAD -> {
+                        SimaSimulation.killSimulation();
+                        throw new UnsupportedOperationException("Discrete Time Mono thread simulation" +
+                                " unsupported.");
+                    }
                     case MULTI_THREAD -> SIMA_SIMULATION.scheduler = new DiscreteTimeMultiThreadScheduler(endSimulation,
                             NB_THREAD_MULTI_THREAD_SCHEDULER);
                 }
@@ -95,11 +115,14 @@ public final class SimaSimulation {
 
         // Add a scheduler watcher.
         SIMA_SIMULATION.schedulerWatcher = new SimulationSchedulerWatcher();
+        SIMA_SIMULATION.schedulerWatcher.addSchedulerWatcher(schedulerWatcher);
         SIMA_SIMULATION.scheduler.addSchedulerWatcher(SIMA_SIMULATION.schedulerWatcher);
 
         // Create and add environments.
-        if (environments.length < 1)
+        if (environments.length < 1) {
+            SimaSimulation.killSimulation();
             throw new IllegalArgumentException("The simulation need to have at least 1 environments");
+        }
 
         for (Class<? extends Environment> environmentClass : environments) {
             try {
@@ -109,11 +132,14 @@ public final class SimaSimulation {
 
                 if (SIMA_SIMULATION.findEnvironment(env.getEnvironmentName()) == null)
                     SIMA_SIMULATION.environments.put(env.getEnvironmentName(), env);
-                else
+                else {
+                    SimaSimulation.killSimulation();
                     throw new IllegalArgumentException("Two environments with the same name");
+                }
 
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
                     | InvocationTargetException e) {
+                SimaSimulation.killSimulation();
                 throw new EnvironmentConstructionException(e);
             }
         }
@@ -125,6 +151,7 @@ public final class SimaSimulation {
             simulationSetup.setupSimulation();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
                 | InvocationTargetException e) {
+            SimaSimulation.killSimulation();
             throw new SimulationSetupConstructionException(e);
         }
     }
@@ -242,24 +269,40 @@ public final class SimaSimulation {
      */
     private static class SimulationSchedulerWatcher implements Scheduler.SchedulerWatcher {
 
+        // Variables.
+
+        private final Vector<Scheduler.SchedulerWatcher> otherWatchers;
+
+        // Constructors.
+
+        public SimulationSchedulerWatcher() {
+            this.otherWatchers = new Vector<>();
+        }
+
+        // Methods.
+
+        public boolean addSchedulerWatcher(Scheduler.SchedulerWatcher schedulerWatcher) {
+            return otherWatchers.add(schedulerWatcher);
+        }
+
         @Override
         public void schedulerStarted() {
-
+            this.otherWatchers.forEach(Scheduler.SchedulerWatcher::schedulerStarted);
         }
 
         @Override
         public void schedulerKilled() {
-
+            this.otherWatchers.forEach(Scheduler.SchedulerWatcher::schedulerKilled);
         }
 
         @Override
         public void simulationEndTimeReach() {
-
+            this.otherWatchers.forEach(Scheduler.SchedulerWatcher::simulationEndTimeReach);
         }
 
         @Override
         public void noExecutableToExecute() {
-
+            this.otherWatchers.forEach(Scheduler.SchedulerWatcher::noExecutableToExecute);
         }
     }
 }

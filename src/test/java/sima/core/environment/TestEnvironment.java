@@ -180,7 +180,7 @@ public class TestEnvironment {
         }
 
         @Override
-        protected void sendEventWithoutReceiver(Event event) {
+        protected void sendEventWithNullReceiver(Event event) {
             this.isPassToSendEventWithoutReceiver = true;
         }
 
