@@ -121,6 +121,9 @@ public final class SimaSimulation {
             }
         }
 
+        // Start the scheduler
+        SIMA_SIMULATION.scheduler.start();
+
         // Add a scheduler watcher.
         SIMA_SIMULATION.schedulerWatcher = new SimulationSchedulerWatcher();
 
@@ -135,10 +138,11 @@ public final class SimaSimulation {
             throw new IllegalArgumentException("The simulation need to have at least 1 environments");
         }
 
+        SIMA_SIMULATION.environments = new HashMap<>();
         for (Class<? extends Environment> environmentClass : environments) {
             try {
                 Constructor<? extends Environment> constructor = environmentClass.getConstructor(String.class,
-                        String[].class);
+                        Map.class);
                 Environment env = constructor.newInstance(environmentClass.getName(), null);
 
                 if (SIMA_SIMULATION.findEnvironment(env.getEnvironmentName()) == null)
@@ -156,15 +160,16 @@ public final class SimaSimulation {
         }
 
         // Create the SimSetup and calls the method setup.
-        try {
-            Constructor<? extends SimulationSetup> simSetupConstructor = simulationSetupClass.getConstructor();
-            SimulationSetup simulationSetup = simSetupConstructor.newInstance();
-            simulationSetup.setupSimulation();
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
-                | InvocationTargetException e) {
-            SimaSimulation.killSimulation();
-            throw new SimulationSetupConstructionException(e);
-        }
+        if (simulationSetupClass != null)
+            try {
+                Constructor<? extends SimulationSetup> simSetupConstructor = simulationSetupClass.getConstructor();
+                SimulationSetup simulationSetup = simSetupConstructor.newInstance();
+                simulationSetup.setupSimulation();
+            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
+                    | InvocationTargetException e) {
+                SimaSimulation.killSimulation();
+                throw new SimulationSetupConstructionException(e);
+            }
 
         SIMA_SIMULATION.simaWatcher.simulationStarted();
     }
@@ -348,16 +353,22 @@ public final class SimaSimulation {
 
         @Override
         public void schedulerKilled() {
+            SimaSimulation.killSimulation();
+
             this.otherWatchers.forEach(Scheduler.SchedulerWatcher::schedulerKilled);
         }
 
         @Override
         public void simulationEndTimeReach() {
+            SimaSimulation.killSimulation();
+
             this.otherWatchers.forEach(Scheduler.SchedulerWatcher::simulationEndTimeReach);
         }
 
         @Override
         public void noExecutableToExecute() {
+            SimaSimulation.killSimulation();
+
             this.otherWatchers.forEach(Scheduler.SchedulerWatcher::noExecutableToExecute);
         }
     }

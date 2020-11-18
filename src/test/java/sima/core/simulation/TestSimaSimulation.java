@@ -20,6 +20,8 @@ public class TestSimaSimulation {
     private static TestSimulationSchedulerWatcher SCHEDULER_WATCHER;
     private static TestSimaWatcher SIMA_WATCHER;
 
+    private static final long END_SIMULATION = 10_000L;
+
     // Set up.
 
     @BeforeEach
@@ -51,7 +53,7 @@ public class TestSimaSimulation {
 
         assertThrows(UnsupportedOperationException.class, () ->
                 SimaSimulation.runSimulation(SimaSimulation.TimeMode.REAL_TIME,
-                        SimaSimulation.SchedulerType.MONO_THREAD, 10_000L, envClasses, null,
+                        SimaSimulation.SchedulerType.MONO_THREAD, END_SIMULATION, envClasses, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
         assertFalse(SimaSimulation.simulationIsRunning());
@@ -66,7 +68,55 @@ public class TestSimaSimulation {
 
         assertThrows(UnsupportedOperationException.class, () ->
                 SimaSimulation.runSimulation(SimaSimulation.TimeMode.DISCRETE_TIME,
-                        SimaSimulation.SchedulerType.MONO_THREAD, 10_000L, envClasses, null,
+                        SimaSimulation.SchedulerType.MONO_THREAD, END_SIMULATION, envClasses, null,
+                        SCHEDULER_WATCHER, SIMA_WATCHER));
+
+        assertFalse(SimaSimulation.simulationIsRunning());
+        assertEquals(0, SIMA_WATCHER.isPassStarted);
+        assertEquals(1, SIMA_WATCHER.isPassKilled);
+    }
+
+    @Test
+    public void NotThrowsExceptionWithMultiThreadRealTime() {
+        Set<Class<? extends Environment>> envClasses = new HashSet<>();
+        envClasses.add(TestEnvironment.class);
+
+        try {
+            SimaSimulation.runSimulation(SimaSimulation.TimeMode.REAL_TIME,
+                    SimaSimulation.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
+                    SCHEDULER_WATCHER, SIMA_WATCHER);
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        assertFalse(SimaSimulation.simulationIsRunning());
+        assertEquals(1, SIMA_WATCHER.isPassStarted);
+        assertEquals(0, SIMA_WATCHER.isPassKilled);
+    }
+
+    @Test
+    public void NotThrowsExceptionWithMultiThreadDiscreteTime() {
+        Set<Class<? extends Environment>> envClasses = new HashSet<>();
+        envClasses.add(TestEnvironment.class);
+
+        try {
+            SimaSimulation.runSimulation(SimaSimulation.TimeMode.DISCRETE_TIME,
+                    SimaSimulation.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
+                    SCHEDULER_WATCHER, SIMA_WATCHER);
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        assertFalse(SimaSimulation.simulationIsRunning());
+        assertEquals(1, SIMA_WATCHER.isPassStarted);
+        assertEquals(0, SIMA_WATCHER.isPassKilled);
+    }
+
+    @Test
+    public void throwsExceptionWithNullEnvironmentSet() {
+        assertThrows(IllegalArgumentException.class, () ->
+                SimaSimulation.runSimulation(SimaSimulation.TimeMode.DISCRETE_TIME,
+                        SimaSimulation.SchedulerType.MULTI_THREAD, END_SIMULATION, null, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
         assertFalse(SimaSimulation.simulationIsRunning());
@@ -184,7 +234,7 @@ public class TestSimaSimulation {
          * @param environmentName the sima.core.environment name
          * @param args            arguments map (map argument name with the argument)
          */
-        protected TestEnvironment(String environmentName, Map<String, String> args) {
+        public TestEnvironment(String environmentName, Map<String, String> args) {
             super(environmentName, args);
         }
 
