@@ -11,8 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestSimaSimulation {
 
@@ -56,6 +55,8 @@ public class TestSimaSimulation {
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
         assertFalse(SimaSimulation.simulationIsRunning());
+        assertEquals(0, SIMA_WATCHER.isPassStarted);
+        assertEquals(1, SIMA_WATCHER.isPassKilled);
     }
 
     @Test
@@ -69,6 +70,8 @@ public class TestSimaSimulation {
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
         assertFalse(SimaSimulation.simulationIsRunning());
+        assertEquals(0, SIMA_WATCHER.isPassStarted);
+        assertEquals(1, SIMA_WATCHER.isPassKilled);
     }
 
     // Inner classes.
