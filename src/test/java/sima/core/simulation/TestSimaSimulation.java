@@ -89,6 +89,7 @@ public class TestSimaSimulation {
             fail(e);
         }
 
+        assertFalse(SimaSimulation.getScheduler().isRunning());
         assertFalse(SimaSimulation.simulationIsRunning());
         assertEquals(1, SIMA_WATCHER.isPassStarted);
         assertEquals(0, SIMA_WATCHER.isPassKilled);

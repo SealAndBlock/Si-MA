@@ -52,6 +52,15 @@ public interface Scheduler {
     boolean kill();
 
     /**
+     * Verifies if the scheduler is running or not. A scheduler is running after the call of the method {@link #start()}
+     * and it have some executables to execute. After the call of the method {@link #kill()}, the scheduler is not
+     * running and this method returns always false.
+     *
+     * @return true if the scheduler is running, else false.
+     */
+    boolean isRunning();
+
+    /**
      * Schedule the execution of the {@link Executable}. In other words, schedule the moment when the method
      * {@link Executable#execute()} is called and execute. The waiting time is the number of time unit that the
      * scheduler must wait after the call of this method to execute the {@code Executable}. The {@link ScheduleMode}
