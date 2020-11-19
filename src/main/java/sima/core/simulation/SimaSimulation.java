@@ -161,6 +161,7 @@ public final class SimaSimulation {
                     throw new SimulationSetupConstructionException(e);
                 }
 
+            // Notify simulation watchers.
             SIMA_SIMULATION.simaWatcher.simulationStarted();
 
             // Start the scheduler ad the end (ORDER VERY IMPORTANT)
