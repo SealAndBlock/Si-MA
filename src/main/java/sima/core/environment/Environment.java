@@ -165,7 +165,7 @@ public abstract class Environment implements EventCatcher {
      * {@link #verifyAndScheduleEvent(AgentIdentifier, Event)} is called to try to send the {@code Event} to the sima.core.agent
      * receiver.
      * <p>
-     * If the sima.core.agent receiver is null, therefore the method {@link #sendEventWithoutReceiver(Event)} is called to
+     * If the sima.core.agent receiver is null, therefore the method {@link #sendEventWithNullReceiver(Event)} is called to
      * manage which agents must receive the {@code Event}.
      *
      * @param event the event to send
@@ -179,7 +179,7 @@ public abstract class Environment implements EventCatcher {
             if (this.isEvolving(sender)) {
                 if (event.getReceiver() == null) {
                     // No receiver for the event
-                    this.sendEventWithoutReceiver(event);
+                    this.sendEventWithNullReceiver(event);
                 } else {
                     // Event destined for one identified agent.
                     // getAgent() detects if the sima.core.agent is evolving or not in the sima.core.environment
@@ -203,7 +203,7 @@ public abstract class Environment implements EventCatcher {
      *
      * @param event the event without receiver to send
      */
-    protected abstract void sendEventWithoutReceiver(Event event);
+    protected abstract void sendEventWithNullReceiver(Event event);
 
     /**
      * This method verifies if it is possible to send the event to the specified sima.core.agent. Return true if the event can be

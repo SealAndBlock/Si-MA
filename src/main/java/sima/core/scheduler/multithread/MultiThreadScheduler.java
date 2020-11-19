@@ -82,6 +82,11 @@ public abstract class MultiThreadScheduler implements Scheduler {
         this.schedulerWatchers.forEach(SchedulerWatcher::noExecutableToExecute);
     }
 
+    @Override
+    public synchronized boolean isRunning() {
+        return this.isStarted;
+    }
+
     // Getters and Setters.
 
     public boolean isStarted() {

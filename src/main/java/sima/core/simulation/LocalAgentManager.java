@@ -30,6 +30,8 @@ public class LocalAgentManager implements AgentManager {
 
     @Override
     public boolean addAgent(AbstractAgent agent) {
+        if (agent == null)
+            return false;
         return this.managedAgents.add(agent);
     }
 
