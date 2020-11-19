@@ -15,6 +15,13 @@ public class TestScheduler {
 
     protected static Scheduler SCHEDULER;
 
+    /**
+     * Define the tolerance when we test when the scheduler execute executable. Example: If a executable must be execute
+     * at time 5, in function of the type of the scheduler, it is not possible to it to execute th executable at 5.
+     * Therefore the test verify if the execution time is equal to 5 +/- TIME_EXECUTION_TOLERANCE.
+     */
+    protected static long TIME_EXECUTION_TOLERANCE = 0;
+
     // Tests.
 
     @Test
@@ -247,6 +254,60 @@ public class TestScheduler {
                 Scheduler.ScheduleMode.INFINITELY, 1, 0));
     }
 
+    @Test
+    public void scheduleExecutableIgnoreNbRepetitionsAndExecutionTimeStepInScheduleModeOnce() {
+        TestExecutable e0 = new TestExecutable();
+
+        try {
+            SCHEDULER.scheduleExecutable(e0, 1, Scheduler.ScheduleMode.ONCE, -1, -1);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    public void schedulerExecuteAtTimeOneExecutableScheduledOnceTime() {
+        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+
+        TestExecutable e0 = new TestExecutable();
+
+        SCHEDULER.scheduleExecutable(e0, Scheduler.NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
+
+        assertTrue(SCHEDULER.start());
+
+        blockSchedulerWatcher.waitUntilKilled();
+
+        this.verifyNumber(e0.executedTime, Scheduler.NOW, TIME_EXECUTION_TOLERANCE);
+    }
+
+    @Test
+    public void schedulerExecuteAtTimeSeveralExecutablesScheduledOnceTime() {
+        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+
+        TestExecutable e0 = new TestExecutable();
+        TestExecutable e1 = new TestExecutable();
+        TestExecutable e2 = new TestExecutable();
+
+        SCHEDULER.scheduleExecutable(e0, Scheduler.NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
+        SCHEDULER.scheduleExecutable(e1, Scheduler.NOW + 1, Scheduler.ScheduleMode.ONCE, -1, -1);
+        SCHEDULER.scheduleExecutable(e2, Scheduler.NOW + 1, Scheduler.ScheduleMode.ONCE, -1, -1);
+
+        assertTrue(SCHEDULER.start());
+
+        blockSchedulerWatcher.waitUntilKilled();
+
+        this.verifyNumber(e0.executedTime, Scheduler.NOW, TIME_EXECUTION_TOLERANCE);
+        this.verifyNumber(e1.executedTime, Scheduler.NOW + 1, TIME_EXECUTION_TOLERANCE);
+        this.verifyNumber(e2.executedTime, Scheduler.NOW + 2, TIME_EXECUTION_TOLERANCE);
+    }
+
+    @Test
+    public void schedulerExecuteAtTimeSeveralExecutableAfterTheStart() {
+        // TODO
+    }
+
     // Methods.
 
     /**
@@ -256,7 +317,11 @@ public class TestScheduler {
      * very sure that all tests will pass and are correct.
      */
     protected void scheduleLongTimeExecutable() {
-        SCHEDULER.scheduleExecutableOnce(new LongTimeExecutable(), 0);
+        SCHEDULER.scheduleExecutableOnce(new LongTimeExecutable(), Scheduler.NOW);
+    }
+
+    protected void verifyNumber(long valToVerify, long expected, long delta) {
+        assertTrue((expected - delta) <= valToVerify && valToVerify <= (expected + delta));
     }
 
     // Inner classes.
@@ -329,6 +394,70 @@ public class TestScheduler {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * Can block the current thread to wait a new notification of the watched Scheduler. Only work for waiting start and
+     * kill.
+     */
+    protected class BlockSchedulerWatcher implements Scheduler.SchedulerWatcher {
+
+        // Variables.
+
+        private final Object START_LOCK = new Object();
+        private final Object KILL_LOCK = new Object();
+
+        // Methods.
+
+        /**
+         * Block until the next call of {@link Scheduler#start()}.
+         */
+        public void waitUntilStarted() {
+            synchronized (START_LOCK) {
+                try {
+                    START_LOCK.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        /**
+         * Block until the next call of {@link Scheduler#kill()}.
+         */
+        public void waitUntilKilled() {
+            synchronized (KILL_LOCK) {
+                try {
+                    KILL_LOCK.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        public void schedulerStarted() {
+            synchronized (START_LOCK) {
+                START_LOCK.notifyAll();
+            }
+        }
+
+        @Override
+        public void schedulerKilled() {
+            synchronized (KILL_LOCK) {
+                KILL_LOCK.notifyAll();
+            }
+        }
+
+        @Override
+        public void simulationEndTimeReach() {
+
+        }
+
+        @Override
+        public void noExecutableToExecute() {
+
         }
     }
 
