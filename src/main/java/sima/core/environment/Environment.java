@@ -92,7 +92,7 @@ public abstract class Environment implements EventCatcher {
      * @param evolvingAgentIdentifier the {@link AgentIdentifier} of the agent which will evolve in the environment
      * @return true if the {@code Environment} accept the sima.core.agent, else false.
      */
-    public boolean acceptAgent(AgentIdentifier evolvingAgentIdentifier) {
+    public synchronized boolean acceptAgent(AgentIdentifier evolvingAgentIdentifier) {
         if (evolvingAgentIdentifier != null && this.agentCanBeAccepted(evolvingAgentIdentifier)) {
             return this.evolvingAgents.add(evolvingAgentIdentifier);
         } else {
@@ -117,7 +117,7 @@ public abstract class Environment implements EventCatcher {
      *
      * @param leavingAgentIdentifier the leaving sima.core.agent
      */
-    public void leave(AgentIdentifier leavingAgentIdentifier) {
+    public synchronized void leave(AgentIdentifier leavingAgentIdentifier) {
         if (this.isEvolving(leavingAgentIdentifier)) {
             this.agentIsLeaving(leavingAgentIdentifier);
             this.evolvingAgents.remove(leavingAgentIdentifier);
@@ -143,7 +143,7 @@ public abstract class Environment implements EventCatcher {
      * @return true if the agent is evolving in the {@code Environment}, else false.
      * @see #getEvolvingAgentIdentifiers()
      */
-    public boolean isEvolving(AgentIdentifier agent) {
+    public synchronized boolean isEvolving(AgentIdentifier agent) {
         return agent != null && this.evolvingAgents.contains(agent);
     }
 
@@ -151,7 +151,7 @@ public abstract class Environment implements EventCatcher {
      * @return the list of all {@link AgentIdentifier} of all agents evolving in the sima.core.environment, if there is no sima.core.agent,
      * returns an empty list but never null.
      */
-    public List<AgentIdentifier> getEvolvingAgentIdentifiers() {
+    public synchronized List<AgentIdentifier> getEvolvingAgentIdentifiers() {
         return this.evolvingAgents.stream().collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
     }
 
@@ -172,7 +172,7 @@ public abstract class Environment implements EventCatcher {
      * @throws NotEvolvingAgentInEnvironmentException if the sender and/or the receiver agent are not evolving in the
      *                                                {@link Environment}.
      */
-    public void sendEvent(Event event) throws NotEvolvingAgentInEnvironmentException {
+    public synchronized void sendEvent(Event event) throws NotEvolvingAgentInEnvironmentException {
         if (event != null) {
             AgentIdentifier sender = event.getSender();
 
