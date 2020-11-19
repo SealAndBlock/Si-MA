@@ -205,6 +205,8 @@ public interface Scheduler {
     }
 
     /**
+     * Returns the current time of the simulation. If the scheduler is not started, returns 0.
+     *
      * @return the current time of the simulation.
      */
     long getCurrentTime();
