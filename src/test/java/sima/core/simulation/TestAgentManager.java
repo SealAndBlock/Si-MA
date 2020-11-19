@@ -1,5 +1,6 @@
 package sima.core.simulation;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sima.core.agent.AbstractAgent;
 import sima.core.environment.event.Event;
@@ -11,6 +12,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Disabled
 public class TestAgentManager {
 
     protected static AgentManager AGENT_MANAGER;

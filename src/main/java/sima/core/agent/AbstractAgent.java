@@ -151,7 +151,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @throws KilledAgentException         if the sima.core.agent is killed
      * @throws AlreadyStartedAgentException if the sima.core.agent have already been started
      */
-    public final void start() {
+    public synchronized final void start() {
         if (!this.isKilled && !this.isStarted) {
             this.isStarted = true;
 
@@ -178,7 +178,7 @@ public abstract class AbstractAgent implements EventCatcher {
      *
      * @throws AlreadyKilledAgentException if the sima.core.agent have already been killed
      */
-    public final void kill() {
+    public synchronized final void kill() {
         if (!this.isKilled()) {
             this.isStarted = false;
             this.isKilled = true;
@@ -210,7 +210,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @param environment the sima.core.environment that the sima.core.agent want join
      * @return true if the sima.core.agent has joined the sima.core.environment, else false.
      */
-    public boolean joinEnvironment(Environment environment) {
+    public synchronized boolean joinEnvironment(Environment environment) {
         if (this.mapEnvironments.get(environment.getEnvironmentName()) == null) {
             if (environment.acceptAgent(this.getAgentIdentifier())) {
                 this.mapEnvironments.put(environment.getEnvironmentName(), environment);
@@ -225,7 +225,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @param environment the sima.core.environment
      * @return true if the sima.core.agent is evolving in the sima.core.environment, else false.
      */
-    public boolean isEvolvingInEnvironment(Environment environment) {
+    public synchronized boolean isEvolvingInEnvironment(Environment environment) {
         return environment.isEvolving(this.getAgentIdentifier());
     }
 
@@ -233,7 +233,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @param environmentName the sima.core.environment name
      * @return true if the sima.core.agent is evolving in the sima.core.environment, else false.
      */
-    public boolean isEvolvingInEnvironment(String environmentName) {
+    public synchronized boolean isEvolvingInEnvironment(String environmentName) {
         Environment environment = this.mapEnvironments.get(environmentName);
         if (environment != null) {
             return environment.isEvolving(this.getAgentIdentifier());
@@ -248,7 +248,7 @@ public abstract class AbstractAgent implements EventCatcher {
      *
      * @param environment the sima.core.environment to leave
      */
-    public void leaveEnvironment(Environment environment) {
+    public synchronized void leaveEnvironment(Environment environment) {
         environment.leave(this.getAgentIdentifier());
         this.mapEnvironments.remove(environment.getEnvironmentName());
     }
@@ -258,7 +258,7 @@ public abstract class AbstractAgent implements EventCatcher {
      *
      * @param environmentName the sima.core.environment name
      */
-    public void leaveEnvironment(String environmentName) {
+    public synchronized void leaveEnvironment(String environmentName) {
         Environment environment = this.mapEnvironments.get(environmentName);
         if (environment != null) {
             environment.leave(this.getAgentIdentifier());
@@ -277,7 +277,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @param args          the argument to transfer to the sima.core.behavior
      * @return true if the sima.core.behavior has been added to the sima.core.agent, else false.
      */
-    public boolean addBehavior(Class<? extends Behavior> behaviorClass, Map<String, String> args) {
+    public synchronized boolean addBehavior(Class<? extends Behavior> behaviorClass, Map<String, String> args) {
         if (this.mapBehaviors.get(behaviorClass.getName()) == null)
             try {
                 Constructor<? extends Behavior> constructor = behaviorClass.
@@ -299,7 +299,7 @@ public abstract class AbstractAgent implements EventCatcher {
      *
      * @param behaviorClass the class of the sima.core.behavior that we want starting to play
      */
-    public void startPlayingBehavior(Class<? extends Behavior> behaviorClass) {
+    public synchronized void startPlayingBehavior(Class<? extends Behavior> behaviorClass) {
         if (this.isStarted) {
             Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
             if (behavior != null)
@@ -313,7 +313,7 @@ public abstract class AbstractAgent implements EventCatcher {
      *
      * @param behaviorClass the class of the sima.core.behavior that we want stopping to play
      */
-    public void stopPlayingBehavior(Class<? extends Behavior> behaviorClass) {
+    public synchronized void stopPlayingBehavior(Class<? extends Behavior> behaviorClass) {
         Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
         if (behavior != null)
             behavior.stopPlaying();
@@ -333,7 +333,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @param behaviorClass the class of the sima.core.behavior
      * @return true if the specified sima.core.behavior is playing by the sima.core.agent, else false.
      */
-    public boolean isPlayingBehavior(Class<? extends Behavior> behaviorClass) {
+    public synchronized boolean isPlayingBehavior(Class<? extends Behavior> behaviorClass) {
         Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
 
         if (behavior != null)
@@ -347,7 +347,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @return the sima.core.protocol associate to the sima.core.protocol class, if no sima.core.protocol is associated
      * to this class, return null.
      */
-    public Protocol getProtocol(ProtocolIdentifier protocolIdentifier) {
+    public synchronized Protocol getProtocol(ProtocolIdentifier protocolIdentifier) {
         return this.mapProtocol.get(protocolIdentifier);
     }
 
@@ -361,7 +361,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @param args          the arguments map to transfer to the protocol
      * @return true if the instance of the protocol is added to the agent, else false.
      */
-    public boolean addProtocol(Class<? extends Protocol> protocolClass, String protocolTag, Map<String, String> args) {
+    public synchronized boolean addProtocol(Class<? extends Protocol> protocolClass, String protocolTag, Map<String, String> args) {
         try {
             Constructor<? extends Protocol> protocolClassConstructor = protocolClass.getConstructor(String.class,
                     AbstractAgent.class, Map.class);
@@ -395,7 +395,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @see Event#isNoProtocolEvent()
      */
     @Override
-    public final void processEvent(Event event) {
+    public synchronized final void processEvent(Event event) {
         if (this.isStarted) {
             if (event.isNoProtocolEvent()) {
                 Protocol protocolTarget = this.getProtocol(event.getProtocolTargeted());
