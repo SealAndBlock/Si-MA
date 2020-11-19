@@ -180,7 +180,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
             this.currentTime = nextTime;
 
             // Verify if the next time is always in the simulation.
-            if (this.currentTime <= this.endSimulation) {
+            if (this.currentTime <= this.getEndSimulation()) {
                 // Remove all executables which have been taken in account.
                 this.mapAgentExecutable.remove(this.currentTime);
                 this.mapExecutable.remove(this.currentTime);
@@ -272,7 +272,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
                 long time = this.currentTime + waitingTime;
                 this.addAgentActionAtTime(action, time);
-                while (time <= this.endSimulation) {
+                while (time <= this.getEndSimulation()) {
                     time += executionTimeStep;
                     this.addAgentActionAtTime(action, time);
                 }
@@ -318,7 +318,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
                 long time = this.currentTime + waitingTime;
                 this.addExecutableAtTime(executable, time);
-                while (time <= this.endSimulation) {
+                while (time <= this.getEndSimulation()) {
                     time += executionTimeStep;
                     this.addExecutableAtTime(executable, time);
                 }
@@ -334,7 +334,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         if (simulationSpecificTime <= this.currentTime)
             throw new NotSchedulableTimeException("SimulationSpecificTime is already passed");
 
-        if (simulationSpecificTime > this.endSimulation)
+        if (simulationSpecificTime > this.getEndSimulation())
             // We does not take in account the executable but not throw an exception because the agent must not know
             // that it is in a simulation therefore does not know the end of the simulation.
             return;

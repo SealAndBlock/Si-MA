@@ -95,9 +95,9 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
         switch (scheduleMode) {
             case ONCE -> {
-                if (this.getExecutor() != null && this.getCurrentTime() + waitingTime > this.endSimulation)
+                if (this.getExecutor() != null && this.getCurrentTime() + waitingTime > this.getEndSimulation())
                     return;
-                else if (this.getExecutor() == null && waitingTime > this.endSimulation)
+                else if (this.getExecutor() == null && waitingTime > this.getEndSimulation())
                     return;
 
                 RealTimeExecutorThread realTimeExecutorThread = new RealTimeExecutorThread(executable, waitingTime);
@@ -113,7 +113,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
                     throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
 
                 for (int i = 0; i < nbRepetitions; i++) {
-                    if (waitingTime + (i * executionTimeStep) > this.endSimulation)
+                    if (waitingTime + (i * executionTimeStep) > this.getEndSimulation())
                         break;
 
                     RealTimeExecutorThread realTimeExecutorThread = new RealTimeExecutorThread(executable,
@@ -129,7 +129,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
                     throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
 
                 for (long time = this.getExecutor() != null ? this.getCurrentTime() + waitingTime : waitingTime;
-                     time <= this.endSimulation; time += executionTimeStep) {
+                     time <= this.getEndSimulation(); time += executionTimeStep) {
                     RealTimeExecutorThread realTimeExecutorThread = new RealTimeExecutorThread(executable,
                             time);
                     this.executorThreadList.add(realTimeExecutorThread);
@@ -211,7 +211,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
                 synchronized (RealTimeMultiThreadScheduler.this) {
                     if (RealTimeMultiThreadScheduler.this.isStarted) {
                         if (RealTimeMultiThreadScheduler.this.getCurrentTime()
-                                >= RealTimeMultiThreadScheduler.this.endSimulation) {
+                                >= RealTimeMultiThreadScheduler.this.getEndSimulation()) {
                             RealTimeMultiThreadScheduler.this.updateSchedulerWatcherOnSimulationEndTimeReach();
                         } else {
                             RealTimeMultiThreadScheduler.this.updateSchedulerWatcherOnNoExecutableToExecute();
@@ -245,7 +245,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
         @Override
         public void run() {
-            if (RealTimeMultiThreadScheduler.this.getCurrentTime() > RealTimeMultiThreadScheduler.this.endSimulation) {
+            if (RealTimeMultiThreadScheduler.this.getCurrentTime() > RealTimeMultiThreadScheduler.this.getEndSimulation()) {
                 synchronized (RealTimeMultiThreadScheduler.this) {
                     if (RealTimeMultiThreadScheduler.this.isStarted) {
                         RealTimeMultiThreadScheduler.this.updateSchedulerWatcherOnSimulationEndTimeReach();

@@ -19,7 +19,7 @@ public abstract class MultiThreadScheduler implements Scheduler {
     /**
      * The end of the simulation.
      */
-    protected final long endSimulation;
+    private final long endSimulation;
 
     /**
      * The number of thread use to execute all {@link Executable}.
@@ -85,6 +85,11 @@ public abstract class MultiThreadScheduler implements Scheduler {
     @Override
     public synchronized boolean isRunning() {
         return this.isStarted;
+    }
+
+    @Override
+    public long getEndSimulation() {
+        return this.endSimulation;
     }
 
     // Getters and Setters.

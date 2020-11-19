@@ -210,6 +210,11 @@ public interface Scheduler {
     long getCurrentTime();
 
     /**
+     * @return the end of the simulation.
+     */
+    long getEndSimulation();
+
+    /**
      * Enum to specify how many time an {@link Action} or a {@link Controller} can be schedule.
      */
     enum ScheduleMode {
