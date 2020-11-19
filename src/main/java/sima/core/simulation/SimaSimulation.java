@@ -275,8 +275,7 @@ public final class SimaSimulation {
      * @return the list of all environments of the simulation.
      */
     public static List<Environment> getAllEnvironments() {
-        return SIMA_SIMULATION.environments.keySet().stream().collect(ArrayList::new, (list, s) ->
-                list.add(SIMA_SIMULATION.environments.get(s)), ArrayList::addAll);
+        return SIMA_SIMULATION.environments.keySet().stream().collect(ArrayList::new, (list, s) -> list.add(SIMA_SIMULATION.environments.get(s)), ArrayList::addAll);
     }
 
     /**
