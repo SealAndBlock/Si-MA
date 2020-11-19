@@ -6,6 +6,7 @@ import sima.core.agent.AgentIdentifier;
 import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
 import sima.core.scheduler.Scheduler;
+import sima.core.simulation.exception.SimaSimulationAlreadyRunningException;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -44,6 +45,47 @@ public class TestSimaSimulation {
         assertThrows(NullPointerException.class, SimaSimulation::getAllEnvironments);
         assertThrows(NullPointerException.class, () -> SimaSimulation.getEnvironmentFromName(null));
         assertThrows(NullPointerException.class, SimaSimulation::timeMode);
+    }
+
+    @Test
+    public void throwsExceptionWhenSimulationAlreadyRunning() {
+        Set<Class<? extends Environment>> envClasses = new HashSet<>();
+        envClasses.add(TestEnvironment.class);
+
+        Scheduler.SchedulerWatcher schedulerWatcher = new Scheduler.SchedulerWatcher() {
+            @Override
+            public void schedulerStarted() {
+                // Nothing
+            }
+
+            @Override
+            public void schedulerKilled() {
+                assertThrows(SimaSimulationAlreadyRunningException.class, () ->
+                        // Run which launches no exception if the simulation is not already running.
+                        SimaSimulation.runSimulation(SimaSimulation.TimeMode.DISCRETE_TIME,
+                                SimaSimulation.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses,
+                                null, SCHEDULER_WATCHER, SIMA_WATCHER));
+            }
+
+            @Override
+            public void simulationEndTimeReach() {
+                // Nothing
+            }
+
+            @Override
+            public void noExecutableToExecute() {
+                // Nothing
+            }
+        };
+
+        try {
+            // Run which launches no exception.
+            SimaSimulation.runSimulation(SimaSimulation.TimeMode.DISCRETE_TIME,
+                    SimaSimulation.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
+                    schedulerWatcher, SIMA_WATCHER);
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     @Test
@@ -89,10 +131,12 @@ public class TestSimaSimulation {
             fail(e);
         }
 
-        assertFalse(SimaSimulation.getScheduler().isRunning());
+        SimaSimulation.waitKillSimulation();
+
         assertFalse(SimaSimulation.simulationIsRunning());
         assertEquals(1, SIMA_WATCHER.isPassStarted);
-        assertEquals(0, SIMA_WATCHER.isPassKilled);
+        assertEquals(1, SCHEDULER_WATCHER.isPassToNoExecutionToExecute);
+        assertEquals(1, SIMA_WATCHER.isPassKilled);
     }
 
     @Test
@@ -108,9 +152,12 @@ public class TestSimaSimulation {
             fail(e);
         }
 
+        SimaSimulation.waitKillSimulation();
+
         assertFalse(SimaSimulation.simulationIsRunning());
         assertEquals(1, SIMA_WATCHER.isPassStarted);
-        assertEquals(0, SIMA_WATCHER.isPassKilled);
+        assertEquals(1, SCHEDULER_WATCHER.isPassToNoExecutionToExecute);
+        assertEquals(1, SIMA_WATCHER.isPassKilled);
     }
 
     @Test
