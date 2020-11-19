@@ -1,7 +1,9 @@
 package sima.core.simulation;
 
 /**
- * A {@link SimulationSetup} must always have a default constructor to allow the use of the java reflexivity.
+ * A {@link SimulationSetup} must always have a default constructor to allow the use of the java reflexivity. This
+ * constructor must be in the form SimulationSetup(Map(key:String, value:String)). The argument map is the map which
+ * allows to pass argument to the SimulationSetup.
  */
 public interface SimulationSetup {
 

@@ -66,7 +66,7 @@ public final class SimaSimulation {
      */
     public static void runSimulation(TimeMode simulationTimeMode, SchedulerType simulationSchedulerType,
                                      long endSimulation,
-                                     Set<Class<? extends Environment>> environments,
+                                     List<Class<? extends Environment>> environments,
                                      Class<? extends SimulationSetup> simulationSetupClass,
                                      Scheduler.SchedulerWatcher schedulerWatcher,
                                      SimaWatcher simaWatcher) {
@@ -152,11 +152,11 @@ public final class SimaSimulation {
             // Create the SimSetup and calls the method setup.
             if (simulationSetupClass != null)
                 try {
-                    Constructor<? extends SimulationSetup> simSetupConstructor = simulationSetupClass.getConstructor();
-                    SimulationSetup simulationSetup = simSetupConstructor.newInstance();
+                    Constructor<? extends SimulationSetup> simSetupConstructor =
+                            simulationSetupClass.getConstructor(Map.class);
+                    SimulationSetup simulationSetup = simSetupConstructor.newInstance((Map<String, String>) null);
                     simulationSetup.setupSimulation();
-                } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
-                        | InvocationTargetException e) {
+                } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
                     SimaSimulation.killSimulation();
                     throw new SimulationSetupConstructionException(e);
                 }
@@ -170,7 +170,7 @@ public final class SimaSimulation {
 
     /**
      * Kill the Simulation. After this call, the call of the method
-     * {@link #runSimulation(TimeMode, SchedulerType, long, Set, Class, Scheduler.SchedulerWatcher, SimaWatcher)} is
+     * {@link #runSimulation(TimeMode, SchedulerType, long, List, Class, Scheduler.SchedulerWatcher, SimaWatcher)}  is
      * possible.
      * <p>
      * This method is thread safe and synchronized on the lock {@link #LOCK}.
@@ -200,7 +200,8 @@ public final class SimaSimulation {
             if (SimaSimulation.simulationIsRunning())
                 try {
                     LOCK.wait();
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored) {
+                }
         }
     }
 
