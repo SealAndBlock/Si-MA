@@ -1,8 +1,10 @@
 package sima.core.scheduler;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
+import sima.core.scheduler.multithread.RealTimeMultiThreadScheduler;
 
 import java.util.List;
 import java.util.Vector;
@@ -12,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test that all Classes which implements {@link Scheduler} must pass.
  */
-
+@Disabled
 public class TestScheduler {
 
     // Static.
@@ -25,14 +27,6 @@ public class TestScheduler {
      * Therefore the test verify if the execution time is equal to 5 +/- TIME_EXECUTION_TOLERANCE.
      */
     protected static long TIME_EXECUTION_TOLERANCE = 0;
-
-    // Setup.
-
-    @BeforeEach
-    public void setup() {
-        SCHEDULER = new DiscreteTimeMultiThreadScheduler(1000, 5);
-    }
-
 
     // Tests.
 
