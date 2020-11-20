@@ -63,32 +63,32 @@ public class TestDiscreteTimeMultiThreadScheduler {
     public void testStart() {
         // Kill directly after the start because no executable to execute
 
-        assertFalse(SCHEDULER.isStarted());
+        assertFalse(SCHEDULER.isRunning());
 
         assertTrue(SCHEDULER.start());
-        /*assertTrue(SCHEDULER.isStarted());*/
+        /*assertTrue(SCHEDULER.isRunning());*/
 
         /*assertFalse(SCHEDULER.start());*/
-        /*assertTrue(SCHEDULER.isStarted());*/
+        /*assertTrue(SCHEDULER.isRunning());*/
 
         // Kill to kill the ExecutorService
         SCHEDULER.kill();
-        assertFalse(SCHEDULER.isStarted());
+        assertFalse(SCHEDULER.isRunning());
     }
 
     @Test
     public void testKill() {
         // Kill directly after the start because no executable to execute
 
-        assertFalse(SCHEDULER.isStarted());
+        assertFalse(SCHEDULER.isRunning());
 
         assertFalse(SCHEDULER.kill());
 
         assertTrue(SCHEDULER.start());
-        /*assertTrue(SCHEDULER.isStarted());*/
+        /*assertTrue(SCHEDULER.isRunning());*/
 
         /*assertTrue(SCHEDULER.kill());*/
-        /*assertFalse(SCHEDULER.isStarted());*/
+        /*assertFalse(SCHEDULER.isRunning());*/
 
         SCHEDULER.kill();
     }
@@ -97,17 +97,17 @@ public class TestDiscreteTimeMultiThreadScheduler {
     public void testReStart() {
         // Kill directly after the start because no executable to execute
 
-        assertFalse(SCHEDULER.isStarted());
+        assertFalse(SCHEDULER.isRunning());
 
         assertTrue(SCHEDULER.start());
         assertTrue(SCHEDULER.start());
-        /*assertTrue(SCHEDULER.isStarted());*/
+        /*assertTrue(SCHEDULER.isRunning());*/
 
         /*assertTrue(SCHEDULER.kill());
-        assertFalse(SCHEDULER.isStarted());*/
+        assertFalse(SCHEDULER.isRunning());*/
 
         /*assertTrue(SCHEDULER.start());
-        assertTrue(SCHEDULER.isStarted());*/
+        assertTrue(SCHEDULER.isRunning());*/
 
         // Kill to kill the ExecutorService
         SCHEDULER.kill();

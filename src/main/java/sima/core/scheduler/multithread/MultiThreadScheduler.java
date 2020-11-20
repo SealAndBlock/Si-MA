@@ -97,20 +97,8 @@ public abstract class MultiThreadScheduler implements Scheduler {
 
     // Getters and Setters.
 
-    public boolean isStarted() {
-        return isStarted;
-    }
-
-    protected void setStarted(boolean started) {
-        isStarted = started;
-    }
-
     protected ExecutorService getExecutor() {
         return executor;
-    }
-
-    protected void setExecutor(ExecutorService executor) {
-        this.executor = executor;
     }
 
     protected List<ExecutorThread> getExecutorThreadList() {

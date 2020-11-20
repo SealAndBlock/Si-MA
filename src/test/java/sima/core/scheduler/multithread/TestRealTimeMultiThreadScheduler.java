@@ -63,49 +63,49 @@ public class TestRealTimeMultiThreadScheduler {
 
     @Test
     public void testStart() {
-        assertFalse(SCHEDULER.isStarted());
+        assertFalse(SCHEDULER.isRunning());
 
         assertTrue(SCHEDULER.start());
-        /*assertTrue(SCHEDULER.isStarted());
+        /*assertTrue(SCHEDULER.isRunning());
 
         assertFalse(SCHEDULER.start());
-        assertTrue(SCHEDULER.isStarted());*/
+        assertTrue(SCHEDULER.isRunning());*/
 
         // Kill to kill the ExecutorService
         SCHEDULER.kill();
-        assertFalse(SCHEDULER.isStarted());
+        assertFalse(SCHEDULER.isRunning());
     }
 
     @Test
     public void testKill() {
-        assertFalse(SCHEDULER.isStarted());
+        assertFalse(SCHEDULER.isRunning());
 
         assertFalse(SCHEDULER.kill());
 
         assertTrue(SCHEDULER.start());
-        /*assertTrue(SCHEDULER.isStarted());*/
+        /*assertTrue(SCHEDULER.isRunning());*/
 
         /*assertTrue(SCHEDULER.kill());
-        assertFalse(SCHEDULER.isStarted());*/
+        assertFalse(SCHEDULER.isRunning());*/
 
         SCHEDULER.kill();
     }
 
     @Test
     public void testReStart() {
-        assertFalse(SCHEDULER.isStarted());
+        assertFalse(SCHEDULER.isRunning());
 
         assertTrue(SCHEDULER.start());
 
         // Restart because already kill by no execution of executable
         assertTrue(SCHEDULER.start());
-        /*assertTrue(SCHEDULER.isStarted());
+        /*assertTrue(SCHEDULER.isRunning());
 
         assertTrue(SCHEDULER.kill());
-        assertFalse(SCHEDULER.isStarted());
+        assertFalse(SCHEDULER.isRunning());
 
         assertTrue(SCHEDULER.start());
-        assertTrue(SCHEDULER.isStarted());*/
+        assertTrue(SCHEDULER.isRunning());*/
 
         // Kill to kill the ExecutorService
         SCHEDULER.kill();
