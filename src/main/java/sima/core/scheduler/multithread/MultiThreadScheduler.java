@@ -55,6 +55,9 @@ public abstract class MultiThreadScheduler implements Scheduler {
 
     @Override
     public synchronized boolean addSchedulerWatcher(SchedulerWatcher schedulerWatcher) {
+        if (schedulerWatcher == null)
+            return false;
+
         if (this.schedulerWatchers.contains(schedulerWatcher))
             return false;
 

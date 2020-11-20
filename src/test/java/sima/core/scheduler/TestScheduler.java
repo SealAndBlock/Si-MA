@@ -1,19 +1,28 @@
 package sima.core.scheduler;
 
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
+
+import java.util.List;
+import java.util.Vector;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test that all Classes which implements {@link Scheduler} must pass.
  */
-@Disabled
+
 public class TestScheduler {
 
     // Static.
 
     protected static Scheduler SCHEDULER;
+
+    @BeforeEach
+    public void setup() {
+        SCHEDULER = new DiscreteTimeMultiThreadScheduler(1000, 5);
+    }
 
     /**
      * Define the tolerance when we test when the scheduler execute executable. Example: If a executable must be execute
@@ -235,13 +244,11 @@ public class TestScheduler {
     }
 
     @Test
-    public void scheduleExecutableThrowsExceptionWithAllRepeatedScheduleModeIfNbRepetitionsIsLessThanOne() {
+    public void scheduleExecutableThrowsExceptionWithRepeatedScheduleModeIfNbRepetitionsIsLessThanOne() {
         TestExecutable e0 = new TestExecutable();
 
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 1,
                 Scheduler.ScheduleMode.REPEATED, 0, 1));
-        assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 1,
-                Scheduler.ScheduleMode.INFINITELY, 0, 1));
     }
 
     @Test
@@ -251,7 +258,7 @@ public class TestScheduler {
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 1,
                 Scheduler.ScheduleMode.REPEATED, 1, 0));
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 1,
-                Scheduler.ScheduleMode.INFINITELY, 1, 0));
+                Scheduler.ScheduleMode.INFINITELY, -1, 0));
     }
 
     @Test
@@ -292,7 +299,7 @@ public class TestScheduler {
 
         SCHEDULER.scheduleExecutable(e0, Scheduler.NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
         SCHEDULER.scheduleExecutable(e1, Scheduler.NOW + 1, Scheduler.ScheduleMode.ONCE, -1, -1);
-        SCHEDULER.scheduleExecutable(e2, Scheduler.NOW + 1, Scheduler.ScheduleMode.ONCE, -1, -1);
+        SCHEDULER.scheduleExecutable(e2, Scheduler.NOW + 2, Scheduler.ScheduleMode.ONCE, -1, -1);
 
         assertTrue(SCHEDULER.start());
 
@@ -305,7 +312,24 @@ public class TestScheduler {
 
     @Test
     public void schedulerExecuteAtTimeSeveralExecutableAfterTheStart() {
-        // TODO
+        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+
+        List<Executable> executables = new Vector<>();
+
+        TestExecutableFeeder eF0 = new TestExecutableFeeder(Scheduler.NOW, executables);
+
+        SCHEDULER.scheduleExecutable(eF0, Scheduler.NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
+
+        assertTrue(SCHEDULER.start());
+
+        blockSchedulerWatcher.waitUntilKilled();
+
+        for (Executable executable : executables) {
+            TestExecutableFeeder executableFeeder = (TestExecutableFeeder) executable;
+            this.verifyNumber(executableFeeder.executedTime, executableFeeder.timeToBeExecuted,
+                    TIME_EXECUTION_TOLERANCE);
+        }
     }
 
     // Methods.
@@ -397,11 +421,39 @@ public class TestScheduler {
         }
     }
 
+    protected static class TestExecutableFeeder implements Executable {
+
+        // Variables.
+
+        private final List<Executable> executableList;
+        private final long timeToBeExecuted;
+        private long executedTime = -1;
+
+        // Constructors.
+
+        public TestExecutableFeeder(long timeToBeExecuted, List<Executable> executableList) {
+            this.executableList = executableList;
+            this.executableList.add(this);
+
+            this.timeToBeExecuted = timeToBeExecuted;
+        }
+
+        // Methods.
+
+        @Override
+        public void execute() {
+            TestExecutableFeeder executableFeeder =
+                    new TestExecutableFeeder(SCHEDULER.getCurrentTime() + 10, this.executableList);
+            SCHEDULER.scheduleExecutable(executableFeeder, 10, Scheduler.ScheduleMode.ONCE, -1, -1);
+            this.executedTime = SCHEDULER.getCurrentTime();
+        }
+    }
+
     /**
      * Can block the current thread to wait a new notification of the watched Scheduler. Only work for waiting start and
      * kill.
      */
-    protected class BlockSchedulerWatcher implements Scheduler.SchedulerWatcher {
+    protected static class BlockSchedulerWatcher implements Scheduler.SchedulerWatcher {
 
         // Variables.
 
