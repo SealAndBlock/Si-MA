@@ -520,23 +520,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
             public EmptyExecutorException() {
             }
-
-            public EmptyExecutorException(String message) {
-                super(message);
-            }
-
-            public EmptyExecutorException(String message, Throwable cause) {
-                super(message, cause);
-            }
-
-            public EmptyExecutorException(Throwable cause) {
-                super(cause);
-            }
-
-            public EmptyExecutorException(String message, Throwable cause, boolean enableSuppression,
-                                          boolean writableStackTrace) {
-                super(message, cause, enableSuppression, writableStackTrace);
-            }
         }
     }
 }
