@@ -19,17 +19,20 @@ public class TestScheduler {
 
     protected static Scheduler SCHEDULER;
 
-    @BeforeEach
-    public void setup() {
-        SCHEDULER = new DiscreteTimeMultiThreadScheduler(1000, 5);
-    }
-
     /**
      * Define the tolerance when we test when the scheduler execute executable. Example: If a executable must be execute
      * at time 5, in function of the type of the scheduler, it is not possible to it to execute th executable at 5.
      * Therefore the test verify if the execution time is equal to 5 +/- TIME_EXECUTION_TOLERANCE.
      */
     protected static long TIME_EXECUTION_TOLERANCE = 0;
+
+    // Setup.
+
+    @BeforeEach
+    public void setup() {
+        SCHEDULER = new DiscreteTimeMultiThreadScheduler(1000, 5);
+    }
+
 
     // Tests.
 
@@ -327,8 +330,13 @@ public class TestScheduler {
 
         for (Executable executable : executables) {
             TestExecutableFeeder executableFeeder = (TestExecutableFeeder) executable;
-            this.verifyNumber(executableFeeder.executedTime, executableFeeder.timeToBeExecuted,
-                    TIME_EXECUTION_TOLERANCE);
+            if (executableFeeder.executedTime != -1)
+                // Executable executed
+                this.verifyNumber(executableFeeder.executedTime, executableFeeder.timeToBeExecuted,
+                        TIME_EXECUTION_TOLERANCE);
+            else
+                // Executable normally out of the end of the simulation
+                assertTrue(executableFeeder.timeToBeExecuted > SCHEDULER.getEndSimulation());
         }
     }
 
@@ -345,7 +353,9 @@ public class TestScheduler {
     }
 
     protected void verifyNumber(long valToVerify, long expected, long delta) {
-        assertTrue((expected - delta) <= valToVerify && valToVerify <= (expected + delta));
+        assertTrue((expected - delta) <= valToVerify && valToVerify <= (expected + delta),
+                "valToVerify = " + valToVerify + " expected = " + expected + " delta = " + delta + " min = "
+                        + (expected - delta) + " max = " + (expected + delta));
     }
 
     // Inner classes.
@@ -415,8 +425,7 @@ public class TestScheduler {
         public void execute() {
             try {
                 Thread.sleep(WAITING_TIME);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ignored) {
             }
         }
     }
