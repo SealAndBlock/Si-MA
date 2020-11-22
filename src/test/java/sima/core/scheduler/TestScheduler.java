@@ -554,13 +554,6 @@ public abstract class TestScheduler {
         public void noExecutableToExecute() {
             this.isPassToNoExecutionToExecute++;
         }
-
-        public void reset() {
-            this.isPassToSchedulerStarted = 0;
-            this.isPassToSchedulerKilled = 0;
-            this.isPassToSimulationEndTimeReach = 0;
-            this.isPassToNoExecutionToExecute = 0;
-        }
     }
 
     protected static class TestExecutable implements Executable {
@@ -663,10 +656,10 @@ public abstract class TestScheduler {
 
         // Methods.
 
-        /**
+        /*/**
          * Block until the next call of {@link Scheduler#start()}.
          */
-        public void waitUntilStarted() {
+        /*public void waitUntilStarted() {
             synchronized (START_LOCK) {
                 try {
                     START_LOCK.wait();
@@ -674,7 +667,7 @@ public abstract class TestScheduler {
                     e.printStackTrace();
                 }
             }
-        }
+        }*/
 
         /**
          * Block until the next call of {@link Scheduler#kill()}.
