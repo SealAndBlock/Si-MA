@@ -109,7 +109,7 @@ public interface Scheduler {
      * @param executable             the executable to schedule
      * @param simulationSpecificTime the specific time of the simulation when the executable is execute (greater or
      *                               equal to 0 if in repeated mod)
-     * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 0.
+     * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 1.
      * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is already pass.
      */
     void scheduleExecutableAtSpecificTime(Executable executable, long simulationSpecificTime);
@@ -122,9 +122,7 @@ public interface Scheduler {
      *
      * @param executable  the executable to schedule
      * @param waitingTime the waiting time before begin the schedule of the executable (greater or equal to 1)
-     * @throws IllegalArgumentException                                  if the waitingTime is less than 1.
-     * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is greater than
-     *                                                                   the terminate time of the simulation
+     * @throws IllegalArgumentException if the waitingTime is less than 1.
      * @see #scheduleExecutable(Executable, long, ScheduleMode, long, long)
      */
     default void scheduleExecutableOnce(Executable executable, long waitingTime) {
@@ -212,6 +210,8 @@ public interface Scheduler {
     long getCurrentTime();
 
     /**
+     * Returns the end of the simulation, must be greater or equal to 2.
+     *
      * @return the end of the simulation.
      */
     long getEndSimulation();

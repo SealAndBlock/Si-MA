@@ -198,9 +198,9 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      * finish by no executable to execute
      */
     private void endByNoExecutableToExecution() {
-        this.kill();
-
         this.updateSchedulerWatcherOnNoExecutableToExecute();
+
+        this.kill();
     }
 
     /**
@@ -208,9 +208,9 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      * finish by reaching the end time of the simulation.
      */
     private void endByReachEndSimulationTime() {
-        this.kill();
-
         this.updateSchedulerWatcherOnSimulationEndTimeReach();
+
+        this.kill();
     }
 
     @Override

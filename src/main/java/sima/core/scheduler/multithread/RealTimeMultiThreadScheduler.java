@@ -63,9 +63,9 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
      * finish by no executable to execute
      */
     private void endByNoExecutableToExecution() {
-        this.kill();
-
         this.updateSchedulerWatcherOnNoExecutableToExecute();
+
+        this.kill();
     }
 
     @Override

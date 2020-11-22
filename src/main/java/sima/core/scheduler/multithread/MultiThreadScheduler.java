@@ -39,8 +39,8 @@ public abstract class MultiThreadScheduler implements Scheduler {
 
     public MultiThreadScheduler(long endSimulation, int nbExecutorThread) {
         this.endSimulation = endSimulation;
-        if (this.endSimulation < 1)
-            throw new IllegalArgumentException("The end simulation time must be greater or equal to 1.");
+        if (this.endSimulation < 2)
+            throw new IllegalArgumentException("The end simulation time must be greater or equal to 2.");
 
         this.nbExecutorThread = nbExecutorThread;
         if (this.nbExecutorThread < 1)
