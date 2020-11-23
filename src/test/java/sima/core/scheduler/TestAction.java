@@ -3,6 +3,7 @@ package sima.core.scheduler;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Disabled
@@ -17,6 +18,8 @@ public abstract class TestAction extends TestExecutable {
     @Override
     protected void initialize() {
         EXECUTABLE = ACTION;
+
+        assertNotNull(ACTION, "ACTION cannot be null for the tests");
 
         super.initialize();
     }
