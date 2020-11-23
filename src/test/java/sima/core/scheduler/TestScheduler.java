@@ -845,7 +845,7 @@ public abstract class TestScheduler {
         public void schedulerKilled() {
             synchronized (this.KILL_LOCK) {
                 this.KILL_LOCK.notifyAll();
-                this.nbBlockKill++;
+                this.nbKill++;
             }
         }
 
