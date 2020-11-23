@@ -10,5 +10,7 @@ public class TestDiscreteTimeMultiThreadScheduler extends TestMultiThreadSchedul
         NB_EXECUTOR_THREADS = 5;
         SCHEDULER = new DiscreteTimeMultiThreadScheduler(END_SIMULATION, NB_EXECUTOR_THREADS);
         TIME_EXECUTION_TOLERANCE = 0;
+
+        super.initialize();
     }
 }

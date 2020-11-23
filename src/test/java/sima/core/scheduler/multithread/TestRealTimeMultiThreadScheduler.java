@@ -10,5 +10,7 @@ public class TestRealTimeMultiThreadScheduler extends TestMultiThreadScheduler {
         NB_EXECUTOR_THREADS = 5;
         SCHEDULER = new RealTimeMultiThreadScheduler(END_SIMULATION, NB_EXECUTOR_THREADS);
         TIME_EXECUTION_TOLERANCE = 100; // ms
+
+        super.initialize();
     }
 }

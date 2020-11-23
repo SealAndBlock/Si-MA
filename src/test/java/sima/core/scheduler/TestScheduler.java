@@ -1,8 +1,8 @@
 package sima.core.scheduler;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import sima.core.TestInitializer;
 import sima.core.agent.AgentTesting;
 import sima.core.environment.Environment;
 import sima.core.environment.EnvironmentTesting;
@@ -21,9 +21,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test that all Classes which implements {@link Scheduler} must pass.
+ * <p>
+ * For that the tests works, you need to initialized the fields {@link #SCHEDULER}, {@link #END_SIMULATION} and
+ * {@link #TIME_EXECUTION_TOLERANCE}.
  */
 @Disabled
-public abstract class TestScheduler {
+public abstract class TestScheduler extends TestInitializer {
 
     // Static.
 
@@ -49,10 +52,8 @@ public abstract class TestScheduler {
 
     // Setup.
 
-    @BeforeEach
-    public void setup() {
-        this.initialize();
-
+    @Override
+    protected void initialize() {
         A0 = new AgentTesting("A0", 0, null);
         A0.start();
         A1 = new AgentTesting("A1", 1, null);
@@ -62,14 +63,6 @@ public abstract class TestScheduler {
         assertNotNull(SCHEDULER, "NULL SCHEDULER -> Tests cannot be realize");
         assertTrue(TIME_EXECUTION_TOLERANCE >= 0, "TIME_EXECUTION TOLERANCE cannot be less than 0");
     }
-
-    /**
-     * Here in this function you initialize all need variable for tests.
-     * <p>
-     * Needed variables are: <strong>{@link #END_SIMULATION}, {@link #SCHEDULER},
-     * {@link #TIME_EXECUTION_TOLERANCE}</strong>
-     */
-    protected abstract void initialize();
 
     // Tests.
 

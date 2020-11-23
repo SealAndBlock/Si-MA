@@ -1,6 +1,5 @@
 package sima.core.scheduler.multithread;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import sima.core.scheduler.TestScheduler;
 
@@ -15,11 +14,10 @@ public abstract class TestMultiThreadScheduler extends TestScheduler {
 
     // Setup.
 
-    @BeforeEach
     @Override
-    public void setup() {
-        super.setup();
-
+    protected void initialize() {
         assertTrue(NB_EXECUTOR_THREADS > 0, "NB_EXECUTOR_THREADS cannot be less or equal to 0");
+
+        super.initialize();
     }
 }

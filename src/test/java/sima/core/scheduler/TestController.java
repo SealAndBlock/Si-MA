@@ -1,4 +1,7 @@
 package sima.core.scheduler;
 
-public class TestController extends TestExecutable {
+import org.junit.jupiter.api.Disabled;
+
+@Disabled
+public abstract class TestController extends TestExecutable {
 }

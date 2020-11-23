@@ -2,6 +2,7 @@ package sima.core.simulation;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import sima.core.TestInitializer;
 import sima.core.agent.AbstractAgent;
 import sima.core.environment.event.Event;
 
@@ -9,13 +10,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled
-public class TestAgentManager {
+public abstract class TestAgentManager extends TestInitializer {
 
     protected static AgentManager AGENT_MANAGER;
+
+    // Initialization.
+
+    @Override
+    protected void initialize() {
+        assertNotNull(AGENT_MANAGER, "AGENT_MANAGER cannot be null for tests");
+    }
+
+    // Tests.
 
     @Test
     public void canAddAbstractAgent() {
