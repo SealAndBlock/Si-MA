@@ -482,6 +482,26 @@ public abstract class TestScheduler extends SimaTest {
     }
 
     @Test
+    public void scheduleAtSpecificTimeCanScheduleWhenTheSchedulerIsStarted() {
+        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+
+        long specificTime = (long) (END_SIMULATION * 0.5);
+
+        AtomicLong executionTime = new AtomicLong(-1);
+
+        SCHEDULER.scheduleExecutableOnce(
+                () -> SCHEDULER.scheduleExecutableAtSpecificTime(() -> executionTime.set(SCHEDULER.getCurrentTime()), specificTime), Scheduler.NOW);
+
+        assertTrue(SCHEDULER.start());
+
+        // Finish by not reaching time.
+        blockSchedulerWatcher.waitUntilKilled();
+
+        this.verifyNumber(executionTime.get(), specificTime, TIME_EXECUTION_TOLERANCE);
+    }
+
+    @Test
     public void scheduleOnceThrowsExceptionIfWaitingIsLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
                 () -> SCHEDULER.scheduleExecutableOnce(new ExecutableTesting(), 0));
@@ -549,6 +569,51 @@ public abstract class TestScheduler extends SimaTest {
         long nbRepetitions = 5;
         long stepBetweenRepetition = 10;
         long repetitionBegin = Scheduler.NOW;
+
+        final AtomicLong nbExecutions = new AtomicLong(0);
+        final Map<Long, Long> mapExecutionAndTimeExecution = new HashMap<>();
+
+        final Executable executable = () -> mapExecutionAndTimeExecution.put(nbExecutions.getAndIncrement(),
+                SCHEDULER.getCurrentTime());
+
+        SCHEDULER.scheduleExecutableRepeated(executable, repetitionBegin, nbRepetitions, stepBetweenRepetition);
+
+        assertTrue(SCHEDULER.start());
+
+        // Finish by not reaching time.
+        blockSchedulerWatcher.waitUntilKilled();
+
+        Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
+        for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
+            long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
+            this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
+        }
+
+        long timeToExecuteAllRepetitions = nbRepetitions * stepBetweenRepetition;
+
+        long endExecutionOfRepetition = repetitionBegin + timeToExecuteAllRepetitions;
+        long base;
+        long expectedNbExecutions;
+        // Supposes that repetitionBegin always less or equal to END_SIMULATION
+        if (END_SIMULATION < endExecutionOfRepetition) {
+            base = END_SIMULATION - repetitionBegin;
+            expectedNbExecutions = (base / stepBetweenRepetition) + 1;
+        } else {
+            expectedNbExecutions = nbRepetitions;
+        }
+
+        assertEquals(expectedNbExecutions, nbExecutions.get());
+    }
+
+    @Test
+    public void scheduleRepeatedWorksEvenIfRepetitionsPassTheEndSimulation() {
+        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+
+        long stepBetweenRepetition = 10;
+        long repetitionBegin = Scheduler.NOW;
+        long timeBetweenBeginAndEnd = END_SIMULATION - repetitionBegin;
+        long nbRepetitions = (timeBetweenBeginAndEnd / stepBetweenRepetition) + 1;
 
         final AtomicLong nbExecutions = new AtomicLong(0);
         final Map<Long, Long> mapExecutionAndTimeExecution = new HashMap<>();

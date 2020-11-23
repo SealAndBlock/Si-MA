@@ -223,11 +223,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         if (simulationSpecificTime <= this.currentTime)
             throw new NotSchedulableTimeException("SimulationSpecificTime is already passed");
 
-        if (simulationSpecificTime > this.getEndSimulation())
-            // We does not take in account the executable but not throw an exception because the agent must not know
-            // that it is in a simulation therefore does not know the end of the simulation.
-            return;
-
         this.addExecutableAtTime(executable, simulationSpecificTime);
     }
 
@@ -281,20 +276,17 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         public void run() {
             synchronized (DiscreteTimeMultiThreadScheduler.this.stepLock) {
                 while (!this.stopped) {
-                    try {
-                        while (!this.allExecutionsFinished()) {
-                            try {
-                                DiscreteTimeMultiThreadScheduler.this.stepLock.wait();
+                    while (!this.allExecutionsFinished()) {
+                        try {
+                            DiscreteTimeMultiThreadScheduler.this.stepLock.wait();
 
-                                if (this.stopped)
-                                    break;
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
+                            if (this.stopped)
+                                break;
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            this.stopped = true;
+                            break;
                         }
-                    } catch (EmptyExecutorException e) {
-                        // Empty list of executable -> end of simulation.
-                        this.stopped = true;
                     }
 
                     if (!this.stopped)
@@ -306,9 +298,8 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         /**
          * @return true if all {@link DiscreteTimeExecutorThread} in {@link #executorThreadList} have finished, else false.
          */
-        private boolean allExecutionsFinished() throws EmptyExecutorException {
-            if (DiscreteTimeMultiThreadScheduler.this.executorThreadList.isEmpty())
-                throw new EmptyExecutorException();
+        private boolean allExecutionsFinished() {
+            // DiscreteTimeMultiThreadScheduler.this.executorThreadList.isEmpty() -> impossible case
 
             for (ExecutorThread discreteTimeExecutorThread : DiscreteTimeMultiThreadScheduler.this.executorThreadList) {
                 if (!discreteTimeExecutorThread.isFinished()) {
@@ -326,16 +317,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
             synchronized (DiscreteTimeMultiThreadScheduler.this.stepLock) {
                 this.stopped = true;
                 DiscreteTimeMultiThreadScheduler.this.stepLock.notifyAll();
-            }
-        }
-
-        // Inner class
-
-        private class EmptyExecutorException extends Exception {
-
-            // Constructors.
-
-            public EmptyExecutorException() {
             }
         }
     }
