@@ -1,7 +1,35 @@
 package sima.core.scheduler;
 
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Disabled
 public abstract class TestAction extends TestExecutable {
+
+    // Static.
+
+    protected static Action ACTION;
+
+    // Initialization.
+
+    @Override
+    protected void initialize() {
+        EXECUTABLE = ACTION;
+
+        super.initialize();
+    }
+
+    // Tests.
+
+    @Test
+    public void getExecutorAgentNotThrowsException() {
+        try {
+            ACTION.getExecutorAgent();
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
 }
