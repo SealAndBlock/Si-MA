@@ -8,7 +8,7 @@ public class TestRealTimeMultiThreadScheduler extends TestMultiThreadScheduler {
     protected void verifyAndSetup() {
         END_SIMULATION = 1_000;
         NB_EXECUTOR_THREADS = 5;
-        SCHEDULER = new RealTimeMultiThreadScheduler(END_SIMULATION, NB_EXECUTOR_THREADS);
+        MULTI_THREAD_SCHEDULER = new RealTimeMultiThreadScheduler(END_SIMULATION, NB_EXECUTOR_THREADS);
         TIME_EXECUTION_TOLERANCE = 100; // ms
 
         super.verifyAndSetup();

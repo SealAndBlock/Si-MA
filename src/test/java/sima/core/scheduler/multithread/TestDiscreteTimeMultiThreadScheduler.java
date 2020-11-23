@@ -8,7 +8,7 @@ public class TestDiscreteTimeMultiThreadScheduler extends TestMultiThreadSchedul
     protected void verifyAndSetup() {
         END_SIMULATION = 1_000;
         NB_EXECUTOR_THREADS = 5;
-        SCHEDULER = new DiscreteTimeMultiThreadScheduler(END_SIMULATION, NB_EXECUTOR_THREADS);
+        MULTI_THREAD_SCHEDULER = new DiscreteTimeMultiThreadScheduler(END_SIMULATION, NB_EXECUTOR_THREADS);
         TIME_EXECUTION_TOLERANCE = 0;
 
         super.verifyAndSetup();
