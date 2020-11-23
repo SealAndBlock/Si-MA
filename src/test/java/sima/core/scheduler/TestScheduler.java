@@ -391,8 +391,8 @@ public abstract class TestScheduler {
         blockSchedulerWatcher.waitUntilKilled();
 
         assertEquals(1, watcher.isPassToSchedulerKilled);
-        assertEquals(0, watcher.isPassToNoExecutionToExecute);
         assertEquals(1, watcher.isPassToSimulationEndTimeReach);
+        assertEquals(0, watcher.isPassToNoExecutionToExecute);
     }
 
     @Test

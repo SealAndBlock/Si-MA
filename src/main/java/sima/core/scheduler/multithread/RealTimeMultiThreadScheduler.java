@@ -17,8 +17,6 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
      */
     private long beginTime;
 
-    private long endSimulationRealDate = -1;
-
     // Constructors.
 
     /**
@@ -36,8 +34,6 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
     public synchronized boolean start() {
         if (!this.isStarted) {
             this.isStarted = true;
-
-            this.endSimulationRealDate = -1;
 
             this.updateSchedulerWatcherOnSchedulerStarted();
 
@@ -72,8 +68,6 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
     public synchronized boolean kill() {
         if (this.isStarted) {
             this.isStarted = false;
-
-            this.endSimulationRealDate = System.currentTimeMillis();
 
             this.executor.shutdownNow();
             this.executor = null;
@@ -168,12 +162,10 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
      */
     @Override
     public long getCurrentTime() {
-        if (this.endSimulationRealDate == -1)
-            // Simulation not killed
+        if (this.isRunning())
             return System.currentTimeMillis() - this.beginTime;
         else
-            // Simulation killed
-            return this.endSimulationRealDate - this.beginTime;
+            return 0;
     }
 
     // Getters and Setters.
