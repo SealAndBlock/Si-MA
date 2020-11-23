@@ -27,7 +27,7 @@ public abstract class NoProtocolEvent extends Event {
      * @return always returns true.
      */
     @Override
-    public boolean isNoProtocolEvent() {
+    public boolean isProtocolEvent() {
         return true;
     }
 }

@@ -243,7 +243,7 @@ public abstract class Environment implements EventCatcher {
      * @see #eventCanBeSentTo(AgentIdentifier, Event)
      * @see #scheduleEventReceptionToOneAgent(AgentIdentifier, Event)
      */
-    private void verifyAndScheduleEvent(AgentIdentifier receiver, Event event) {
+    protected void verifyAndScheduleEvent(AgentIdentifier receiver, Event event) {
         if (this.eventCanBeSentTo(receiver, event)) {
             this.scheduleEventReceptionToOneAgent(receiver, event);
         }

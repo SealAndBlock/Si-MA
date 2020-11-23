@@ -15,7 +15,9 @@ public interface Scheduler {
     long NOW = 1;
 
     /**
-     * Add the scheduler watcher. If the scheduler watcher is already added, nothing is done.
+     * Add the scheduler watcher. If the scheduler watcher is already added, nothing is done and returns false.
+     * <p>
+     * Cannot add null.
      *
      * @param schedulerWatcher the scheduler watcher
      * @return true if the schedulerWatcher has been added, else false.
@@ -107,7 +109,7 @@ public interface Scheduler {
      * @param executable             the executable to schedule
      * @param simulationSpecificTime the specific time of the simulation when the executable is execute (greater or
      *                               equal to 0 if in repeated mod)
-     * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 0.
+     * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 1.
      * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is already pass.
      */
     void scheduleExecutableAtSpecificTime(Executable executable, long simulationSpecificTime);
@@ -120,9 +122,7 @@ public interface Scheduler {
      *
      * @param executable  the executable to schedule
      * @param waitingTime the waiting time before begin the schedule of the executable (greater or equal to 1)
-     * @throws IllegalArgumentException                                  if the waitingTime is less than 1.
-     * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is greater than
-     *                                                                   the terminate time of the simulation
+     * @throws IllegalArgumentException if the waitingTime is less than 1.
      * @see #scheduleExecutable(Executable, long, ScheduleMode, long, long)
      */
     default void scheduleExecutableOnce(Executable executable, long waitingTime) {
@@ -163,10 +163,8 @@ public interface Scheduler {
      * @param executable        the executable to schedule
      * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 1)
      * @param executionTimeStep the time between each execution (greater or equal to 1 if in repeated mod)
-     * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is greater than
-     *                                                                   the terminate time of the simulation
-     * @throws IllegalArgumentException                                  if waitingTime or executionTimeStep is less
-     *                                                                   than 1.
+     * @throws IllegalArgumentException if waitingTime or executionTimeStep is less
+     *                                  than 1.
      */
     default void scheduleExecutableInfinitely(Executable executable, long waitingTime, long executionTimeStep) {
         this.scheduleExecutable(executable, waitingTime, ScheduleMode.INFINITELY, -1, executionTimeStep);
@@ -183,6 +181,9 @@ public interface Scheduler {
      * <p>
      * <strong>WARNING!</strong> If the Simulation time mode is
      * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
+     * <p>
+     * The default implementation suppose that the scheduler is the scheduler of the {@link SimaSimulation} and that
+     * the simulation is running.
      *
      * @param event       the event to schedule
      * @param waitingTime the time to wait before send the event (greater or equal to 1 if in repeated mod)
@@ -203,9 +204,18 @@ public interface Scheduler {
     }
 
     /**
+     * Returns the current time of the simulation. If the scheduler is not started, returns 0.
+     *
      * @return the current time of the simulation.
      */
     long getCurrentTime();
+
+    /**
+     * Returns the end of the simulation, must be greater or equal to 2.
+     *
+     * @return the end of the simulation.
+     */
+    long getEndSimulation();
 
     /**
      * Enum to specify how many time an {@link Action} or a {@link Controller} can be schedule.

@@ -27,6 +27,4 @@ public abstract class Controller implements Executable {
      */
     protected abstract void processArgument(Map<String, String> args);
 
-    // Getters and Setters.
-
 }

@@ -15,7 +15,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-public final class SimaSimulation {
+public class SimaSimulation {
 
     // Constants.
 
@@ -26,32 +26,47 @@ public final class SimaSimulation {
 
     // Singleton.
 
-    private static SimaSimulation SIMA_SIMULATION;
+    protected static SimaSimulation SIMA_SIMULATION;
 
-    private static final Object LOCK = new Object();
+    protected static final Object LOCK = new Object();
 
     // Constants
 
     // Variables
 
-    private SimulationSchedulerWatcher mainSchedulerWatcher;
+    protected SimulationSchedulerWatcher mainSchedulerWatcher;
 
-    private SimaSimulationWatcher simaWatcher;
+    protected SimaSimulationWatcher simaWatcher;
 
-    private TimeMode timeMode;
+    protected TimeMode timeMode;
 
-    private AgentManager agentManager;
+    protected AgentManager agentManager;
 
-    private Scheduler scheduler;
+    protected Scheduler scheduler;
 
-    private HashMap<String, Environment> environments;
+    protected Map<String, Environment> environments;
 
     // Constructors.
 
-    private SimaSimulation() {
+    protected SimaSimulation() {
     }
 
     // Methods.
+
+    /**
+     * Create a new instance of {@link SimaSimulation} only if there is no instance of it.
+     *
+     * @throws SimaSimulationAlreadyRunningException if there already is a instance of SimaSimulation
+     */
+    protected static void createNewSingletonInstance() {
+        synchronized (LOCK) {
+            // Create the singleton.
+            if (SIMA_SIMULATION == null)
+                SIMA_SIMULATION = new SimaSimulation();
+            else
+                throw new SimaSimulationAlreadyRunningException();
+        }
+    }
 
     /**
      * Run a simulation.
@@ -72,10 +87,7 @@ public final class SimaSimulation {
                                      SimaWatcher simaWatcher) {
         synchronized (LOCK) {
             // Create the singleton.
-            if (SIMA_SIMULATION == null)
-                SIMA_SIMULATION = new SimaSimulation();
-            else
-                throw new SimaSimulationAlreadyRunningException();
+            createNewSingletonInstance();
 
             // Add a SimaWatcher.
             SIMA_SIMULATION.simaWatcher = new SimaSimulationWatcher();
@@ -179,10 +191,11 @@ public final class SimaSimulation {
     public static void killSimulation() {
         synchronized (LOCK) {
             if (SimaSimulation.simulationIsRunning()) {
-                if (SIMA_SIMULATION.scheduler != null)
+                if (SIMA_SIMULATION != null && SIMA_SIMULATION.scheduler != null)
                     SIMA_SIMULATION.scheduler.kill();
 
-                SIMA_SIMULATION.simaWatcher.simulationKilled();
+                if (SIMA_SIMULATION != null && SIMA_SIMULATION.simaWatcher != null)
+                    SIMA_SIMULATION.simaWatcher.simulationKilled();
 
                 LOCK.notifyAll();
 
@@ -196,7 +209,7 @@ public final class SimaSimulation {
      * <p>
      * This method is thread safe and synchronized on the lock {@link #LOCK}.
      */
-    public synchronized static void waitKillSimulation() {
+    public static void waitKillSimulation() {
         synchronized (LOCK) {
             if (SimaSimulation.simulationIsRunning())
                 try {
@@ -308,7 +321,7 @@ public final class SimaSimulation {
      * Time mode of the simulation.
      */
     public enum TimeMode {
-        REAL_TIME, DISCRETE_TIME
+        REAL_TIME, DISCRETE_TIME, UNSPECIFIED
     }
 
     /**
@@ -334,7 +347,7 @@ public final class SimaSimulation {
         void simulationKilled();
     }
 
-    private static class SimaSimulationWatcher implements SimaWatcher {
+    protected static class SimaSimulationWatcher implements SimaWatcher {
 
         // Variables.
 

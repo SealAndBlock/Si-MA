@@ -1,7 +1,5 @@
 package sima.core.scheduler.multithread;
 
-import sima.core.agent.AgentIdentifier;
-import sima.core.scheduler.Action;
 import sima.core.scheduler.Executable;
 import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.exception.NotSchedulableTimeException;
@@ -25,11 +23,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     private long currentTime;
 
     /**
-     * Maps for each time of the simulation agent actions.
-     */
-    private final Map<Long, Map<AgentIdentifier, LinkedList<Executable>>> mapAgentExecutable;
-
-    /**
      * Maps for each time of the simulation executables which are not agent actions.
      */
     private final Map<Long, LinkedList<Executable>> mapExecutable;
@@ -49,8 +42,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      */
     public DiscreteTimeMultiThreadScheduler(long endSimulation, int nbExecutorThread) {
         super(endSimulation, nbExecutorThread);
-
-        this.mapAgentExecutable = new ConcurrentHashMap<>();
 
         this.mapExecutable = new ConcurrentHashMap<>();
 
@@ -91,8 +82,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
             this.stepFinishWatcher.kill();
 
-            this.mapAgentExecutable.clear();
-
             this.mapExecutable.clear();
 
             this.updateSchedulerWatcherOnSchedulerKilled();
@@ -116,24 +105,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
         long nextTime = -1;
 
-        // Creates executors for agent actions.
-        Set<Long> setKeyMapActionAgent = this.mapAgentExecutable.keySet();
-        List<Long> sortedKeyMapActionAgent = new ArrayList<>(setKeyMapActionAgent);
-        sortedKeyMapActionAgent.sort(Comparator.comparingLong(l -> l));
-
-        // Verifies if there is action agent to execute.
-        if (sortedKeyMapActionAgent.size() > 0) {
-            // Set the next time.
-            nextTime = sortedKeyMapActionAgent.get(0);
-
-            // Fill the executor thread list.
-            Map<AgentIdentifier, LinkedList<Executable>> mapAgentActionList = this.mapAgentExecutable.get(nextTime);
-            mapAgentActionList.forEach(((agentIdentifier, actions) -> {
-                DiscreteTimeExecutorThread discreteTimeExecutorThread = new DiscreteTimeExecutorThread(actions);
-                executorThreadList.add(discreteTimeExecutorThread);
-            }));
-        }
-
         // Creates executor for all other executables.
         Set<Long> setKeyMapExecutable = this.mapExecutable.keySet();
         List<Long> sorterKeyMapExecutable = new ArrayList<>(setKeyMapExecutable);
@@ -141,36 +112,13 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
         // Verifies if there is others executable to execute.
         if (sorterKeyMapExecutable.size() > 0) {
-            if (nextTime == -1) {
-                // There is no agent actions.
-                // Set the next time.
-                nextTime = sorterKeyMapExecutable.get(0);
+            // There is no agent actions.
+            // Set the next time.
+            nextTime = sorterKeyMapExecutable.get(0);
 
-                // Fill the executor thread list.
-                DiscreteTimeExecutorThread discreteTimeExecutorThread = new DiscreteTimeExecutorThread(this.mapExecutable.get(nextTime));
-                this.executorThreadList.add(discreteTimeExecutorThread);
-            } else {
-                // Already set the nextTime.
-                long n = sorterKeyMapExecutable.get(0);
-                if (nextTime == n) {
-                    // Same time that the time of all agent action taken.
-                    DiscreteTimeExecutorThread discreteTimeExecutorThread = new DiscreteTimeExecutorThread(this.mapExecutable.get(nextTime));
-                    this.executorThreadList.add(discreteTimeExecutorThread);
-                } else {
-                    if (n < nextTime) {
-                        // We must execute theses executables before execute agent action taken before.
-                        nextTime = n;
-
-                        /* We clear the current executorThreadList because it contains actions agent that it must not
-                         be executed for the moment.*/
-                        this.executorThreadList.clear();
-
-                        DiscreteTimeExecutorThread discreteTimeExecutorThread = new DiscreteTimeExecutorThread(this.mapExecutable.get(nextTime));
-                        this.executorThreadList.add(discreteTimeExecutorThread);
-                    }
-                    // else -> (n > nextTime) We do nothing
-                }
-            }
+            // Fill the executor thread list.
+            this.mapExecutable.get(nextTime).forEach(
+                    executable -> this.executorThreadList.add(new DiscreteTimeExecutorThread(executable)));
         }
 
         if (this.executorThreadList.isEmpty()) {
@@ -180,9 +128,8 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
             this.currentTime = nextTime;
 
             // Verify if the next time is always in the simulation.
-            if (this.currentTime <= this.endSimulation) {
+            if (this.currentTime <= this.getEndSimulation()) {
                 // Remove all executables which have been taken in account.
-                this.mapAgentExecutable.remove(this.currentTime);
                 this.mapExecutable.remove(this.currentTime);
 
                 this.executorThreadList.forEach(executorThread -> this.executor.execute(executorThread));
@@ -198,9 +145,9 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      * finish by no executable to execute
      */
     private void endByNoExecutableToExecution() {
-        this.kill();
-
         this.updateSchedulerWatcherOnNoExecutableToExecute();
+
+        this.kill();
     }
 
     /**
@@ -208,9 +155,9 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      * finish by reaching the end time of the simulation.
      */
     private void endByReachEndSimulationTime() {
-        this.kill();
-
         this.updateSchedulerWatcherOnSimulationEndTimeReach();
+
+        this.kill();
     }
 
     @Override
@@ -219,65 +166,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         if (waitingTime < 1)
             throw new IllegalArgumentException("Waiting time cannot be less than 1.");
 
-        if (executable instanceof Action) {
-            Action action = (Action) executable;
-            if (action.getExecutorAgent() != null) {
-                // Agent action
-                this.addAgentActionWithScheduleMode(action, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
-            } else {
-                // Not agent action
-                this.addExecutableWithScheduleMode(action, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
-            }
-        } else
-            // +1 because we does not add an action on the current time.
-            this.addExecutableWithScheduleMode(executable, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
-    }
-
-    /**
-     * Add the {@link Action} in function of the {@link sima.core.scheduler.Scheduler.ScheduleMode}.
-     * <p>
-     * If the scheduleMode is equal to {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED} or
-     * {@link sima.core.scheduler.Scheduler.ScheduleMode#INFINITELY}, the action is add the number of times that it must
-     * be added. It is the same instance which is added at each times, there is no copy of the {@code Action}.
-     *
-     * @param action            the action to add
-     * @param waitingTime       the waiting time before execute the action
-     * @param scheduleMode      the schedule mode
-     * @param nbRepetitions     the number of times that the action must be repeated if the
-     *                          {@link sima.core.scheduler.Scheduler.ScheduleMode} is equal to
-     *                          {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED}
-     * @param executionTimeStep the time between each execution of a repeated action
-     */
-    private void addAgentActionWithScheduleMode(Action action, long waitingTime, Scheduler.ScheduleMode scheduleMode,
-                                                long nbRepetitions, long executionTimeStep) {
-        switch (scheduleMode) {
-            case ONCE -> this.addAgentActionAtTime(action, this.currentTime + waitingTime);
-            case REPEATED -> {
-                if (nbRepetitions < 1)
-                    throw new IllegalArgumentException("NbRepeated must be greater or equal to 1");
-
-                if (executionTimeStep < 1)
-                    throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
-
-                long time = this.currentTime + waitingTime;
-                this.addAgentActionAtTime(action, time);
-                for (int i = 1; i < nbRepetitions; i++) {
-                    time += executionTimeStep;
-                    this.addAgentActionAtTime(action, time);
-                }
-            }
-            case INFINITELY -> {
-                if (executionTimeStep < 1)
-                    throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
-
-                long time = this.currentTime + waitingTime;
-                this.addAgentActionAtTime(action, time);
-                while (time <= this.endSimulation) {
-                    time += executionTimeStep;
-                    this.addAgentActionAtTime(action, time);
-                }
-            }
-        }
+        this.addExecutableWithScheduleMode(executable, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
     }
 
     /**
@@ -318,7 +207,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
                 long time = this.currentTime + waitingTime;
                 this.addExecutableAtTime(executable, time);
-                while (time <= this.endSimulation) {
+                while (time <= this.getEndSimulation()) {
                     time += executionTimeStep;
                     this.addExecutableAtTime(executable, time);
                 }
@@ -334,45 +223,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         if (simulationSpecificTime <= this.currentTime)
             throw new NotSchedulableTimeException("SimulationSpecificTime is already passed");
 
-        if (simulationSpecificTime > this.endSimulation)
-            // We does not take in account the executable but not throw an exception because the agent must not know
-            // that it is in a simulation therefore does not know the end of the simulation.
-            return;
-
-        if (executable instanceof Action) {
-            Action action = (Action) executable;
-            if (action.getExecutorAgent() != null) {
-                // Agent action
-                this.addAgentActionAtTime(action, simulationSpecificTime);
-            } else {
-                // Not agent action
-                this.addExecutableAtTime(action, simulationSpecificTime);
-            }
-        } else
-            this.addExecutableAtTime(executable, simulationSpecificTime);
-    }
-
-    /**
-     * Add the action in the list associated to the executor agent at the specified time of the simulation.
-     *
-     * @param action the agent action to add
-     * @param time   the time where the action must be executed
-     */
-    private void addAgentActionAtTime(Action action, long time) {
-        Map<AgentIdentifier, LinkedList<Executable>> mapAgentAction = this.mapAgentExecutable
-                .computeIfAbsent(time, k -> new ConcurrentHashMap<>());
-
-        if (action.getExecutorAgent() == null)
-            throw new IllegalArgumentException("The action does not have executor agent");
-
-        LinkedList<Executable> agentActions = mapAgentAction
-                .computeIfAbsent(action.getExecutorAgent(), k -> new LinkedList<>());
-
-        // Synchronized on the action list of the agent.
-        synchronized (agentActions) {
-            agentActions.add(action);
-            agentActions.sort(Comparator.comparingInt(a -> ((Action) a).getExecutorAgent().hashCode()));
-        }
+        this.addExecutableAtTime(executable, simulationSpecificTime);
     }
 
     /**
@@ -394,60 +245,21 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         return currentTime;
     }
 
-    // Getters and Setters.
-
-    /**
-     * @return a copy of {@link #mapAgentExecutable}, all contained elements are also a copy except {@link Executable}.
-     */
-    public Map<Long, Map<AgentIdentifier, LinkedList<Executable>>> getMapAgentExecutable() {
-        Map<Long, Map<AgentIdentifier, LinkedList<Executable>>> res = new HashMap<>();
-        for (Map.Entry<Long, Map<AgentIdentifier, LinkedList<Executable>>> entry : this.mapAgentExecutable.entrySet()) {
-            Map<AgentIdentifier, LinkedList<Executable>> mapExecutableList = new HashMap<>();
-            for (Map.Entry<AgentIdentifier, LinkedList<Executable>> entry1 : entry.getValue().entrySet()) {
-                LinkedList<Executable> copy = new LinkedList<>(entry1.getValue());
-                mapExecutableList.put(entry1.getKey(), copy);
-            }
-            res.put(entry.getKey(), mapExecutableList);
-        }
-        return res;
-    }
-
-    /**
-     * @return a copy of {@link #mapExecutable}, all contained elements are also copy except {@link Executable};
-     */
-    public Map<Long, LinkedList<Executable>> getMapExecutable() {
-        Map<Long, LinkedList<Executable>> res = new HashMap<>();
-        for (Map.Entry<Long, LinkedList<Executable>> entry : this.mapExecutable.entrySet()) {
-            LinkedList<Executable> copy = new LinkedList<>(entry.getValue());
-            res.put(entry.getKey(), copy);
-        }
-
-        return res;
-    }
-
-    public List<ExecutorThread> getExecutorThreadList() {
-        return Collections.unmodifiableList(this.executorThreadList);
-    }
-
     // Inner classes.
 
-    private class DiscreteTimeExecutorThread extends ExecutorThread {
-
-        // Variables.
-
-        private final Queue<Executable> executables;
+    private class DiscreteTimeExecutorThread extends OneExecutableExecutorThread {
 
         // Constructors.
 
-        public DiscreteTimeExecutorThread(Queue<Executable> executables) {
-            this.executables = executables;
+        public DiscreteTimeExecutorThread(Executable executable) {
+            super(executable);
         }
 
         // Methods.
 
         @Override
         public void run() {
-            this.executables.forEach(Executable::execute);
+            super.run();
 
             synchronized (DiscreteTimeMultiThreadScheduler.this.stepLock) {
                 this.isFinished = true;
@@ -464,20 +276,16 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         public void run() {
             synchronized (DiscreteTimeMultiThreadScheduler.this.stepLock) {
                 while (!this.stopped) {
-                    try {
-                        while (!this.allExecutionsFinished()) {
-                            try {
-                                DiscreteTimeMultiThreadScheduler.this.stepLock.wait();
+                    while (!this.allExecutionsFinished()) {
+                        try {
+                            DiscreteTimeMultiThreadScheduler.this.stepLock.wait();
 
-                                if (this.stopped)
-                                    break;
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
+                            if (this.stopped) break;
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            this.stopped = true;
+                            break;
                         }
-                    } catch (EmptyExecutorException e) {
-                        // Empty list of executable -> end of simulation.
-                        this.stopped = true;
                     }
 
                     if (!this.stopped)
@@ -489,9 +297,8 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         /**
          * @return true if all {@link DiscreteTimeExecutorThread} in {@link #executorThreadList} have finished, else false.
          */
-        private boolean allExecutionsFinished() throws EmptyExecutorException {
-            if (DiscreteTimeMultiThreadScheduler.this.executorThreadList.isEmpty())
-                throw new EmptyExecutorException();
+        private boolean allExecutionsFinished() {
+            // DiscreteTimeMultiThreadScheduler.this.executorThreadList.isEmpty() -> impossible case
 
             for (ExecutorThread discreteTimeExecutorThread : DiscreteTimeMultiThreadScheduler.this.executorThreadList) {
                 if (!discreteTimeExecutorThread.isFinished()) {
@@ -509,33 +316,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
             synchronized (DiscreteTimeMultiThreadScheduler.this.stepLock) {
                 this.stopped = true;
                 DiscreteTimeMultiThreadScheduler.this.stepLock.notifyAll();
-            }
-        }
-
-        // Inner class
-
-        private class EmptyExecutorException extends Exception {
-
-            // Constructors.
-
-            public EmptyExecutorException() {
-            }
-
-            public EmptyExecutorException(String message) {
-                super(message);
-            }
-
-            public EmptyExecutorException(String message, Throwable cause) {
-                super(message, cause);
-            }
-
-            public EmptyExecutorException(Throwable cause) {
-                super(cause);
-            }
-
-            public EmptyExecutorException(String message, Throwable cause, boolean enableSuppression,
-                                          boolean writableStackTrace) {
-                super(message, cause, enableSuppression, writableStackTrace);
             }
         }
     }

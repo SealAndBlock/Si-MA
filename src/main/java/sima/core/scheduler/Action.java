@@ -18,7 +18,7 @@ public abstract class Action implements Executable {
 
     // Constructors.
 
-    public Action(AgentIdentifier executorAgent) {
+    protected Action(AgentIdentifier executorAgent) {
         this.executorAgent = executorAgent;
     }
 

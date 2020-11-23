@@ -19,7 +19,7 @@ public abstract class MultiThreadScheduler implements Scheduler {
     /**
      * The end of the simulation.
      */
-    protected final long endSimulation;
+    private final long endSimulation;
 
     /**
      * The number of thread use to execute all {@link Executable}.
@@ -37,7 +37,7 @@ public abstract class MultiThreadScheduler implements Scheduler {
 
     // Constructors.
 
-    public MultiThreadScheduler(long endSimulation, int nbExecutorThread) {
+    protected MultiThreadScheduler(long endSimulation, int nbExecutorThread) {
         this.endSimulation = endSimulation;
         if (this.endSimulation < 1)
             throw new IllegalArgumentException("The end simulation time must be greater or equal to 1.");
@@ -55,6 +55,9 @@ public abstract class MultiThreadScheduler implements Scheduler {
 
     @Override
     public synchronized boolean addSchedulerWatcher(SchedulerWatcher schedulerWatcher) {
+        if (schedulerWatcher == null)
+            return false;
+
         if (this.schedulerWatchers.contains(schedulerWatcher))
             return false;
 
@@ -87,31 +90,34 @@ public abstract class MultiThreadScheduler implements Scheduler {
         return this.isStarted;
     }
 
-    // Getters and Setters.
-
-    public boolean isStarted() {
-        return isStarted;
-    }
-
-    protected void setStarted(boolean started) {
-        isStarted = started;
-    }
-
-    protected ExecutorService getExecutor() {
-        return executor;
-    }
-
-    protected void setExecutor(ExecutorService executor) {
-        this.executor = executor;
-    }
-
-    protected List<ExecutorThread> getExecutorThreadList() {
-        return executorThreadList;
+    @Override
+    public long getEndSimulation() {
+        return this.endSimulation;
     }
 
     // Inner classes.
 
-    protected abstract class ExecutorThread implements Runnable {
+    protected static class OneExecutableExecutorThread extends ExecutorThread {
+
+        // Variables.
+
+        protected final Executable executable;
+
+        // Constructors.
+
+        public OneExecutableExecutorThread(Executable executable) {
+            this.executable = executable;
+        }
+
+        // Methods.
+
+        @Override
+        public void run() {
+            this.executable.execute();
+        }
+    }
+
+    protected abstract static class ExecutorThread implements Runnable {
 
         // Variables.
 
@@ -121,10 +127,6 @@ public abstract class MultiThreadScheduler implements Scheduler {
 
         public boolean isFinished() {
             return isFinished;
-        }
-
-        public void setFinished(boolean finished) {
-            isFinished = finished;
         }
     }
 }
