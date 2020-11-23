@@ -88,7 +88,7 @@ public class TestSimaSimulation {
                     SimaSimulation.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
                     schedulerWatcher, SIMA_WATCHER);
         } catch (Exception e) {
-            fail();
+            fail(e);
         }
     }
 

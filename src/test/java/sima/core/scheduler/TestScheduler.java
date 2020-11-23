@@ -3,11 +3,15 @@ package sima.core.scheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import sima.core.agent.AgentIdentifier;
 import sima.core.agent.TestAgent;
-import sima.core.environment.event.Event;
-import sima.core.protocol.ProtocolIdentifier;
+import sima.core.environment.Environment;
+import sima.core.environment.EnvironmentTesting;
+import sima.core.environment.event.EventTesting;
 import sima.core.scheduler.exception.NotSchedulableTimeException;
+import sima.core.simulation.AgentManager;
+import sima.core.simulation.LocalAgentManager;
+import sima.core.simulation.SimaSimulation;
+import sima.core.simulation.SimaSimulationTesting;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -715,19 +719,50 @@ public abstract class TestScheduler {
     @Test
     public void scheduleEventThrowsExceptionIfWaitingTimeIsLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleEvent(new TestEvent(A0.getAgentIdentifier(), A1.getAgentIdentifier(),
+                () -> SCHEDULER.scheduleEvent(new EventTesting(A0.getAgentIdentifier(), A1.getAgentIdentifier(),
                         null), 0));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleEvent(new TestEvent(A0.getAgentIdentifier(), A1.getAgentIdentifier(),
+                () -> SCHEDULER.scheduleEvent(new EventTesting(A0.getAgentIdentifier(), A1.getAgentIdentifier(),
                         null), -1));
     }
 
     @Test
+    public void scheduleEventThrowsExceptionIfAgentReceiverIsNull() {
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleEvent(new EventTesting(A0.getAgentIdentifier(), null,
+                        null), Scheduler.NOW));
+    }
+
+    @Test
     public void scheduleEventScheduleAndExecuteEventAtTime() {
-        /*TODO run a mini simulation with A0 and A1 to verify if the agent received the event.
-           For example we can create a simulation where it us which define the scheduler and other fields of the
-           simulation. In that way we can define SCHEDULER as scheduler of the simulation and add A0 and A1 and verify
-           if processEvent isCorrectly call.*/
+        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+
+        // Schedule Event.
+
+        long expectedEventExecutionTime = Scheduler.NOW;
+
+        EventTesting testing = new EventTesting(A0.getAgentIdentifier(), A1.getAgentIdentifier(), null);
+        SCHEDULER.scheduleEvent(testing, expectedEventExecutionTime);
+
+        // Prepare the simulation.
+
+        AgentManager agentManager = new LocalAgentManager();
+        agentManager.addAgent(A0);
+        agentManager.addAgent(A1);
+
+        EnvironmentTesting environmentTesting = new EnvironmentTesting();
+        Map<String, Environment> environmentMap = new HashMap<>();
+        environmentMap.put(environmentTesting.getEnvironmentName(), environmentTesting);
+
+        SimaSimulationTesting.runTestingSimulation(agentManager, SCHEDULER, SimaSimulation.TimeMode.UNSPECIFIED,
+                environmentMap, null);
+
+        blockSchedulerWatcher.waitUntilKilled();
+
+        assertEquals(1, A1.getPassToProcessEvent());
+
+        SimaSimulation.killSimulation();
     }
 
     // Methods.
@@ -779,15 +814,6 @@ public abstract class TestScheduler {
         @Override
         public void noExecutableToExecute() {
             this.isPassToNoExecutionToExecute++;
-        }
-    }
-
-    protected static class TestEvent extends Event {
-
-        // Constructors.
-
-        public TestEvent(AgentIdentifier sender, AgentIdentifier receiver, ProtocolIdentifier protocolTargeted) {
-            super(sender, receiver, protocolTargeted);
         }
     }
 

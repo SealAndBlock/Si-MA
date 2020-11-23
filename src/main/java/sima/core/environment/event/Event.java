@@ -32,7 +32,7 @@ public abstract class Event implements Serializable {
     /**
      * The agent receiver of the event.
      */
-    private final AgentIdentifier receiver;
+    private AgentIdentifier receiver;
 
     /**
      * The class of the sima.core.protocol which will process the event. An event can have a null instance of this property. In
@@ -66,6 +66,23 @@ public abstract class Event implements Serializable {
         this.receiver = receiver;
 
         this.protocolTargeted = protocolTargeted;
+    }
+
+    /**
+     * Create a clone of the event and set to this clone the specified receiver. This methods is useful for environment
+     * which must manage event with null receiver. Indeed, it is not possible to schedule an event with no receiver.
+     *
+     * @param receiver the receiver of the event
+     * @return a new instance of the event but with a new receiver.
+     */
+    public Event cloneAndAddReceiver(AgentIdentifier receiver) {
+        try {
+            Event newInstance = (Event) this.clone();
+            newInstance.receiver = receiver;
+            return newInstance;
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
     }
 
     /**
