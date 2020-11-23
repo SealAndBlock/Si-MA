@@ -396,35 +396,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     // Getters and Setters.
 
-    /**
-     * @return a copy of {@link #mapAgentExecutable}, all contained elements are also a copy except {@link Executable}.
-     */
-    public Map<Long, Map<AgentIdentifier, LinkedList<Executable>>> getMapAgentExecutable() {
-        Map<Long, Map<AgentIdentifier, LinkedList<Executable>>> res = new HashMap<>();
-        for (Map.Entry<Long, Map<AgentIdentifier, LinkedList<Executable>>> entry : this.mapAgentExecutable.entrySet()) {
-            Map<AgentIdentifier, LinkedList<Executable>> mapExecutableList = new HashMap<>();
-            for (Map.Entry<AgentIdentifier, LinkedList<Executable>> entry1 : entry.getValue().entrySet()) {
-                LinkedList<Executable> copy = new LinkedList<>(entry1.getValue());
-                mapExecutableList.put(entry1.getKey(), copy);
-            }
-            res.put(entry.getKey(), mapExecutableList);
-        }
-        return res;
-    }
-
-    /**
-     * @return a copy of {@link #mapExecutable}, all contained elements are also copy except {@link Executable};
-     */
-    public Map<Long, LinkedList<Executable>> getMapExecutable() {
-        Map<Long, LinkedList<Executable>> res = new HashMap<>();
-        for (Map.Entry<Long, LinkedList<Executable>> entry : this.mapExecutable.entrySet()) {
-            LinkedList<Executable> copy = new LinkedList<>(entry.getValue());
-            res.put(entry.getKey(), copy);
-        }
-
-        return res;
-    }
-
     public List<ExecutorThread> getExecutorThreadList() {
         return Collections.unmodifiableList(this.executorThreadList);
     }
