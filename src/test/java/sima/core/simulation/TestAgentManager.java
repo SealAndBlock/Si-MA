@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Disabled
-public class AgentTestingManager {
+public class TestAgentManager {
 
     protected static AgentManager AGENT_MANAGER;
 
