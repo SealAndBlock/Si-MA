@@ -6,6 +6,9 @@ import sima.core.scheduler.Scheduler;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Class use to create simulation for tests.
+ */
 public class SimaSimulationTesting extends SimaSimulation {
 
     // Methods.
