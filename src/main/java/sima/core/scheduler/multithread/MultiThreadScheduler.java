@@ -101,13 +101,29 @@ public abstract class MultiThreadScheduler implements Scheduler {
         return executor;
     }
 
-    protected List<ExecutorThread> getExecutorThreadList() {
-        return executorThreadList;
-    }
-
     // Inner classes.
 
-    protected abstract class ExecutorThread implements Runnable {
+    protected static class OneExecutableExecutorThread extends ExecutorThread {
+
+        // Variables.
+
+        protected final Executable executable;
+
+        // Constructors.
+
+        public OneExecutableExecutorThread(Executable executable) {
+            this.executable = executable;
+        }
+
+        // Methods.
+
+        @Override
+        public void run() {
+            this.executable.execute();
+        }
+    }
+
+    protected abstract static class ExecutorThread implements Runnable {
 
         // Variables.
 
