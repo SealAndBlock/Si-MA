@@ -6,7 +6,7 @@ public class TestDiscreteTimeMultiThreadScheduler extends TestMultiThreadSchedul
 
     @Override
     protected void initialize() {
-        END_SIMULATION = 10_000;
+        END_SIMULATION = 1_000;
         NB_EXECUTOR_THREADS = 5;
         SCHEDULER = new DiscreteTimeMultiThreadScheduler(END_SIMULATION, NB_EXECUTOR_THREADS);
         TIME_EXECUTION_TOLERANCE = 0;

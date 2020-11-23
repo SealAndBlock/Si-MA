@@ -5,9 +5,9 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sima.core.scheduler.exception.NotSchedulableTimeException;
 
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,7 +27,7 @@ public abstract class TestScheduler {
      * In that way we can verify if the Scheduler returns the right value with the method
      * {@link Scheduler#getEndSimulation()}.
      */
-    protected static long END_SIMULATION;
+    protected static long END_SIMULATION = 100;
 
     /**
      * Define the tolerance when we test when the scheduler execute executable. Example: If a executable must be execute
@@ -41,6 +41,10 @@ public abstract class TestScheduler {
     @BeforeEach
     public void setup() {
         this.initialize();
+
+        assertTrue(END_SIMULATION >= 100, "END_SIMULATION must be greater or equal to 100 for tests");
+        assertNotNull(SCHEDULER, "NULL SCHEDULER -> Tests cannot be realize");
+        assertTrue(TIME_EXECUTION_TOLERANCE >= 0, "TIME_EXECUTION TOLERANCE cannot be less than 0");
     }
 
     /**
@@ -57,7 +61,7 @@ public abstract class TestScheduler {
     public void endSimulationIsCorrect() {
         assertEquals(END_SIMULATION, SCHEDULER.getEndSimulation());
 
-        assertTrue(END_SIMULATION >= 2);
+        assertTrue(END_SIMULATION >= 100);
     }
 
     @Test
@@ -504,6 +508,149 @@ public abstract class TestScheduler {
         }
     }
 
+    @Test
+    public void scheduleRepeatedThrowsExceptionIfWaitingTimeLessOrEqualToZero() {
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutableRepeated(new TestExecutable(), 0, 1, 1));
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutableRepeated(new TestExecutable(), -1, 1, 1));
+    }
+
+    @Test
+    public void scheduleRepeatedThrowsExceptionIfNbRepetitionsLessOrEqualToZero() {
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutableRepeated(new TestExecutable(), 1, 0, 1));
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutableRepeated(new TestExecutable(), 1, -1, 1));
+    }
+
+    @Test
+    public void scheduleRepeatedThrowsExceptionIfExecutionTimeStepLessOrEqualToZero() {
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutableRepeated(new TestExecutable(), 1, 1, 0));
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutableRepeated(new TestExecutable(), 1, 1, -1));
+    }
+
+    @Test
+    public void scheduleRepeatedSchedulesAndExecuteAnExecutableAtTimeAndRepetitivelyAsDefine() {
+        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+
+        long nbRepetitions = 5;
+        long stepBetweenRepetition = 10;
+        long repetitionBegin = Scheduler.NOW;
+
+        final AtomicLong nbExecutions = new AtomicLong(0);
+        final Map<Long, Long> mapExecutionAndTimeExecution = new HashMap<>();
+
+        final Executable executable = () -> mapExecutionAndTimeExecution.put(nbExecutions.getAndIncrement(),
+                SCHEDULER.getCurrentTime());
+
+        SCHEDULER.scheduleExecutableRepeated(executable, repetitionBegin, nbRepetitions, stepBetweenRepetition);
+
+        assertTrue(SCHEDULER.start());
+
+        // Finish by not reaching time.
+        blockSchedulerWatcher.waitUntilKilled();
+
+        Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
+        for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
+            long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
+            this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
+        }
+
+        long timeToExecuteAllRepetitions = nbRepetitions * stepBetweenRepetition;
+
+        long endExecutionOfRepetition = repetitionBegin + timeToExecuteAllRepetitions;
+        long base;
+        long expectedNbExecutions;
+        // Supposes that repetitionBegin always less or equal to END_SIMULATION
+        if (END_SIMULATION < endExecutionOfRepetition) {
+            base = END_SIMULATION - repetitionBegin;
+            expectedNbExecutions = (base / stepBetweenRepetition) + 1;
+        } else {
+            expectedNbExecutions = nbRepetitions;
+        }
+
+        assertEquals(expectedNbExecutions, nbExecutions.get());
+    }
+
+    @Test
+    public void scheduleWithRepeatedModeThrowsExceptionIfWaitingTimeLessOrEqualToZero() {
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutable(new TestExecutable(), 0, Scheduler.ScheduleMode.REPEATED,
+                        1, 1));
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutable(new TestExecutable(), -1, Scheduler.ScheduleMode.REPEATED,
+                        1, 1));
+    }
+
+    @Test
+    public void scheduleWithRepeatedModeThrowsExceptionIfNbRepetitionsLessOrEqualToZero() {
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutable(new TestExecutable(), 1, Scheduler.ScheduleMode.REPEATED,
+                        0, 1));
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutable(new TestExecutable(), 1, Scheduler.ScheduleMode.REPEATED,
+                        -1, 1));
+    }
+
+    @Test
+    public void scheduleWithRepeatedModeThrowsExceptionIfExecutionTimeStepLessOrEqualToZero() {
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutable(new TestExecutable(), 1, Scheduler.ScheduleMode.REPEATED,
+                        1, 0));
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutable(new TestExecutable(), 1, Scheduler.ScheduleMode.REPEATED,
+                        1, -1));
+    }
+
+    @Test
+    public void scheduleWithRepeatedModeSchedulesAndExecuteAnExecutableAtTimeAndRepetitivelyAsDefine() {
+        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+
+        long nbRepetitions = 5;
+        long stepBetweenRepetition = 10;
+        long repetitionBegin = Scheduler.NOW;
+
+        final AtomicLong nbExecutions = new AtomicLong(0);
+        final Map<Long, Long> mapExecutionAndTimeExecution = new HashMap<>();
+
+        final Executable executable = () -> mapExecutionAndTimeExecution.put(nbExecutions.getAndIncrement(),
+                SCHEDULER.getCurrentTime());
+
+        SCHEDULER.scheduleExecutable(executable, repetitionBegin, Scheduler.ScheduleMode.REPEATED, nbRepetitions,
+                stepBetweenRepetition);
+
+        assertTrue(SCHEDULER.start());
+
+        // Finish by not reaching time.
+        blockSchedulerWatcher.waitUntilKilled();
+
+        Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
+        for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
+            long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
+            this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
+        }
+
+        long timeToExecuteAllRepetitions = nbRepetitions * stepBetweenRepetition;
+
+        long endExecutionOfRepetition = repetitionBegin + timeToExecuteAllRepetitions;
+        long base;
+        long expectedNbExecutions;
+        // Supposes that repetitionBegin always less or equal to END_SIMULATION
+        if (END_SIMULATION < endExecutionOfRepetition) {
+            base = END_SIMULATION - repetitionBegin;
+            expectedNbExecutions = (base / stepBetweenRepetition) + 1;
+        } else {
+            expectedNbExecutions = nbRepetitions;
+        }
+
+        assertEquals(expectedNbExecutions, nbExecutions.get());
+    }
+
     // Methods.
 
     /**
@@ -654,6 +801,9 @@ public abstract class TestScheduler {
         private final Object START_LOCK = new Object();
         private final Object KILL_LOCK = new Object();
 
+        private int nbKill = 0;
+        private int nbBlockKill = 0;
+
         // Methods.
 
         /*/**
@@ -673,26 +823,29 @@ public abstract class TestScheduler {
          * Block until the next call of {@link Scheduler#kill()}.
          */
         public void waitUntilKilled() {
-            synchronized (KILL_LOCK) {
-                try {
-                    KILL_LOCK.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            synchronized (this.KILL_LOCK) {
+                if (this.nbBlockKill == this.nbKill)
+                    try {
+                        this.KILL_LOCK.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                this.nbBlockKill = this.nbKill;
             }
         }
 
         @Override
         public void schedulerStarted() {
-            synchronized (START_LOCK) {
-                START_LOCK.notifyAll();
+            synchronized (this.START_LOCK) {
+                this.START_LOCK.notifyAll();
             }
         }
 
         @Override
         public void schedulerKilled() {
-            synchronized (KILL_LOCK) {
-                KILL_LOCK.notifyAll();
+            synchronized (this.KILL_LOCK) {
+                this.KILL_LOCK.notifyAll();
+                this.nbBlockKill++;
             }
         }
 
