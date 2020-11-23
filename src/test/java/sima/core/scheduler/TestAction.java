@@ -16,12 +16,12 @@ public abstract class TestAction extends TestExecutable {
     // Initialization.
 
     @Override
-    protected void initialize() {
+    protected void verifyAndSetup() {
         EXECUTABLE = ACTION;
 
         assertNotNull(ACTION, "ACTION cannot be null for the tests");
 
-        super.initialize();
+        super.verifyAndSetup();
     }
 
     // Tests.

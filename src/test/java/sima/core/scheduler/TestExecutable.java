@@ -2,13 +2,13 @@ package sima.core.scheduler;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import sima.core.TestInitializer;
+import sima.core.SimaTest;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Disabled
-public abstract class TestExecutable extends TestInitializer {
+public abstract class TestExecutable extends SimaTest {
 
     // Static.
 
@@ -17,7 +17,7 @@ public abstract class TestExecutable extends TestInitializer {
     // Initialization.
 
     @Override
-    protected void initialize() {
+    protected void verifyAndSetup() {
         assertNotNull(EXECUTABLE, "EXECUTABLE cannot be null for the tests");
     }
 

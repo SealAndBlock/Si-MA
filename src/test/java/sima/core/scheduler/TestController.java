@@ -14,11 +14,11 @@ public abstract class TestController extends TestExecutable {
     // Initialization.
 
     @Override
-    protected void initialize() {
+    protected void verifyAndSetup() {
         EXECUTABLE = CONTROLLER;
 
         assertNotNull(CONTROLLER, "CONTROLLER cannot be null for tests");
 
-        super.initialize();
+        super.verifyAndSetup();
     }
 }

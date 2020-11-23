@@ -15,9 +15,9 @@ public abstract class TestMultiThreadScheduler extends TestScheduler {
     // Setup.
 
     @Override
-    protected void initialize() {
+    protected void verifyAndSetup() {
         assertTrue(NB_EXECUTOR_THREADS > 0, "NB_EXECUTOR_THREADS cannot be less or equal to 0");
 
-        super.initialize();
+        super.verifyAndSetup();
     }
 }

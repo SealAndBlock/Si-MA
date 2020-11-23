@@ -2,7 +2,7 @@ package sima.core.scheduler;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import sima.core.TestInitializer;
+import sima.core.SimaTest;
 import sima.core.agent.AgentTesting;
 import sima.core.environment.Environment;
 import sima.core.environment.EnvironmentTesting;
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * {@link #TIME_EXECUTION_TOLERANCE}.
  */
 @Disabled
-public abstract class TestScheduler extends TestInitializer {
+public abstract class TestScheduler extends SimaTest {
 
     // Static.
 
@@ -53,7 +53,7 @@ public abstract class TestScheduler extends TestInitializer {
     // Setup.
 
     @Override
-    protected void initialize() {
+    protected void verifyAndSetup() {
         A0 = new AgentTesting("A0", 0, null);
         A0.start();
         A1 = new AgentTesting("A1", 1, null);
