@@ -280,8 +280,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
                         try {
                             DiscreteTimeMultiThreadScheduler.this.stepLock.wait();
 
-                            if (this.stopped)
-                                break;
+                            if (this.stopped) break;
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                             this.stopped = true;

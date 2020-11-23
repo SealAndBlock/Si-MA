@@ -170,7 +170,6 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     // Getters and Setters.
 
-    @Override
     public ScheduledExecutorService getExecutor() {
         return (ScheduledExecutorService) this.executor;
     }

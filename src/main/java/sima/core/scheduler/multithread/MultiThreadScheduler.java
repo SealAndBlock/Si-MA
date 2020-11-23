@@ -37,10 +37,10 @@ public abstract class MultiThreadScheduler implements Scheduler {
 
     // Constructors.
 
-    public MultiThreadScheduler(long endSimulation, int nbExecutorThread) {
+    protected MultiThreadScheduler(long endSimulation, int nbExecutorThread) {
         this.endSimulation = endSimulation;
-        if (this.endSimulation < 2)
-            throw new IllegalArgumentException("The end simulation time must be greater or equal to 2.");
+        if (this.endSimulation < 1)
+            throw new IllegalArgumentException("The end simulation time must be greater or equal to 1.");
 
         this.nbExecutorThread = nbExecutorThread;
         if (this.nbExecutorThread < 1)
@@ -95,12 +95,6 @@ public abstract class MultiThreadScheduler implements Scheduler {
         return this.endSimulation;
     }
 
-    // Getters and Setters.
-
-    protected ExecutorService getExecutor() {
-        return executor;
-    }
-
     // Inner classes.
 
     protected static class OneExecutableExecutorThread extends ExecutorThread {
@@ -133,10 +127,6 @@ public abstract class MultiThreadScheduler implements Scheduler {
 
         public boolean isFinished() {
             return isFinished;
-        }
-
-        public void setFinished(boolean finished) {
-            isFinished = finished;
         }
     }
 }
