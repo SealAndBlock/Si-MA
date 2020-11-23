@@ -2,7 +2,7 @@ package sima.core.simulation;
 
 import org.junit.jupiter.api.BeforeEach;
 
-public class TestLocalAgentManager extends TestAgentManager {
+public class TestLocalAgentManager extends AgentTestingManager {
 
     @BeforeEach
     public void setup() {

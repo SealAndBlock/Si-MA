@@ -4,7 +4,7 @@ import sima.core.environment.event.Event;
 
 import java.util.Map;
 
-public class TestAgent extends AbstractAgent {
+public class AgentTesting extends AbstractAgent {
 
     // Variables.
 
@@ -16,7 +16,7 @@ public class TestAgent extends AbstractAgent {
 
     // Constructors.
 
-    public TestAgent(String agentName, int numberId, Map<String, String> args) {
+    public AgentTesting(String agentName, int numberId, Map<String, String> args) {
         super(agentName, numberId, args);
     }
 

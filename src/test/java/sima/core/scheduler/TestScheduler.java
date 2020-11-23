@@ -3,7 +3,7 @@ package sima.core.scheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import sima.core.agent.TestAgent;
+import sima.core.agent.AgentTesting;
 import sima.core.environment.Environment;
 import sima.core.environment.EnvironmentTesting;
 import sima.core.environment.event.EventTesting;
@@ -27,8 +27,8 @@ public abstract class TestScheduler {
 
     // Static.
 
-    private TestAgent A0;
-    private TestAgent A1;
+    private AgentTesting A0;
+    private AgentTesting A1;
 
     protected static Scheduler SCHEDULER;
 
@@ -53,9 +53,9 @@ public abstract class TestScheduler {
     public void setup() {
         this.initialize();
 
-        A0 = new TestAgent("A0", 0, null);
+        A0 = new AgentTesting("A0", 0, null);
         A0.start();
-        A1 = new TestAgent("A1", 1, null);
+        A1 = new AgentTesting("A1", 1, null);
         A1.start();
 
         assertTrue(END_SIMULATION >= 100, "END_SIMULATION must be greater or equal to 100 for tests");
@@ -282,7 +282,7 @@ public abstract class TestScheduler {
 
     @Test
     public void scheduleExecutableThrowsExceptionWithAllScheduleModeIfWaitingTimeLessThanOne() {
-        TestExecutable e0 = new TestExecutable();
+        ExecutableTestting e0 = new ExecutableTestting();
 
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 0,
                 Scheduler.ScheduleMode.ONCE, -1, -1));
@@ -294,7 +294,7 @@ public abstract class TestScheduler {
 
     @Test
     public void scheduleExecutableThrowsExceptionWithRepeatedScheduleModeIfNbRepetitionsIsLessThanOne() {
-        TestExecutable e0 = new TestExecutable();
+        ExecutableTestting e0 = new ExecutableTestting();
 
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 1,
                 Scheduler.ScheduleMode.REPEATED, 0, 1));
@@ -302,7 +302,7 @@ public abstract class TestScheduler {
 
     @Test
     public void scheduleExecutableThrowsExceptionWithAllRepeatedScheduleModeIfExecutionTimeStepIsLessThanOne() {
-        TestExecutable e0 = new TestExecutable();
+        ExecutableTestting e0 = new ExecutableTestting();
 
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 1,
                 Scheduler.ScheduleMode.REPEATED, 1, 0));
@@ -312,7 +312,7 @@ public abstract class TestScheduler {
 
     @Test
     public void scheduleExecutableIgnoreNbRepetitionsAndExecutionTimeStepInScheduleModeOnce() {
-        TestExecutable e0 = new TestExecutable();
+        ExecutableTestting e0 = new ExecutableTestting();
 
         try {
             SCHEDULER.scheduleExecutable(e0, 1, Scheduler.ScheduleMode.ONCE, -1, -1);
@@ -326,7 +326,7 @@ public abstract class TestScheduler {
         BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
         SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
 
-        TestExecutable e0 = new TestExecutable();
+        ExecutableTestting e0 = new ExecutableTestting();
 
         SCHEDULER.scheduleExecutable(e0, Scheduler.NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
 
@@ -342,9 +342,9 @@ public abstract class TestScheduler {
         BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
         SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
 
-        TestExecutable e0 = new TestExecutable();
-        TestExecutable e1 = new TestExecutable();
-        TestExecutable e2 = new TestExecutable();
+        ExecutableTestting e0 = new ExecutableTestting();
+        ExecutableTestting e1 = new ExecutableTestting();
+        ExecutableTestting e2 = new ExecutableTestting();
 
         SCHEDULER.scheduleExecutable(e0, Scheduler.NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
         SCHEDULER.scheduleExecutable(e1, Scheduler.NOW + 1, Scheduler.ScheduleMode.ONCE, -1, -1);
@@ -366,7 +366,7 @@ public abstract class TestScheduler {
 
         List<Executable> executables = new Vector<>();
 
-        TestExecutableFeederV1 eF0 = new TestExecutableFeederV1(Scheduler.NOW, executables);
+        ExecutableTestingFeederV1 eF0 = new ExecutableTestingFeederV1(Scheduler.NOW, executables);
 
         SCHEDULER.scheduleExecutable(eF0, Scheduler.NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
 
@@ -376,7 +376,7 @@ public abstract class TestScheduler {
         blockSchedulerWatcher.waitUntilKilled();
 
         for (Executable executable : executables) {
-            TestExecutableFeederV1 executableFeeder = (TestExecutableFeederV1) executable;
+            ExecutableTestingFeederV1 executableFeeder = (ExecutableTestingFeederV1) executable;
             if (executableFeeder.executedTime != -1)
                 // Executable executed
                 this.verifyNumber(executableFeeder.executedTime, executableFeeder.timeToBeExecuted,
@@ -398,7 +398,7 @@ public abstract class TestScheduler {
         // Useless.
         List<Executable> executables = new Vector<>();
 
-        TestExecutableFeederV1 eF0 = new TestExecutableFeederV1(Scheduler.NOW, executables);
+        ExecutableTestingFeederV1 eF0 = new ExecutableTestingFeederV1(Scheduler.NOW, executables);
 
         SCHEDULER.scheduleExecutable(eF0, Scheduler.NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
 
@@ -413,7 +413,7 @@ public abstract class TestScheduler {
 
     @Test
     public void scheduleAtSpecificTimeThrowsExceptionIfSpecifiedTimeIsLessThanOne() {
-        TestExecutable e0 = new TestExecutable();
+        ExecutableTestting e0 = new ExecutableTestting();
 
         assertThrows(IllegalArgumentException.class,
                 () -> SCHEDULER.scheduleExecutableAtSpecificTime(e0, 0));
@@ -439,7 +439,7 @@ public abstract class TestScheduler {
 
             // Try to schedule an Executable at a passed timed.
             assertThrows(NotSchedulableTimeException.class,
-                    () -> SCHEDULER.scheduleExecutableAtSpecificTime(new TestExecutable(),
+                    () -> SCHEDULER.scheduleExecutableAtSpecificTime(new ExecutableTestting(),
                             SCHEDULER.getCurrentTime()));
         };
 
@@ -491,9 +491,9 @@ public abstract class TestScheduler {
     @Test
     public void scheduleOnceThrowsExceptionIfWaitingIsLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableOnce(new TestExecutable(), 0));
+                () -> SCHEDULER.scheduleExecutableOnce(new ExecutableTestting(), 0));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableOnce(new TestExecutable(), -1));
+                () -> SCHEDULER.scheduleExecutableOnce(new ExecutableTestting(), -1));
     }
 
     @Test
@@ -503,7 +503,7 @@ public abstract class TestScheduler {
 
         List<Executable> executables = new Vector<>();
 
-        TestExecutableFeederV2 eF0 = new TestExecutableFeederV2(Scheduler.NOW, executables);
+        ExecutableTestingFeederV2 eF0 = new ExecutableTestingFeederV2(Scheduler.NOW, executables);
 
         SCHEDULER.scheduleExecutableOnce(eF0, Scheduler.NOW);
 
@@ -513,7 +513,7 @@ public abstract class TestScheduler {
         blockSchedulerWatcher.waitUntilKilled();
 
         for (Executable executable : executables) {
-            TestExecutableFeederV2 executableFeeder = (TestExecutableFeederV2) executable;
+            ExecutableTestingFeederV2 executableFeeder = (ExecutableTestingFeederV2) executable;
             if (executableFeeder.executedTime != -1)
                 // Executable executed
                 this.verifyNumber(executableFeeder.executedTime, executableFeeder.timeToBeExecuted,
@@ -527,25 +527,25 @@ public abstract class TestScheduler {
     @Test
     public void scheduleRepeatedThrowsExceptionIfWaitingTimeLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableRepeated(new TestExecutable(), 0, 1, 1));
+                () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTestting(), 0, 1, 1));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableRepeated(new TestExecutable(), -1, 1, 1));
+                () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTestting(), -1, 1, 1));
     }
 
     @Test
     public void scheduleRepeatedThrowsExceptionIfNbRepetitionsLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableRepeated(new TestExecutable(), 1, 0, 1));
+                () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTestting(), 1, 0, 1));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableRepeated(new TestExecutable(), 1, -1, 1));
+                () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTestting(), 1, -1, 1));
     }
 
     @Test
     public void scheduleRepeatedThrowsExceptionIfExecutionTimeStepLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableRepeated(new TestExecutable(), 1, 1, 0));
+                () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTestting(), 1, 1, 0));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableRepeated(new TestExecutable(), 1, 1, -1));
+                () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTestting(), 1, 1, -1));
     }
 
     @Test
@@ -595,30 +595,30 @@ public abstract class TestScheduler {
     @Test
     public void scheduleWithRepeatedModeThrowsExceptionIfWaitingTimeLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutable(new TestExecutable(), 0, Scheduler.ScheduleMode.REPEATED,
+                () -> SCHEDULER.scheduleExecutable(new ExecutableTestting(), 0, Scheduler.ScheduleMode.REPEATED,
                         1, 1));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutable(new TestExecutable(), -1, Scheduler.ScheduleMode.REPEATED,
+                () -> SCHEDULER.scheduleExecutable(new ExecutableTestting(), -1, Scheduler.ScheduleMode.REPEATED,
                         1, 1));
     }
 
     @Test
     public void scheduleWithRepeatedModeThrowsExceptionIfNbRepetitionsLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutable(new TestExecutable(), 1, Scheduler.ScheduleMode.REPEATED,
+                () -> SCHEDULER.scheduleExecutable(new ExecutableTestting(), 1, Scheduler.ScheduleMode.REPEATED,
                         0, 1));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutable(new TestExecutable(), 1, Scheduler.ScheduleMode.REPEATED,
+                () -> SCHEDULER.scheduleExecutable(new ExecutableTestting(), 1, Scheduler.ScheduleMode.REPEATED,
                         -1, 1));
     }
 
     @Test
     public void scheduleWithRepeatedModeThrowsExceptionIfExecutionTimeStepLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutable(new TestExecutable(), 1, Scheduler.ScheduleMode.REPEATED,
+                () -> SCHEDULER.scheduleExecutable(new ExecutableTestting(), 1, Scheduler.ScheduleMode.REPEATED,
                         1, 0));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutable(new TestExecutable(), 1, Scheduler.ScheduleMode.REPEATED,
+                () -> SCHEDULER.scheduleExecutable(new ExecutableTestting(), 1, Scheduler.ScheduleMode.REPEATED,
                         1, -1));
     }
 
@@ -670,17 +670,17 @@ public abstract class TestScheduler {
     @Test
     public void scheduleInfinitelyThrowsExceptionIfWaitingTimeLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableInfinitely(new TestExecutable(), 0, 1));
+                () -> SCHEDULER.scheduleExecutableInfinitely(new ExecutableTestting(), 0, 1));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableInfinitely(new TestExecutable(), -1, 1));
+                () -> SCHEDULER.scheduleExecutableInfinitely(new ExecutableTestting(), -1, 1));
     }
 
     @Test
     public void scheduleInfinitelyThrowsExceptionIfExecutionTimeStepLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableInfinitely(new TestExecutable(), 1, 0));
+                () -> SCHEDULER.scheduleExecutableInfinitely(new ExecutableTestting(), 1, 0));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableInfinitely(new TestExecutable(), 1, -1));
+                () -> SCHEDULER.scheduleExecutableInfinitely(new ExecutableTestting(), 1, -1));
     }
 
     @Test
@@ -817,7 +817,7 @@ public abstract class TestScheduler {
         }
     }
 
-    protected static class TestExecutable implements Executable {
+    protected static class ExecutableTestting implements Executable {
 
         // Variables.
 
@@ -848,7 +848,7 @@ public abstract class TestScheduler {
         }
     }
 
-    protected static class TestExecutableFeederV1 implements Executable {
+    protected static class ExecutableTestingFeederV1 implements Executable {
 
         // Variables.
 
@@ -858,7 +858,7 @@ public abstract class TestScheduler {
 
         // Constructors.
 
-        public TestExecutableFeederV1(long timeToBeExecuted, List<Executable> executableList) {
+        public ExecutableTestingFeederV1(long timeToBeExecuted, List<Executable> executableList) {
             this.executableList = executableList;
             this.executableList.add(this);
 
@@ -869,14 +869,14 @@ public abstract class TestScheduler {
 
         @Override
         public void execute() {
-            TestExecutableFeederV1 executableFeeder =
-                    new TestExecutableFeederV1(SCHEDULER.getCurrentTime() + 10, this.executableList);
+            ExecutableTestingFeederV1 executableFeeder =
+                    new ExecutableTestingFeederV1(SCHEDULER.getCurrentTime() + 10, this.executableList);
             SCHEDULER.scheduleExecutable(executableFeeder, 10, Scheduler.ScheduleMode.ONCE, -1, -1);
             this.executedTime = SCHEDULER.getCurrentTime();
         }
     }
 
-    protected static class TestExecutableFeederV2 implements Executable {
+    protected static class ExecutableTestingFeederV2 implements Executable {
 
         // Variables.
 
@@ -886,7 +886,7 @@ public abstract class TestScheduler {
 
         // Constructors.
 
-        public TestExecutableFeederV2(long timeToBeExecuted, List<Executable> executableList) {
+        public ExecutableTestingFeederV2(long timeToBeExecuted, List<Executable> executableList) {
             this.executableList = executableList;
             this.executableList.add(this);
 
@@ -897,8 +897,8 @@ public abstract class TestScheduler {
 
         @Override
         public void execute() {
-            TestExecutableFeederV2 executableFeederV2 =
-                    new TestExecutableFeederV2(SCHEDULER.getCurrentTime() + 10, this.executableList);
+            ExecutableTestingFeederV2 executableFeederV2 =
+                    new ExecutableTestingFeederV2(SCHEDULER.getCurrentTime() + 10, this.executableList);
             SCHEDULER.scheduleExecutableOnce(executableFeederV2, 10);
             this.executedTime = SCHEDULER.getCurrentTime();
         }
