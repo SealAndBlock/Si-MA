@@ -64,6 +64,12 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         this.kill();
     }
 
+    private void endByEndSimulationReach() {
+        this.updateSchedulerWatcherOnSimulationEndTimeReach();
+
+        this.kill();
+    }
+
     @Override
     public synchronized boolean kill() {
         if (this.isStarted) {
@@ -89,10 +95,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
         switch (scheduleMode) {
             case ONCE -> {
-                if (this.getExecutor() != null && this.getCurrentTime() + waitingTime > this.getEndSimulation())
-                    return;
-                else if (this.getExecutor() == null && waitingTime > this.getEndSimulation())
-                    return;
+                // We can schedule executable after the end (they will not be executed)
 
                 RealTimeExecutorThread realTimeExecutorThread = new RealTimeExecutorThread(executable, waitingTime);
                 this.executorThreadList.add(realTimeExecutorThread);
@@ -199,16 +202,20 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
             this.executable.execute();
 
             RealTimeMultiThreadScheduler.this.executorThreadList.remove(this);
+
+            if (RealTimeMultiThreadScheduler.this.getCurrentTime()
+                    >= RealTimeMultiThreadScheduler.this.getEndSimulation()) {
+                synchronized (RealTimeMultiThreadScheduler.this) {
+                    if (RealTimeMultiThreadScheduler.this.isStarted) {
+                        RealTimeMultiThreadScheduler.this.endByEndSimulationReach();
+                    } // Else the Scheduler has already be killed.
+                }
+            }
+
             if (RealTimeMultiThreadScheduler.this.executorThreadList.isEmpty()) {
                 synchronized (RealTimeMultiThreadScheduler.this) {
                     if (RealTimeMultiThreadScheduler.this.isStarted) {
-                        if (RealTimeMultiThreadScheduler.this.getCurrentTime()
-                                >= RealTimeMultiThreadScheduler.this.getEndSimulation()) {
-                            RealTimeMultiThreadScheduler.this.updateSchedulerWatcherOnSimulationEndTimeReach();
-                        } else {
-                            RealTimeMultiThreadScheduler.this.updateSchedulerWatcherOnNoExecutableToExecute();
-                        }
-                        RealTimeMultiThreadScheduler.this.kill();
+                        RealTimeMultiThreadScheduler.this.endByNoExecutableToExecution();
                     } // Else the Scheduler has already be killed.
                 }
             }
