@@ -388,16 +388,18 @@ public abstract class AbstractAgent implements EventCatcher {
      * If the event has a sima.core.protocol targeted, then the sima.core.agent search the associated sima.core.protocol and call the method
      * {@link Protocol#processEvent(Event)} is the sima.core.protocol is find. In the case where the targeted sima.core.protocol is not find
      * among all sima.core.protocol that the sima.core.agent possesses, the method {@link #treatEventWithNotFindProtocol(Event)} is called.
+     * <p>
+     * This method must be thread safe, in the implementation of {@link AbstractAgent}, the method is synchronized.
      *
      * @param event the event received
      * @throws AgentNotStartedException if the agent is not started
      * @see NoProtocolEvent
-     * @see Event#isNoProtocolEvent()
+     * @see Event#isProtocolEvent()
      */
     @Override
-    public synchronized final void processEvent(Event event) {
+    public synchronized void processEvent(Event event) {
         if (this.isStarted) {
-            if (event.isNoProtocolEvent()) {
+            if (event.isProtocolEvent()) {
                 Protocol protocolTarget = this.getProtocol(event.getProtocolTargeted());
                 if (protocolTarget != null) {
                     protocolTarget.processEvent(event);
@@ -419,7 +421,7 @@ public abstract class AbstractAgent implements EventCatcher {
      *
      * @param event the event received
      * @see NoProtocolEvent
-     * @see Event#isNoProtocolEvent()
+     * @see Event#isProtocolEvent()
      */
     protected abstract void treatNoProtocolEvent(Event event);
 

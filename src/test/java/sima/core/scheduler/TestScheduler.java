@@ -3,6 +3,10 @@ package sima.core.scheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import sima.core.agent.AgentIdentifier;
+import sima.core.agent.TestAgent;
+import sima.core.environment.event.Event;
+import sima.core.protocol.ProtocolIdentifier;
 import sima.core.scheduler.exception.NotSchedulableTimeException;
 
 import java.util.*;
@@ -18,6 +22,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public abstract class TestScheduler {
 
     // Static.
+
+    private TestAgent A0;
+    private TestAgent A1;
 
     protected static Scheduler SCHEDULER;
 
@@ -41,6 +48,11 @@ public abstract class TestScheduler {
     @BeforeEach
     public void setup() {
         this.initialize();
+
+        A0 = new TestAgent("A0", 0, null);
+        A0.start();
+        A1 = new TestAgent("A1", 1, null);
+        A1.start();
 
         assertTrue(END_SIMULATION >= 100, "END_SIMULATION must be greater or equal to 100 for tests");
         assertNotNull(SCHEDULER, "NULL SCHEDULER -> Tests cannot be realize");
@@ -651,6 +663,73 @@ public abstract class TestScheduler {
         assertEquals(expectedNbExecutions, nbExecutions.get());
     }
 
+    @Test
+    public void scheduleInfinitelyThrowsExceptionIfWaitingTimeLessOrEqualToZero() {
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutableInfinitely(new TestExecutable(), 0, 1));
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutableInfinitely(new TestExecutable(), -1, 1));
+    }
+
+    @Test
+    public void scheduleInfinitelyThrowsExceptionIfExecutionTimeStepLessOrEqualToZero() {
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutableInfinitely(new TestExecutable(), 1, 0));
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleExecutableInfinitely(new TestExecutable(), 1, -1));
+    }
+
+    @Test
+    public void scheduleInfinitelySchedulesAndExecuteAnExecutableAtTimeAndRepetitivelyAsDefine() {
+        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+
+        long stepBetweenRepetition = 10;
+        long repetitionBegin = Scheduler.NOW;
+
+        final AtomicLong nbExecutions = new AtomicLong(0);
+        final Map<Long, Long> mapExecutionAndTimeExecution = new HashMap<>();
+
+        final Executable executable = () -> mapExecutionAndTimeExecution.put(nbExecutions.getAndIncrement(),
+                SCHEDULER.getCurrentTime());
+
+        SCHEDULER.scheduleExecutableInfinitely(executable, repetitionBegin, stepBetweenRepetition);
+
+        assertTrue(SCHEDULER.start());
+
+        // Finish by not reaching time.
+        blockSchedulerWatcher.waitUntilKilled();
+
+        Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
+        for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
+            long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
+            this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
+        }
+
+        long timeToExecuteAllRepetitions = END_SIMULATION - repetitionBegin;
+        long expectedNbExecutions = (timeToExecuteAllRepetitions / stepBetweenRepetition) + 1;
+
+        assertEquals(expectedNbExecutions, nbExecutions.get());
+    }
+
+    @Test
+    public void scheduleEventThrowsExceptionIfWaitingTimeIsLessOrEqualToZero() {
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleEvent(new TestEvent(A0.getAgentIdentifier(), A1.getAgentIdentifier(),
+                        null), 0));
+        assertThrows(IllegalArgumentException.class,
+                () -> SCHEDULER.scheduleEvent(new TestEvent(A0.getAgentIdentifier(), A1.getAgentIdentifier(),
+                        null), -1));
+    }
+
+    @Test
+    public void scheduleEventScheduleAndExecuteEventAtTime() {
+        /*TODO run a mini simulation with A0 and A1 to verify if the agent received the event.
+           For example we can create a simulation where it us which define the scheduler and other fields of the
+           simulation. In that way we can define SCHEDULER as scheduler of the simulation and add A0 and A1 and verify
+           if processEvent isCorrectly call.*/
+    }
+
     // Methods.
 
     /**
@@ -671,7 +750,7 @@ public abstract class TestScheduler {
 
     // Inner classes.
 
-    private static class TestSchedulerWatcher implements Scheduler.SchedulerWatcher {
+    protected static class TestSchedulerWatcher implements Scheduler.SchedulerWatcher {
 
         // Variables.
 
@@ -700,6 +779,15 @@ public abstract class TestScheduler {
         @Override
         public void noExecutableToExecute() {
             this.isPassToNoExecutionToExecute++;
+        }
+    }
+
+    protected static class TestEvent extends Event {
+
+        // Constructors.
+
+        public TestEvent(AgentIdentifier sender, AgentIdentifier receiver, ProtocolIdentifier protocolTargeted) {
+            super(sender, receiver, protocolTargeted);
         }
     }
 

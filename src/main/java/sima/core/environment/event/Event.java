@@ -69,13 +69,13 @@ public abstract class Event implements Serializable {
     }
 
     /**
-     * Returns true if the event is a {@code NoProtocolEvent}, else false. An event is a {@code NoProtocolEvent} if it
-     * has not a sima.core.protocol targeted.
+     * Returns true if the event is a {@code ProtocolEvent}, else false. An event is a {@code ProtocolEvent} if it
+     * has a sima.core.protocol targeted not null.
      *
      * @return true if the sima.core.protocol targeted is not null, else false.
      * @see NoProtocolEvent
      */
-    public boolean isNoProtocolEvent() {
+    public boolean isProtocolEvent() {
         return this.protocolTargeted != null;
     }
 

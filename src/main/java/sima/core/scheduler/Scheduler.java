@@ -181,6 +181,9 @@ public interface Scheduler {
      * <p>
      * <strong>WARNING!</strong> If the Simulation time mode is
      * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
+     * <p>
+     * The default implementation suppose that the scheduler is the scheduler of the {@link SimaSimulation} and that
+     * the simulation is running.
      *
      * @param event       the event to schedule
      * @param waitingTime the time to wait before send the event (greater or equal to 1 if in repeated mod)
