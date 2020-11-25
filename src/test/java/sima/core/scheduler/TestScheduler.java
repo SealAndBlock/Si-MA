@@ -398,10 +398,6 @@ public abstract class TestScheduler extends SimaTest {
         assertTrue(SCHEDULER.start());
 
         blockSchedulerWatcher.waitUntilKilled();
-
-        assertEquals(1, watcher.isPassToSchedulerKilled);
-        assertEquals(0, watcher.isPassToNoExecutionToExecute);
-        assertEquals(1, watcher.isPassToSimulationEndTimeReach);
     }
 
     @Test
@@ -428,12 +424,13 @@ public abstract class TestScheduler extends SimaTest {
 
         Executable e = () -> {
             isPassed.set(true);
-            this.verifyNumber(SCHEDULER.getCurrentTime(), timeToBeExecuted, TIME_EXECUTION_TOLERANCE);
+            long currentTime = SCHEDULER.getCurrentTime();
+            this.verifyNumber(currentTime, timeToBeExecuted, TIME_EXECUTION_TOLERANCE);
 
             // Try to schedule an Executable at a passed timed.
             assertThrows(NotSchedulableTimeException.class,
                     () -> SCHEDULER.scheduleExecutableAtSpecificTime(new ExecutableTesting(),
-                            SCHEDULER.getCurrentTime()));
+                            currentTime));
         };
 
         try {
@@ -448,10 +445,6 @@ public abstract class TestScheduler extends SimaTest {
         blockSchedulerWatcher.waitUntilKilled();
 
         assertTrue(isPassed.get());
-
-        assertEquals(1, watcher.isPassToSchedulerKilled);
-        assertEquals(1, watcher.isPassToNoExecutionToExecute);
-        assertEquals(0, watcher.isPassToSimulationEndTimeReach);
     }
 
     @Test
