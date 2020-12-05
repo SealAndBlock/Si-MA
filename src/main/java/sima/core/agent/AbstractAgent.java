@@ -168,7 +168,7 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * Method call when the sima.core.agent is started in the method {@link #start()}.
      */
-    public abstract void onStart();
+    protected abstract void onStart();
 
     /**
      * Kill the sima.core.agent. When an sima.core.agent is killed, it cannot be restarted.
@@ -204,7 +204,7 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * Method call when the sima.core.agent is killed in the method {@link #kill()}
      */
-    public abstract void onKill();
+    protected abstract void onKill();
 
     /**
      * @param environment the sima.core.environment that the sima.core.agent want join
