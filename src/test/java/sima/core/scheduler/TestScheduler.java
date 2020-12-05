@@ -398,6 +398,10 @@ public abstract class TestScheduler extends SimaTest {
         assertTrue(SCHEDULER.start());
 
         blockSchedulerWatcher.waitUntilKilled();
+
+        assertEquals(1, watcher.isPassToSchedulerKilled);
+        assertEquals(0, watcher.isPassToNoExecutionToExecute);
+        assertEquals(1, watcher.isPassToSimulationEndTimeReach);
     }
 
     @Test
@@ -445,6 +449,10 @@ public abstract class TestScheduler extends SimaTest {
         blockSchedulerWatcher.waitUntilKilled();
 
         assertTrue(isPassed.get());
+
+        assertEquals(1, watcher.isPassToSchedulerKilled);
+        assertEquals(1, watcher.isPassToNoExecutionToExecute);
+        assertEquals(0, watcher.isPassToSimulationEndTimeReach);
     }
 
     @Test
@@ -970,19 +978,6 @@ public abstract class TestScheduler extends SimaTest {
         private int nbBlockKill = 0;
 
         // Methods.
-
-        /*/**
-         * Block until the next call of {@link Scheduler#start()}.
-         */
-        /*public void waitUntilStarted() {
-            synchronized (START_LOCK) {
-                try {
-                    START_LOCK.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }*/
 
         /**
          * Block until the next call of {@link Scheduler#kill()}.
