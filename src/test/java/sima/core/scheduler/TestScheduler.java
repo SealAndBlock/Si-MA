@@ -382,11 +382,13 @@ public abstract class TestScheduler extends SimaTest {
 
     @Test
     public void watcherNotifyOneTimeWhenSchedulerFinishByReachingEndSimulation() {
-        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
-        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+        // Order very important
 
         TestSchedulerWatcher watcher = new TestSchedulerWatcher();
         SCHEDULER.addSchedulerWatcher(watcher);
+
+        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
 
         // Useless.
         List<Executable> executables = new Vector<>();
@@ -398,6 +400,8 @@ public abstract class TestScheduler extends SimaTest {
         assertTrue(SCHEDULER.start());
 
         blockSchedulerWatcher.waitUntilKilled();
+
+        // TODO TO FIX
 
         assertEquals(1, watcher.isPassToSchedulerKilled);
         assertEquals(0, watcher.isPassToNoExecutionToExecute);
@@ -416,11 +420,13 @@ public abstract class TestScheduler extends SimaTest {
 
     @Test
     public void scheduleAtSpecificTimeThrowsExceptionIfSpecifiedTimeIsAlreadyPass() {
-        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
-        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+        // Order very important
 
         TestSchedulerWatcher watcher = new TestSchedulerWatcher();
         SCHEDULER.addSchedulerWatcher(watcher);
+
+        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
 
         long timeToBeExecuted = (long) (0.5 * SCHEDULER.getEndSimulation());
 
@@ -449,6 +455,8 @@ public abstract class TestScheduler extends SimaTest {
         blockSchedulerWatcher.waitUntilKilled();
 
         assertTrue(isPassed.get());
+
+        // TODO TO FIX
 
         assertEquals(1, watcher.isPassToSchedulerKilled);
         assertEquals(1, watcher.isPassToNoExecutionToExecute);
