@@ -5,7 +5,7 @@ import sima.core.environment.event.Event;
 import sima.core.simulation.SimaSimulation;
 
 /**
- * Provides methods to schedule {@link Event}, {@link Action} or {@link Controller} during the simulation.
+ * Provides methods to schedule {@link Executable} during the simulation.
  */
 public interface Scheduler {
 
@@ -191,14 +191,12 @@ public interface Scheduler {
      */
     default void scheduleEvent(Event event, long waitingTime) {
         if (event.getReceiver() != null) {
-            Action eventAction = new Action(event.getReceiver()) {
-                @Override
-                public void execute() {
-                    AbstractAgent receiver = SimaSimulation.getAgentFromIdentifier(event.getReceiver());
-                    receiver.processEvent(event);
-                }
+            Executable executable = () -> {
+                AbstractAgent receiver = SimaSimulation.getAgentFromIdentifier(event.getReceiver());
+                receiver.processEvent(event);
             };
-            this.scheduleExecutableOnce(eventAction, waitingTime);
+
+            this.scheduleExecutableOnce(executable, waitingTime);
         } else
             throw new IllegalArgumentException("The Event receiver is null");
     }
@@ -218,7 +216,7 @@ public interface Scheduler {
     long getEndSimulation();
 
     /**
-     * Enum to specify how many time an {@link Action} or a {@link Controller} can be schedule.
+     * Enum to specify how many time an {@link Executable} can be schedule.
      */
     enum ScheduleMode {
         ONCE, REPEATED, INFINITELY
