@@ -382,8 +382,8 @@ public abstract class TestScheduler extends SimaTest {
 
     @Test
     public void watcherNotifyOneTimeWhenSchedulerFinishByReachingEndSimulation() {
-        // Order very important
 
+        // Order very important
         TestSchedulerWatcher watcher = new TestSchedulerWatcher();
         SCHEDULER.addSchedulerWatcher(watcher);
 
@@ -400,8 +400,6 @@ public abstract class TestScheduler extends SimaTest {
         assertTrue(SCHEDULER.start());
 
         blockSchedulerWatcher.waitUntilKilled();
-
-        // TODO TO FIX
 
         assertEquals(1, watcher.isPassToSchedulerKilled);
         assertEquals(0, watcher.isPassToNoExecutionToExecute);
@@ -420,8 +418,8 @@ public abstract class TestScheduler extends SimaTest {
 
     @Test
     public void scheduleAtSpecificTimeThrowsExceptionIfSpecifiedTimeIsAlreadyPass() {
-        // Order very important
 
+        // Order very important
         TestSchedulerWatcher watcher = new TestSchedulerWatcher();
         SCHEDULER.addSchedulerWatcher(watcher);
 
@@ -455,8 +453,6 @@ public abstract class TestScheduler extends SimaTest {
         blockSchedulerWatcher.waitUntilKilled();
 
         assertTrue(isPassed.get());
-
-        // TODO TO FIX
 
         assertEquals(1, watcher.isPassToSchedulerKilled);
         assertEquals(1, watcher.isPassToNoExecutionToExecute);
