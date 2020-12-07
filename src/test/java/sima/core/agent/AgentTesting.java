@@ -8,6 +8,7 @@ public class AgentTesting extends AbstractAgent {
 
     // Variables.
 
+    private int passToOnProcessArgument = 0;
     private int passToOnStart = 0;
     private int passToOnKill = 0;
     private int passToTreatNoProtocolEvent = 0;
@@ -24,7 +25,7 @@ public class AgentTesting extends AbstractAgent {
 
     @Override
     protected void processArgument(Map<String, String> args) {
-
+        this.passToOnProcessArgument++;
     }
 
     @Override
@@ -54,6 +55,7 @@ public class AgentTesting extends AbstractAgent {
     }
 
     public void reset() {
+        this.passToOnProcessArgument = 0;
         this.passToOnStart = 0;
         this.passToOnKill = 0;
         this.passToTreatNoProtocolEvent = 0;
@@ -62,6 +64,10 @@ public class AgentTesting extends AbstractAgent {
     }
 
     // Getters and Setters.
+
+    public int getPassToOnProcessArgument() {
+        return passToOnProcessArgument;
+    }
 
     public int getPassToOnStart() {
         return passToOnStart;

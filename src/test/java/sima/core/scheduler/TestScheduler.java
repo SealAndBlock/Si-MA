@@ -814,7 +814,7 @@ public abstract class TestScheduler extends SimaTest {
         agentManager.addAgent(A0);
         agentManager.addAgent(A1);
 
-        EnvironmentTesting environmentTesting = new EnvironmentTesting();
+        EnvironmentTesting environmentTesting = new EnvironmentTesting(0);
         Map<String, Environment> environmentMap = new HashMap<>();
         environmentMap.put(environmentTesting.getEnvironmentName(), environmentTesting);
 

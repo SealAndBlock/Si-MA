@@ -4,18 +4,33 @@ import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
 import sima.core.simulation.SimaSimulation;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 public class EnvironmentTesting extends Environment {
+
+    // Static.
 
     public static final String ENV_TEST_NAME = "ENV_TEST";
 
     public static long SEND_DELAY = 10;
 
+    // Variables.
+
+    private final List<AgentIdentifier> notAcceptedAgentList = new Vector<>();
+
     // Constructors.
 
-    public EnvironmentTesting() {
-        super(ENV_TEST_NAME, null);
+    public EnvironmentTesting(int number) {
+        super(ENV_TEST_NAME + number, null);
+    }
+
+    public EnvironmentTesting(int number, List<AgentIdentifier> notAcceptedAgentList) {
+        this(number);
+
+        if (notAcceptedAgentList != null)
+            this.notAcceptedAgentList.addAll(notAcceptedAgentList);
     }
 
     // Methods.
@@ -27,7 +42,7 @@ public class EnvironmentTesting extends Environment {
 
     @Override
     protected boolean agentCanBeAccepted(AgentIdentifier abstractAgentIdentifier) {
-        return true;
+        return !this.notAcceptedAgentList.contains(abstractAgentIdentifier);
     }
 
     @Override

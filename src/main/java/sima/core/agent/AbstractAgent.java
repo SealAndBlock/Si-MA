@@ -226,7 +226,10 @@ public abstract class AbstractAgent implements EventCatcher {
      * @return true if the sima.core.agent is evolving in the sima.core.environment, else false.
      */
     public synchronized boolean isEvolvingInEnvironment(Environment environment) {
-        return environment.isEvolving(this.getAgentIdentifier());
+        if (environment != null)
+            return environment.isEvolving(this.getAgentIdentifier());
+        else
+            return false;
     }
 
     /**
@@ -249,8 +252,11 @@ public abstract class AbstractAgent implements EventCatcher {
      * @param environment the sima.core.environment to leave
      */
     public synchronized void leaveEnvironment(Environment environment) {
-        environment.leave(this.getAgentIdentifier());
-        this.mapEnvironments.remove(environment.getEnvironmentName());
+        // Verify with map to avoid loop if Environment recall the method leaveEnvironment
+        if (this.mapEnvironments.containsKey(environment.getEnvironmentName())) {
+            environment.leave(this.getAgentIdentifier());
+            this.mapEnvironments.remove(environment.getEnvironmentName());
+        }
     }
 
     /**
@@ -261,8 +267,7 @@ public abstract class AbstractAgent implements EventCatcher {
     public synchronized void leaveEnvironment(String environmentName) {
         Environment environment = this.mapEnvironments.get(environmentName);
         if (environment != null) {
-            environment.leave(this.getAgentIdentifier());
-            this.mapEnvironments.remove(environmentName);
+            this.leaveEnvironment(environment);
         }
     }
 
