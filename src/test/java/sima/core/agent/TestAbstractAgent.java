@@ -3,6 +3,7 @@ package sima.core.agent;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sima.core.SimaTest;
+import sima.core.agent.exception.AlreadyKilledAgentException;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
 import sima.core.behavior.Behavior;
@@ -102,6 +103,12 @@ public class TestAbstractAgent extends SimaTest {
     }
 
     @Test
+    public void killAnAgentAlreadyKillThrowsException() {
+        AGENT_0.kill();
+        assertThrows(AlreadyKilledAgentException.class, () -> AGENT_0.kill());
+    }
+
+    @Test
     public void notStartedAgentCanBeKillWithoutThrowsAnExceptionAndIsSpecifiedKilled() {
         try {
             AGENT_0.kill();
@@ -136,6 +143,20 @@ public class TestAbstractAgent extends SimaTest {
     @Test
     public void joinNullEnvironmentThrowsException() {
         assertThrows(NullPointerException.class, () -> AGENT_0.joinEnvironment(null));
+    }
+
+    @Test
+    public void afterJoinAnEnvironmentGetEnvironmentListContainsTheJoinedEnvironment() {
+        EnvironmentTesting env = new EnvironmentTesting(0);
+
+        AGENT_0.joinEnvironment(env);
+
+        assertTrue(AGENT_0.getEnvironmentList().contains(env));
+    }
+
+    @Test
+    public void getEnvironmentListIsEmptyIfTheAgentHasNoJoinAnyEnvironment() {
+        assertTrue(AGENT_0.getEnvironmentList().isEmpty());
     }
 
     @Test
@@ -205,16 +226,7 @@ public class TestAbstractAgent extends SimaTest {
         EnvironmentTesting env = new EnvironmentTesting(0);
         AGENT_0.joinEnvironment(env);
 
-        // With env instance.
-
         AGENT_0.leaveEnvironment(env);
-
-        assertFalse(env.isEvolving(AGENT_0.getAgentIdentifier()));
-        this.verifyAgent0IsNotEvolving(env);
-
-        // With env name.
-
-        AGENT_0.joinEnvironment(env);
 
         assertFalse(env.isEvolving(AGENT_0.getAgentIdentifier()));
         this.verifyAgent0IsNotEvolving(env);
@@ -225,11 +237,9 @@ public class TestAbstractAgent extends SimaTest {
         EnvironmentTesting env = new EnvironmentTesting(0);
         env.acceptAgent(AGENT_0.getAgentIdentifier());
 
-        this.verifyAgent0IsNotEvolving(env);
-
+        assertFalse(AGENT_0.getEnvironmentList().contains(env));
         AGENT_0.setEvolvingInEnvironment(env);
-
-        this.verifyAgent0IsEvolving(env);
+        assertTrue(AGENT_0.getEnvironmentList().contains(env));
     }
 
     @Test
@@ -250,9 +260,11 @@ public class TestAbstractAgent extends SimaTest {
 
         env.leave(AGENT_0.getAgentIdentifier());
 
-        this.verifyAgent0IsEvolving(env);
+        this.verifyAgent0IsNotEvolving(env);
 
+        assertTrue(AGENT_0.getEnvironmentList().contains(env));
         AGENT_0.unSetEvolvingEnvironment(env);
+        assertFalse(AGENT_0.getEnvironmentList().contains(env));
 
         this.verifyAgent0IsNotEvolving(env);
     }
@@ -274,11 +286,11 @@ public class TestAbstractAgent extends SimaTest {
         EnvironmentTesting env = new EnvironmentTesting(0);
         env.acceptAgent(AGENT_0.getAgentIdentifier());
 
-        this.verifyAgent0IsNotEvolving(env);
+        this.verifyAgent0IsEvolving(env);
 
         AGENT_0.unSetEvolvingEnvironment(env);
 
-        this.verifyAgent0IsNotEvolving(env);
+        this.verifyAgent0IsEvolving(env);
     }
 
     @Test
@@ -294,7 +306,7 @@ public class TestAbstractAgent extends SimaTest {
     @Test
     public void agentCanAddBehaviorThatItDoesNotAddBefore() {
         assertTrue(AGENT_0.addBehavior(BehaviorTesting.class, null));
-        assertNotNull(AGENT_0.getBehavior(Behavior.class));
+        assertNotNull(AGENT_0.getBehavior(BehaviorTesting.class));
     }
 
     @Test

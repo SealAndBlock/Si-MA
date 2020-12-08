@@ -15,7 +15,6 @@ import sima.core.protocol.ProtocolIdentifier;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public abstract class AbstractAgent implements EventCatcher {
 
@@ -185,16 +184,15 @@ public abstract class AbstractAgent implements EventCatcher {
             this.isKilled = true;
 
             // Stop playing all behaviors.
-            Set<Map.Entry<String, Behavior>> behaviors = this.mapBehaviors.entrySet();
-            for (Map.Entry<String, Behavior> behaviorEntry : behaviors) {
-                Behavior behavior = behaviorEntry.getValue();
+            List<Behavior> behaviors = this.getBehaviorList();
+            for (Behavior behavior : behaviors) {
                 behavior.stopPlaying();
             }
 
             // Leave all environments.
-            Set<Map.Entry<String, Environment>> environments = this.mapEnvironments.entrySet();
-            for (Map.Entry<String, Environment> environmentEntry : environments) {
-                this.leaveEnvironment(environmentEntry.getValue());
+            List<Environment> environments = this.getEnvironmentList();
+            for (Environment environment : environments) {
+                this.leaveEnvironment(environment);
             }
 
             this.onKill();
@@ -317,6 +315,8 @@ public abstract class AbstractAgent implements EventCatcher {
      * @throws NullPointerException if behaviorClass is null
      */
     public synchronized void startPlayingBehavior(Class<? extends Behavior> behaviorClass) {
+        if (behaviorClass == null)
+            throw new NullPointerException("BehaviorClass null");
         if (this.isStarted) {
             Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
             if (behavior != null)
