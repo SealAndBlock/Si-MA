@@ -222,29 +222,20 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * @param environment the sima.core.environment
-     * @return true if the sima.core.agent is evolving in the sima.core.environment, else false.
+     * Set the environment in {@link #mapEnvironments} if the agent is evolving in the specified environment and that
+     * the agent does not know that it is evolving in it. In other word, if the agent is evolving in the specified
+     * environment and that the environment is not in {@link #mapEnvironments}, therefore add the environment in
+     * {@link #mapEnvironments}
+     *
+     * @param environment the environment where the agent is evolving
      */
-    public synchronized boolean isEvolvingInEnvironment(Environment environment) {
-        if (environment != null)
-            return environment.isEvolving(this.getAgentIdentifier());
-        else
-            return false;
-    }
-
-    /**
-     * @param environmentName the sima.core.environment name
-     * @return true if the sima.core.agent is evolving in the sima.core.environment, else false.
-     */
-    public synchronized boolean isEvolvingInEnvironment(String environmentName) {
-        Environment environment = this.mapEnvironments.get(environmentName);
-        if (environment != null) {
-            return environment.isEvolving(this.getAgentIdentifier());
+    public synchronized void setEvolvingInEnvironment(Environment environment) {
+        if (!this.mapEnvironments.containsKey(environment.getEnvironmentName())) {
+            if (environment.isEvolving(this.getAgentIdentifier())) {
+                this.mapEnvironments.put(environment.getEnvironmentName(), environment);
+            }
         }
-
-        return false;
     }
-
 
     /**
      * Makes that the sima.core.agent leaves the sima.core.environment.
@@ -260,15 +251,32 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * Makes that the sima.core.agent leaves the sima.core.environment.
+     * Unset the environment in {@link #mapEnvironments} if the agent is not evolving in the environment and that
+     * the environment is always in {@link #mapEnvironments}. If the agent is always evolving in the environment,
+     * nothing is done.
      *
-     * @param environmentName the sima.core.environment name
+     * <strong>WARNINGS!</strong> If the agent is evolving <strong>BUT</strong> the agent does not know it (the
+     * environment is not in {@link #mapEnvironments}) therefore nothing is done.
+     *
+     * @param environment the environment where the agent is not evolving anymore
      */
-    public synchronized void leaveEnvironment(String environmentName) {
-        Environment environment = this.mapEnvironments.get(environmentName);
-        if (environment != null) {
-            this.leaveEnvironment(environment);
+    public synchronized void unSetEvolvingEnvironment(Environment environment) {
+        if (this.mapEnvironments.containsKey(environment.getEnvironmentName())) {
+            if (!environment.isEvolving(this.getAgentIdentifier())) {
+                this.mapEnvironments.remove(environment.getEnvironmentName());
+            }
         }
+    }
+
+    /**
+     * @param environment the sima.core.environment
+     * @return true if the sima.core.agent is evolving in the sima.core.environment, else false.
+     */
+    public synchronized boolean isEvolvingInEnvironment(Environment environment) {
+        if (environment != null)
+            return environment.isEvolving(this.getAgentIdentifier());
+        else
+            return false;
     }
 
     /**

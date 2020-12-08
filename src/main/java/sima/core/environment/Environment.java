@@ -88,6 +88,16 @@ public abstract class Environment implements EventCatcher {
      * {@link AgentIdentifier#getAgentUUID()} and {@link AgentIdentifier#getAgentName()}, the other values of
      * {@link AgentIdentifier} can change during the time after the acceptation. In that way, it must be ask the agent
      * directly with the method {@link AbstractAgent#getInfo()} if we want update value.
+     * <p>
+     * In this method, only the environment has conscience that the agent is evolving in it. For that the agent be
+     * notify that it is evolving in the environment, it is better to use the method
+     * {@link AbstractAgent#joinEnvironment(Environment)}. In this method, the agent and the environment are both
+     * conscience that the agent is evolving in the environment.
+     * <p>
+     * If this method is called and that the concerned agent is not conscience that it has been accepted and it is now
+     * evolving in the environment, then you can use the method
+     * {@link AbstractAgent#setEvolvingInEnvironment(Environment)} which set the environment in the agent for that the
+     * agent know that it is evolving in the environment.
      *
      * @param evolvingAgentIdentifier the {@link AgentIdentifier} of the agent which will evolve in the environment
      * @return true if the {@code Environment} accept the sima.core.agent, else false.
@@ -114,6 +124,10 @@ public abstract class Environment implements EventCatcher {
      * Make that the sima.core.agent is leaving the sima.core.environment. If the sima.core.agent is not evolving in the
      * {@link Environment}, nothing is done. Calls the method {@link #agentIsLeaving(AgentIdentifier)} before remove the
      * agent from the {@code Environment}.
+     *
+     * In this method the agent is not notify that it is leaving the environment. For that the agent be conscience that
+     * it leaves the environment, it is recommended to use the method
+     * {@link AbstractAgent#leaveEnvironment(Environment)}
      *
      * @param leavingAgentIdentifier the leaving sima.core.agent
      */

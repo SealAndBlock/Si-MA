@@ -41,12 +41,10 @@ public class TestAbstractAgent extends SimaTest {
 
     private void verifyAgent0IsNotEvolving(EnvironmentTesting env) {
         assertFalse(AGENT_0.isEvolvingInEnvironment(env));
-        assertFalse(AGENT_0.isEvolvingInEnvironment(env.getEnvironmentName()));
     }
 
     private void verifyAgent0IsEvolving(EnvironmentTesting env) {
         assertTrue(AGENT_0.isEvolvingInEnvironment(env));
-        assertTrue(AGENT_0.isEvolvingInEnvironment(env.getEnvironmentName()));
     }
 
     // Tests.
@@ -143,17 +141,12 @@ public class TestAbstractAgent extends SimaTest {
         this.verifyAgent0IsEvolving(env);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
     public void isEvolvingEnvironmentReturnsFalseIfTheEnvironmentOrTheEnvironmentNameIsNull() {
         EnvironmentTesting env = new EnvironmentTesting(0);
         AGENT_0.joinEnvironment(env);
 
-        EnvironmentTesting envNull = null;
-        String envNameNull = null;
-
-        assertFalse(AGENT_0.isEvolvingInEnvironment(envNull));
-        assertFalse(AGENT_0.isEvolvingInEnvironment(envNameNull));
+        assertFalse(AGENT_0.isEvolvingInEnvironment(null));
     }
 
     @Test
@@ -180,7 +173,6 @@ public class TestAbstractAgent extends SimaTest {
         this.verifyAgent0IsNotEvolving(env);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
     public void leaveNullEnvironmentDoNothing() {
         EnvironmentTesting env = new EnvironmentTesting(0);
@@ -189,10 +181,7 @@ public class TestAbstractAgent extends SimaTest {
         env.isEvolving(AGENT_0.getAgentIdentifier());
 
         try {
-            EnvironmentTesting envNull = null;
-            String envNameNull = null;
-            AGENT_0.leaveEnvironment(envNull);
-            AGENT_0.leaveEnvironment(envNameNull);
+            AGENT_0.leaveEnvironment(null);
         } catch (Exception e) {
             fail(e);
         }
@@ -209,7 +198,6 @@ public class TestAbstractAgent extends SimaTest {
 
         try {
             AGENT_0.leaveEnvironment(env);
-            AGENT_0.leaveEnvironment(env.getEnvironmentName());
         } catch (Exception e) {
             fail(e);
         }
@@ -233,9 +221,69 @@ public class TestAbstractAgent extends SimaTest {
         // With env name.
 
         AGENT_0.joinEnvironment(env);
-        AGENT_0.leaveEnvironment(env.getEnvironmentName());
 
         assertFalse(env.isEvolving(AGENT_0.getAgentIdentifier()));
+        this.verifyAgent0IsNotEvolving(env);
+    }
+
+    @Test
+    public void agentCanSetAnEnvironmentInItsMapIfItIsEvolvingIn() {
+        EnvironmentTesting env = new EnvironmentTesting(0);
+        env.acceptAgent(AGENT_0.getAgentIdentifier());
+
+        this.verifyAgent0IsNotEvolving(env);
+
+        AGENT_0.setEvolvingInEnvironment(env);
+
+        this.verifyAgent0IsEvolving(env);
+    }
+
+    @Test
+    public void agentCannotSetAnEnvironmentInItsMapIfItIsNotEvolvingIn() {
+        EnvironmentTesting env = new EnvironmentTesting(0);
+
+        this.verifyAgent0IsNotEvolving(env);
+
+        AGENT_0.setEvolvingInEnvironment(env);
+
+        this.verifyAgent0IsNotEvolving(env);
+    }
+
+    @Test
+    public void agentCanUnSetAnEnvironmentWhereItIsNotEvolvingAnymore() {
+        EnvironmentTesting env = new EnvironmentTesting(0);
+        AGENT_0.joinEnvironment(env);
+
+        env.leave(AGENT_0.getAgentIdentifier());
+
+        this.verifyAgent0IsEvolving(env);
+
+        AGENT_0.unSetEvolvingEnvironment(env);
+
+        this.verifyAgent0IsNotEvolving(env);
+    }
+
+    @Test
+    public void nothingIsDoneIfAnAgentUnSetAnEnvironmentWhereItIsAlwaysEvolvingIn() {
+        EnvironmentTesting env = new EnvironmentTesting(0);
+        AGENT_0.joinEnvironment(env);
+
+        this.verifyAgent0IsEvolving(env);
+
+        AGENT_0.unSetEvolvingEnvironment(env);
+
+        this.verifyAgent0IsEvolving(env);
+    }
+
+    @Test
+    public void nothingIsDoneIfAnAgentUnSetAnEnvironmentThatItDoesNotKnowThatItIsEvolvingIn() {
+        EnvironmentTesting env = new EnvironmentTesting(0);
+        env.acceptAgent(AGENT_0.getAgentIdentifier());
+
+        this.verifyAgent0IsNotEvolving(env);
+
+        AGENT_0.unSetEvolvingEnvironment(env);
+
         this.verifyAgent0IsNotEvolving(env);
     }
 
@@ -281,7 +329,6 @@ public class TestAbstractAgent extends SimaTest {
             assertFalse(environment.isEvolving(AGENT_0.getAgentIdentifier()));
 
             assertFalse(AGENT_0.isEvolvingInEnvironment(environment));
-            assertFalse(AGENT_0.isEvolvingInEnvironment(environment.getEnvironmentName()));
         }
     }
 }

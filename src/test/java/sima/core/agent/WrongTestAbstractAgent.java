@@ -148,7 +148,6 @@ public class WrongTestAbstractAgent {
 
         assertTrue(AGENT_0.joinEnvironment(ENV));
         assertTrue(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
-        assertTrue(AGENT_0.isEvolvingInEnvironment(ENV.getEnvironmentName()));
         assertTrue(AGENT_0.isEvolvingInEnvironment(ENV));
     }
 
@@ -163,7 +162,6 @@ public class WrongTestAbstractAgent {
         assertTrue(AGENT_0.joinEnvironment(ENV));
         assertTrue(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
 
-        AGENT_0.leaveEnvironment(ENV.getEnvironmentName());
         assertFalse(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
     }
 
