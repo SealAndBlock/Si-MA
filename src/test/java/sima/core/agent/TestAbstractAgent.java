@@ -18,7 +18,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled
-public class TestAbstractAgent extends SimaTest {
+public abstract class TestAbstractAgent extends SimaTest {
 
     // Static.
 
