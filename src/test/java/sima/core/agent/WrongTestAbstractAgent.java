@@ -1,6 +1,7 @@
 package sima.core.agent;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sima.core.agent.exception.AgentNotStartedException;
 import sima.core.agent.exception.AlreadyKilledAgentException;
@@ -19,6 +20,7 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled
 public class WrongTestAbstractAgent {
 
     // Variables.
@@ -161,8 +163,6 @@ public class WrongTestAbstractAgent {
 
         assertTrue(AGENT_0.joinEnvironment(ENV));
         assertTrue(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
-
-        assertFalse(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
     }
 
     @Test
