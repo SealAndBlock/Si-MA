@@ -209,6 +209,8 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * @param environment the sima.core.environment that the sima.core.agent want join
      * @return true if the sima.core.agent has joined the sima.core.environment, else false.
+     *
+     * @throws NullPointerException if environment is null
      */
     public synchronized boolean joinEnvironment(Environment environment) {
         if (this.mapEnvironments.get(environment.getEnvironmentName()) == null) {
@@ -241,6 +243,8 @@ public abstract class AbstractAgent implements EventCatcher {
      * Makes that the sima.core.agent leaves the sima.core.environment.
      *
      * @param environment the sima.core.environment to leave
+     *
+     * @throws NullPointerException if environment is null
      */
     public synchronized void leaveEnvironment(Environment environment) {
         // Verify with map to avoid loop if Environment recall the method leaveEnvironment

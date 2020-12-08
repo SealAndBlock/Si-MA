@@ -133,6 +133,12 @@ public class TestAbstractAgent extends SimaTest {
         this.verifyAgent0IsEvolving(env);
     }
 
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    public void joinNullEnvironmentThrowsException() {
+        assertThrows(NullPointerException.class, () -> AGENT_0.joinEnvironment(null));
+    }
+
     @Test
     public void afterJoiningAnEnvironmentTheAgentCanVerifyWithIsEvolvingEnvironmentThatItIsEvolvingInTheEnvironment() {
         EnvironmentTesting env = new EnvironmentTesting(0);
@@ -173,20 +179,10 @@ public class TestAbstractAgent extends SimaTest {
         this.verifyAgent0IsNotEvolving(env);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test
-    public void leaveNullEnvironmentDoNothing() {
-        EnvironmentTesting env = new EnvironmentTesting(0);
-        AGENT_0.joinEnvironment(env);
-
-        env.isEvolving(AGENT_0.getAgentIdentifier());
-
-        try {
-            AGENT_0.leaveEnvironment(null);
-        } catch (Exception e) {
-            fail(e);
-        }
-
-        env.isEvolving(AGENT_0.getAgentIdentifier());
+    public void leaveNullEnvironmentThrowsException() {
+        assertThrows(NullPointerException.class, () -> AGENT_0.leaveEnvironment(null));
     }
 
     @Test
