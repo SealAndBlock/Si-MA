@@ -15,6 +15,7 @@ import sima.core.protocol.ProtocolIdentifier;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class AbstractAgent implements EventCatcher {
 
@@ -209,7 +210,6 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * @param environment the sima.core.environment that the sima.core.agent want join
      * @return true if the sima.core.agent has joined the sima.core.environment, else false.
-     *
      * @throws NullPointerException if environment is null
      */
     public synchronized boolean joinEnvironment(Environment environment) {
@@ -243,7 +243,6 @@ public abstract class AbstractAgent implements EventCatcher {
      * Makes that the sima.core.agent leaves the sima.core.environment.
      *
      * @param environment the sima.core.environment to leave
-     *
      * @throws NullPointerException if environment is null
      */
     public synchronized void leaveEnvironment(Environment environment) {
@@ -315,6 +314,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * {@link Behavior#startPlaying()}.
      *
      * @param behaviorClass the class of the sima.core.behavior that we want starting to play
+     * @throws NullPointerException if behaviorClass is null
      */
     public synchronized void startPlayingBehavior(Class<? extends Behavior> behaviorClass) {
         if (this.isStarted) {
@@ -329,6 +329,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * {@link Behavior#stopPlaying()}.
      *
      * @param behaviorClass the class of the sima.core.behavior that we want stopping to play
+     * @throws NullPointerException if behaviorClass is null
      */
     public synchronized void stopPlayingBehavior(Class<? extends Behavior> behaviorClass) {
         Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
@@ -337,11 +338,19 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * @param behavior the sima.core.behavior
+     * @param behaviorClass the behavior class
      * @return true if the sima.core.agent can play the specified sima.core.behavior, else false.
      */
-    public boolean canPlayBehavior(Behavior behavior) {
-        return behavior.canBePlayedBy(this);
+    public boolean canPlayBehavior(Class<? extends Behavior> behaviorClass) {
+        try {
+            Constructor<? extends Behavior> constructor = behaviorClass.
+                    getConstructor(AbstractAgent.class, Map.class);
+            constructor.newInstance(this, null);
+            return true;
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
+                | InvocationTargetException e) {
+            return false;
+        }
     }
 
     /**
@@ -360,12 +369,11 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * @param protocolIdentifier the string which identify the sima.core.protocol
-     * @return the sima.core.protocol associate to the sima.core.protocol class, if no sima.core.protocol is associated
-     * to this class, return null.
+     * @param behaviorClass the class of the behavior
+     * @return the instance of the corresponding behavior if the agent has added the behavior before, else null.
      */
-    public synchronized Protocol getProtocol(ProtocolIdentifier protocolIdentifier) {
-        return this.mapProtocol.get(protocolIdentifier);
+    public synchronized Behavior getBehavior(Class<? extends Behavior> behaviorClass) {
+        return this.mapBehaviors.get(behaviorClass.getName());
     }
 
     /**
@@ -394,6 +402,15 @@ public abstract class AbstractAgent implements EventCatcher {
                 | InvocationTargetException e) {
             return false;
         }
+    }
+
+    /**
+     * @param protocolIdentifier the string which identify the sima.core.protocol
+     * @return the sima.core.protocol associate to the sima.core.protocol class, if no sima.core.protocol is associated
+     * to this class, return null.
+     */
+    public synchronized Protocol getProtocol(ProtocolIdentifier protocolIdentifier) {
+        return this.mapProtocol.get(protocolIdentifier);
     }
 
     /**
@@ -476,12 +493,12 @@ public abstract class AbstractAgent implements EventCatcher {
         return this.numberId;
     }
 
-    public Map<String, Environment> getMapEnvironments() {
-        return Collections.unmodifiableMap(this.mapEnvironments);
+    public List<Environment> getEnvironmentList() {
+        return new ArrayList<>(this.mapEnvironments.values());
     }
 
-    public Map<String, Behavior> getMapBehaviors() {
-        return Collections.unmodifiableMap(this.mapBehaviors);
+    public List<Behavior> getBehaviorList() {
+        return new ArrayList<>(this.mapBehaviors.values());
     }
 
     public Map<ProtocolIdentifier, Protocol> getMapProtocol() {

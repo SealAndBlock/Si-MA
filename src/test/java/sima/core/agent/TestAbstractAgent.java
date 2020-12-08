@@ -6,13 +6,13 @@ import sima.core.SimaTest;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
 import sima.core.behavior.Behavior;
+import sima.core.behavior.BehaviorNotPlayableTesting;
+import sima.core.behavior.BehaviorTesting;
 import sima.core.environment.Environment;
 import sima.core.environment.EnvironmentTesting;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -133,7 +133,6 @@ public class TestAbstractAgent extends SimaTest {
         this.verifyAgent0IsEvolving(env);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
     public void joinNullEnvironmentThrowsException() {
         assertThrows(NullPointerException.class, () -> AGENT_0.joinEnvironment(null));
@@ -179,7 +178,6 @@ public class TestAbstractAgent extends SimaTest {
         this.verifyAgent0IsNotEvolving(env);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
     public void leaveNullEnvironmentThrowsException() {
         assertThrows(NullPointerException.class, () -> AGENT_0.leaveEnvironment(null));
@@ -284,19 +282,174 @@ public class TestAbstractAgent extends SimaTest {
     }
 
     @Test
+    public void canPlayBehaviorReturnsTrueIfTheAgentCanPlayTheBehavior() {
+        assertTrue(AGENT_0.canPlayBehavior(BehaviorTesting.class));
+    }
+
+    @Test
+    public void canPlayBehaviorReturnsFalseIfTheAgentCannotPlayTheBehavior() {
+        assertFalse(AGENT_0.canPlayBehavior(BehaviorNotPlayableTesting.class));
+    }
+
+    @Test
+    public void agentCanAddBehaviorThatItDoesNotAddBefore() {
+        assertTrue(AGENT_0.addBehavior(BehaviorTesting.class, null));
+        assertNotNull(AGENT_0.getBehavior(Behavior.class));
+    }
+
+    @Test
+    public void agentCannotAddBehaviorThatItAlreadyAddBefore() {
+        assertTrue(AGENT_0.addBehavior(BehaviorTesting.class, null));
+        assertFalse(AGENT_0.addBehavior(BehaviorTesting.class, null));
+    }
+
+    @Test
+    public void agentCannotAddBehaviorThatItCannotPlay() {
+        assertFalse(AGENT_0.addBehavior(BehaviorNotPlayableTesting.class, null));
+    }
+
+    @Test
+    public void listOfBehaviorContainsAllBehaviorAdd() {
+        AGENT_0.addBehavior(BehaviorTesting.class, null);
+        List<Behavior> behaviors = AGENT_0.getBehaviorList();
+        boolean contains = false;
+        for (Behavior behavior : behaviors) {
+            if (behavior instanceof BehaviorTesting) {
+                contains = true;
+                break;
+            }
+        }
+        assertTrue(contains);
+    }
+
+    @Test
+    public void listOfBehaviorIsEmptyIfNoBehaviorsHasBeenAdded() {
+        assertTrue(AGENT_0.getBehaviorList().isEmpty());
+    }
+
+    @Test
+    public void getBehaviorReturnsTheBehaviorInstanceIfTheBehaviorHasBeenAddBefore() {
+        AGENT_0.addBehavior(BehaviorTesting.class, null);
+        assertNotNull(AGENT_0.getBehavior(BehaviorTesting.class));
+    }
+
+    @Test
+    public void getBehaviorReturnsNullIfTheBehaviorIsNotAdd() {
+        assertNull(AGENT_0.getBehavior(BehaviorTesting.class));
+    }
+
+    @Test
+    public void notStartedAgentCannotStartToPlayBehavior() {
+        AGENT_0.addBehavior(BehaviorTesting.class, null);
+
+        Behavior behavior = AGENT_0.getBehavior(BehaviorTesting.class);
+
+        assertFalse(behavior.isPlaying());
+
+        AGENT_0.startPlayingBehavior(BehaviorTesting.class);
+
+        assertFalse(behavior.isPlaying());
+    }
+
+    @Test
+    public void startedAgentCanStartToPlayBehavior() {
+        AGENT_0.addBehavior(BehaviorTesting.class, null);
+
+        BehaviorTesting behavior = (BehaviorTesting) AGENT_0.getBehavior(BehaviorTesting.class);
+
+        assertFalse(behavior.isPlaying());
+
+        AGENT_0.start();
+
+        AGENT_0.startPlayingBehavior(BehaviorTesting.class);
+        assertEquals(1, behavior.getPassToOnStartPlaying());
+
+        assertTrue(behavior.isPlaying());
+    }
+
+    @Test
+    public void tryToStartPlayingANullBehaviorThrowsException() {
+        assertThrows(NullPointerException.class, () -> AGENT_0.startPlayingBehavior(null));
+    }
+
+    @Test
+    public void nothingIsDoneIfAgentTryToStartPlayingNotAddedBehavior() {
+        try {
+            AGENT_0.start();
+            AGENT_0.stopPlayingBehavior(BehaviorTesting.class);
+
+            assertNull(AGENT_0.getBehavior(BehaviorTesting.class));
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    public void isPlayingBehaviorReturnsTrueIfTheAgentIsPlayingTheBehavior() {
+        AGENT_0.start();
+        AGENT_0.addBehavior(BehaviorTesting.class, null);
+        AGENT_0.startPlayingBehavior(BehaviorTesting.class);
+        assertTrue(AGENT_0.isPlayingBehavior(BehaviorTesting.class));
+    }
+
+    @Test
+    public void isPlayingBehaviorReturnsFalseIfTheAgentIsNotPlayingTheBehavior() {
+        AGENT_0.start();
+        AGENT_0.addBehavior(BehaviorTesting.class, null);
+        assertFalse(AGENT_0.isPlayingBehavior(BehaviorTesting.class));
+    }
+
+    @Test
+    public void afterStopPlayingABehaviorIsPlayingBehaviorReturnsFalseForThisBehavior() {
+        AGENT_0.start();
+        AGENT_0.addBehavior(BehaviorTesting.class, null);
+        AGENT_0.startPlayingBehavior(BehaviorTesting.class);
+        AGENT_0.stopPlayingBehavior(BehaviorTesting.class);
+        assertFalse(AGENT_0.isPlayingBehavior(BehaviorTesting.class));
+    }
+
+    @Test
+    public void agentCanStopABehaviorWhichIsPlaying() {
+        AGENT_0.start();
+        AGENT_0.addBehavior(BehaviorTesting.class, null);
+
+        BehaviorTesting behavior = (BehaviorTesting) AGENT_0.getBehavior(BehaviorTesting.class);
+
+        AGENT_0.startPlayingBehavior(BehaviorTesting.class);
+
+        AGENT_0.stopPlayingBehavior(BehaviorTesting.class);
+
+        assertEquals(1, behavior.getPassToInStopPlaying());
+
+        assertFalse(behavior.isPlaying());
+    }
+
+    @Test
+    public void agentNotPlayingABehaviorWhichItDoesNotAddAndWhichIsTryToStop() {
+        AGENT_0.stopPlayingBehavior(BehaviorTesting.class);
+        assertFalse(AGENT_0.isPlayingBehavior(BehaviorTesting.class));
+    }
+
+    @Test
+    public void tryToStopANullBehaviorThrowsException() {
+        assertThrows(NullPointerException.class, () -> AGENT_0.stopPlayingBehavior(null));
+    }
+
+    @Test
     public void afterStartAndKillAnAgentAllBehaviorsOfTheAgentAreNotPlayed() {
         AGENT_0.start();
         assertTrue(AGENT_0.isStarted());
 
-        // TODO Add protocols.
+        AGENT_0.addBehavior(BehaviorTesting.class, null);
+        AGENT_0.startPlayingBehavior(BehaviorTesting.class);
+        assertTrue(AGENT_0.isPlayingBehavior(BehaviorTesting.class));
 
         AGENT_0.kill();
         assertTrue(AGENT_0.isKilled());
 
-        Map<String, Behavior> mapBehaviors = AGENT_0.getMapBehaviors();
-        Set<Map.Entry<String, Behavior>> entrySet = mapBehaviors.entrySet();
-        for (Map.Entry<String, Behavior> entry : entrySet) {
-            assertFalse(entry.getValue().isPlaying());
+        List<Behavior> behaviors = AGENT_0.getBehaviorList();
+        for (Behavior behavior : behaviors) {
+            assertFalse(behavior.isPlaying());
         }
     }
 
@@ -318,10 +471,8 @@ public class TestAbstractAgent extends SimaTest {
         AGENT_0.kill();
         assertTrue(AGENT_0.isKilled());
 
-        Map<String, Environment> mapEnvironments = AGENT_0.getMapEnvironments();
-        assertTrue(mapEnvironments.isEmpty());
-
-        for (Environment environment : environmentList) {
+        List<Environment> environments = AGENT_0.getEnvironmentList();
+        for (Environment environment : environments) {
             assertFalse(environment.isEvolving(AGENT_0.getAgentIdentifier()));
 
             assertFalse(AGENT_0.isEvolvingInEnvironment(environment));
