@@ -1,6 +1,6 @@
 package sima.core.simulation;
 
-import sima.core.exception.Environment;
+import sima.core.environment.Environment;
 import sima.core.scheduler.Scheduler;
 
 import java.util.Map;

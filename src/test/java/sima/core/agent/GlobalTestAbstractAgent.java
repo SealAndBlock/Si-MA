@@ -10,7 +10,7 @@ import sima.core.exception.KilledAgentException;
 import sima.core.behavior.Behavior;
 import sima.core.behavior.BehaviorNotPlayableTesting;
 import sima.core.behavior.BehaviorTesting;
-import sima.core.exception.Environment;
+import sima.core.environment.Environment;
 import sima.core.environment.EnvironmentTesting;
 import sima.core.environment.event.EventTesting;
 import sima.core.protocol.*;

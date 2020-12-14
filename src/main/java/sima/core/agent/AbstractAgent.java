@@ -5,7 +5,7 @@ import sima.core.exception.AlreadyKilledAgentException;
 import sima.core.exception.AlreadyStartedAgentException;
 import sima.core.exception.KilledAgentException;
 import sima.core.behavior.Behavior;
-import sima.core.exception.Environment;
+import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
 import sima.core.environment.event.EventCatcher;
 import sima.core.environment.event.NoProtocolEvent;

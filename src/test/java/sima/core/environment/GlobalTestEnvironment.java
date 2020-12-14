@@ -6,7 +6,6 @@ import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
 import sima.core.exception.NotEvolvingAgentInEnvironmentException;
-import sima.core.exception.Environment;
 import sima.core.protocol.ProtocolIdentifier;
 
 import java.util.List;

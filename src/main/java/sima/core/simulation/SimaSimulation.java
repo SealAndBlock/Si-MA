@@ -2,7 +2,7 @@ package sima.core.simulation;
 
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
-import sima.core.exception.Environment;
+import sima.core.environment.Environment;
 import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 import sima.core.scheduler.multithread.RealTimeMultiThreadScheduler;

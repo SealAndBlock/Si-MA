@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sima.core.SimaTest;
 import sima.core.agent.AgentTesting;
-import sima.core.exception.Environment;
+import sima.core.environment.Environment;
 import sima.core.environment.EnvironmentTesting;
 import sima.core.environment.event.EventTesting;
 import sima.core.exception.NotSchedulableTimeException;

@@ -1,4 +1,4 @@
-package sima.core.exception;
+package sima.core.environment;
 
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
@@ -6,6 +6,8 @@ import sima.core.environment.event.Event;
 import sima.core.environment.event.EventCatcher;
 import sima.core.environment.event.Message;
 import sima.core.environment.event.NoProtocolEvent;
+import sima.core.exception.NotEvolvingAgentInEnvironmentException;
+import sima.core.exception.UnknownEventException;
 
 import java.util.*;
 

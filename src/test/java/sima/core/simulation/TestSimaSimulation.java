@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import sima.core.SimaTest;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
-import sima.core.exception.Environment;
+import sima.core.environment.Environment;
 import sima.core.exception.EnvironmentConstructionException;
 import sima.core.exception.SimaSimulationAlreadyRunningException;
 import sima.core.exception.SimulationSetupConstructionException;
