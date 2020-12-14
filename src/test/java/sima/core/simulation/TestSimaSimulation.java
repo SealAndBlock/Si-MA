@@ -1,14 +1,14 @@
 package sima.core.simulation;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import sima.core.SimaTest;
 import sima.core.agent.AgentIdentifier;
-import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
+import sima.core.exception.Environment;
+import sima.core.exception.EnvironmentConstructionException;
+import sima.core.exception.SimaSimulationAlreadyRunningException;
+import sima.core.exception.SimulationSetupConstructionException;
 import sima.core.scheduler.Scheduler;
-import sima.core.simulation.exception.EnvironmentConstructionException;
-import sima.core.simulation.exception.SimaSimulationAlreadyRunningException;
-import sima.core.simulation.exception.SimulationSetupConstructionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestSimaSimulation {
+public class TestSimaSimulation extends SimaTest {
 
     // Static.
 
@@ -29,8 +29,8 @@ public class TestSimaSimulation {
 
     // Set up.
 
-    @BeforeEach
-    void SetUp() {
+    @Override
+    public void verifyAndSetup() {
         SCHEDULER_WATCHER = new TestSimulationSchedulerWatcher();
         SIMA_WATCHER = new TestSimaWatcher();
     }

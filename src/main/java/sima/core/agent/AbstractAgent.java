@@ -1,11 +1,11 @@
 package sima.core.agent;
 
-import sima.core.agent.exception.AgentNotStartedException;
-import sima.core.agent.exception.AlreadyKilledAgentException;
-import sima.core.agent.exception.AlreadyStartedAgentException;
-import sima.core.agent.exception.KilledAgentException;
+import sima.core.exception.AgentNotStartedException;
+import sima.core.exception.AlreadyKilledAgentException;
+import sima.core.exception.AlreadyStartedAgentException;
+import sima.core.exception.KilledAgentException;
 import sima.core.behavior.Behavior;
-import sima.core.environment.Environment;
+import sima.core.exception.Environment;
 import sima.core.environment.event.Event;
 import sima.core.environment.event.EventCatcher;
 import sima.core.environment.event.NoProtocolEvent;
@@ -82,8 +82,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @param agentName the agent name
      * @param numberId  the number Id of the agent
      * @param args      the map of argument
-     * @throws NullPointerException     if the agentName is null.
-     * @throws IllegalArgumentException if the numberId is less than 0.
+     * @throws IllegalArgumentException if the numberId is less than 0 or if the agentName is null.
      */
     protected AbstractAgent(String agentName, int numberId, Map<String, String> args) {
         this.uuid = UUID.randomUUID();
@@ -95,7 +94,7 @@ public abstract class AbstractAgent implements EventCatcher {
 
         this.agentName = agentName;
         if (this.agentName == null)
-            throw new NullPointerException("The sima.core.agent name cannot be null.");
+            throw new IllegalArgumentException("The sima.core.agent name cannot be null.");
 
         this.agentIdentifier = new AgentIdentifier(this.uuid, this.agentName, this.numberId);
 
@@ -128,8 +127,7 @@ public abstract class AbstractAgent implements EventCatcher {
         if (this == o) return true;
         if (!(o instanceof AbstractAgent)) return false;
         AbstractAgent that = (AbstractAgent) o;
-        return uuid.equals(that.uuid) &&
-                agentName.equals(that.agentName);
+        return uuid.equals(that.uuid) && agentName.equals(that.agentName);
     }
 
     /**
@@ -168,7 +166,7 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * Method call when the sima.core.agent is started in the method {@link #start()}.
      */
-    public abstract void onStart();
+    protected abstract void onStart();
 
     /**
      * Kill the sima.core.agent. When an sima.core.agent is killed, it cannot be restarted.
@@ -184,16 +182,15 @@ public abstract class AbstractAgent implements EventCatcher {
             this.isKilled = true;
 
             // Stop playing all behaviors.
-            Set<Map.Entry<String, Behavior>> behaviors = this.mapBehaviors.entrySet();
-            for (Map.Entry<String, Behavior> behaviorEntry : behaviors) {
-                Behavior behavior = behaviorEntry.getValue();
+            List<Behavior> behaviors = this.getBehaviorList();
+            for (Behavior behavior : behaviors) {
                 behavior.stopPlaying();
             }
 
             // Leave all environments.
-            Set<Map.Entry<String, Environment>> environments = this.mapEnvironments.entrySet();
-            for (Map.Entry<String, Environment> environmentEntry : environments) {
-                this.leaveEnvironment(environmentEntry.getValue());
+            List<Environment> environments = this.getEnvironmentList();
+            for (Environment environment : environments) {
+                this.leaveEnvironment(environment);
             }
 
             this.onKill();
@@ -204,11 +201,12 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * Method call when the sima.core.agent is killed in the method {@link #kill()}
      */
-    public abstract void onKill();
+    protected abstract void onKill();
 
     /**
      * @param environment the sima.core.environment that the sima.core.agent want join
      * @return true if the sima.core.agent has joined the sima.core.environment, else false.
+     * @throws NullPointerException if environment is null
      */
     public synchronized boolean joinEnvironment(Environment environment) {
         if (this.mapEnvironments.get(environment.getEnvironmentName()) == null) {
@@ -222,48 +220,62 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * @param environment the sima.core.environment
-     * @return true if the sima.core.agent is evolving in the sima.core.environment, else false.
+     * Set the environment in {@link #mapEnvironments} if the agent is evolving in the specified environment and that
+     * the agent does not know that it is evolving in it. In other word, if the agent is evolving in the specified
+     * environment and that the environment is not in {@link #mapEnvironments}, therefore add the environment in
+     * {@link #mapEnvironments}
+     *
+     * @param environment the environment where the agent is evolving
      */
-    public synchronized boolean isEvolvingInEnvironment(Environment environment) {
-        return environment.isEvolving(this.getAgentIdentifier());
-    }
-
-    /**
-     * @param environmentName the sima.core.environment name
-     * @return true if the sima.core.agent is evolving in the sima.core.environment, else false.
-     */
-    public synchronized boolean isEvolvingInEnvironment(String environmentName) {
-        Environment environment = this.mapEnvironments.get(environmentName);
-        if (environment != null) {
-            return environment.isEvolving(this.getAgentIdentifier());
+    public synchronized void setEvolvingInEnvironment(Environment environment) {
+        if (!this.mapEnvironments.containsKey(environment.getEnvironmentName())) {
+            if (environment.isEvolving(this.getAgentIdentifier())) {
+                this.mapEnvironments.put(environment.getEnvironmentName(), environment);
+            }
         }
-
-        return false;
     }
-
 
     /**
      * Makes that the sima.core.agent leaves the sima.core.environment.
      *
      * @param environment the sima.core.environment to leave
+     * @throws NullPointerException if environment is null
      */
     public synchronized void leaveEnvironment(Environment environment) {
-        environment.leave(this.getAgentIdentifier());
-        this.mapEnvironments.remove(environment.getEnvironmentName());
+        // Verify with map to avoid loop if Environment recall the method leaveEnvironment
+        if (this.mapEnvironments.containsKey(environment.getEnvironmentName())) {
+            environment.leave(this.getAgentIdentifier());
+            this.mapEnvironments.remove(environment.getEnvironmentName());
+        }
     }
 
     /**
-     * Makes that the sima.core.agent leaves the sima.core.environment.
+     * Unset the environment in {@link #mapEnvironments} if the agent is not evolving in the environment and that
+     * the environment is always in {@link #mapEnvironments}. If the agent is always evolving in the environment,
+     * nothing is done.
      *
-     * @param environmentName the sima.core.environment name
+     * <strong>WARNINGS!</strong> If the agent is evolving <strong>BUT</strong> the agent does not know it (the
+     * environment is not in {@link #mapEnvironments}) therefore nothing is done.
+     *
+     * @param environment the environment where the agent is not evolving anymore
      */
-    public synchronized void leaveEnvironment(String environmentName) {
-        Environment environment = this.mapEnvironments.get(environmentName);
-        if (environment != null) {
-            environment.leave(this.getAgentIdentifier());
-            this.mapEnvironments.remove(environmentName);
+    public synchronized void unSetEvolvingEnvironment(Environment environment) {
+        if (this.mapEnvironments.containsKey(environment.getEnvironmentName())) {
+            if (!environment.isEvolving(this.getAgentIdentifier())) {
+                this.mapEnvironments.remove(environment.getEnvironmentName());
+            }
         }
+    }
+
+    /**
+     * @param environment the sima.core.environment
+     * @return true if the sima.core.agent is evolving in the sima.core.environment, else false.
+     */
+    public synchronized boolean isEvolvingInEnvironment(Environment environment) {
+        if (environment != null)
+            return environment.isEvolving(this.getAgentIdentifier());
+        else
+            return false;
     }
 
     /**
@@ -298,8 +310,11 @@ public abstract class AbstractAgent implements EventCatcher {
      * {@link Behavior#startPlaying()}.
      *
      * @param behaviorClass the class of the sima.core.behavior that we want starting to play
+     * @throws NullPointerException if behaviorClass is null
      */
     public synchronized void startPlayingBehavior(Class<? extends Behavior> behaviorClass) {
+        if (behaviorClass == null)
+            throw new NullPointerException("BehaviorClass null");
         if (this.isStarted) {
             Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
             if (behavior != null)
@@ -312,6 +327,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * {@link Behavior#stopPlaying()}.
      *
      * @param behaviorClass the class of the sima.core.behavior that we want stopping to play
+     * @throws NullPointerException if behaviorClass is null
      */
     public synchronized void stopPlayingBehavior(Class<? extends Behavior> behaviorClass) {
         Behavior behavior = this.mapBehaviors.get(behaviorClass.getName());
@@ -320,11 +336,19 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * @param behavior the sima.core.behavior
+     * @param behaviorClass the behavior class
      * @return true if the sima.core.agent can play the specified sima.core.behavior, else false.
      */
-    public boolean canPlayBehavior(Behavior behavior) {
-        return behavior.canBePlayedBy(this);
+    public boolean canPlayBehavior(Class<? extends Behavior> behaviorClass) {
+        try {
+            Constructor<? extends Behavior> constructor = behaviorClass.
+                    getConstructor(AbstractAgent.class, Map.class);
+            constructor.newInstance(this, null);
+            return true;
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
+                | InvocationTargetException e) {
+            return false;
+        }
     }
 
     /**
@@ -343,12 +367,11 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * @param protocolIdentifier the string which identify the sima.core.protocol
-     * @return the sima.core.protocol associate to the sima.core.protocol class, if no sima.core.protocol is associated
-     * to this class, return null.
+     * @param behaviorClass the class of the behavior
+     * @return the instance of the corresponding behavior if the agent has added the behavior before, else null.
      */
-    public synchronized Protocol getProtocol(ProtocolIdentifier protocolIdentifier) {
-        return this.mapProtocol.get(protocolIdentifier);
+    public synchronized Behavior getBehavior(Class<? extends Behavior> behaviorClass) {
+        return this.mapBehaviors.get(behaviorClass.getName());
     }
 
     /**
@@ -377,6 +400,15 @@ public abstract class AbstractAgent implements EventCatcher {
                 | InvocationTargetException e) {
             return false;
         }
+    }
+
+    /**
+     * @param protocolIdentifier the string which identify the sima.core.protocol
+     * @return the sima.core.protocol associate to the sima.core.protocol class, if no sima.core.protocol is associated
+     * to this class, return null.
+     */
+    public synchronized Protocol getProtocol(ProtocolIdentifier protocolIdentifier) {
+        return this.mapProtocol.get(protocolIdentifier);
     }
 
     /**
@@ -459,16 +491,16 @@ public abstract class AbstractAgent implements EventCatcher {
         return this.numberId;
     }
 
-    public Map<String, Environment> getMapEnvironments() {
-        return Collections.unmodifiableMap(this.mapEnvironments);
+    public List<Environment> getEnvironmentList() {
+        return new ArrayList<>(this.mapEnvironments.values());
     }
 
-    public Map<String, Behavior> getMapBehaviors() {
-        return Collections.unmodifiableMap(this.mapBehaviors);
+    public List<Behavior> getBehaviorList() {
+        return new ArrayList<>(this.mapBehaviors.values());
     }
 
-    public Map<ProtocolIdentifier, Protocol> getMapProtocol() {
-        return Collections.unmodifiableMap(this.mapProtocol);
+    public List<Protocol> getProtocolList() {
+        return new ArrayList<>(this.mapProtocol.values());
     }
 
     public boolean isStarted() {

@@ -1,6 +1,6 @@
 package sima.core.simulation;
 
-public class TestLocalAgentManager extends TestAgentManager {
+public class TestLocalAgentManager extends GlobalTestAgentManager {
 
     @Override
     protected void verifyAndSetup() {

@@ -2,7 +2,7 @@ package sima.core.scheduler.multithread;
 
 import sima.core.scheduler.Executable;
 import sima.core.scheduler.Scheduler;
-import sima.core.scheduler.exception.NotSchedulableTimeException;
+import sima.core.exception.NotSchedulableTimeException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
