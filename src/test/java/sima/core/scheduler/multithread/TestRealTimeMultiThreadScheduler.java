@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class TestRealTimeMultiThreadScheduler extends TestMultiThreadScheduler {
+public class TestRealTimeMultiThreadScheduler extends GlobalTestMultiThreadScheduler {
 
     // Static.
 

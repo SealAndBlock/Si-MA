@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestAgentTesting extends TestAbstractAgent {
+public class TestAgentTesting extends GlobalTestAbstractAgent {
 
     // Initialisation.
 
@@ -17,6 +17,8 @@ public class TestAgentTesting extends TestAbstractAgent {
     public void verifyAndSetup() {
         AGENT_0 = new AgentTesting("AGENT_0", 0, null);
         AGENT_1 = new AgentTesting("AGENT_1", 1, null);
+
+        super.verifyAndSetup();
     }
 
     // Tests.

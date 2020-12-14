@@ -2,6 +2,7 @@ package sima.core.scheduler;
 
 import sima.core.agent.AbstractAgent;
 import sima.core.environment.event.Event;
+import sima.core.exception.NotSchedulableTimeException;
 import sima.core.simulation.SimaSimulation;
 
 /**
@@ -110,7 +111,7 @@ public interface Scheduler {
      * @param simulationSpecificTime the specific time of the simulation when the executable is execute (greater or
      *                               equal to 0 if in repeated mod)
      * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 1.
-     * @throws sima.core.scheduler.exception.NotSchedulableTimeException if the simulationSpecificTime is already pass.
+     * @throws NotSchedulableTimeException if the simulationSpecificTime is already pass.
      */
     void scheduleExecutableAtSpecificTime(Executable executable, long simulationSpecificTime);
 

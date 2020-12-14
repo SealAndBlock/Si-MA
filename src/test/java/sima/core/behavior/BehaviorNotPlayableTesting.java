@@ -1,7 +1,7 @@
 package sima.core.behavior;
 
 import sima.core.agent.AbstractAgent;
-import sima.core.behavior.exception.BehaviorCannotBePlayedByAgentException;
+import sima.core.exception.BehaviorCannotBePlayedByAgentException;
 
 import java.util.Map;
 

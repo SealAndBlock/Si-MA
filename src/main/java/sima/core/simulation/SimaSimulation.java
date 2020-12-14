@@ -2,14 +2,14 @@ package sima.core.simulation;
 
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
-import sima.core.environment.Environment;
+import sima.core.exception.Environment;
 import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 import sima.core.scheduler.multithread.RealTimeMultiThreadScheduler;
-import sima.core.simulation.exception.EnvironmentConstructionException;
-import sima.core.simulation.exception.SimaSimulationAlreadyRunningException;
-import sima.core.simulation.exception.SimulationSetupConstructionException;
-import sima.core.simulation.exception.TwoAgentWithSameIdentifierException;
+import sima.core.exception.EnvironmentConstructionException;
+import sima.core.exception.SimaSimulationAlreadyRunningException;
+import sima.core.exception.SimulationSetupConstructionException;
+import sima.core.exception.TwoAgentWithSameIdentifierException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

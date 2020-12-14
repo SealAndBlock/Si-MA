@@ -2,6 +2,7 @@ package sima.core.environment;
 
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
+import sima.core.exception.Environment;
 import sima.core.simulation.SimaSimulation;
 
 import java.util.List;

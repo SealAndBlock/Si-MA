@@ -3,12 +3,12 @@ package sima.core.simulation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sima.core.agent.AgentIdentifier;
-import sima.core.environment.Environment;
+import sima.core.exception.Environment;
 import sima.core.environment.event.Event;
 import sima.core.scheduler.Scheduler;
-import sima.core.simulation.exception.EnvironmentConstructionException;
-import sima.core.simulation.exception.SimaSimulationAlreadyRunningException;
-import sima.core.simulation.exception.SimulationSetupConstructionException;
+import sima.core.exception.EnvironmentConstructionException;
+import sima.core.exception.SimaSimulationAlreadyRunningException;
+import sima.core.exception.SimulationSetupConstructionException;
 
 import java.util.ArrayList;
 import java.util.List;
