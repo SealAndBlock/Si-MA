@@ -90,7 +90,7 @@ public abstract class Protocol implements EventCatcher {
      */
     public ProtocolIdentifier getIdentifier() {
         if (this.protocolIdentifier == null) {
-            this.protocolIdentifier = new ProtocolIdentifier(this.getClass().getName(), this.protocolTag);
+            this.protocolIdentifier = new ProtocolIdentifier(this.getClass(), this.protocolTag);
         }
 
         return protocolIdentifier;

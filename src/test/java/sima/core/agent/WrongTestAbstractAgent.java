@@ -105,7 +105,7 @@ public class WrongTestAbstractAgent {
 
         AGENT_0.addProtocol(ProtocolTestImpl.class, "PT", null);
         ProtocolTestImpl protocolTest = (ProtocolTestImpl) AGENT_0.getProtocol(
-                new ProtocolIdentifier(ProtocolTestImpl.class.getName(), "PT"));
+                new ProtocolIdentifier(ProtocolTestImpl.class, "PT"));
 
         AGENT_0.processEvent(new Event(AGENT_0.getAgentIdentifier(), AGENT_1.getAgentIdentifier(),
                 protocolTest.getIdentifier()) {
@@ -120,7 +120,7 @@ public class WrongTestAbstractAgent {
 
         AGENT_0.addProtocol(ProtocolTestImpl.class, "PT", null);
         ProtocolTestImpl protocolTest = (ProtocolTestImpl) AGENT_0.getProtocol(
-                new ProtocolIdentifier(ProtocolTestImpl.class.getName(), "PT"));
+                new ProtocolIdentifier(ProtocolTestImpl.class, "PT"));
 
         AGENT_0.processEvent(new Event(AGENT_0.getAgentIdentifier(), AGENT_1.getAgentIdentifier(),
                 null) {
@@ -136,7 +136,7 @@ public class WrongTestAbstractAgent {
         AGENT_0.start();
 
         AGENT_0.processEvent(new Event(AGENT_0.getAgentIdentifier(), AGENT_1.getAgentIdentifier(),
-                new ProtocolIdentifier(ProtocolTestImpl.class.getName(), "PT")) {
+                new ProtocolIdentifier(ProtocolTestImpl.class, "PT")) {
         });
 
         assertEquals(0, AGENT_0.passInTreatNoProtocolEvent);

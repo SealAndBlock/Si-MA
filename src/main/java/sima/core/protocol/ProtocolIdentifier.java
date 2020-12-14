@@ -18,7 +18,7 @@ public class ProtocolIdentifier implements Serializable {
     /**
      * The name of the sima.core.protocol.
      */
-    private final String protocolName;
+    private final Class<? extends Protocol> protocolClass;
 
     /**
      * The tag of the sima.core.protocol.
@@ -28,17 +28,17 @@ public class ProtocolIdentifier implements Serializable {
     // Constructors.
 
     /**
-     * Constructs a {@link ProtocolIdentifier} with a sima.core.protocol name.
+     * Constructs a {@link ProtocolIdentifier}.
      *
-     * @param protocolName the sima.core.protocol name (must be not null)
-     * @param protocolTag  the sima.core.protocol tag (must be not null)
+     * @param protocolClass the class of the protocol
+     * @param protocolTag   the protocol tag.
      * @throws NullPointerException if the protocolName and/or the sima.core.protocol tag is null
      */
-    public ProtocolIdentifier(String protocolName, String protocolTag) {
-        this.protocolName = protocolName;
+    public ProtocolIdentifier(Class<? extends Protocol> protocolClass, String protocolTag) {
+        this.protocolClass = protocolClass;
         this.protocolTag = protocolTag;
 
-        if (this.protocolName == null || this.protocolTag == null)
+        if (this.protocolClass == null || this.protocolTag == null)
             throw new NullPointerException();
     }
 
@@ -49,19 +49,19 @@ public class ProtocolIdentifier implements Serializable {
         if (this == o) return true;
         if (!(o instanceof ProtocolIdentifier)) return false;
         ProtocolIdentifier that = (ProtocolIdentifier) o;
-        return Objects.equals(protocolName, that.protocolName) &&
+        return Objects.equals(protocolClass, that.protocolClass) &&
                 Objects.equals(protocolTag, that.protocolTag);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(protocolName, protocolTag);
+        return Objects.hash(protocolClass, protocolTag);
     }
 
     // Getters and Setters.
 
-    public String getProtocolName() {
-        return protocolName;
+    public Class<? extends Protocol> getProtocolClass() {
+        return protocolClass;
     }
 
     public String getProtocolTag() {

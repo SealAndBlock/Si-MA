@@ -128,8 +128,7 @@ public abstract class AbstractAgent implements EventCatcher {
         if (this == o) return true;
         if (!(o instanceof AbstractAgent)) return false;
         AbstractAgent that = (AbstractAgent) o;
-        return uuid.equals(that.uuid) &&
-                agentName.equals(that.agentName);
+        return uuid.equals(that.uuid) && agentName.equals(that.agentName);
     }
 
     /**

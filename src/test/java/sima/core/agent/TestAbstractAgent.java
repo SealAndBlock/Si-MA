@@ -11,6 +11,7 @@ import sima.core.behavior.BehaviorNotPlayableTesting;
 import sima.core.behavior.BehaviorTesting;
 import sima.core.environment.Environment;
 import sima.core.environment.EnvironmentTesting;
+import sima.core.protocol.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -489,5 +490,54 @@ public abstract class TestAbstractAgent extends SimaTest {
 
             assertFalse(AGENT_0.isEvolvingInEnvironment(environment));
         }
+    }
+
+    @Test
+    public void agentCanAddProtocolThatItHasNotAddBefore() {
+        assertTrue(AGENT_0.addProtocol(ProtocolTesting.class, "P_0", null));
+    }
+
+    @Test
+    public void getProtocolReturnsNotNullProtocolIfTheProtocolHasBeenAdded() {
+        String protocolTag = "P_0";
+        AGENT_0.addProtocol(ProtocolTesting.class, protocolTag, null);
+
+        assertNotNull(AGENT_0.getProtocol(new ProtocolIdentifier(ProtocolTesting.class, protocolTag)));
+    }
+
+    @Test
+    public void getProtocolReturnsNullIfThereIsNoProtocolAssociatedToTheProtocolIdentifier() {
+        String protocolTag = "P_0";
+        assertNull(AGENT_0.getProtocol(new ProtocolIdentifier(ProtocolTesting.class, protocolTag)));
+    }
+
+    @Test
+    public void agentCanAddTwoProtocolsWithSameClassButNotSameTag() {
+        String pTag0 = "P_0";
+        String pTag1 = "P_1";
+
+        assertTrue(AGENT_0.addProtocol(ProtocolTesting.class, pTag0, null));
+        assertTrue(AGENT_0.addProtocol(ProtocolTesting.class, pTag1, null));
+
+        Protocol p0 = AGENT_0.getProtocol(new ProtocolIdentifier(ProtocolTesting.class, pTag0));
+        Protocol p1 = AGENT_0.getProtocol(new ProtocolIdentifier(ProtocolTesting.class, pTag1));
+
+        assertNotNull(p0);
+        assertNotNull(p1);
+
+        assertNotSame(p0, p1);
+    }
+
+    @Test
+    public void agentCannotAddProtocolWhichAlreadyAddWithTheSameClassAndTheSameProtocol() {
+        String pTag0 = "P_0";
+        assertTrue(AGENT_0.addProtocol(ProtocolTesting.class, pTag0, null));
+        assertFalse(AGENT_0.addProtocol(ProtocolTesting.class, pTag0, null));
+    }
+
+    @Test
+    public void agentCannotAddProtocolWhichDoesNotRespectTheSpecification() {
+        assertFalse(AGENT_0.addProtocol(ProtocolWithoutDefaultProtocolManipulatorTesting.class, "P_WRONG_0", null));
+        assertFalse(AGENT_0.addProtocol(ProtocolWithWrongConstructorTesting.class, "P_WRONG_1", null));
     }
 }
