@@ -3,6 +3,7 @@ package sima.core.agent;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sima.core.SimaTest;
+import sima.core.agent.exception.AgentNotStartedException;
 import sima.core.agent.exception.AlreadyKilledAgentException;
 import sima.core.agent.exception.AlreadyStartedAgentException;
 import sima.core.agent.exception.KilledAgentException;
@@ -11,6 +12,7 @@ import sima.core.behavior.BehaviorNotPlayableTesting;
 import sima.core.behavior.BehaviorTesting;
 import sima.core.environment.Environment;
 import sima.core.environment.EnvironmentTesting;
+import sima.core.environment.event.EventTesting;
 import sima.core.protocol.*;
 
 import java.util.ArrayList;
@@ -539,5 +541,119 @@ public abstract class TestAbstractAgent extends SimaTest {
     public void agentCannotAddProtocolWhichDoesNotRespectTheSpecification() {
         assertFalse(AGENT_0.addProtocol(ProtocolWithoutDefaultProtocolManipulatorTesting.class, "P_WRONG_0", null));
         assertFalse(AGENT_0.addProtocol(ProtocolWithWrongConstructorTesting.class, "P_WRONG_1", null));
+    }
+
+    @Test
+    public void getProtocolListIsEmptyIfTheAgentHasNotAddProtocol() {
+        assertTrue(AGENT_0.getProtocolList().isEmpty());
+    }
+
+    @Test
+    public void getProtocolListContainsAllProtocolsAdded() {
+        String pTag0 = "P_0";
+        String pTag1 = "P_1";
+
+        assertTrue(AGENT_0.addProtocol(ProtocolTesting.class, pTag0, null));
+        assertTrue(AGENT_0.addProtocol(ProtocolTesting.class, pTag1, null));
+
+        Protocol p0 = AGENT_0.getProtocol(new ProtocolIdentifier(ProtocolTesting.class, pTag0));
+        Protocol p1 = AGENT_0.getProtocol(new ProtocolIdentifier(ProtocolTesting.class, pTag1));
+
+        assertTrue(AGENT_0.getProtocolList().contains(p0));
+        assertTrue(AGENT_0.getProtocolList().contains(p1));
+    }
+
+    @Test
+    public void processEventThrowsExceptionIfTheAgentIsNotStarted() {
+        EventTesting eventTesting = new EventTesting(AGENT_0.getAgentIdentifier(), AGENT_1.getAgentIdentifier(), null);
+        assertThrows(AgentNotStartedException.class, () -> AGENT_0.processEvent(eventTesting));
+    }
+
+    @Test
+    public void processEventCallProcessEventMethodOfTheProtocolTargeted() {
+        String p0 = "P_0";
+        AGENT_0.addProtocol(ProtocolTesting.class, p0, null);
+        ProtocolIdentifier p0Identifier = new ProtocolIdentifier(ProtocolTesting.class, p0);
+        ProtocolTesting p = (ProtocolTesting) AGENT_0.getProtocol(p0Identifier);
+
+        AGENT_0.start();
+
+        EventTesting e = new EventTesting(AGENT_0.getAgentIdentifier(), AGENT_0.getAgentIdentifier(), p0Identifier);
+        AGENT_0.processEvent(e);
+
+        assertEquals(1, p.getPassToProcessEvent());
+    }
+
+    @Test
+    public void processEventNotThrowsExceptionIfEventHasNoProtocolTargeted() {
+        String p0 = "P_0";
+        AGENT_0.addProtocol(ProtocolTesting.class, p0, null);
+
+        AGENT_0.start();
+
+        EventTesting e = new EventTesting(AGENT_0.getAgentIdentifier(), AGENT_0.getAgentIdentifier(), null);
+
+        try {
+            AGENT_0.processEvent(e);
+        } catch (Exception exception) {
+            fail(exception);
+        }
+    }
+
+    @Test
+    public void processEventNotThrowsExceptionIfTheAgentDoesNotHaveTheEventProtocolTargeted() {
+        AGENT_0.start();
+
+        String p0 = "P_0";
+        ProtocolIdentifier p0Identifier = new ProtocolIdentifier(ProtocolTesting.class, p0);
+        EventTesting e = new EventTesting(AGENT_0.getAgentIdentifier(), AGENT_0.getAgentIdentifier(), p0Identifier);
+
+        try {
+            AGENT_0.processEvent(e);
+        } catch (Exception exception) {
+            fail(exception);
+        }
+    }
+
+    @Test
+    public void getInfoNeverReturnsNull() {
+        assertNotNull(AGENT_0.getInfo());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void allAgentInfoFieldsCorrespondToTheAgentFields() {
+        AgentInfo a0Info = AGENT_0.getInfo();
+
+        assertEquals(a0Info.getAgentIdentifier(), AGENT_0.getAgentIdentifier());
+
+        for (String behaviorClassName : a0Info.getBehaviors()) {
+            try {
+                assertNotNull(AGENT_0.getBehavior((Class<? extends Behavior>) Class.forName(behaviorClassName)));
+            } catch (ClassNotFoundException e) {
+                fail(e);
+            }
+        }
+
+        assertEquals(a0Info.getEnvironments().size(), AGENT_0.getEnvironmentList().size());
+
+        for (ProtocolIdentifier protocolIdentifier : a0Info.getProtocols()) {
+            assertNotNull(AGENT_0.getProtocol(protocolIdentifier));
+        }
+    }
+
+    @Test
+    public void getUUIDNeverReturnsNull() {
+        assertNotNull(AGENT_0.getUUID());
+    }
+
+    @Test
+    public void getAgentNameNeverReturnsNull() {
+        assertNotNull(AGENT_0.getAgentName());
+    }
+
+    @Test
+    public void getNumberIdNeverReturnsNegativeNumber() {
+        assertTrue(AGENT_0.getNumberId() >= 0);
     }
 }

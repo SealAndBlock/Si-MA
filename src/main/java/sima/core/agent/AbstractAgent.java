@@ -82,8 +82,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @param agentName the agent name
      * @param numberId  the number Id of the agent
      * @param args      the map of argument
-     * @throws NullPointerException     if the agentName is null.
-     * @throws IllegalArgumentException if the numberId is less than 0.
+     * @throws IllegalArgumentException if the numberId is less than 0 or if the agentName is null.
      */
     protected AbstractAgent(String agentName, int numberId, Map<String, String> args) {
         this.uuid = UUID.randomUUID();
@@ -95,7 +94,7 @@ public abstract class AbstractAgent implements EventCatcher {
 
         this.agentName = agentName;
         if (this.agentName == null)
-            throw new NullPointerException("The sima.core.agent name cannot be null.");
+            throw new IllegalArgumentException("The sima.core.agent name cannot be null.");
 
         this.agentIdentifier = new AgentIdentifier(this.uuid, this.agentName, this.numberId);
 
@@ -500,8 +499,8 @@ public abstract class AbstractAgent implements EventCatcher {
         return new ArrayList<>(this.mapBehaviors.values());
     }
 
-    public Map<ProtocolIdentifier, Protocol> getMapProtocol() {
-        return Collections.unmodifiableMap(this.mapProtocol);
+    public List<Protocol> getProtocolList() {
+        return new ArrayList<>(this.mapProtocol.values());
     }
 
     public boolean isStarted() {
