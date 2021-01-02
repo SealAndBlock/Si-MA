@@ -5,7 +5,6 @@ import sima.core.behavior.Behavior;
 import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
 import sima.core.environment.event.EventCatcher;
-import sima.core.environment.event.NoProtocolEvent;
 import sima.core.exception.AgentNotStartedException;
 import sima.core.exception.AlreadyKilledAgentException;
 import sima.core.exception.AlreadyStartedAgentException;
@@ -470,7 +469,6 @@ public abstract class AbstractAgent implements EventCatcher {
      *
      * @param event the event received
      * @throws AgentNotStartedException if the agent is not started
-     * @see NoProtocolEvent
      * @see Event#isProtocolEvent()
      */
     @Override
@@ -497,7 +495,6 @@ public abstract class AbstractAgent implements EventCatcher {
      * general event that it receives.
      *
      * @param event the event received
-     * @see NoProtocolEvent
      * @see Event#isProtocolEvent()
      */
     protected abstract void treatNoProtocolEvent(Event event);

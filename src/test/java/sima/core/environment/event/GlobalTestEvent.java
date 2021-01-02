@@ -36,9 +36,12 @@ public abstract class GlobalTestEvent extends SimaTest {
         AgentTesting receiver = new AgentTesting("A_0", 0, null);
         Event e = EVENT.cloneAndAddReceiver(receiver.getAgentIdentifier());
 
-        assertEquals(e.getSender(), EVENT.getSender());
-        assertNotEquals(e.getReceiver(), EVENT.getReceiver());
-        assertEquals(e.getProtocolTargeted(), EVENT.getProtocolTargeted());
+        this.verifyPreConditionAndExecuteTest(() -> e != null,
+                () -> {
+                    assertEquals(e.getSender(), EVENT.getSender());
+                    assertNotEquals(e.getReceiver(), EVENT.getReceiver());
+                    assertEquals(e.getProtocolTargeted(), EVENT.getProtocolTargeted());
+                });
     }
 
     @Test

@@ -8,7 +8,7 @@ import java.io.Serializable;
 /**
  * A message is a particular event which has a content.
  */
-public abstract class Message extends Event {
+public class Message extends Event {
 
     // Variables.
 
@@ -35,6 +35,13 @@ public abstract class Message extends Event {
         super(sender, receiver, protocolTargeted);
 
         this.content = content;
+    }
+
+    // Methods.
+
+    @Override
+    public Object clone() {
+        return new Message(this.getSender(), this.getReceiver(), this.getProtocolTargeted(), this.getContent());
     }
 
     // Getters and Setters.

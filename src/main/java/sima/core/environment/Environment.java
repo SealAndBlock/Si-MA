@@ -4,10 +4,7 @@ import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
 import sima.core.environment.event.EventCatcher;
-import sima.core.environment.event.Message;
-import sima.core.environment.event.NoProtocolEvent;
 import sima.core.exception.NotEvolvingAgentInEnvironmentException;
-import sima.core.exception.UnknownEventException;
 
 import java.util.*;
 
@@ -124,7 +121,7 @@ public abstract class Environment implements EventCatcher {
      * Make that the sima.core.agent is leaving the sima.core.environment. If the sima.core.agent is not evolving in the
      * {@link Environment}, nothing is done. Calls the method {@link #agentIsLeaving(AgentIdentifier)} before remove the
      * agent from the {@code Environment}.
-     *
+     * <p>
      * In this method the agent is not notify that it is leaving the environment. For that the agent be conscience that
      * it leaves the environment, it is recommended to use the method
      * {@link AbstractAgent#leaveEnvironment(Environment)}
@@ -252,7 +249,6 @@ public abstract class Environment implements EventCatcher {
      *
      * @param receiver the sima.core.agent receiver
      * @param event    the event to receiver
-     * @throws UnknownEventException if the event is not a {@link Message} or a {@link NoProtocolEvent}
      * @see #sendEvent(Event)
      * @see #eventCanBeSentTo(AgentIdentifier, Event)
      * @see #scheduleEventReceptionToOneAgent(AgentIdentifier, Event)
