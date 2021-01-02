@@ -1,250 +1,302 @@
 package sima.core.environment;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import sima.core.SimaTest;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
+import sima.core.environment.event.EventTesting;
 import sima.core.exception.NotEvolvingAgentInEnvironmentException;
-import sima.core.protocol.ProtocolIdentifier;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GlobalTestEnvironment {
+@Disabled
+public abstract class GlobalTestEnvironment extends SimaTest {
 
-    // Variables.
+    // Statics.
 
-    private static AbstractAgent AGENT_0;
-    private static AbstractAgent AGENT_1;
+    protected static Environment ENVIRONMENT;
 
-    private static Environment ENV;
+    /**
+     * An instance of {@link AbstractAgent} which we are sure that the method
+     * {@link Environment#agentCanBeAccepted(AgentIdentifier)} returns <strong>TRUE</strong>.
+     */
+    protected static AgentIdentifier ACCEPTED_AGENT;
 
-    // Setup.
+    /**
+     * An instance of {@link AbstractAgent} which we are sure that the method
+     * {@link Environment#agentCanBeAccepted(AgentIdentifier)} returns <strong>FALSE</strong>.
+     */
+    protected static AgentIdentifier NOT_ACCEPTED_AGENT;
 
-    @BeforeEach
-    void setUp() {
-        AGENT_0 = new AgentTestImpl("AGENT_0");
-        AGENT_1 = new AgentTestImpl("AGENT_1");
+    // Initialisation.
 
-        ENV = new EnvironmentTestImpl("ENV_TEST", null);
+    @Override
+    protected void verifyAndSetup() {
+        assertNotNull(ENVIRONMENT, " ENVIRONMENT cannot be null for tests");
+        assertNotNull(ACCEPTED_AGENT, " ACCEPTED_AGENT cannot be null for tests");
+        assertNotNull(NOT_ACCEPTED_AGENT, " NOT_ACCEPTED_AGENT cannot be null for tests");
+
+        assertNotEquals(ACCEPTED_AGENT, NOT_ACCEPTED_AGENT, "ACCEPTED_AGENT cannot be equals of " +
+                "NOT_ACCEPTED_AGENT");
     }
 
     // Tests.
 
-    /**
-     * Test the method {@link Environment#acceptAgent(AgentIdentifier)}.
-     * <p>
-     * Test in first if the null sima.core.agent and {@link #AGENT_0} and {@link #AGENT_1} are not evolving in the sima.core.environment.
-     * <p>
-     * After that, try to accept the null sima.core.agent, the sima.core.agent {@link #AGENT_0} and the {@link #AGENT_1}. Only the
-     * {@link #AGENT_0} must be accepted.
-     * <p>
-     * Verifies if only the sima.core.agent {@link #AGENT_0} is evolving in the sima.core.environment. The sima.core.agent {@link #AGENT_1} is not
-     * accepted sima.core.agent in the implementation of {@link EnvironmentTestImpl}.
-     */
     @Test
-    public void testAcceptingAgent() {
-        assertFalse(ENV.isEvolving(null));
-        assertFalse(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
-        assertFalse(ENV.isEvolving(AGENT_1.getAgentIdentifier()));
+    public void constructEnvironmentWithNullNameThrowsException() {
+        assertThrows(NullPointerException.class, () -> new Environment(null, null) {
 
-        assertFalse(ENV.acceptAgent(null));
-        assertTrue(ENV.acceptAgent(AGENT_0.getAgentIdentifier()));
-        assertFalse(ENV.acceptAgent(AGENT_1.getAgentIdentifier()));
+            @Override
+            public void processEvent(Event event) {
+            }
 
-        assertFalse(ENV.isEvolving(null));
-        assertTrue(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
-        assertFalse(ENV.isEvolving(AGENT_1.getAgentIdentifier()));
-    }
+            @Override
+            protected void processArgument(Map<String, String> args) {
+            }
 
-    /**
-     * Test if after accept some sima.core.agent, the sima.core.environment remove the agents which leave it.
-     */
-    @Test
-    public void testLeavingAgent() {
-        assertFalse(ENV.isEvolving(null));
-        assertFalse(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
-        assertFalse(ENV.isEvolving(AGENT_1.getAgentIdentifier()));
+            @Override
+            protected boolean agentCanBeAccepted(AgentIdentifier abstractAgentIdentifier) {
+                return false;
+            }
 
-        assertFalse(ENV.acceptAgent(null));
-        assertTrue(ENV.acceptAgent(AGENT_0.getAgentIdentifier()));
-        assertFalse(ENV.acceptAgent(AGENT_1.getAgentIdentifier()));
+            @Override
+            protected void agentIsLeaving(AgentIdentifier leavingAgentIdentifier) {
+            }
 
-        ENV.leave(null);
-        ENV.leave(AGENT_0.getAgentIdentifier());
-        ENV.leave(AGENT_1.getAgentIdentifier());
+            @Override
+            protected void sendEventWithNullReceiver(Event event) {
+            }
 
-        assertFalse(ENV.isEvolving(null));
-        assertFalse(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
-        assertFalse(ENV.isEvolving(AGENT_1.getAgentIdentifier()));
-    }
+            @Override
+            protected boolean eventCanBeSentTo(AgentIdentifier receiver, Event event) {
+                return false;
+            }
 
-    /**
-     * Test if the list returns by the method {@link Environment#getEvolvingAgentIdentifiers()} coincides with the current
-     * agents evolving in the sima.core.environment.
-     */
-    @Test
-    public void testGetEvolvingAgentsInfo() {
-        assertFalse(ENV.isEvolving(null));
-        assertFalse(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
-        assertFalse(ENV.isEvolving(AGENT_1.getAgentIdentifier()));
-
-        assertFalse(ENV.acceptAgent(null));
-        assertTrue(ENV.acceptAgent(AGENT_0.getAgentIdentifier()));
-        assertFalse(ENV.acceptAgent(AGENT_1.getAgentIdentifier()));
-
-        List<AgentIdentifier> agentIdentifiers = ENV.getEvolvingAgentIdentifiers();
-        assertEquals(agentIdentifiers.size(), 1);
-        assertTrue(agentIdentifiers.contains(AGENT_0.getAgentIdentifier()));
-        assertFalse(agentIdentifiers.contains(AGENT_1.getAgentIdentifier()));
-
-        ENV.leave(null);
-        ENV.leave(AGENT_0.getAgentIdentifier());
-        ENV.leave(AGENT_1.getAgentIdentifier());
-
-        agentIdentifiers = ENV.getEvolvingAgentIdentifiers();
-        assertEquals(agentIdentifiers.size(), 0);
-        assertFalse(agentIdentifiers.contains(AGENT_0.getAgentIdentifier()));
-        assertFalse(agentIdentifiers.contains(AGENT_1.getAgentIdentifier()));
+            @Override
+            protected void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event) {
+            }
+        });
     }
 
     @Test
-    public void testSendEvent() {
-        assertFalse(ENV.isEvolving(AGENT_0.getAgentIdentifier()));
-
-        assertTrue(ENV.acceptAgent(AGENT_0.getAgentIdentifier()));
-
-        assertThrows(NullPointerException.class, () -> ENV.sendEvent(null));
-
-        EventTestImpl e0 = new EventTestImpl(AGENT_1.getAgentIdentifier(), AGENT_0.getAgentIdentifier(), null);
-        assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> ENV.sendEvent(e0));
-
-        // AGENT_1 not evolving in environment
-        EventTestImpl e1 = new EventTestImpl(AGENT_0.getAgentIdentifier(), AGENT_1.getAgentIdentifier(), null);
-        assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> ENV.sendEvent(e1));
-
-        EventTestImpl e2 = new EventTestImpl(AGENT_0.getAgentIdentifier(), AGENT_0.getAgentIdentifier(), null);
+    public void constructEnvironmentWithNullArgumentsNotFail() {
         try {
-            ENV.sendEvent(e2);
-            assertTrue(((EnvironmentTestImpl) ENV).isPassToScheduleEventReceptionToOneAgent);
-            assertFalse(((EnvironmentTestImpl) ENV).isPassToSendEventWithoutReceiver);
-            ((EnvironmentTestImpl) ENV).reset();
-        } catch (NotEvolvingAgentInEnvironmentException e) {
-            fail();
-        }
+            new Environment("EMPTY", null) {
 
-        EventTestImpl e3 = new EventTestImpl(AGENT_0.getAgentIdentifier(), null, null);
+                @Override
+                public void processEvent(Event event) {
+                }
+
+                @Override
+                protected void processArgument(Map<String, String> args) {
+                }
+
+                @Override
+                protected boolean agentCanBeAccepted(AgentIdentifier abstractAgentIdentifier) {
+                    return false;
+                }
+
+                @Override
+                protected void agentIsLeaving(AgentIdentifier leavingAgentIdentifier) {
+                }
+
+                @Override
+                protected void sendEventWithNullReceiver(Event event) {
+                }
+
+                @Override
+                protected boolean eventCanBeSentTo(AgentIdentifier receiver, Event event) {
+                    return false;
+                }
+
+                @Override
+                protected void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event) {
+                }
+            };
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    public void constructEnvironmentWithNotNullArgumentsNotFail() {
         try {
-            ENV.sendEvent(e3);
-            assertFalse(((EnvironmentTestImpl) ENV).isPassToScheduleEventReceptionToOneAgent);
-            assertTrue(((EnvironmentTestImpl) ENV).isPassToSendEventWithoutReceiver);
-            ((EnvironmentTestImpl) ENV).reset();
-        } catch (NotEvolvingAgentInEnvironmentException e) {
-            fail();
+            new Environment("EMPTY", new HashMap<>()) {
+
+                @Override
+                public void processEvent(Event event) {
+                }
+
+                @Override
+                protected void processArgument(Map<String, String> args) {
+                }
+
+                @Override
+                protected boolean agentCanBeAccepted(AgentIdentifier abstractAgentIdentifier) {
+                    return false;
+                }
+
+                @Override
+                protected void agentIsLeaving(AgentIdentifier leavingAgentIdentifier) {
+                }
+
+                @Override
+                protected void sendEventWithNullReceiver(Event event) {
+                }
+
+                @Override
+                protected boolean eventCanBeSentTo(AgentIdentifier receiver, Event event) {
+                    return false;
+                }
+
+                @Override
+                protected void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event) {
+                }
+            };
+        } catch (Exception e) {
+            fail(e);
         }
     }
 
-    // Private classes.
-
-    private static class EnvironmentTestImpl extends Environment {
-
-        public boolean isPassToSendEventWithoutReceiver = false;
-        public boolean isPassToScheduleEventReceptionToOneAgent = false;
-
-        // Constructors.
-
-        public EnvironmentTestImpl(String environmentName, Map<String, String> args) {
-            super(environmentName, args);
-        }
-
-        // Methods.
-
-        @Override
-        protected void processArgument(Map<String, String> args) {
-        }
-
-        /**
-         * @param abstractAgentIdentifier the sima.core.agent to verify
-         * @return true if the specified sima.core.agent is to {@link #AGENT_0}, else false.
-         */
-        @Override
-        protected boolean agentCanBeAccepted(AgentIdentifier abstractAgentIdentifier) {
-            return abstractAgentIdentifier.equals(AGENT_0.getAgentIdentifier());
-        }
-
-        @Override
-        protected void agentIsLeaving(AgentIdentifier leavingAgentIdentifier) {
-        }
-
-        @Override
-        protected void sendEventWithNullReceiver(Event event) {
-            this.isPassToSendEventWithoutReceiver = true;
-        }
-
-        @Override
-        protected boolean eventCanBeSentTo(AgentIdentifier receiver, Event event) {
-            return true;
-        }
-
-        @Override
-        protected void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event) {
-            this.isPassToScheduleEventReceptionToOneAgent = true;
-        }
-
-        @Override
-        public void processEvent(Event event) {
-        }
-
-        public void reset() {
-            this.isPassToSendEventWithoutReceiver = false;
-            this.isPassToScheduleEventReceptionToOneAgent = false;
-        }
+    @Test
+    public void acceptAgentReturnsFalseForNullAgentIdentifier() {
+        assertFalse(ENVIRONMENT.acceptAgent(null));
     }
 
-    private static class AgentTestImpl extends AbstractAgent {
-
-        // Constructors.
-
-        public AgentTestImpl(String agentName) {
-            super(agentName, 0, null);
-        }
-
-        // Methods.
-
-        @Override
-        protected void processArgument(Map<String, String> args) {
-        }
-
-        @Override
-        public void onStart() {
-
-        }
-
-        @Override
-        public void onKill() {
-
-        }
-
-        @Override
-        protected void treatNoProtocolEvent(Event event) {
-
-        }
-
-        @Override
-        protected void treatEventWithNotFindProtocol(Event event) {
-
-        }
+    @Test
+    public void acceptAgentReturnsTrueForAnAcceptedAgent() {
+        assertTrue(ENVIRONMENT.acceptAgent(ACCEPTED_AGENT));
     }
 
-    private static class EventTestImpl extends Event {
+    @Test
+    public void acceptAgentReturnsFalseForANotAcceptedAgent() {
+        assertFalse(ENVIRONMENT.acceptAgent(NOT_ACCEPTED_AGENT));
+    }
 
-        // Constructors.
+    @Test
+    public void isEvolvingReturnsFalseForANullAgentIdentifier() {
+        assertFalse(ENVIRONMENT.isEvolving(null));
+    }
 
-        public EventTestImpl(AgentIdentifier sender, AgentIdentifier receiver, ProtocolIdentifier protocolTargeted) {
-            super(sender, receiver, protocolTargeted);
-        }
+    @Test
+    public void isEvolvingReturnsTrueForAnAgentWhichHasBeenAccepted() {
+        this.verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.acceptAgent(ACCEPTED_AGENT),
+                () -> assertTrue(ENVIRONMENT.isEvolving(ACCEPTED_AGENT)));
+    }
+
+    @Test
+    public void isEvolvingReturnsFalseForANotEvolvingAgent() {
+        assertFalse(ENVIRONMENT.isEvolving(ACCEPTED_AGENT));
+    }
+
+    @Test
+    public void isEvolvingReturnsFalseForANotAcceptedAgent() {
+        this.verifyPreConditionAndExecuteTest(() -> !ENVIRONMENT.agentCanBeAccepted(NOT_ACCEPTED_AGENT),
+                () -> assertFalse(ENVIRONMENT.isEvolving(NOT_ACCEPTED_AGENT)));
+    }
+
+    @Test
+    public void isEvolvingReturnsFalseAfterThatAnEvolvingAgentLeaveTheEnvironment() {
+        ENVIRONMENT.acceptAgent(ACCEPTED_AGENT);
+
+        this.verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT),
+                () -> {
+                    ENVIRONMENT.leave(ACCEPTED_AGENT);
+                    assertFalse(ENVIRONMENT.isEvolving(ACCEPTED_AGENT));
+                });
+    }
+
+    @Test
+    public void evolvingAgentListIsEmptyIfNoAgentHasBeenAccepted() {
+        assertTrue(ENVIRONMENT.getEvolvingAgentIdentifiers().isEmpty());
+    }
+
+    @Test
+    public void evolvingAgentListContainsTheAgentIdentifierAfterThatItHasBeenAccepted() {
+        this.verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.acceptAgent(ACCEPTED_AGENT),
+                () -> assertTrue(ENVIRONMENT.getEvolvingAgentIdentifiers().contains(ACCEPTED_AGENT)));
+    }
+
+    @Test
+    public void evolvingAgentListDoesNotContainsTheAgentIdentifierOfAnNotAcceptedAgent() {
+        this.verifyPreConditionAndExecuteTest(() -> !ENVIRONMENT.acceptAgent(NOT_ACCEPTED_AGENT),
+                () -> assertFalse(ENVIRONMENT.getEvolvingAgentIdentifiers().contains(NOT_ACCEPTED_AGENT)));
+    }
+
+    @Test
+    public void evolvingAgentListDoesNotContainsAnAgentWhichHasLeftTheEnvironment() {
+        ENVIRONMENT.acceptAgent(ACCEPTED_AGENT);
+
+        this.verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.getEvolvingAgentIdentifiers().contains(ACCEPTED_AGENT),
+                () -> {
+                    ENVIRONMENT.leave(ACCEPTED_AGENT);
+                    assertFalse(ENVIRONMENT.getEvolvingAgentIdentifiers().contains(ACCEPTED_AGENT));
+                });
+    }
+
+    @Test
+    public void sendEventThrowsExceptionWithANullEvent() {
+        assertThrows(NullPointerException.class, () -> ENVIRONMENT.sendEvent(null));
+    }
+
+    @Test
+    public void sendEventThrowsExceptionIfSenderAgentIsNotEvolvingInTheEnvironment() {
+        this.verifyPreConditionAndExecuteTest(() -> !ENVIRONMENT.isEvolving(ACCEPTED_AGENT),
+                () -> {
+                    Event event = new EventTesting(ACCEPTED_AGENT, ACCEPTED_AGENT, null);
+                    assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> ENVIRONMENT.sendEvent(event));
+                });
+    }
+
+    @Test
+    public void sendEventThrowsExceptionIfReceiverAgentIsNotEvolvingInTheEnvironment() {
+        ENVIRONMENT.acceptAgent(ACCEPTED_AGENT);
+
+        this.verifyPreConditionAndExecuteTest(
+                () -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT) && !ENVIRONMENT.isEvolving(NOT_ACCEPTED_AGENT),
+                () -> {
+                    Event event = new EventTesting(ACCEPTED_AGENT, NOT_ACCEPTED_AGENT, null);
+                    assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> ENVIRONMENT.sendEvent(event));
+                });
+    }
+
+    @Test
+    public void getEnvironmentNameNeverReturnsNull() {
+        assertNotNull(ENVIRONMENT.getEnvironmentName());
+    }
+
+    @Test
+    public void sendEventNotFailForAnEventWithNoReceiver() {
+        ENVIRONMENT.acceptAgent(ACCEPTED_AGENT);
+
+        this.verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT),
+                () -> {
+                    try {
+                        Event event = new EventTesting(ACCEPTED_AGENT, null, null);
+                        ENVIRONMENT.sendEvent(event);
+                    } catch (Exception e) {
+                        fail(e);
+                    }
+                });
+    }
+
+    @Test
+    public void sendEventNotFailForAnEventWithAnEvolvingAgentReceiver() {
+        ENVIRONMENT.acceptAgent(ACCEPTED_AGENT);
+
+        this.verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT),
+                () -> {
+                    try {
+                        Event event = new EventTesting(ACCEPTED_AGENT, ACCEPTED_AGENT, null);
+                        ENVIRONMENT.sendEvent(event);
+                    } catch (Exception e) {
+                        fail(e);
+                    }
+                });
     }
 }

@@ -38,8 +38,6 @@ public abstract class Event implements Serializable {
      * The class of the sima.core.protocol which will process the event. An event can have a null instance of this property. In
      * that way the sima.core.agent receive the event and chose itself how to manage the event. An event which has not sima.core.protocol
      * targeted is called <i>general event</i>.
-     *
-     * @see NoProtocolEvent
      */
     private final ProtocolIdentifier protocolTargeted;
 
@@ -75,7 +73,7 @@ public abstract class Event implements Serializable {
      * @param receiver the receiver of the event
      * @return a new instance of the event but with a new receiver.
      */
-    public Event cloneAndAddReceiver(AgentIdentifier receiver) {
+    public final Event cloneAndAddReceiver(AgentIdentifier receiver) {
         try {
             Event newInstance = (Event) this.clone();
             newInstance.receiver = receiver;
@@ -90,7 +88,6 @@ public abstract class Event implements Serializable {
      * has a sima.core.protocol targeted not null.
      *
      * @return true if the sima.core.protocol targeted is not null, else false.
-     * @see NoProtocolEvent
      */
     public boolean isProtocolEvent() {
         return this.protocolTargeted != null;
