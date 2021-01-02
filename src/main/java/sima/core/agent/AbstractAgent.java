@@ -1,14 +1,15 @@
 package sima.core.agent;
 
-import sima.core.exception.AgentNotStartedException;
-import sima.core.exception.AlreadyKilledAgentException;
-import sima.core.exception.AlreadyStartedAgentException;
-import sima.core.exception.KilledAgentException;
+import org.jetbrains.annotations.NotNull;
 import sima.core.behavior.Behavior;
 import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
 import sima.core.environment.event.EventCatcher;
 import sima.core.environment.event.NoProtocolEvent;
+import sima.core.exception.AgentNotStartedException;
+import sima.core.exception.AlreadyKilledAgentException;
+import sima.core.exception.AlreadyStartedAgentException;
+import sima.core.exception.KilledAgentException;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
 
@@ -182,20 +183,28 @@ public abstract class AbstractAgent implements EventCatcher {
             this.isKilled = true;
 
             // Stop playing all behaviors.
-            List<Behavior> behaviors = this.getBehaviorList();
-            for (Behavior behavior : behaviors) {
-                behavior.stopPlaying();
-            }
+            this.stopPlayingAllBehaviors();
 
             // Leave all environments.
-            List<Environment> environments = this.getEnvironmentList();
-            for (Environment environment : environments) {
-                this.leaveEnvironment(environment);
-            }
+            this.leaveAllEnvironments();
 
             this.onKill();
         } else
             throw new AlreadyKilledAgentException();
+    }
+
+    private void stopPlayingAllBehaviors() {
+        List<Behavior> behaviors = this.getBehaviorList();
+        for (Behavior behavior : behaviors) {
+            behavior.stopPlaying();
+        }
+    }
+
+    private void leaveAllEnvironments() {
+        List<Environment> environments = this.getEnvironmentList();
+        for (Environment environment : environments) {
+            this.leaveEnvironment(environment);
+        }
     }
 
     /**
@@ -286,15 +295,13 @@ public abstract class AbstractAgent implements EventCatcher {
      * the sima.core.behavior is not added in the sima.core.agent and returns false.
      *
      * @param behaviorClass the sima.core.behavior class
-     * @param args          the argument to transfer to the sima.core.behavior
+     * @param behaviorArgs  the argument to transfer to the sima.core.behavior
      * @return true if the sima.core.behavior has been added to the sima.core.agent, else false.
      */
-    public synchronized boolean addBehavior(Class<? extends Behavior> behaviorClass, Map<String, String> args) {
+    public synchronized boolean addBehavior(Class<? extends Behavior> behaviorClass, Map<String, String> behaviorArgs) {
         if (this.mapBehaviors.get(behaviorClass.getName()) == null)
             try {
-                Constructor<? extends Behavior> constructor = behaviorClass.
-                        getConstructor(AbstractAgent.class, Map.class);
-                Behavior behavior = constructor.newInstance(this, args);
+                Behavior behavior = this.constructBehavior(behaviorClass, behaviorArgs);
                 this.mapBehaviors.put(behaviorClass.getName(), behavior);
                 return true;
             } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
@@ -303,6 +310,25 @@ public abstract class AbstractAgent implements EventCatcher {
             }
         else
             return false;
+    }
+
+    /**
+     * Construct an instance of the specified Behavior classed.
+     *
+     * @param behaviorClass the behavior class
+     * @param behaviorArgs  the args to pass to the constructor of the {@Code Behavior}
+     * @return a new instance of the Behavior class specified.
+     * @throws NoSuchMethodException     If the Behavior class does not have the correct constructor
+     * @throws InstantiationException    If there is a problem during the instantiation
+     * @throws IllegalAccessException    If the Behavior constructor is not public
+     * @throws InvocationTargetException If the Behavior constructor call throws an exception
+     */
+    @NotNull
+    private Behavior constructBehavior(Class<? extends Behavior> behaviorClass, Map<String, String> behaviorArgs)
+            throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        Constructor<? extends Behavior> constructor = behaviorClass.
+                getConstructor(AbstractAgent.class, Map.class);
+        return constructor.newInstance(this, behaviorArgs);
     }
 
     /**
@@ -386,9 +412,7 @@ public abstract class AbstractAgent implements EventCatcher {
      */
     public synchronized boolean addProtocol(Class<? extends Protocol> protocolClass, String protocolTag, Map<String, String> args) {
         try {
-            Constructor<? extends Protocol> protocolClassConstructor = protocolClass.getConstructor(String.class,
-                    AbstractAgent.class, Map.class);
-            Protocol protocol = protocolClassConstructor.newInstance(protocolTag, this, args);
+            Protocol protocol = this.constructProtocol(protocolClass, protocolTag, args);
             ProtocolIdentifier protocolIdentifier = protocol.getIdentifier();
             if (!this.mapProtocol.containsKey(protocolIdentifier)) {
                 this.mapProtocol.put(protocolIdentifier, protocol);
@@ -400,6 +424,27 @@ public abstract class AbstractAgent implements EventCatcher {
                 | InvocationTargetException e) {
             return false;
         }
+    }
+
+    /**
+     * Construct an instance of the specified Protocol classed.
+     *
+     * @param protocolClass the protocol class
+     * @param protocolTag   the tag of the protocol instance
+     * @param protocolArgs  the protocol arguments
+     * @return a new instance of the Protocol class specified.
+     * @throws NoSuchMethodException     If the Protocol class does not have the correct constructor
+     * @throws InstantiationException    If there is a problem during the instantiation
+     * @throws IllegalAccessException    If the Protocol constructor is not public
+     * @throws InvocationTargetException If the Protocol constructor call throws an exception
+     */
+    @NotNull
+    private Protocol constructProtocol(Class<? extends Protocol> protocolClass, String protocolTag,
+                                       Map<String, String> protocolArgs)
+            throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        Constructor<? extends Protocol> protocolClassConstructor = protocolClass.getConstructor(String.class,
+                AbstractAgent.class, Map.class);
+        return protocolClassConstructor.newInstance(protocolTag, this, protocolArgs);
     }
 
     /**
