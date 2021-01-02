@@ -1,12 +1,15 @@
 package sima.core.scheduler.multithread;
 
+import sima.core.exception.NotSchedulableTimeException;
 import sima.core.scheduler.Executable;
 import sima.core.scheduler.Scheduler;
-import sima.core.exception.NotSchedulableTimeException;
 
+import java.util.Random;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
@@ -16,6 +19,11 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
      * The date when the scheduler has been started.
      */
     private long beginTime;
+
+    /**
+     * The number of executor thread which are running.
+     */
+    private AtomicInteger runningExecutor;
 
     // Constructors.
 
@@ -35,10 +43,14 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         if (!this.isStarted) {
             this.isStarted = true;
 
+            this.runningExecutor = new AtomicInteger(0);
+
             this.updateSchedulerWatcherOnSchedulerStarted();
 
             this.executor = Executors.newScheduledThreadPool(this.nbExecutorThread);
-            this.getExecutor().scheduleAtFixedRate(new FinishWatcher(), 1, 1, TimeUnit.SECONDS);
+
+            Thread finishWatcherThread = new Thread(new FinishWatcher(this.getEndSimulation()));
+            finishWatcherThread.start();
 
             this.beginTime = System.currentTimeMillis();
 
@@ -75,12 +87,20 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         if (this.isStarted) {
             this.isStarted = false;
 
-            this.executor.shutdownNow();
+            ExecutorService tmpExecutorService = this.executor;
             this.executor = null;
 
-            this.updateSchedulerWatcherOnSchedulerKilled();
+            tmpExecutorService.shutdownNow();
+            while (this.runningExecutor.get() != 0) {
+                try {
+                    this.wait();
+                } catch (InterruptedException ignored) {
+                }
+            }
 
             this.executorThreadList.clear();
+
+            this.updateSchedulerWatcherOnSchedulerKilled();
 
             return true;
         } else
@@ -88,8 +108,8 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
     }
 
     @Override
-    public void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode,
-                                   long nbRepetitions, long executionTimeStep) {
+    public synchronized void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode,
+                                                long nbRepetitions, long executionTimeStep) {
         if (waitingTime < 1)
             throw new IllegalArgumentException("Waiting time cannot be less than 1.");
 
@@ -99,8 +119,9 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
                 RealTimeExecutorThread realTimeExecutorThread = new RealTimeExecutorThread(executable, waitingTime);
                 this.executorThreadList.add(realTimeExecutorThread);
-                if (this.getExecutor() != null)
+                if (this.getExecutor() != null) {
                     this.getExecutor().schedule(realTimeExecutorThread, waitingTime, TimeUnit.MILLISECONDS);
+                }
             }
             case REPEATED -> {
                 if (nbRepetitions < 1)
@@ -124,7 +145,8 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
                 if (executionTimeStep < 1)
                     throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
 
-                for (long time = this.getExecutor() != null ? this.getCurrentTime() + waitingTime : waitingTime;
+                long currentTime = this.getCurrentTime();
+                for (long time = this.getExecutor() != null ? currentTime + waitingTime : waitingTime;
                      time <= this.getEndSimulation(); time += executionTimeStep) {
                     RealTimeExecutorThread realTimeExecutorThread = new RealTimeExecutorThread(executable,
                             time);
@@ -165,7 +187,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         if (this.isRunning())
             return System.currentTimeMillis() - this.beginTime;
         else
-            return 0;
+            return -1;
     }
 
     // Getters and Setters.
@@ -195,20 +217,22 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
         @Override
         public void run() {
-            this.executable.execute();
+            Random r = new Random();
+            int random = r.nextInt();
+
+            this.executeExecutable();
 
             RealTimeMultiThreadScheduler.this.executorThreadList.remove(this);
 
             if (RealTimeMultiThreadScheduler.this.getCurrentTime()
                     >= RealTimeMultiThreadScheduler.this.getEndSimulation()) {
                 synchronized (RealTimeMultiThreadScheduler.this) {
-                    if (RealTimeMultiThreadScheduler.this.isStarted)
+                    if (RealTimeMultiThreadScheduler.this.isStarted) {
                         RealTimeMultiThreadScheduler.this.endByEndSimulationReach();
+                    }
                     // Else the Scheduler has already be killed.
                 }
-            }
-
-            if (RealTimeMultiThreadScheduler.this.executorThreadList.isEmpty()) {
+            } else if (RealTimeMultiThreadScheduler.this.executorThreadList.isEmpty()) {
                 synchronized (RealTimeMultiThreadScheduler.this) {
                     if (RealTimeMultiThreadScheduler.this.isStarted) {
                         RealTimeMultiThreadScheduler.this.endByNoExecutableToExecution();
@@ -217,6 +241,15 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
             }
 
             this.isFinished = true;
+        }
+
+        private void executeExecutable() {
+            RealTimeMultiThreadScheduler.this.runningExecutor.incrementAndGet();
+            this.executable.execute();
+            RealTimeMultiThreadScheduler.this.runningExecutor.decrementAndGet();
+            synchronized (RealTimeMultiThreadScheduler.this) {
+                RealTimeMultiThreadScheduler.this.notifyAll();
+            }
         }
 
         // Getters and Setters.
@@ -230,18 +263,32 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
         // Variables.
 
+        /**
+         * Time to sleep before wake up and kill the scheduler.
+         * <p>
+         * In milliseconds.
+         */
+        private final long timeToWait;
+
         // Constructors.
+
+        public FinishWatcher(long timeToWait) {
+            this.timeToWait = timeToWait;
+        }
 
         // Methods.
 
         @Override
         public void run() {
-            if (RealTimeMultiThreadScheduler.this.getCurrentTime() > RealTimeMultiThreadScheduler.this.getEndSimulation()) {
-                synchronized (RealTimeMultiThreadScheduler.this) {
-                    if (RealTimeMultiThreadScheduler.this.isStarted) {
-                        RealTimeMultiThreadScheduler.this.updateSchedulerWatcherOnSimulationEndTimeReach();
-                        RealTimeMultiThreadScheduler.this.kill();
-                    }
+            try {
+                Thread.sleep(timeToWait);
+            } catch (InterruptedException ignored) {
+            }
+
+            synchronized (RealTimeMultiThreadScheduler.this) {
+                if (RealTimeMultiThreadScheduler.this.isStarted) {
+                    RealTimeMultiThreadScheduler.this.updateSchedulerWatcherOnSimulationEndTimeReach();
+                    RealTimeMultiThreadScheduler.this.kill();
                 }
             }
         }

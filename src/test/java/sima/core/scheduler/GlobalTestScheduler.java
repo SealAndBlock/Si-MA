@@ -41,14 +41,14 @@ public abstract class GlobalTestScheduler extends SimaTest {
      * In that way we can verify if the Scheduler returns the right value with the method
      * {@link Scheduler#getEndSimulation()}.
      */
-    protected static long END_SIMULATION = 100;
+    protected static long END_SIMULATION;
 
     /**
      * Define the tolerance when we test when the scheduler execute executable. Example: If a executable must be execute
      * at time 5, in function of the type of the scheduler, it is not possible to it to execute th executable at 5.
      * Therefore the test verify if the execution time is equal to 5 +/- TIME_EXECUTION_TOLERANCE.
      */
-    protected static long TIME_EXECUTION_TOLERANCE = 0;
+    protected static long TIME_EXECUTION_TOLERANCE;
 
     // Setup.
 
@@ -270,7 +270,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void currentTimeIsEqualToZeroAfterSchedulerStart() {
-        assertEquals(0, SCHEDULER.getCurrentTime());
+        assertEquals(-1, SCHEDULER.getCurrentTime());
     }
 
     @Test
@@ -374,9 +374,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
                 // Executable executed
                 this.verifyNumber(executableFeeder.executedTime, executableFeeder.timeToBeExecuted,
                         TIME_EXECUTION_TOLERANCE);
-            else
-                // Executable normally out of the end of the simulation
-                assertTrue(executableFeeder.timeToBeExecuted > SCHEDULER.getEndSimulation());
+            /*else not executed executable*/
         }
     }
 
@@ -536,9 +534,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
                 // Executable executed
                 this.verifyNumber(executableFeeder.executedTime, executableFeeder.timeToBeExecuted,
                         TIME_EXECUTION_TOLERANCE);
-            else
-                // Executable normally out of the end of the simulation
-                assertTrue(executableFeeder.timeToBeExecuted > SCHEDULER.getEndSimulation());
+            /*else not executed executable*/
         }
     }
 
@@ -591,7 +587,9 @@ public abstract class GlobalTestScheduler extends SimaTest {
         Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
         for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
             long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
-            this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
+
+            if (entry.getValue() != -1)
+                this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
         }
 
         long timeToExecuteAllRepetitions = nbRepetitions * stepBetweenRepetition;
@@ -636,7 +634,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
         Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
         for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
             long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
-            this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
+            if (entry.getValue() != -1)
+                this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
         }
 
         long timeToExecuteAllRepetitions = nbRepetitions * stepBetweenRepetition;
@@ -711,7 +710,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
         Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
         for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
             long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
-            this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
+            if (entry.getValue() != -1)
+                this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
         }
 
         long timeToExecuteAllRepetitions = nbRepetitions * stepBetweenRepetition;
@@ -770,7 +770,9 @@ public abstract class GlobalTestScheduler extends SimaTest {
         Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
         for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
             long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
-            this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
+
+            if (entry.getValue() != -1)
+                this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
         }
 
         long timeToExecuteAllRepetitions = END_SIMULATION - repetitionBegin;
@@ -898,7 +900,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         // Static.
 
-        public static final long WAITING_TIME = 10_000L;
+        public static final long WAITING_TIME = 3_000L;
 
         // Methods.
 
