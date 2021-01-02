@@ -69,7 +69,8 @@ public class EnvironmentTesting extends Environment {
 
     @Override
     protected void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event) {
-        SimaSimulation.getScheduler().scheduleEvent(event.cloneAndAddReceiver(receiver), SEND_DELAY);
+        /*SimaSimulation.getScheduler().scheduleEvent(event.cloneAndAddReceiver(receiver), SEND_DELAY);*/
+        // Nothing
     }
 
     @Override

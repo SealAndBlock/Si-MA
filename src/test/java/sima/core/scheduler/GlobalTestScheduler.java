@@ -304,7 +304,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
     }
 
     @Test
-    public void scheduleExecutableIgnoreNbRepetitionsAndExecutionTimeStepInScheduleModeOnce() {
+    public void scheduleExecutableIgnoresNbRepetitionsAndExecutionTimeStepInScheduleModeOnce() {
         ExecutableTesting e0 = new ExecutableTesting();
 
         try {
@@ -315,7 +315,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
     }
 
     @Test
-    public void schedulerExecuteAtTimeOneExecutableScheduledOnceTime() {
+    public void schedulerExecutesAtTimeOneExecutableScheduledOnceTime() {
         BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
         SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
 
@@ -331,7 +331,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
     }
 
     @Test
-    public void schedulerExecuteAtTimeSeveralExecutablesScheduledOnceTime() {
+    public void schedulerExecutesAtTimeSeveralExecutablesScheduledOnceTime() {
         BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
         SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
 
@@ -353,7 +353,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
     }
 
     @Test
-    public void schedulerExecuteAtTimeSeveralExecutableAfterTheStart() {
+    public void schedulerExecutesAtTimeSeveralExecutableAfterTheStart() {
         BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
         SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
 
@@ -515,7 +515,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
     }
 
     @Test
-    public void scheduleOnceScheduleAndExecuteOneTimeAnExecutableAtTime() {
+    public void scheduleOnceSchedulesAndExecuteOneTimeAnExecutableAtTime() {
         BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
         SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
 

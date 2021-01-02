@@ -75,7 +75,7 @@ public abstract class Event implements Serializable {
      * @param receiver the receiver of the event
      * @return a new instance of the event but with a new receiver.
      */
-    public Event cloneAndAddReceiver(AgentIdentifier receiver) {
+    public final Event cloneAndAddReceiver(AgentIdentifier receiver) {
         try {
             Event newInstance = (Event) this.clone();
             newInstance.receiver = receiver;
