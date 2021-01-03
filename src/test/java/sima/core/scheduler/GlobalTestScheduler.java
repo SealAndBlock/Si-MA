@@ -139,7 +139,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void startReturnsFalseIfSchedulerIsAlreadyStarted() {
-        this.scheduleLongTimeExecutable();
+        scheduleLongTimeExecutable();
 
         assertTrue(SCHEDULER.start());
         assertFalse(SCHEDULER.start());
@@ -152,7 +152,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void killReturnsTrueIfSchedulerIsStarted() {
-        this.scheduleLongTimeExecutable();
+        scheduleLongTimeExecutable();
 
         assertTrue(SCHEDULER.start());
 
@@ -162,7 +162,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
     @Test
     public void killReturnsFalseIfSchedulerHasBeenAlreadyKilled() {
         SCHEDULER.kill();
-        this.verifyPreConditionAndExecuteTest(() -> SCHEDULER.isKilled(), () -> assertFalse(SCHEDULER.kill()));
+        verifyPreConditionAndExecuteTest(() -> SCHEDULER.isKilled(), () -> assertFalse(SCHEDULER.kill()));
     }
 
     @Test
@@ -172,7 +172,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void isRunningReturnsTrueWhenSchedulerIsRunning() {
-        this.scheduleLongTimeExecutable();
+        scheduleLongTimeExecutable();
 
         assertTrue(SCHEDULER.start());
 
@@ -181,7 +181,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void isRunningReturnsFalseAfterKillingScheduler() {
-        this.scheduleLongTimeExecutable();
+        scheduleLongTimeExecutable();
 
         assertTrue(SCHEDULER.start());
 
@@ -192,7 +192,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void schedulerCannotBeRestarted() {
-        this.scheduleLongTimeExecutable();
+        scheduleLongTimeExecutable();
 
         assertTrue(SCHEDULER.start());
 
@@ -216,7 +216,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         TestSchedulerWatcher watcher = new TestSchedulerWatcher();
         SCHEDULER.addSchedulerWatcher(watcher);
 
-        this.scheduleLongTimeExecutable();
+        scheduleLongTimeExecutable();
 
         assertTrue(SCHEDULER.start());
 
@@ -275,7 +275,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
     public void getCurrentTimeReturnsZeroIfSchedulerIsKilled() {
         SCHEDULER.kill();
 
-        this.verifyPreConditionAndExecuteTest(() -> SCHEDULER.isKilled(),
+        verifyPreConditionAndExecuteTest(() -> SCHEDULER.isKilled(),
                 () -> assertEquals(-1, SCHEDULER.getCurrentTime()));
     }
 
@@ -333,7 +333,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         blockSchedulerWatcher.waitUntilKilled();
 
-        this.verifyNumber(e0.executedTime, Scheduler.NOW, TIME_EXECUTION_TOLERANCE);
+        verifyNumber(e0.executedTime, Scheduler.NOW, TIME_EXECUTION_TOLERANCE);
     }
 
     @Test
@@ -353,9 +353,9 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         blockSchedulerWatcher.waitUntilKilled();
 
-        this.verifyNumber(e0.executedTime, Scheduler.NOW, TIME_EXECUTION_TOLERANCE);
-        this.verifyNumber(e1.executedTime, Scheduler.NOW + 1, TIME_EXECUTION_TOLERANCE);
-        this.verifyNumber(e2.executedTime, Scheduler.NOW + 2, TIME_EXECUTION_TOLERANCE);
+        verifyNumber(e0.executedTime, Scheduler.NOW, TIME_EXECUTION_TOLERANCE);
+        verifyNumber(e1.executedTime, Scheduler.NOW + 1, TIME_EXECUTION_TOLERANCE);
+        verifyNumber(e2.executedTime, Scheduler.NOW + 2, TIME_EXECUTION_TOLERANCE);
     }
 
     @Test
@@ -378,7 +378,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
             ExecutableTestingFeederV1 executableFeeder = (ExecutableTestingFeederV1) executable;
             if (executableFeeder.executedTime != -1)
                 // Executable executed
-                this.verifyNumber(executableFeeder.executedTime, executableFeeder.timeToBeExecuted,
+                verifyNumber(executableFeeder.executedTime, executableFeeder.timeToBeExecuted,
                         TIME_EXECUTION_TOLERANCE);
             /*else not executed executable*/
         }
@@ -437,7 +437,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         Executable e = () -> {
             isPassed.set(true);
             long currentTime = SCHEDULER.getCurrentTime();
-            this.verifyNumber(currentTime, timeToBeExecuted, TIME_EXECUTION_TOLERANCE);
+            verifyNumber(currentTime, timeToBeExecuted, TIME_EXECUTION_TOLERANCE);
 
             // Try to schedule an Executable at a passed timed.
             assertThrows(NotSchedulableTimeException.class,
@@ -445,7 +445,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
                             currentTime));
         };
 
-        this.testNotFail(
+        testNotFail(
                 () -> SCHEDULER.scheduleExecutable(e, timeToBeExecuted, Scheduler.ScheduleMode.ONCE, -1, -1));
 
         assertTrue(SCHEDULER.start());
@@ -453,7 +453,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         // Finish by not reaching time.
         blockSchedulerWatcher.waitUntilKilled();
 
-        this.verifyPreConditionAndExecuteTest(isPassed::get,
+        verifyPreConditionAndExecuteTest(isPassed::get,
                 () -> {
                     assertEquals(1, watcher.isPassToSchedulerKilled);
                     assertEquals(1, watcher.isPassToNoExecutionToExecute);
@@ -471,7 +471,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         final AtomicBoolean isPassed = new AtomicBoolean(false);
         Executable e = () -> {
             isPassed.set(true);
-            this.verifyNumber(SCHEDULER.getCurrentTime(), timeToBeExecuted, TIME_EXECUTION_TOLERANCE);
+            verifyNumber(SCHEDULER.getCurrentTime(), timeToBeExecuted, TIME_EXECUTION_TOLERANCE);
         };
 
         try {
@@ -505,7 +505,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         // Finish by not reaching time.
         blockSchedulerWatcher.waitUntilKilled();
 
-        this.verifyNumber(executionTime.get(), specificTime, TIME_EXECUTION_TOLERANCE);
+        verifyNumber(executionTime.get(), specificTime, TIME_EXECUTION_TOLERANCE);
     }
 
     @Test
@@ -536,7 +536,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
             ExecutableTestingFeederV2 executableFeeder = (ExecutableTestingFeederV2) executable;
             if (executableFeeder.executedTime != -1)
                 // Executable executed
-                this.verifyNumber(executableFeeder.executedTime, executableFeeder.timeToBeExecuted,
+                verifyNumber(executableFeeder.executedTime, executableFeeder.timeToBeExecuted,
                         TIME_EXECUTION_TOLERANCE);
             /*else not executed executable*/
         }
@@ -593,7 +593,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
             long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
 
             if (entry.getValue() != -1)
-                this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
+                verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
         }
 
         long timeToExecuteAllRepetitions = nbRepetitions * stepBetweenRepetition;
@@ -609,7 +609,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
             expectedNbExecutions = nbRepetitions;
         }
 
-        assertEquals(expectedNbExecutions, nbExecutions.get());
+        verifyNumber(nbExecutions.get(), expectedNbExecutions, NB_EXECUTION_TOLERANCE);
     }
 
     @Test
@@ -639,7 +639,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
             long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
             if (entry.getValue() != -1)
-                this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
+                verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
         }
 
         long timeToExecuteAllRepetitions = nbRepetitions * stepBetweenRepetition;
@@ -655,7 +655,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
             expectedNbExecutions = nbRepetitions;
         }
 
-        this.verifyNumber(nbExecutions.get(), expectedNbExecutions, NB_EXECUTION_TOLERANCE);
+        verifyNumber(nbExecutions.get(), expectedNbExecutions, NB_EXECUTION_TOLERANCE);
     }
 
     @Test
@@ -715,7 +715,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
             long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
             if (entry.getValue() != -1)
-                this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
+                verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
         }
 
         long timeToExecuteAllRepetitions = nbRepetitions * stepBetweenRepetition;
@@ -731,7 +731,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
             expectedNbExecutions = nbRepetitions;
         }
 
-        assertEquals(expectedNbExecutions, nbExecutions.get());
+        verifyNumber(nbExecutions.get(), expectedNbExecutions, NB_EXECUTION_TOLERANCE);
     }
 
     @Test
@@ -776,13 +776,13 @@ public abstract class GlobalTestScheduler extends SimaTest {
             long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
 
             if (entry.getValue() != -1)
-                this.verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
+                verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
         }
 
         long timeToExecuteAllRepetitions = END_SIMULATION - repetitionBegin;
         long expectedNbExecutions = (timeToExecuteAllRepetitions / stepBetweenRepetition) + 1;
 
-        assertEquals(expectedNbExecutions, nbExecutions.get());
+        verifyNumber(nbExecutions.get(), expectedNbExecutions, NB_EXECUTION_TOLERANCE);
     }
 
     @Test
@@ -861,22 +861,22 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         @Override
         public void schedulerStarted() {
-            this.isPassToSchedulerStarted++;
+            isPassToSchedulerStarted++;
         }
 
         @Override
         public void schedulerKilled() {
-            this.isPassToSchedulerKilled++;
+            isPassToSchedulerKilled++;
         }
 
         @Override
         public void simulationEndTimeReach() {
-            this.isPassToSimulationEndTimeReach++;
+            isPassToSimulationEndTimeReach++;
         }
 
         @Override
         public void noExecutableToExecute() {
-            this.isPassToNoExecutionToExecute++;
+            isPassToNoExecutionToExecute++;
         }
     }
 
@@ -890,7 +890,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         @Override
         public void execute() {
-            this.executedTime = SCHEDULER.getCurrentTime();
+            executedTime = SCHEDULER.getCurrentTime();
         }
     }
 
@@ -923,7 +923,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         public ExecutableTestingFeederV1(long timeToBeExecuted, List<Executable> executableList) {
             this.executableList = executableList;
-            this.executableList.add(this);
+            executableList.add(this);
 
             this.timeToBeExecuted = timeToBeExecuted;
         }
@@ -933,9 +933,9 @@ public abstract class GlobalTestScheduler extends SimaTest {
         @Override
         public void execute() {
             ExecutableTestingFeederV1 executableFeeder =
-                    new ExecutableTestingFeederV1(SCHEDULER.getCurrentTime() + 10, this.executableList);
+                    new ExecutableTestingFeederV1(SCHEDULER.getCurrentTime() + 10, executableList);
             SCHEDULER.scheduleExecutable(executableFeeder, 10, Scheduler.ScheduleMode.ONCE, -1, -1);
-            this.executedTime = SCHEDULER.getCurrentTime();
+            executedTime = SCHEDULER.getCurrentTime();
         }
     }
 
@@ -951,7 +951,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         public ExecutableTestingFeederV2(long timeToBeExecuted, List<Executable> executableList) {
             this.executableList = executableList;
-            this.executableList.add(this);
+            executableList.add(this);
 
             this.timeToBeExecuted = timeToBeExecuted;
         }
@@ -961,9 +961,9 @@ public abstract class GlobalTestScheduler extends SimaTest {
         @Override
         public void execute() {
             ExecutableTestingFeederV2 executableFeederV2 =
-                    new ExecutableTestingFeederV2(SCHEDULER.getCurrentTime() + 10, this.executableList);
+                    new ExecutableTestingFeederV2(SCHEDULER.getCurrentTime() + 10, executableList);
             SCHEDULER.scheduleExecutableOnce(executableFeederV2, 10);
-            this.executedTime = SCHEDULER.getCurrentTime();
+            executedTime = SCHEDULER.getCurrentTime();
         }
     }
 
@@ -987,29 +987,29 @@ public abstract class GlobalTestScheduler extends SimaTest {
          * Block until the next call of {@link Scheduler#kill()}.
          */
         public void waitUntilKilled() {
-            synchronized (this.KILL_LOCK) {
-                if (this.nbBlockKill == this.nbKill)
+            synchronized (KILL_LOCK) {
+                if (nbBlockKill == nbKill)
                     try {
-                        this.KILL_LOCK.wait();
+                        KILL_LOCK.wait();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                this.nbBlockKill = this.nbKill;
+                nbBlockKill = nbKill;
             }
         }
 
         @Override
         public void schedulerStarted() {
-            synchronized (this.START_LOCK) {
-                this.START_LOCK.notifyAll();
+            synchronized (START_LOCK) {
+                START_LOCK.notifyAll();
             }
         }
 
         @Override
         public void schedulerKilled() {
-            synchronized (this.KILL_LOCK) {
-                this.KILL_LOCK.notifyAll();
-                this.nbKill++;
+            synchronized (KILL_LOCK) {
+                KILL_LOCK.notifyAll();
+                nbKill++;
             }
         }
 
