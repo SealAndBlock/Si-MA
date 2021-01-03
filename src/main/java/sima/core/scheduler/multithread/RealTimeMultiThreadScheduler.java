@@ -4,7 +4,6 @@ import sima.core.exception.NotSchedulableTimeException;
 import sima.core.scheduler.Executable;
 import sima.core.scheduler.Scheduler;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +17,8 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
      * The date when the scheduler has been started.
      */
     private long beginTime;
+
+    private boolean inShutDown = false;
 
     /**
      * The number of executor thread which are running.
@@ -86,16 +87,19 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         if (this.isStarted) {
             this.isStarted = false;
 
-            ExecutorService tmpExecutorService = this.executor;
-            this.executor = null;
+            this.inShutDown = true;
 
-            tmpExecutorService.shutdownNow();
             while (this.runningExecutor.get() != 0) {
                 try {
                     this.wait();
                 } catch (InterruptedException ignored) {
                 }
             }
+
+            this.executor.shutdownNow();
+            this.executor = null;
+
+            this.inShutDown = false;
 
             this.executorThreadList.clear();
 
@@ -186,7 +190,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         if (this.isRunning())
             return System.currentTimeMillis() - this.beginTime;
         else
-            return -1;
+            return 0;
     }
 
     // Getters and Setters.
@@ -256,13 +260,19 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         }
 
         private void executeExecutable() {
-            RealTimeMultiThreadScheduler.this.runningExecutor.incrementAndGet();
+            synchronized (RealTimeMultiThreadScheduler.this) {
+                if (RealTimeMultiThreadScheduler.this.inShutDown) {
+                    return;
+                }
+
+                RealTimeMultiThreadScheduler.this.runningExecutor.incrementAndGet();
+            }
 
             this.executable.execute();
 
-            RealTimeMultiThreadScheduler.this.runningExecutor.decrementAndGet();
-
             synchronized (RealTimeMultiThreadScheduler.this) {
+                RealTimeMultiThreadScheduler.this.runningExecutor.decrementAndGet();
+
                 RealTimeMultiThreadScheduler.this.notifyAll();
             }
         }

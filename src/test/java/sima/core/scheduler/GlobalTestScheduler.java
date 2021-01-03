@@ -270,7 +270,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void currentTimeIsEqualToZeroAfterSchedulerStart() {
-        assertEquals(-1, SCHEDULER.getCurrentTime());
+        assertEquals(0, SCHEDULER.getCurrentTime());
     }
 
     @Test
