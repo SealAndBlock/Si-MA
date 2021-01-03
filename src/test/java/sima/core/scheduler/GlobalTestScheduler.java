@@ -50,6 +50,12 @@ public abstract class GlobalTestScheduler extends SimaTest {
      */
     protected static long TIME_EXECUTION_TOLERANCE;
 
+    /**
+     * Define the tolerance when a test count the number of execution done by the scheduler. This variable is mainly
+     * util for scheduler which works in real time mode.
+     */
+    protected static long NB_EXECUTION_TOLERANCE;
+
     // Setup.
 
     @Override
@@ -61,7 +67,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         assertTrue(END_SIMULATION >= 100, "END_SIMULATION must be greater or equal to 100 for tests");
         assertNotNull(SCHEDULER, "NULL SCHEDULER -> Tests cannot be realize");
-        assertTrue(TIME_EXECUTION_TOLERANCE >= 0, "TIME_EXECUTION TOLERANCE cannot be less than 0");
+        assertTrue(TIME_EXECUTION_TOLERANCE >= 0, "TIME_EXECUTION_TOLERANCE cannot be less than 0");
+        assertTrue(NB_EXECUTION_TOLERANCE >= 0,"NB_EXECUTION_TOLERANCE cannot be less than 0" );
     }
 
     // Tests.
@@ -648,7 +655,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
             expectedNbExecutions = nbRepetitions;
         }
 
-        assertEquals(expectedNbExecutions, nbExecutions.get());
+        this.verifyNumber(nbExecutions.get(), expectedNbExecutions, NB_EXECUTION_TOLERANCE);
     }
 
     @Test

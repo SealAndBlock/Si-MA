@@ -19,6 +19,7 @@ public class TestRealTimeMultiThreadScheduler extends GlobalTestMultiThreadSched
         REAL_TIME_MULTI_THREAD_SCHEDULER = new RealTimeMultiThreadScheduler(END_SIMULATION, NB_EXECUTOR_THREADS);
         MULTI_THREAD_SCHEDULER = REAL_TIME_MULTI_THREAD_SCHEDULER;
         TIME_EXECUTION_TOLERANCE = 100; // ms
+        NB_EXECUTION_TOLERANCE = 2;
 
         super.verifyAndSetup();
     }
