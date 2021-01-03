@@ -99,6 +99,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
             this.executor.shutdownNow();
             this.executor = null;
 
+            // Wrong, already started executor can pass and be executed.
             this.inShutDown = false;
 
             this.executorThreadList.clear();
