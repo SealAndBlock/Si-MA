@@ -1,8 +1,8 @@
 package sima.core.scheduler.multithread;
 
+import sima.core.exception.NotSchedulableTimeException;
 import sima.core.scheduler.Executable;
 import sima.core.scheduler.Scheduler;
-import sima.core.exception.NotSchedulableTimeException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,29 +43,29 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     public DiscreteTimeMultiThreadScheduler(long endSimulation, int nbExecutorThread) {
         super(endSimulation, nbExecutorThread);
 
-        this.mapExecutable = new ConcurrentHashMap<>();
+        mapExecutable = new ConcurrentHashMap<>();
 
-        this.stepLock = new Object();
+        stepLock = new Object();
     }
 
     // Methods.
 
     @Override
     public synchronized boolean start() {
-        if (!this.isStarted) {
-            this.isStarted = true;
+        if (!isStarted && !isKilled) {
+            isStarted = true;
 
-            this.updateSchedulerWatcherOnSchedulerStarted();
+            updateSchedulerWatcherOnSchedulerStarted();
 
-            this.executor = Executors.newFixedThreadPool(this.nbExecutorThread);
+            executor = Executors.newFixedThreadPool(nbExecutorThread);
 
-            // ORDER VERY IMPORTANT -> always instantiate this.stepFinishWatcher before this.executeNextExecutable()
-            this.stepFinishWatcher = new StepFinishWatcher();
+            // ORDER VERY IMPORTANT -> always instantiate stepFinishWatcher before executeNextExecutable()
+            stepFinishWatcher = new StepFinishWatcher();
 
-            this.executeNextExecutable();
+            executeNextExecutable();
 
-            // ORDER VERY IMPORTANT -> always start the thread after this.executeNextExecutable()
-            Thread finishExecutionWatcher = new Thread(this.stepFinishWatcher);
+            // ORDER VERY IMPORTANT -> always start the thread after executeNextExecutable()
+            Thread finishExecutionWatcher = new Thread(stepFinishWatcher);
             finishExecutionWatcher.start();
 
             return true;
@@ -75,16 +75,19 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     @Override
     public synchronized boolean kill() {
-        if (this.isStarted) {
-            this.isStarted = false;
+        if (!isKilled) {
+            isStarted = false;
+            isKilled = true;
 
-            this.executor.shutdownNow();
+            if (executor != null)
+                executor.shutdownNow();
 
-            this.stepFinishWatcher.kill();
+            if (stepFinishWatcher != null)
+                stepFinishWatcher.kill();
 
-            this.mapExecutable.clear();
+            mapExecutable.clear();
 
-            this.updateSchedulerWatcherOnSchedulerKilled();
+            updateSchedulerWatcherOnSchedulerKilled();
 
             return true;
         } else
@@ -101,12 +104,12 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      * This method is not thread safe, however, it is never called in parallel way.
      */
     private void executeNextExecutable() {
-        this.executorThreadList.clear();
+        executorThreadList.clear();
 
         long nextTime = -1;
 
         // Creates executor for all other executables.
-        Set<Long> setKeyMapExecutable = this.mapExecutable.keySet();
+        Set<Long> setKeyMapExecutable = mapExecutable.keySet();
         List<Long> sorterKeyMapExecutable = new ArrayList<>(setKeyMapExecutable);
         sorterKeyMapExecutable.sort(Comparator.comparingLong(l -> l));
 
@@ -117,25 +120,25 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
             nextTime = sorterKeyMapExecutable.get(0);
 
             // Fill the executor thread list.
-            this.mapExecutable.get(nextTime).forEach(
-                    executable -> this.executorThreadList.add(new DiscreteTimeExecutorThread(executable)));
+            mapExecutable.get(nextTime).forEach(
+                    executable -> executorThreadList.add(new DiscreteTimeExecutorThread(executable)));
         }
 
-        if (this.executorThreadList.isEmpty()) {
+        if (executorThreadList.isEmpty()) {
             // No executable find to execute -> end of the simulation.
-            this.endByNoExecutableToExecution();
+            endByNoExecutableToExecution();
         } else {
-            this.currentTime = nextTime;
+            currentTime = nextTime;
 
             // Verify if the next time is always in the simulation.
-            if (this.currentTime <= this.getEndSimulation()) {
+            if (currentTime <= getEndSimulation()) {
                 // Remove all executables which have been taken in account.
-                this.mapExecutable.remove(this.currentTime);
+                mapExecutable.remove(currentTime);
 
-                this.executorThreadList.forEach(executorThread -> this.executor.execute(executorThread));
+                executorThreadList.forEach(executorThread -> executor.execute(executorThread));
             } else {
                 // End of the simulation reach.
-                this.endByReachEndSimulationTime();
+                endByReachEndSimulationTime();
             }
         }
     }
@@ -145,9 +148,9 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      * finish by no executable to execute
      */
     private void endByNoExecutableToExecution() {
-        this.updateSchedulerWatcherOnNoExecutableToExecute();
+        updateSchedulerWatcherOnNoExecutableToExecute();
 
-        this.kill();
+        kill();
     }
 
     /**
@@ -155,9 +158,9 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      * finish by reaching the end time of the simulation.
      */
     private void endByReachEndSimulationTime() {
-        this.updateSchedulerWatcherOnSimulationEndTimeReach();
+        updateSchedulerWatcherOnSimulationEndTimeReach();
 
-        this.kill();
+        kill();
     }
 
     @Override
@@ -166,7 +169,8 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         if (waitingTime < 1)
             throw new IllegalArgumentException("Waiting time cannot be less than 1.");
 
-        this.addExecutableWithScheduleMode(executable, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
+        if (!isKilled())
+            addExecutableWithScheduleMode(executable, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
     }
 
     /**
@@ -186,7 +190,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     private void addExecutableWithScheduleMode(Executable executable, long waitingTime, Scheduler.ScheduleMode scheduleMode,
                                                long nbRepetitions, long executionTimeStep) {
         switch (scheduleMode) {
-            case ONCE -> this.addExecutableAtTime(executable, this.currentTime + waitingTime);
+            case ONCE -> addExecutableAtTime(executable, currentTime + waitingTime);
             case REPEATED -> {
                 if (nbRepetitions < 1)
                     throw new IllegalArgumentException("NbRepeated must be greater or equal to 1");
@@ -194,22 +198,22 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
                 if (executionTimeStep < 1)
                     throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
 
-                long time = this.currentTime + waitingTime;
-                this.addExecutableAtTime(executable, time);
+                long time = currentTime + waitingTime;
+                addExecutableAtTime(executable, time);
                 for (int i = 1; i < nbRepetitions; i++) {
                     time += executionTimeStep;
-                    this.addExecutableAtTime(executable, time);
+                    addExecutableAtTime(executable, time);
                 }
             }
             case INFINITELY -> {
                 if (executionTimeStep < 1)
                     throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
 
-                long time = this.currentTime + waitingTime;
-                this.addExecutableAtTime(executable, time);
-                while (time <= this.getEndSimulation()) {
+                long time = currentTime + waitingTime;
+                addExecutableAtTime(executable, time);
+                while (time <= getEndSimulation()) {
                     time += executionTimeStep;
-                    this.addExecutableAtTime(executable, time);
+                    addExecutableAtTime(executable, time);
                 }
             }
         }
@@ -220,10 +224,11 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         if (simulationSpecificTime < 1)
             throw new IllegalArgumentException("SimulationSpecificTime must be greater or equal to 1");
 
-        if (simulationSpecificTime <= this.currentTime)
+        if (simulationSpecificTime <= currentTime)
             throw new NotSchedulableTimeException("SimulationSpecificTime is already passed");
 
-        this.addExecutableAtTime(executable, simulationSpecificTime);
+        if (!isKilled())
+            addExecutableAtTime(executable, simulationSpecificTime);
     }
 
     /**
@@ -233,7 +238,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      * @param time       the time where the executable must be executed
      */
     private void addExecutableAtTime(Executable executable, long time) {
-        LinkedList<Executable> executables = this.mapExecutable.computeIfAbsent(time, k -> new LinkedList<>());
+        LinkedList<Executable> executables = mapExecutable.computeIfAbsent(time, k -> new LinkedList<>());
         synchronized (executables) {
             executables.add(executable);
             executables.sort(Comparator.comparingInt(Object::hashCode));
@@ -242,17 +247,28 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     @Override
     public long getCurrentTime() {
-        return currentTime;
+        if (isRunning())
+            return currentTime;
+        else if (!isKilled)
+            return currentTime;
+        else
+            return -1;
     }
 
     // Inner classes.
 
     private class DiscreteTimeExecutorThread extends OneExecutableExecutorThread {
 
+        // Variables.
+
+        private final DiscreteTimeMultiThreadScheduler scheduler;
+
         // Constructors.
 
         public DiscreteTimeExecutorThread(Executable executable) {
             super(executable);
+
+            scheduler = DiscreteTimeMultiThreadScheduler.this;
         }
 
         // Methods.
@@ -261,35 +277,47 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         public void run() {
             super.run();
 
-            synchronized (DiscreteTimeMultiThreadScheduler.this.stepLock) {
-                this.isFinished = true;
-                DiscreteTimeMultiThreadScheduler.this.stepLock.notifyAll();
+            synchronized (scheduler.stepLock) {
+                isFinished = true;
+                scheduler.stepLock.notifyAll();
             }
         }
     }
 
     private class StepFinishWatcher implements Runnable {
 
+        // Variables.
+
+        private final DiscreteTimeMultiThreadScheduler scheduler;
+
         private boolean stopped = false;
+
+        // Constructors.
+
+        public StepFinishWatcher() {
+            scheduler = DiscreteTimeMultiThreadScheduler.this;
+        }
+
+        // Methods.
 
         @Override
         public void run() {
-            synchronized (DiscreteTimeMultiThreadScheduler.this.stepLock) {
-                while (!this.stopped) {
-                    while (!this.allExecutionsFinished()) {
+            synchronized (scheduler.stepLock) {
+                while (!stopped) {
+                    while (!allExecutionsFinished()) {
                         try {
-                            DiscreteTimeMultiThreadScheduler.this.stepLock.wait();
+                            scheduler.stepLock.wait();
 
-                            if (this.stopped) break;
+                            if (stopped) break;
                         } catch (InterruptedException e) {
                             e.printStackTrace();
-                            this.stopped = true;
+                            stopped = true;
                             break;
                         }
                     }
 
-                    if (!this.stopped)
-                        DiscreteTimeMultiThreadScheduler.this.executeNextExecutable();
+                    if (!stopped)
+                        scheduler.executeNextExecutable();
                 }
             }
         }
@@ -298,9 +326,9 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
          * @return true if all {@link DiscreteTimeExecutorThread} in {@link #executorThreadList} have finished, else false.
          */
         private boolean allExecutionsFinished() {
-            // DiscreteTimeMultiThreadScheduler.this.executorThreadList.isEmpty() -> impossible case
+            // DiscreteTimeMultiThreadScheduler.executorThreadList.isEmpty() -> impossible case
 
-            for (ExecutorThread discreteTimeExecutorThread : DiscreteTimeMultiThreadScheduler.this.executorThreadList) {
+            for (ExecutorThread discreteTimeExecutorThread : scheduler.executorThreadList) {
                 if (!discreteTimeExecutorThread.isFinished()) {
                     return false;
                 }
@@ -313,9 +341,9 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
          * Kill the thread.
          */
         public void kill() {
-            synchronized (DiscreteTimeMultiThreadScheduler.this.stepLock) {
-                this.stopped = true;
-                DiscreteTimeMultiThreadScheduler.this.stepLock.notifyAll();
+            synchronized (scheduler.stepLock) {
+                stopped = true;
+                scheduler.stepLock.notifyAll();
             }
         }
     }

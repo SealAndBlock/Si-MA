@@ -17,6 +17,11 @@ public abstract class MultiThreadScheduler implements Scheduler {
     protected boolean isStarted = false;
 
     /**
+     * True if the {@link Scheduler} is killed, else false.
+     */
+    protected boolean isKilled = false;
+
+    /**
      * The end of the simulation.
      */
     private final long endSimulation;
@@ -88,6 +93,11 @@ public abstract class MultiThreadScheduler implements Scheduler {
     @Override
     public synchronized boolean isRunning() {
         return this.isStarted;
+    }
+
+    @Override
+    public synchronized boolean isKilled() {
+        return this.isKilled;
     }
 
     @Override

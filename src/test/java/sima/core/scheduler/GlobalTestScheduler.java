@@ -139,8 +139,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
     }
 
     @Test
-    public void killReturnsFalseIfSchedulerIsNotStarted() {
-        assertFalse(SCHEDULER.kill());
+    public void killReturnsTrueIfSchedulerIsNotStarted() {
+        assertTrue(SCHEDULER.kill());
     }
 
     @Test
@@ -150,6 +150,12 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertTrue(SCHEDULER.start());
 
         assertTrue(SCHEDULER.kill());
+    }
+
+    @Test
+    public void killReturnsFalseIfSchedulerHasBeenAlreadyKilled() {
+        SCHEDULER.kill();
+        this.verifyPreConditionAndExecuteTest(() -> SCHEDULER.isKilled(), () -> assertFalse(SCHEDULER.kill()));
     }
 
     @Test
@@ -178,29 +184,14 @@ public abstract class GlobalTestScheduler extends SimaTest {
     }
 
     @Test
-    public void schedulerCanBeRestarted() {
+    public void schedulerCannotBeRestarted() {
         this.scheduleLongTimeExecutable();
 
         assertTrue(SCHEDULER.start());
 
         assertTrue(SCHEDULER.kill());
 
-        assertTrue(SCHEDULER.start());
-    }
-
-    @Test
-    public void schedulerCanBeKillAfterRestart() {
-        this.scheduleLongTimeExecutable();
-
-        assertTrue(SCHEDULER.start());
-
-        assertTrue(SCHEDULER.kill());
-
-        this.scheduleLongTimeExecutable();
-
-        assertTrue(SCHEDULER.start());
-
-        assertTrue(SCHEDULER.kill());
+        assertFalse(SCHEDULER.start());
     }
 
     @Test
@@ -269,8 +260,16 @@ public abstract class GlobalTestScheduler extends SimaTest {
     }
 
     @Test
-    public void currentTimeIsEqualToZeroAfterSchedulerStart() {
+    public void getCurrentTimeReturnsZeroBeforeSchedulerStart() {
         assertEquals(0, SCHEDULER.getCurrentTime());
+    }
+
+    @Test
+    public void getCurrentTimeReturnsZeroIfSchedulerIsKilled() {
+        SCHEDULER.kill();
+
+        this.verifyPreConditionAndExecuteTest(() -> SCHEDULER.isKilled(),
+                () -> assertEquals(-1, SCHEDULER.getCurrentTime()));
     }
 
     @Test
@@ -439,22 +438,20 @@ public abstract class GlobalTestScheduler extends SimaTest {
                             currentTime));
         };
 
-        try {
-            SCHEDULER.scheduleExecutable(e, timeToBeExecuted, Scheduler.ScheduleMode.ONCE, -1, -1);
-        } catch (Exception exc) {
-            fail();
-        }
+        this.testNotFail(
+                () -> SCHEDULER.scheduleExecutable(e, timeToBeExecuted, Scheduler.ScheduleMode.ONCE, -1, -1));
 
         assertTrue(SCHEDULER.start());
 
         // Finish by not reaching time.
         blockSchedulerWatcher.waitUntilKilled();
 
-        assertTrue(isPassed.get());
-
-        assertEquals(1, watcher.isPassToSchedulerKilled);
-        assertEquals(1, watcher.isPassToNoExecutionToExecute);
-        assertEquals(0, watcher.isPassToSimulationEndTimeReach);
+        this.verifyPreConditionAndExecuteTest(isPassed::get,
+                () -> {
+                    assertEquals(1, watcher.isPassToSchedulerKilled);
+                    assertEquals(1, watcher.isPassToNoExecutionToExecute);
+                    assertEquals(0, watcher.isPassToSimulationEndTimeReach);
+                });
     }
 
     @Test
@@ -840,12 +837,6 @@ public abstract class GlobalTestScheduler extends SimaTest {
      */
     protected void scheduleLongTimeExecutable() {
         SCHEDULER.scheduleExecutableOnce(new LongTimeExecutable(), Scheduler.NOW);
-    }
-
-    protected void verifyNumber(long valToVerify, long expected, long delta) {
-        assertTrue((expected - delta) <= valToVerify && valToVerify <= (expected + delta),
-                "valToVerify = " + valToVerify + " expected = " + expected + " delta = " + delta + " min = "
-                        + (expected - delta) + " max = " + (expected + delta));
     }
 
     // Inner classes.

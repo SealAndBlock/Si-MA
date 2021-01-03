@@ -35,7 +35,7 @@ public interface Scheduler {
      * <p>
      * If the scheduler has been started, it cannot be started an second time and returns false.
      * <p>
-     * A {@code Scheduler} can be re started if it at been kill.
+     * A {@code Scheduler} cannot be re started if it at been killed. In that case, the method returns false.
      *
      * @return true if the {@code Scheduler} is started, else false.
      */
@@ -47,8 +47,8 @@ public interface Scheduler {
      * Only kill the scheduler if it was already started before. If the scheduler was not started, nothing is done and
      * returns false.
      * <p>
-     * After to be killed, the scheduler can be restarted with the method start, however all information contains in
-     * the scheduler are clear except {@link SchedulerWatcher}.
+     * After to be killed, the scheduler cannot be restarted with the method start. To restart a scheduler, you must
+     * create a new instance of it.
      *
      * @return true if the {@code Scheduler} has been killed, else false.
      */
@@ -62,6 +62,14 @@ public interface Scheduler {
      * @return true if the scheduler is running, else false.
      */
     boolean isRunning();
+
+    /**
+     * Returns true if the scheduler has been killed, else false. A scheduler is killed after the first call of the
+     * method {@link Scheduler#kill()}. When a Scheduler has been killed, it cannot be started anymore.
+     *
+     * @return true if the scheduler is killed, else false.
+     */
+    boolean isKilled();
 
     /**
      * Schedule the execution of the {@link Executable}. In other words, schedule the moment when the method
@@ -110,7 +118,7 @@ public interface Scheduler {
      * @param executable             the executable to schedule
      * @param simulationSpecificTime the specific time of the simulation when the executable is execute (greater or
      *                               equal to 0 if in repeated mod)
-     * @throws IllegalArgumentException                                  if the simulationSpecificTime is less than 1.
+     * @throws IllegalArgumentException    if the simulationSpecificTime is less than 1.
      * @throws NotSchedulableTimeException if the simulationSpecificTime is already pass.
      */
     void scheduleExecutableAtSpecificTime(Executable executable, long simulationSpecificTime);
@@ -203,7 +211,8 @@ public interface Scheduler {
     }
 
     /**
-     * Returns the current time of the simulation. If the scheduler is not started, returns 0.
+     * Returns the current time of the simulation. If the scheduler is not started and not already kill, returns 0. If
+     * the {@Code Scheduler} is killed, returns -1;
      *
      * @return the current time of the simulation.
      */
