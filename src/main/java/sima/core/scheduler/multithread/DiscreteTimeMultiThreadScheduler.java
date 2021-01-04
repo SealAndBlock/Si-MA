@@ -53,45 +53,59 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     @Override
     public synchronized boolean start() {
         if (!isStarted && !isKilled) {
-            isStarted = true;
+            setStarted();
 
             updateSchedulerWatcherOnSchedulerStarted();
 
             executor = Executors.newFixedThreadPool(nbExecutorThread);
 
-            // ORDER VERY IMPORTANT -> always instantiate stepFinishWatcher before executeNextExecutable()
-            stepFinishWatcher = new StepFinishWatcher();
-
             executeNextExecutable();
 
             // ORDER VERY IMPORTANT -> always start the thread after executeNextExecutable()
-            Thread finishExecutionWatcher = new Thread(stepFinishWatcher);
-            finishExecutionWatcher.start();
+            startStepFinishWatcherThread();
 
             return true;
         } else
             return false;
     }
 
+    private void startStepFinishWatcherThread() {
+        stepFinishWatcher = new StepFinishWatcher();
+        Thread finishExecutionWatcher = new Thread(stepFinishWatcher);
+        finishExecutionWatcher.start();
+    }
+
+    private void setStarted() {
+        isStarted = true;
+    }
+
     @Override
     public synchronized boolean kill() {
         if (!isKilled) {
-            isStarted = false;
-            isKilled = true;
-
-            if (executor != null)
-                executor.shutdownNow();
-
-            if (stepFinishWatcher != null)
-                stepFinishWatcher.kill();
-
+            setKilled();
+            executorShutdown();
+            killStepFinishWatcher();
             mapExecutable.clear();
-
             updateSchedulerWatcherOnSchedulerKilled();
 
             return true;
         } else
             return false;
+    }
+
+    private void setKilled() {
+        isStarted = false;
+        isKilled = true;
+    }
+
+    private void killStepFinishWatcher() {
+        if (stepFinishWatcher != null)
+            stepFinishWatcher.kill();
+    }
+
+    private void executorShutdown() {
+        if (executor != null)
+            executor.shutdownNow();
     }
 
     /**
@@ -106,28 +120,20 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     private void executeNextExecutable() {
         executorThreadList.clear();
 
-        long nextTime = -1;
+        long nextTime;
 
         // Creates executor for all other executables.
-        Set<Long> setKeyMapExecutable = mapExecutable.keySet();
-        List<Long> sorterKeyMapExecutable = new ArrayList<>(setKeyMapExecutable);
-        sorterKeyMapExecutable.sort(Comparator.comparingLong(l -> l));
+        Set<Long> setStepTimeSet = mapExecutable.keySet();
+        TreeSet<Long> sortedStepTimeSet = new TreeSet<>(setStepTimeSet);
 
-        // Verifies if there is others executable to execute.
-        if (sorterKeyMapExecutable.size() > 0) {
-            // There is no agent actions.
-            // Set the next time.
-            nextTime = sorterKeyMapExecutable.get(0);
-
-            // Fill the executor thread list.
-            mapExecutable.get(nextTime).forEach(
-                    executable -> executorThreadList.add(new DiscreteTimeExecutorThread(executable)));
-        }
-
-        if (executorThreadList.isEmpty()) {
+        if (sortedStepTimeSet.isEmpty()) {
             // No executable find to execute -> end of the simulation.
             endByNoExecutableToExecution();
         } else {
+            nextTime = sortedStepTimeSet.first();
+            mapExecutable.get(nextTime).forEach(
+                    executable -> executorThreadList.add(new DiscreteTimeExecutorThread(executable)));
+
             currentTime = nextTime;
 
             // Verify if the next time is always in the simulation.
