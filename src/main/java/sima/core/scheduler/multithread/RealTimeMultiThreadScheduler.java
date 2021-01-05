@@ -42,7 +42,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
             runningExecutorCounter = 0;
 
-            updateSchedulerWatcherOnSchedulerStarted();
+            notifyOnSchedulerStarted();
 
             executor = Executors.newScheduledThreadPool(nbExecutorThread);
 
@@ -69,13 +69,13 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
      * finish by no executable to execute
      */
     private void endByNoExecutableToExecution() {
-        updateSchedulerWatcherOnNoExecutableToExecute();
+        notifyOnNoExecutableToExecute();
 
         kill();
     }
 
     private void endByEndSimulationReach() {
-        updateSchedulerWatcherOnSimulationEndTimeReach();
+        notifyOnSimulationEndTimeReach();
 
         kill();
     }
@@ -100,7 +100,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
             executorThreadList.clear();
 
-            updateSchedulerWatcherOnSchedulerKilled();
+            notifyOnSchedulerKilled();
 
             return true;
         } else
@@ -245,7 +245,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
             if (executed) {
                 scheduler.executorThreadList.remove(this);
 
-                if (isEndSimulation()) {
+                if (scheduler.endSimulationReach()) {
                     notifyEndByReachEndSimulation();
                 } else if (noExecutableToExecute()) {
                     notifyEndByNoExecutableToExecute();
@@ -257,11 +257,6 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
         private boolean noExecutableToExecute() {
             return scheduler.executorThreadList.isEmpty();
-        }
-
-        private boolean isEndSimulation() {
-            return scheduler.getCurrentTime()
-                    >= scheduler.getEndSimulation();
         }
 
         private void notifyEndByReachEndSimulation() {
@@ -344,7 +339,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         private void notifyWatcherAndKillScheduler() {
             synchronized (scheduler) {
                 if (scheduler.isRunning()) {
-                    scheduler.updateSchedulerWatcherOnSimulationEndTimeReach();
+                    scheduler.notifyOnSimulationEndTimeReach();
                     scheduler.kill();
                 }
             }

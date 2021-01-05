@@ -44,16 +44,16 @@ public abstract class MultiThreadScheduler implements Scheduler {
 
     protected MultiThreadScheduler(long endSimulation, int nbExecutorThread) {
         this.endSimulation = endSimulation;
-        if (this.endSimulation < 1)
+        if (endSimulation < 1)
             throw new IllegalArgumentException("The end simulation time must be greater or equal to 1.");
 
         this.nbExecutorThread = nbExecutorThread;
-        if (this.nbExecutorThread < 1)
+        if (nbExecutorThread < 1)
             throw new IllegalArgumentException("The number of executor thread must be greater or equal to 1.");
 
-        this.schedulerWatchers = new Vector<>();
+        schedulerWatchers = new Vector<>();
 
-        this.executorThreadList = new Vector<>();
+        executorThreadList = new Vector<>();
     }
 
     // Methods.
@@ -63,46 +63,46 @@ public abstract class MultiThreadScheduler implements Scheduler {
         if (schedulerWatcher == null)
             return false;
 
-        if (this.schedulerWatchers.contains(schedulerWatcher))
+        if (schedulerWatchers.contains(schedulerWatcher))
             return false;
 
-        return this.schedulerWatchers.add(schedulerWatcher);
+        return schedulerWatchers.add(schedulerWatcher);
     }
 
     @Override
     public void removeSchedulerWatcher(SchedulerWatcher schedulerWatcher) {
-        this.schedulerWatchers.remove(schedulerWatcher);
+        schedulerWatchers.remove(schedulerWatcher);
     }
 
-    protected void updateSchedulerWatcherOnSchedulerStarted() {
-        this.schedulerWatchers.forEach(SchedulerWatcher::schedulerStarted);
+    protected void notifyOnSchedulerStarted() {
+        schedulerWatchers.forEach(SchedulerWatcher::schedulerStarted);
     }
 
-    protected void updateSchedulerWatcherOnSchedulerKilled() {
-        this.schedulerWatchers.forEach(SchedulerWatcher::schedulerKilled);
+    protected void notifyOnSchedulerKilled() {
+        schedulerWatchers.forEach(SchedulerWatcher::schedulerKilled);
     }
 
-    protected void updateSchedulerWatcherOnSimulationEndTimeReach() {
-        this.schedulerWatchers.forEach(SchedulerWatcher::simulationEndTimeReach);
+    protected void notifyOnSimulationEndTimeReach() {
+        schedulerWatchers.forEach(SchedulerWatcher::simulationEndTimeReach);
     }
 
-    protected void updateSchedulerWatcherOnNoExecutableToExecute() {
-        this.schedulerWatchers.forEach(SchedulerWatcher::noExecutableToExecute);
+    protected void notifyOnNoExecutableToExecute() {
+        schedulerWatchers.forEach(SchedulerWatcher::noExecutableToExecute);
     }
 
     @Override
     public synchronized boolean isRunning() {
-        return this.isStarted;
+        return isStarted;
     }
 
     @Override
     public synchronized boolean isKilled() {
-        return this.isKilled;
+        return isKilled;
     }
 
     @Override
     public long getEndSimulation() {
-        return this.endSimulation;
+        return endSimulation;
     }
 
     // Inner classes.
@@ -123,7 +123,7 @@ public abstract class MultiThreadScheduler implements Scheduler {
 
         @Override
         public void run() {
-            this.executable.execute();
+            executable.execute();
         }
     }
 

@@ -226,6 +226,17 @@ public interface Scheduler {
     long getEndSimulation();
 
     /**
+     * Returns true if the {@Code Scheduler} has reached the end of the simulation, else false. Reach the end of the
+     * simulation means that the current time of the scheduler is greater or equal to the end simulation or that the
+     * {@Code Scheduler} has been killed.
+     *
+     * @return true if the {@Code Scheduler} has reached the end of the simulation, else false.
+     */
+    default boolean endSimulationReach() {
+        return getCurrentTime() >= getEndSimulation() || isKilled();
+    }
+
+    /**
      * Enum to specify how many time an {@link Executable} can be schedule.
      */
     enum ScheduleMode {
