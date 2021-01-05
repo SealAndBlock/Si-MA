@@ -179,9 +179,10 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      * finish by no executable to execute
      */
     private void endByNoExecutableToExecution() {
-        notifyOnNoExecutableToExecute();
-
-        kill();
+        if (!isKilled()) {
+            notifyOnNoExecutableToExecute();
+            kill();
+        }
     }
 
     /**
@@ -189,9 +190,10 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      * finish by reaching the end time of the simulation.
      */
     private void endByReachEndSimulationTime() {
-        notifyOnSimulationEndTimeReach();
-
-        kill();
+        if (!isKilled()) {
+            notifyOnSimulationEndTimeReach();
+            kill();
+        }
     }
 
     @Override

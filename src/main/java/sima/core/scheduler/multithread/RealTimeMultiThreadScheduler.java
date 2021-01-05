@@ -69,15 +69,17 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
      * finish by no executable to execute
      */
     private void endByNoExecutableToExecution() {
-        notifyOnNoExecutableToExecute();
-
-        kill();
+        if (!isKilled()) {
+            notifyOnNoExecutableToExecute();
+            kill();
+        }
     }
 
     private void endByEndSimulationReach() {
-        notifyOnSimulationEndTimeReach();
-
-        kill();
+        if (!isKilled()) {
+            notifyOnSimulationEndTimeReach();
+            kill();
+        }
     }
 
     @Override
@@ -260,17 +262,11 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         }
 
         private void notifyEndByReachEndSimulation() {
-            if (scheduler.isRunning()) {
-                scheduler.endByEndSimulationReach();
-            }
-            // Else the Scheduler has already be killed.
-
+            scheduler.endByEndSimulationReach();
         }
 
         private void notifyEndByNoExecutableToExecute() {
-            if (scheduler.isRunning()) {
-                scheduler.endByNoExecutableToExecution();
-            } // Else the Scheduler has already be killed.
+            scheduler.endByNoExecutableToExecution();
         }
 
         /**
