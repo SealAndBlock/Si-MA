@@ -68,7 +68,8 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     /**
      * Instantiates {@link #executor}.
      */
-    private void createNewExecutor() {
+    @Override
+    protected void createNewExecutor() {
         executor = Executors.newFixedThreadPool(nbExecutorThread);
     }
 
@@ -81,9 +82,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         finishExecutionWatcher.start();
     }
 
-    private void setStarted() {
-        isStarted = true;
-    }
+
 
     @Override
     public synchronized boolean kill() {
@@ -92,25 +91,16 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
             shutdownExecutor();
             killStepFinishWatcher();
             mapExecutable.clear();
+            executorThreadList.clear();
             notifyOnSchedulerKilled();
             return true;
         } else
             return false;
     }
 
-    private void setKilled() {
-        isStarted = false;
-        isKilled = true;
-    }
-
     private void killStepFinishWatcher() {
         if (stepFinishWatcher != null)
             stepFinishWatcher.kill();
-    }
-
-    private void shutdownExecutor() {
-        if (executor != null)
-            executor.shutdownNow();
     }
 
     /**
@@ -139,7 +129,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
                 removeExecutablesFor(currentTime);
                 executeALlExecutorThreads();
             } else {
-                // End of the simulation reach.
                 endByReachEndSimulationTime();
             }
         }
@@ -152,7 +141,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     }
 
     /**
-     * Removed all {@Code Executables} of {@link #mapExecutable} which must be executed at the specified time.
+     * Removed all {@code Executables} of {@link #mapExecutable} which must be executed at the specified time.
      *
      * @param time the time of each executable must be removed
      */

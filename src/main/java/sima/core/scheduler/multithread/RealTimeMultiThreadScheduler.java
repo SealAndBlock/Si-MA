@@ -38,23 +38,15 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
     @Override
     public synchronized boolean start() {
         if (!isStarted && !isKilled) {
-            isStarted = true;
-
-            runningExecutorCounter = 0;
-
+            setStarted();
+            initRunningExecutorCounter();
+            createNewExecutor();
+            startFinishWatcher();
+            initBeginTime();
             notifyOnSchedulerStarted();
 
-            executor = Executors.newScheduledThreadPool(nbExecutorThread);
-
-            Thread finishWatcherThread = new Thread(new FinishWatcher(getEndSimulation()));
-            finishWatcherThread.start();
-
-            beginTime = System.currentTimeMillis();
-
-            if (!executorThreadList.isEmpty()) {
-                executorThreadList.forEach(executorThread ->
-                        getExecutor().schedule(executorThread, ((RealTimeExecutorThread) executorThread).getDelay(), TimeUnit.MILLISECONDS));
-
+            if (!noExecutableToExecute()) {
+                scheduleExecutorThread();
             } else {
                 endByNoExecutableToExecution();
             }
@@ -62,6 +54,40 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
             return true;
         } else
             return false;
+    }
+
+    /**
+     * Schedule in {@link #executor} all {@code ExecutorThread} in {@link #executorThreadList}. Theses are in
+     * {@link #executorThreadList} because a schedule method has been called before the start of the {@code Scheduler}.
+     */
+    private void scheduleExecutorThread() {
+        executorThreadList.forEach(executorThread ->
+                getExecutor().schedule(executorThread, ((RealTimeExecutorThread) executorThread).getDelay(), TimeUnit.MILLISECONDS));
+    }
+
+    private boolean noExecutableToExecute() {
+        return executorThreadList.isEmpty();
+    }
+
+    private void initBeginTime() {
+        beginTime = System.currentTimeMillis();
+    }
+
+    private void initRunningExecutorCounter() {
+        runningExecutorCounter = 0;
+    }
+
+    /**
+     * Start the thread of the {@link FinishWatcher} which look if the scheduler has reach the end of the simulation.
+     */
+    private void startFinishWatcher() {
+        Thread finishWatcherThread = new Thread(new FinishWatcher(getEndSimulation()));
+        finishWatcherThread.start();
+    }
+
+    @Override
+    protected void createNewExecutor() {
+        executor = Executors.newScheduledThreadPool(nbExecutorThread);
     }
 
     /**
@@ -85,35 +111,34 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
     @Override
     public synchronized boolean kill() {
         if (!isKilled) {
-            isStarted = false;
-            isKilled = true;
-
-            if (executor != null) {
-                executor.shutdownNow();
-                executor = null;
-
-                while (getRunningExecutorCounter() != 0) {
-                    try {
-                        wait();
-                    } catch (InterruptedException ignored) {
-                    }
-                }
-            }
-
+            setKilled();
+            shutdownExecutor();
+            waitRunningExecutorThreads();
             executorThreadList.clear();
-
             notifyOnSchedulerKilled();
-
             return true;
         } else
             return false;
+    }
+
+    /**
+     * Wait until each {@link sima.core.scheduler.multithread.MultiThreadScheduler.ExecutorThread} which are already
+     * run finish.
+     */
+    private void waitRunningExecutorThreads() {
+        while (getRunningExecutorCounter() != 0) {
+            try {
+                wait();
+            } catch (InterruptedException ignored) {
+            }
+        }
     }
 
     @Override
     public void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode,
                                    long nbRepetitions, long executionTimeStep) {
         if (waitingTime < 1)
-            throw new IllegalArgumentException("Waiting time cannot be less than 1.");
+            throw new IllegalArgumentException("WaitingTime cannot be less than 1.");
 
         if (!this.isKilled()) {
             switch (scheduleMode) {
@@ -249,16 +274,12 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
                 if (scheduler.endSimulationReach()) {
                     notifyEndByReachEndSimulation();
-                } else if (noExecutableToExecute()) {
+                } else if (scheduler.noExecutableToExecute()) {
                     notifyEndByNoExecutableToExecute();
                 }
             }
 
             isFinished = true;
-        }
-
-        private boolean noExecutableToExecute() {
-            return scheduler.executorThreadList.isEmpty();
         }
 
         private void notifyEndByReachEndSimulation() {
@@ -271,7 +292,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
         /**
          * Verifies if all conditions are satisfied to execute the {@link Executable}. If it is the case, the
-         * {@Code Executable} is executed and returns true, else the {@Code Executable} is not executed and returns
+         * {@code Executable} is executed and returns true, else the {@code Executable} is not executed and returns
          * false.
          *
          * @return true if the {@link Executable} has been executed, else false.

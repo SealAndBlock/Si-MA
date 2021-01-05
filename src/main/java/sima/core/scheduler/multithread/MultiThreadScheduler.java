@@ -90,6 +90,30 @@ public abstract class MultiThreadScheduler implements Scheduler {
         schedulerWatchers.forEach(SchedulerWatcher::noExecutableToExecute);
     }
 
+    /**
+     * Instantiates {@link #executor}.
+     */
+    protected abstract void createNewExecutor();
+
+    protected void setStarted() {
+        isStarted = true;
+    }
+
+    protected void setKilled() {
+        isStarted = false;
+        isKilled = true;
+    }
+
+    /**
+     * Shutdown the executor and set {@link #executor} to null.
+     */
+    protected void shutdownExecutor() {
+        if (executor != null) {
+            executor.shutdownNow();
+            executor = null;
+        }
+    }
+
     @Override
     public synchronized boolean isRunning() {
         return isStarted;

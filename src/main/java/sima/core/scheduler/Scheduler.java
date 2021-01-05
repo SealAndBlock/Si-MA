@@ -212,7 +212,7 @@ public interface Scheduler {
 
     /**
      * Returns the current time of the simulation. If the scheduler is not started and not already kill, returns 0. If
-     * the {@Code Scheduler} is killed, returns -1;
+     * the {@code Scheduler} is killed, returns -1;
      *
      * @return the current time of the simulation.
      */
@@ -226,11 +226,11 @@ public interface Scheduler {
     long getEndSimulation();
 
     /**
-     * Returns true if the {@Code Scheduler} has reached the end of the simulation, else false. Reach the end of the
+     * Returns true if the {@code Scheduler} has reached the end of the simulation, else false. Reach the end of the
      * simulation means that the current time of the scheduler is greater or equal to the end simulation or that the
-     * {@Code Scheduler} has been killed.
+     * {@code Scheduler} has been killed.
      *
-     * @return true if the {@Code Scheduler} has reached the end of the simulation, else false.
+     * @return true if the {@code Scheduler} has reached the end of the simulation, else false.
      */
     default boolean endSimulationReach() {
         return getCurrentTime() >= getEndSimulation() || isKilled();
