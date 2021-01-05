@@ -1,8 +1,9 @@
 package sima.core.scheduler.multithread;
 
+import org.jetbrains.annotations.NotNull;
+import sima.core.exception.NotSchedulableTimeException;
 import sima.core.scheduler.Executable;
 import sima.core.scheduler.Scheduler;
-import sima.core.exception.NotSchedulableTimeException;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -16,6 +17,11 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
      * The date when the scheduler has been started.
      */
     private long beginTime;
+
+    /**
+     * The number of executor thread which are running.
+     */
+    private int runningExecutorCounter;
 
     // Constructors.
 
@@ -32,21 +38,18 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     @Override
     public synchronized boolean start() {
-        if (!this.isStarted) {
-            this.isStarted = true;
+        if (!isStarted && !isKilled) {
+            setStarted();
+            initRunningExecutorCounter();
+            createNewExecutor();
+            startFinishWatcher();
+            initBeginTime();
+            notifyOnSchedulerStarted();
 
-            this.updateSchedulerWatcherOnSchedulerStarted();
-
-            this.executor = Executors.newScheduledThreadPool(this.nbExecutorThread);
-            this.getExecutor().scheduleAtFixedRate(new FinishWatcher(), 1, 1, TimeUnit.SECONDS);
-
-            this.beginTime = System.currentTimeMillis();
-
-            if (!this.executorThreadList.isEmpty()) {
-                this.executorThreadList.forEach(executorThread -> this.getExecutor().schedule(executorThread,
-                        ((RealTimeExecutorThread) executorThread).getDelay(), TimeUnit.MILLISECONDS));
+            if (!noExecutableToExecute()) {
+                scheduleExecutorThread();
             } else {
-                this.endByNoExecutableToExecution();
+                endByNoExecutableToExecution();
             }
 
             return true;
@@ -55,84 +58,131 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
     }
 
     /**
+     * Schedule in {@link #executor} all {@code ExecutorThread} in {@link #executorThreadList}. Theses are in
+     * {@link #executorThreadList} because a schedule method has been called before the start of the {@code Scheduler}.
+     */
+    private void scheduleExecutorThread() {
+        executorThreadList.forEach(executorThread ->
+                getExecutor().schedule(executorThread, ((RealTimeExecutorThread) executorThread).getDelay(), TimeUnit.MILLISECONDS));
+    }
+
+    private boolean noExecutableToExecute() {
+        return executorThreadList.isEmpty();
+    }
+
+    private void initBeginTime() {
+        beginTime = System.currentTimeMillis();
+    }
+
+    private void initRunningExecutorCounter() {
+        runningExecutorCounter = 0;
+    }
+
+    /**
+     * Start the thread of the {@link FinishWatcher} which look if the scheduler has reach the end of the simulation.
+     */
+    private void startFinishWatcher() {
+        Thread finishWatcherThread = new Thread(new FinishWatcher(getEndSimulation()));
+        finishWatcherThread.start();
+    }
+
+    @Override
+    protected void createNewExecutor() {
+        executor = Executors.newScheduledThreadPool(nbExecutorThread);
+    }
+
+    /**
      * Kill itself and notify all {@link sima.core.scheduler.Scheduler.SchedulerWatcher} that the {@link Scheduler} has
      * finish by no executable to execute
      */
     private void endByNoExecutableToExecution() {
-        this.updateSchedulerWatcherOnNoExecutableToExecute();
-
-        this.kill();
+        if (!isKilled()) {
+            notifyOnNoExecutableToExecute();
+            kill();
+        }
     }
 
     private void endByEndSimulationReach() {
-        this.updateSchedulerWatcherOnSimulationEndTimeReach();
-
-        this.kill();
+        if (!isKilled()) {
+            notifyOnSimulationEndTimeReach();
+            kill();
+        }
     }
 
     @Override
     public synchronized boolean kill() {
-        if (this.isStarted) {
-            this.isStarted = false;
-
-            this.executor.shutdownNow();
-            this.executor = null;
-
-            this.updateSchedulerWatcherOnSchedulerKilled();
-
-            this.executorThreadList.clear();
-
+        if (!isKilled) {
+            setKilled();
+            shutdownExecutor();
+            waitRunningExecutorThreads();
+            executorThreadList.clear();
+            notifyOnSchedulerKilled();
             return true;
         } else
             return false;
+    }
+
+    /**
+     * Wait until each {@link sima.core.scheduler.multithread.MultiThreadScheduler.ExecutorThread} which are already
+     * run finish.
+     */
+    private void waitRunningExecutorThreads() {
+        while (getRunningExecutorCounter() != 0) {
+            try {
+                wait();
+            } catch (InterruptedException ignored) {
+            }
+        }
     }
 
     @Override
     public void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode,
                                    long nbRepetitions, long executionTimeStep) {
         if (waitingTime < 1)
-            throw new IllegalArgumentException("Waiting time cannot be less than 1.");
+            throw new IllegalArgumentException("WaitingTime cannot be less than 1.");
 
-        switch (scheduleMode) {
-            case ONCE -> {
-                // We can schedule executable after the end (they will not be executed)
+        if (!isKilled()) {
+            switch (scheduleMode) {
+                case ONCE -> addOnceExecutable(executable, waitingTime);
+                case REPEATED -> {
+                    if (nbRepetitions < 1)
+                        throw new IllegalArgumentException("NbRepeated must be greater or equal to 1");
 
-                RealTimeExecutorThread realTimeExecutorThread = new RealTimeExecutorThread(executable, waitingTime);
-                this.executorThreadList.add(realTimeExecutorThread);
-                if (this.getExecutor() != null)
-                    this.getExecutor().schedule(realTimeExecutorThread, waitingTime, TimeUnit.MILLISECONDS);
-            }
-            case REPEATED -> {
-                if (nbRepetitions < 1)
-                    throw new IllegalArgumentException("NbRepeated must be greater or equal to 1");
+                    if (executionTimeStep < 1)
+                        throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
 
-                if (executionTimeStep < 1)
-                    throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
+                    addRepeatedExecutable(executable, waitingTime, nbRepetitions, executionTimeStep);
+                }
+                case INFINITE -> {
+                    if (executionTimeStep < 1)
+                        throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
 
-                for (int i = 0; i < nbRepetitions; i++) {
-                    if (waitingTime + (i * executionTimeStep) > this.getEndSimulation())
-                        break;
-
-                    RealTimeExecutorThread realTimeExecutorThread = new RealTimeExecutorThread(executable,
-                            waitingTime + (i * executionTimeStep));
-                    this.executorThreadList.add(realTimeExecutorThread);
-                    if (this.getExecutor() != null)
-                        this.getExecutor().schedule(realTimeExecutorThread, waitingTime + (i * executionTimeStep), TimeUnit.MILLISECONDS);
+                    addInfiniteExecutable(executable, waitingTime, executionTimeStep);
                 }
             }
-            case INFINITELY -> {
-                if (executionTimeStep < 1)
-                    throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
+        }
+    }
 
-                for (long time = this.getExecutor() != null ? this.getCurrentTime() + waitingTime : waitingTime;
-                     time <= this.getEndSimulation(); time += executionTimeStep) {
-                    RealTimeExecutorThread realTimeExecutorThread = new RealTimeExecutorThread(executable,
-                            time);
-                    this.executorThreadList.add(realTimeExecutorThread);
-                    if (this.getExecutor() != null)
-                        this.getExecutor().schedule(realTimeExecutorThread, time, TimeUnit.MILLISECONDS);
-                }
-            }
+    private void addInfiniteExecutable(Executable executable, long waitingTime, long executionTimeStep) {
+        long currentTime = getCurrentTime();
+        for (long time = getExecutor() != null ? currentTime + waitingTime : waitingTime;
+             time <= getEndSimulation(); time += executionTimeStep) {
+            addOnceExecutable(executable, time);
+        }
+    }
+
+    private void addRepeatedExecutable(Executable executable, long waitingTime, long nbRepetitions, long executionTimeStep) {
+        for (int i = 0; i < nbRepetitions; i++) {
+            if (waitingTime + (i * executionTimeStep) > getEndSimulation()) break;
+            addOnceExecutable(executable, waitingTime + (i * executionTimeStep));
+        }
+    }
+
+    private void addOnceExecutable(Executable executable, long waitingTime) {
+        RealTimeExecutorThread realTimeExecutorThread = new RealTimeExecutorThread(executable, waitingTime);
+        executorThreadList.add(realTimeExecutorThread);
+        if (getExecutor() != null) {
+            getExecutor().schedule(realTimeExecutorThread, waitingTime, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -141,19 +191,38 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         if (simulationSpecificTime < 1)
             throw new IllegalArgumentException("SimulationSpecificTime must be greater or equal to 1");
 
-        if (simulationSpecificTime <= this.getCurrentTime())
+        if (simulationSpecificTime <= getCurrentTime())
             throw new NotSchedulableTimeException("SimulationSpecificTime is already passed");
 
-        RealTimeExecutorThread realTimeExecutorThread;
-        if (this.getExecutor() != null) {
-            long timeToBeExecuted = simulationSpecificTime - this.getCurrentTime();
-            realTimeExecutorThread = new RealTimeExecutorThread(executable, timeToBeExecuted);
-            this.executorThreadList.add(realTimeExecutorThread);
-            this.getExecutor().schedule(realTimeExecutorThread, timeToBeExecuted, TimeUnit.MILLISECONDS);
-        } else {
-            realTimeExecutorThread = new RealTimeExecutorThread(executable, simulationSpecificTime);
-            this.executorThreadList.add(realTimeExecutorThread);
+        if (!isKilled()) {
+            if (getExecutor() != null) {
+                createAndScheduleExecutorThread(executable, simulationSpecificTime);
+            } else {
+                createAndAddExecutorThread(executable, simulationSpecificTime);
+            }
         }
+    }
+
+    private void createAndScheduleExecutorThread(Executable executable, long simulationSpecificTime) {
+        long timeToBeExecuted = simulationSpecificTime - getCurrentTime();
+        RealTimeExecutorThread realTimeExecutorThread = createAndAddExecutorThread(executable, timeToBeExecuted);
+        getExecutor().schedule(realTimeExecutorThread, timeToBeExecuted, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Create a new instance of {@link RealTimeExecutorThread} and add it in {@link #executorThreadList}.
+     *
+     * @param executable       the executable of the ExecutorThread
+     * @param timeToBeExecuted the time when the ExecutorThread must be executed
+     * @return a new instance of a RealTimeExecutorThread
+     */
+    @NotNull
+    private RealTimeMultiThreadScheduler.RealTimeExecutorThread createAndAddExecutorThread(Executable executable,
+                                                                                           long timeToBeExecuted) {
+        RealTimeExecutorThread realTimeExecutorThread;
+        realTimeExecutorThread = new RealTimeExecutorThread(executable, timeToBeExecuted);
+        executorThreadList.add(realTimeExecutorThread);
+        return realTimeExecutorThread;
     }
 
     /**
@@ -162,61 +231,94 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
      */
     @Override
     public long getCurrentTime() {
-        if (this.isRunning())
-            return System.currentTimeMillis() - this.beginTime;
-        else
+        if (isRunning())
+            return System.currentTimeMillis() - beginTime;
+        else if (!isKilled)
             return 0;
+        else
+            return -1;
+    }
+
+    private synchronized void incrementRunningExecutorCounter() {
+        runningExecutorCounter++;
+    }
+
+    private synchronized void decrementRunningExecutorCounterAndNotifyAll() {
+        runningExecutorCounter--;
+        notifyAll();
+    }
+
+    private synchronized int getRunningExecutorCounter() {
+        return runningExecutorCounter;
     }
 
     // Getters and Setters.
 
     public ScheduledExecutorService getExecutor() {
-        return (ScheduledExecutorService) this.executor;
+        return (ScheduledExecutorService) executor;
     }
 
     // Inner class.
 
-    public class RealTimeExecutorThread extends MultiThreadScheduler.ExecutorThread {
+    public class RealTimeExecutorThread extends OneExecutableExecutorThread {
 
         // variables.
 
-        private final Executable executable;
-
         private final long delay;
+
+        private final RealTimeMultiThreadScheduler scheduler;
 
         // Constructors.
 
         public RealTimeExecutorThread(Executable executable, long delay) {
-            this.executable = executable;
+            super(executable);
             this.delay = delay;
+            scheduler = RealTimeMultiThreadScheduler.this;
         }
 
         // Methods.
 
         @Override
         public void run() {
-            this.executable.execute();
+            boolean executed = verifyAndExecute();
 
-            RealTimeMultiThreadScheduler.this.executorThreadList.remove(this);
-
-            if (RealTimeMultiThreadScheduler.this.getCurrentTime()
-                    >= RealTimeMultiThreadScheduler.this.getEndSimulation()) {
-                synchronized (RealTimeMultiThreadScheduler.this) {
-                    if (RealTimeMultiThreadScheduler.this.isStarted)
-                        RealTimeMultiThreadScheduler.this.endByEndSimulationReach();
-                    // Else the Scheduler has already be killed.
-                }
+            if (executed) {
+                scheduler.executorThreadList.remove(this);
+                if (scheduler.endSimulationReach())
+                    notifyEndByReachEndSimulation();
+                else if (scheduler.noExecutableToExecute())
+                    notifyEndByNoExecutableToExecute();
             }
 
-            if (RealTimeMultiThreadScheduler.this.executorThreadList.isEmpty()) {
-                synchronized (RealTimeMultiThreadScheduler.this) {
-                    if (RealTimeMultiThreadScheduler.this.isStarted) {
-                        RealTimeMultiThreadScheduler.this.endByNoExecutableToExecution();
-                    } // Else the Scheduler has already be killed.
-                }
+            isFinished = true;
+        }
+
+        private void notifyEndByReachEndSimulation() {
+            scheduler.endByEndSimulationReach();
+        }
+
+        private void notifyEndByNoExecutableToExecute() {
+            scheduler.endByNoExecutableToExecution();
+        }
+
+        /**
+         * Verifies if all conditions are satisfied to execute the {@link Executable}. If it is the case, the
+         * {@code Executable} is executed and returns true, else the {@code Executable} is not executed and returns
+         * false.
+         *
+         * @return true if the {@link Executable} has been executed, else false.
+         */
+        private boolean verifyAndExecute() {
+            synchronized (scheduler) {
+                if (scheduler.isKilled())
+                    return false;
+
+                scheduler.incrementRunningExecutorCounter();
             }
 
-            this.isFinished = true;
+            executable.execute();
+            scheduler.decrementRunningExecutorCounterAndNotifyAll();
+            return true;
         }
 
         // Getters and Setters.
@@ -230,18 +332,45 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
         // Variables.
 
+        /**
+         * Time to sleep before wake up and kill the scheduler.
+         * <p>
+         * In milliseconds.
+         */
+        private final long endSimulationTime;
+
+        private final RealTimeMultiThreadScheduler scheduler;
+
         // Constructors.
+
+        public FinishWatcher(long timeToWait) {
+            this.endSimulationTime = timeToWait;
+
+            scheduler = RealTimeMultiThreadScheduler.this;
+        }
 
         // Methods.
 
         @Override
         public void run() {
-            if (RealTimeMultiThreadScheduler.this.getCurrentTime() > RealTimeMultiThreadScheduler.this.getEndSimulation()) {
-                synchronized (RealTimeMultiThreadScheduler.this) {
-                    if (RealTimeMultiThreadScheduler.this.isStarted) {
-                        RealTimeMultiThreadScheduler.this.updateSchedulerWatcherOnSimulationEndTimeReach();
-                        RealTimeMultiThreadScheduler.this.kill();
-                    }
+            waitTheEnd();
+            notifyWatcherAndKillScheduler();
+        }
+
+        /**
+         * Make sleep the current Thread until the end of the simulation.
+         */
+        private void waitTheEnd() {
+            try {
+                Thread.sleep(endSimulationTime);
+            } catch (InterruptedException ignored) {
+            }
+        }
+
+        private void notifyWatcherAndKillScheduler() {
+            synchronized (scheduler) {
+                if (scheduler.isRunning()) {
+                    scheduler.endByEndSimulationReach();
                 }
             }
         }

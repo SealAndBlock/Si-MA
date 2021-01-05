@@ -3,8 +3,8 @@ package sima.core.simulation;
 import org.junit.jupiter.api.Test;
 import sima.core.SimaTest;
 import sima.core.agent.AgentIdentifier;
-import sima.core.environment.event.Event;
 import sima.core.environment.Environment;
+import sima.core.environment.event.Event;
 import sima.core.exception.EnvironmentConstructionException;
 import sima.core.exception.SimaSimulationAlreadyRunningException;
 import sima.core.exception.SimulationSetupConstructionException;
@@ -404,30 +404,7 @@ public class TestSimaSimulation extends SimaTest {
             this.isPassToNoExecutionToExecute++;
         }
 
-        public void reset() {
-            this.isPassToSchedulerStarted = 0;
-            this.isPassToSchedulerKilled = 0;
-            this.isPassToSimulationEndTimeReach = 0;
-            this.isPassToNoExecutionToExecute = 0;
-        }
-
         // Getters and Setters.
-
-        public int isPassToSchedulerStarted() {
-            return isPassToSchedulerStarted;
-        }
-
-        public int isPassToSchedulerKilled() {
-            return isPassToSchedulerKilled;
-        }
-
-        public int isPassToSimulationEndTimeReach() {
-            return isPassToSimulationEndTimeReach;
-        }
-
-        public int isPassToNoExecutionToExecute() {
-            return isPassToNoExecutionToExecute;
-        }
     }
 
     private static class TestSimaWatcher implements SimaSimulation.SimaWatcher {
@@ -438,11 +415,6 @@ public class TestSimaSimulation extends SimaTest {
         private int isPassKilled = 0;
 
         // Methods.
-
-        public void reset() {
-            this.isPassStarted = 0;
-            this.isPassKilled = 0;
-        }
 
         @Override
         public void simulationStarted() {
@@ -455,14 +427,6 @@ public class TestSimaSimulation extends SimaTest {
         }
 
         // Getters and Setters.
-
-        public int getIsPassStarted() {
-            return isPassStarted;
-        }
-
-        public int getIsPassKilled() {
-            return isPassKilled;
-        }
     }
 
     private static class SameNameEnvironment1 extends Environment {

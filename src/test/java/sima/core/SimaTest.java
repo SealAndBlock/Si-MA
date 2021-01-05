@@ -3,6 +3,7 @@ package sima.core;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class SimaTest {
@@ -50,6 +51,12 @@ public abstract class SimaTest {
         } catch (Exception e) {
             fail(e);
         }
+    }
+
+    public void verifyNumber(long valToVerify, long expected, long delta) {
+        assertTrue((expected - delta) <= valToVerify && valToVerify <= (expected + delta),
+                "valToVerify = " + valToVerify + " expected = " + expected + " delta = " + delta + " min = "
+                        + (expected - delta) + " max = " + (expected + delta));
     }
 
 }

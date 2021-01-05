@@ -18,7 +18,8 @@ public class TestDiscreteTimeMultiThreadScheduler extends GlobalTestMultiThreadS
         NB_EXECUTOR_THREADS = 5;
         DISCRETE_TIME_MULTI_THREAD_SCHEDULER = new DiscreteTimeMultiThreadScheduler(END_SIMULATION, NB_EXECUTOR_THREADS);
         MULTI_THREAD_SCHEDULER = DISCRETE_TIME_MULTI_THREAD_SCHEDULER;
-        TIME_EXECUTION_TOLERANCE = 0;
+        TIME_EXECUTION_TOLERANCE = 0; // ms
+        NB_EXECUTION_TOLERANCE = 0;
 
         super.verifyAndSetup();
     }
