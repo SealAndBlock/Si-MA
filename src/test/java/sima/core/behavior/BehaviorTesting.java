@@ -28,7 +28,7 @@ public class BehaviorTesting extends Behavior {
 
     @Override
     public boolean canBePlayedBy(AbstractAgent agent) {
-        return true;
+        return agent != null;
     }
 
     @Override

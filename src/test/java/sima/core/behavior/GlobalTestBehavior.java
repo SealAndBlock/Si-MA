@@ -1,116 +1,72 @@
 package sima.core.behavior;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import sima.core.SimaTest;
 import sima.core.agent.AbstractAgent;
-import sima.core.exception.BehaviorCannotBePlayedByAgentException;
-import sima.core.environment.event.Event;
 
-import java.util.Map;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+@Disabled
+public abstract class GlobalTestBehavior extends SimaTest {
 
-public class GlobalTestBehavior {
+    // Static.
 
-    // Variables.
+    protected Behavior BEHAVIOR;
 
-    private static AbstractAgent AGENT_0;
-    private static AbstractAgent AGENT_1;
+    /**
+     * A playable agent for {@link #BEHAVIOR}. Cannot be null.
+     */
+    protected AbstractAgent PLAYABLE_AGENT;
 
-    // Setup.
+    /**
+     * A not playable agent for {@link #BEHAVIOR}. Can be null.
+     */
+    protected AbstractAgent NOT_PLAYABLE_AGENT;
 
-    @BeforeEach
-    void setUp() {
-        AGENT_0 = new AgentTestImpl("AGENT_0");
-        AGENT_1 = new AgentTestImpl("AGENT_1");
+    // Initialisation.
+
+    @Override
+    protected void verifyAndSetup() {
+        assertNotNull(BEHAVIOR, "BEHAVIOR cannot be null for tests");
+        assertNotNull(PLAYABLE_AGENT, "PLAYABLE_AGENT cannot be null for tests");
+
+        assertNotEquals(PLAYABLE_AGENT, NOT_PLAYABLE_AGENT, "PLAYABLE_AGENT and NOT_PLAYABLE_AGENT cannot be equal for tests");
     }
 
     // Tests.
 
-    /**
-     * Test if the {@link Behavior} constructors works correctly and throws an exception if the sima.core.agent in parameter
-     * cannot play the {@code Behavior}.
-     */
     @Test
-    public void testBehaviorConstructor() {
-        assertThrows(BehaviorCannotBePlayedByAgentException.class, () -> new Behavior(AGENT_1, null) {
-            @Override
-            protected void processArgument(Map<String, String> args) {
-            }
-
-            @Override
-            public boolean canBePlayedBy(AbstractAgent agent) {
-                return agent.equals(AGENT_0);
-            }
-
-            @Override
-            public void onStartPlaying() {
-            }
-
-            @Override
-            public void onStopPlaying() {
-            }
-        });
-
-        try {
-            new Behavior(AGENT_0, null) {
-                @Override
-                protected void processArgument(Map<String, String> args) {
-                }
-
-                @Override
-                public boolean canBePlayedBy(AbstractAgent agent) {
-                    return agent.equals(AGENT_0);
-                }
-
-                @Override
-                public void onStartPlaying() {
-                }
-
-                @Override
-                public void onStopPlaying() {
-                }
-            };
-        } catch (BehaviorCannotBePlayedByAgentException e) {
-            fail();
-        }
+    public void canBePlayedByReturnsTrueForPlayableAgent() {
+        assertTrue(BEHAVIOR.canBePlayedBy(PLAYABLE_AGENT));
     }
 
-    // Inner classes.
-
-    private static class AgentTestImpl extends AbstractAgent {
-
-        // Constructors.
-
-        public AgentTestImpl(String agentName) {
-            super(agentName, 0, null);
-        }
-
-        // Methods.
-
-        @Override
-        protected void processArgument(Map<String, String> args) {
-        }
-
-        @Override
-        public void onStart() {
-
-        }
-
-        @Override
-        public void onKill() {
-
-        }
-
-        @Override
-        protected void treatNoProtocolEvent(Event event) {
-
-        }
-
-        @Override
-        protected void treatEventWithNotFindProtocol(Event event) {
-
-        }
+    @Test
+    public void canBePlayedByReturnsFalseForNotPlayableAgent() {
+        assertFalse(BEHAVIOR.canBePlayedBy(NOT_PLAYABLE_AGENT));
     }
+
+    @Test
+    public void canBePlayedByReturnsFalseForNullAgent() {
+        assertFalse(BEHAVIOR.canBePlayedBy(null));
+    }
+
+    @Test
+    public void isPlayingReturnsFalseIfBehaviorIsNotPlaying() {
+        assertFalse(BEHAVIOR.isPlaying());
+    }
+
+    @Test
+    public void IsPlayingReturnsTrueAfterStartPlaying() {
+        BEHAVIOR.startPlaying();
+        assertTrue(BEHAVIOR.isPlaying());
+    }
+
+    @Test
+    public void IsPlayingReturnsFalseAfterStopPlaying() {
+        BEHAVIOR.startPlaying();
+        BEHAVIOR.stopPlaying();
+        assertFalse(BEHAVIOR.isPlaying());
+    }
+
 }
