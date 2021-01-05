@@ -199,7 +199,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      * Add the {@link Executable} in function of the {@link sima.core.scheduler.Scheduler.ScheduleMode}.
      * <p>
      * If the scheduleMode is equal to {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED} or
-     * {@link sima.core.scheduler.Scheduler.ScheduleMode#INFINITELY}, the executable is add the number of times that it
+     * {@link sima.core.scheduler.Scheduler.ScheduleMode#INFINITE}, the executable is add the number of times that it
      * must be added. It is the same instance which is added at each times, there is no copy of the {@code Executable}.
      *
      * @param executable    the executable to add
@@ -222,7 +222,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
                 addRepeatedExecutable(executable, waitingTime, nbRepetitions, executionTimeStep);
             }
-            case INFINITELY -> {
+            case INFINITE -> {
                 if (executionTimeStep < 1)
                     throw new IllegalArgumentException("ExecutionTimeStep must be greater or equal to 1");
 

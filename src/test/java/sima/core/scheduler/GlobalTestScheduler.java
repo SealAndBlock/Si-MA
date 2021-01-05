@@ -288,7 +288,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 0,
                 Scheduler.ScheduleMode.REPEATED, -1, -1));
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 0,
-                Scheduler.ScheduleMode.INFINITELY, -1, -1));
+                Scheduler.ScheduleMode.INFINITE, -1, -1));
     }
 
     @Test
@@ -306,7 +306,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 1,
                 Scheduler.ScheduleMode.REPEATED, 1, 0));
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 1,
-                Scheduler.ScheduleMode.INFINITELY, -1, 0));
+                Scheduler.ScheduleMode.INFINITE, -1, 0));
     }
 
     @Test

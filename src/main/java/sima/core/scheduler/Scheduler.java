@@ -176,7 +176,7 @@ public interface Scheduler {
      *                                  than 1.
      */
     default void scheduleExecutableInfinitely(Executable executable, long waitingTime, long executionTimeStep) {
-        this.scheduleExecutable(executable, waitingTime, ScheduleMode.INFINITELY, -1, executionTimeStep);
+        this.scheduleExecutable(executable, waitingTime, ScheduleMode.INFINITE, -1, executionTimeStep);
     }
 
     /**
@@ -240,7 +240,7 @@ public interface Scheduler {
      * Enum to specify how many time an {@link Executable} can be schedule.
      */
     enum ScheduleMode {
-        ONCE, REPEATED, INFINITELY
+        ONCE, REPEATED, INFINITE
     }
 
     interface SchedulerWatcher {
