@@ -14,12 +14,12 @@ public class TestRealTimeMultiThreadScheduler extends GlobalTestMultiThreadSched
 
     @Override
     protected void verifyAndSetup() {
-        END_SIMULATION = 1_000;
+        END_SIMULATION = 4_000;
         NB_EXECUTOR_THREADS = 5;
         REAL_TIME_MULTI_THREAD_SCHEDULER = new RealTimeMultiThreadScheduler(END_SIMULATION, NB_EXECUTOR_THREADS);
         MULTI_THREAD_SCHEDULER = REAL_TIME_MULTI_THREAD_SCHEDULER;
         TIME_EXECUTION_TOLERANCE = 100; // ms
-        NB_EXECUTION_TOLERANCE = 2;
+        NB_EXECUTION_TOLERANCE = 13;
 
         super.verifyAndSetup();
     }
