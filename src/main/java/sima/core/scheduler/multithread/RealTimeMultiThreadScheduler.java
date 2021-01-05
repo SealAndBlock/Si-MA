@@ -173,8 +173,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     private void addRepeatedExecutable(Executable executable, long waitingTime, long nbRepetitions, long executionTimeStep) {
         for (int i = 0; i < nbRepetitions; i++) {
-            if (waitingTime + (i * executionTimeStep) > getEndSimulation())
-                break;
+            if (waitingTime + (i * executionTimeStep) > getEndSimulation()) break;
             addOnceExecutable(executable, waitingTime + (i * executionTimeStep));
         }
     }
@@ -261,11 +260,9 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     // Inner class.
 
-    public class RealTimeExecutorThread extends MultiThreadScheduler.ExecutorThread {
+    public class RealTimeExecutorThread extends OneExecutableExecutorThread {
 
         // variables.
-
-        private final Executable executable;
 
         private final long delay;
 
@@ -274,9 +271,8 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         // Constructors.
 
         public RealTimeExecutorThread(Executable executable, long delay) {
-            this.executable = executable;
+            super(executable);
             this.delay = delay;
-
             scheduler = RealTimeMultiThreadScheduler.this;
         }
 
@@ -374,8 +370,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         private void notifyWatcherAndKillScheduler() {
             synchronized (scheduler) {
                 if (scheduler.isRunning()) {
-                    scheduler.notifyOnSimulationEndTimeReach();
-                    scheduler.kill();
+                    scheduler.endByEndSimulationReach();
                 }
             }
         }

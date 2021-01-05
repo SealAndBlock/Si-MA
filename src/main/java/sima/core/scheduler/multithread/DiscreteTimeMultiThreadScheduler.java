@@ -298,7 +298,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
         public DiscreteTimeExecutorThread(Executable executable) {
             super(executable);
-
             scheduler = DiscreteTimeMultiThreadScheduler.this;
         }
 
