@@ -3,15 +3,18 @@ package sima.core.behavior;
 import sima.core.agent.AbstractAgent;
 import sima.core.exception.BehaviorCannotBePlayedByAgentException;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class BehaviorTesting extends Behavior {
 
     // Variables.
 
-    private int passToProcessArg = 0;
-    private int passToOnStartPlaying = 0;
-    private int passToInStopPlaying = 0;
+    private int passToOnStartPlaying;
+    private int passToOnStopPlaying;
+
+    public static Set<AbstractAgent> NOT_PLAYABLE_AGENT_LIST = new HashSet<>();
 
     // Constructors.
 
@@ -23,12 +26,11 @@ public class BehaviorTesting extends Behavior {
 
     @Override
     protected void processArgument(Map<String, String> args) {
-        this.passToProcessArg++;
     }
 
     @Override
     public boolean canBePlayedBy(AbstractAgent agent) {
-        return true;
+        return agent != null && !NOT_PLAYABLE_AGENT_LIST.contains(agent);
     }
 
     @Override
@@ -38,26 +40,16 @@ public class BehaviorTesting extends Behavior {
 
     @Override
     public void onStopPlaying() {
-        this.passToInStopPlaying++;
-    }
-
-    public void reset() {
-        this.passToProcessArg = 0;
-        this.passToOnStartPlaying = 0;
-        this.passToInStopPlaying = 0;
+        this.passToOnStopPlaying++;
     }
 
     // Getters and Setters.
-
-    public int getPassToProcessArg() {
-        return passToProcessArg;
-    }
 
     public int getPassToOnStartPlaying() {
         return passToOnStartPlaying;
     }
 
-    public int getPassToInStopPlaying() {
-        return passToInStopPlaying;
+    public int getPassToOnStopPlaying() {
+        return passToOnStopPlaying;
     }
 }

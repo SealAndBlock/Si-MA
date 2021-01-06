@@ -43,12 +43,12 @@ public abstract class Behavior {
     public Behavior(AbstractAgent agent, Map<String, String> args) throws BehaviorCannotBePlayedByAgentException {
         this.agent = Optional.of(agent).get();
 
-        if (!this.canBePlayedBy(this.agent))
-            throw new BehaviorCannotBePlayedByAgentException("The sima.core.agent : " + this.agent + " cannot play the " +
-                    "behavior " + this.getClass().getName());
+        if (!canBePlayedBy(agent))
+            throw new BehaviorCannotBePlayedByAgentException("The sima.core.agent : " + agent + " cannot play the " +
+                    "behavior " + getClass().getName());
 
         if (args != null)
-            this.processArgument(args);
+            processArgument(args);
     }
 
     // Methods.
@@ -76,19 +76,9 @@ public abstract class Behavior {
      * To implement the start sima.core.behavior, implement the method {@link #onStartPlaying()}.
      */
     public final void startPlaying() {
-        if (!this.isPlaying) {
-            this.onStartPlaying();
-            this.isPlaying = true;
-        }
-    }
-
-    /**
-     * Stop to play the sima.core.behavior. The sima.core.behavior must be started for that method have an effect.
-     */
-    public final void stopPlaying() {
-        if (this.isPlaying) {
-            this.onStopPlaying();
-            this.isPlaying = false;
+        if (!isPlaying()) {
+            onStartPlaying();
+            isPlaying = true;
         }
     }
 
@@ -96,6 +86,16 @@ public abstract class Behavior {
      * Method called in the method {@link #startPlaying()}.
      */
     public abstract void onStartPlaying();
+
+    /**
+     * Stop to play the sima.core.behavior. The sima.core.behavior must be started for that method have an effect.
+     */
+    public final void stopPlaying() {
+        if (isPlaying()) {
+            onStopPlaying();
+            isPlaying = false;
+        }
+    }
 
     /**
      * Method called in the method {@link #stopPlaying()}  .

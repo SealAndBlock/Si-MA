@@ -434,7 +434,7 @@ public abstract class GlobalTestAbstractAgent extends SimaTest {
 
         AGENT_0.stopPlayingBehavior(BehaviorTesting.class);
 
-        assertEquals(1, behavior.getPassToInStopPlaying());
+        assertEquals(1, behavior.getPassToOnStopPlaying());
 
         assertFalse(behavior.isPlaying());
     }
