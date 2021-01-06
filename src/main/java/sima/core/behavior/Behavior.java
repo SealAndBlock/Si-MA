@@ -83,6 +83,11 @@ public abstract class Behavior {
     }
 
     /**
+     * Method called in the method {@link #startPlaying()}.
+     */
+    public abstract void onStartPlaying();
+
+    /**
      * Stop to play the sima.core.behavior. The sima.core.behavior must be started for that method have an effect.
      */
     public final void stopPlaying() {
@@ -91,11 +96,6 @@ public abstract class Behavior {
             isPlaying = false;
         }
     }
-
-    /**
-     * Method called in the method {@link #startPlaying()}.
-     */
-    public abstract void onStartPlaying();
 
     /**
      * Method called in the method {@link #stopPlaying()}  .

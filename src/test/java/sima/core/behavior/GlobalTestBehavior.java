@@ -69,4 +69,9 @@ public abstract class GlobalTestBehavior extends SimaTest {
         assertFalse(BEHAVIOR.isPlaying());
     }
 
+    @Test
+    public void getAgentNeverReturnsNull() {
+        assertNotNull(BEHAVIOR.getAgent());
+    }
+
 }
