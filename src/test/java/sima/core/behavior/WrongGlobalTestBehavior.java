@@ -3,8 +3,8 @@ package sima.core.behavior;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sima.core.agent.AbstractAgent;
-import sima.core.exception.BehaviorCannotBePlayedByAgentException;
 import sima.core.environment.event.Event;
+import sima.core.exception.BehaviorCannotBePlayedByAgentException;
 
 import java.util.Map;
 
@@ -94,12 +94,12 @@ public class WrongGlobalTestBehavior {
         }
 
         @Override
-        public void onStart() {
+        public void notifyOnStart() {
 
         }
 
         @Override
-        public void onKill() {
+        public void notifyOnKill() {
 
         }
 
