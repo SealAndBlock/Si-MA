@@ -2,7 +2,6 @@ package sima.core.environment.event;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import sima.core.SimaTest;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentTesting;
 
