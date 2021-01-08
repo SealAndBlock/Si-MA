@@ -75,7 +75,7 @@ public abstract class Event implements Serializable {
      */
     public final Event cloneAndAddReceiver(AgentIdentifier receiver) {
         try {
-            Event newInstance = (Event) this.clone();
+            Event newInstance = (Event) clone();
             newInstance.receiver = receiver;
             return newInstance;
         } catch (CloneNotSupportedException e) {
@@ -90,7 +90,7 @@ public abstract class Event implements Serializable {
      * @return true if the sima.core.protocol targeted is not null, else false.
      */
     public boolean isProtocolEvent() {
-        return this.protocolTargeted != null;
+        return protocolTargeted != null;
     }
 
     // Getters and Setters.
