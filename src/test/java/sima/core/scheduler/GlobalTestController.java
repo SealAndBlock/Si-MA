@@ -30,7 +30,7 @@ public abstract class GlobalTestController extends GlobalTestExecutable {
 
     @Test
     public void constructControllerWithNullArgsNotFail() {
-        testNotFail(() -> new Controller(null) {
+        notFail(() -> new Controller(null) {
 
             @Override
             public void execute() {
@@ -44,7 +44,7 @@ public abstract class GlobalTestController extends GlobalTestExecutable {
 
     @Test
     public void constructControllerWithNotNullArgsNotFail() {
-        testNotFail(() -> new Controller(new HashMap<>()) {
+        notFail(() -> new Controller(new HashMap<>()) {
 
             @Override
             public void execute() {

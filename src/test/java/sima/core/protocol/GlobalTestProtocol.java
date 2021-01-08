@@ -1,195 +1,73 @@
 package sima.core.protocol;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import sima.core.agent.AbstractAgent;
-import sima.core.environment.event.Event;
-
-import java.util.Map;
+import sima.core.SimaTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GlobalTestProtocol {
+@Disabled
+public abstract class GlobalTestProtocol extends SimaTest {
 
-    private static final AgentTestImpl OWNER = new AgentTestImpl("OWNER");
+    // Static.
 
-    /**
-     * Test if for a {@link Protocol} which returns null with the method which give the default
-     * {@link ProtocolManipulator}, a {@link NullPointerException} is thrown.
-     */
+    protected Protocol PROTOCOL;
+
+    // Initialisation.
+
+    @Override
+    protected void verifyAndSetup() {
+        assertNotNull(PROTOCOL, "PROTOCOL cannot be null for tests");
+    }
+
+    // Tests.
+
     @Test
-    public void testProtocolDefaultProtocolManipulatorConstructor() {
-        assertThrows(NullPointerException.class, () -> new Protocol("P0", OWNER, null) {
-            @Override
-            public void processEvent(Event event) {
-            }
-
-            @Override
-            protected void processArgument(Map<String, String> args) {
-            }
-
-            @Override
-            protected ProtocolManipulator getDefaultProtocolManipulator() {
-                return null;
-            }
-        });
-
-        assertThrows(NullPointerException.class, () -> new ProtocolTestImpl("P0", null, null));
-
-        try {
-            Protocol p = new ProtocolTestImpl("P0", OWNER, null);
-        } catch (NullPointerException e) {
-            fail();
-        }
+    public void getIdentifierNeverReturnsNull() {
+        assertNotNull(PROTOCOL.getIdentifier());
     }
 
-    /**
-     * Test if a sima.core.protocol can set a other {@link ProtocolManipulator} and can reset its default
-     * {@code ProtocolManipulator} after.
-     */
     @Test
-    public void testSetProtocolManipulator() {
-        ProtocolTestImpl p = new ProtocolTestImpl("P0", OWNER, null);
-        assertEquals(p.getDefaultProtocolManipulator(), p.getProtocolManipulator());
-
-        assertThrows(NullPointerException.class, () -> p.setProtocolManipulator(null));
-
-        ProtocolManipulator pm = new ProtocolManipulator(p) {
-        };
-        p.setProtocolManipulator(pm);
-        assertEquals(pm, p.getProtocolManipulator());
-
-        p.resetDefaultProtocolManipulator();
-        assertEquals(p.getDefaultProtocolManipulator(), p.getProtocolManipulator());
-
-        assertEquals(p, p.getProtocolManipulator().getManipulatedProtocol());
+    public void getIdentifierReturnsCorrespondingIdentifier() {
+        ProtocolIdentifier protocolIdentifier = PROTOCOL.getIdentifier();
+        verifyPreConditionAndExecuteTest(() -> protocolIdentifier != null,
+                () -> {
+                    assertEquals(PROTOCOL.getClass(), protocolIdentifier.getProtocolClass());
+                    assertEquals(PROTOCOL.getProtocolTag(), protocolIdentifier.getProtocolTag());
+                });
     }
 
-    /**
-     * Test if a {@link Protocol} can reset its default {@link ProtocolManipulator}.
-     */
     @Test
-    public void testResetDefaultProtocolManipulator() {
-        Protocol p = new Protocol("P0", OWNER, null) {
-            private int i;
-
-            @Override
-            protected void processArgument(Map<String, String> args) {
-            }
-
-            @Override
-            protected ProtocolManipulator getDefaultProtocolManipulator() {
-                if (this.i == 0) {
-                    this.i = this.i + 1;
-                    return new ProtocolManipulator(this) {
-                    };
-                } else
-                    return null;
-            }
-
-            @Override
-            public void processEvent(Event event) {
-            }
-        };
-
-        assertThrows(NullPointerException.class, p::resetDefaultProtocolManipulator);
-
-        ProtocolTestImpl p1 = new ProtocolTestImpl("P0", OWNER, null);
-        assertEquals(p1.getDefaultProtocolManipulator(), p1.getProtocolManipulator());
-
-        ProtocolManipulator pm = new ProtocolManipulator(p1) {
-        };
-        p1.setProtocolManipulator(pm);
-        assertEquals(pm, p1.getProtocolManipulator());
-
-        p1.resetDefaultProtocolManipulator();
-        assertEquals(p1.getDefaultProtocolManipulator(), p1.getProtocolManipulator());
+    public void resetDefaultProtocolManipulatorResetTheDefaultProtocolManipulator() {
+        Class<? extends ProtocolManipulator> defaultProtocolManipulatorClass
+                = PROTOCOL.getDefaultProtocolManipulator().getClass();
+        PROTOCOL.setProtocolManipulator(new ProtocolManipulator.DefaultProtocolManipulator(PROTOCOL));
+        PROTOCOL.resetDefaultProtocolManipulator();
+        assertEquals(defaultProtocolManipulatorClass, PROTOCOL.getDefaultProtocolManipulator().getClass());
     }
 
-    /**
-     * Test if two instances of a same class of {@link Protocol} with different tag have two not equal
-     * {@link ProtocolIdentifier} and if two instances of a same class of {@code Protocol} with the same tag have two
-     * equal {@code ProtocolIdentifier}.
-     */
     @Test
-    public void testProtocolIdentifier() {
-        Protocol p0 = new ProtocolTestImpl("P0", OWNER, null);
-        Protocol p1 = new ProtocolTestImpl("P1", OWNER, null);
-        Protocol p2 = new ProtocolTestImpl("P0", OWNER, null);
-
-        ProtocolIdentifier pI = p0.getIdentifier();
-
-        assertEquals(pI, p0.getIdentifier());
-        assertNotEquals(pI, p1.getIdentifier());
-        assertEquals(pI, p2.getIdentifier());
+    public void getProtocolTagNeverReturnsNull() {
+        assertNotNull(PROTOCOL.getProtocolTag());
     }
 
-    // Inner classes
-
-    private static class ProtocolTestImpl extends Protocol {
-
-        // Variables.
-
-        public ProtocolManipulator defaultProtocolManipulator;
-
-        // Constructors.
-
-        public ProtocolTestImpl(String protocolTag, AbstractAgent agentOwner, Map<String, String> args) {
-            super(protocolTag, agentOwner, args);
-        }
-
-        // Methods.
-
-        @Override
-        protected void processArgument(Map<String, String> args) {
-        }
-
-        @Override
-        protected ProtocolManipulator getDefaultProtocolManipulator() {
-            if (this.defaultProtocolManipulator == null) {
-                this.defaultProtocolManipulator = new ProtocolManipulator(this) {
-                };
-            }
-            return this.defaultProtocolManipulator;
-        }
-
-        @Override
-        public void processEvent(Event event) {
-        }
+    @Test
+    public void getAgentOwnerNeverReturnsNull() {
+        assertNotNull(PROTOCOL.getAgentOwner());
     }
 
-    private static class AgentTestImpl extends AbstractAgent {
-
-        // Constructors.
-
-        public AgentTestImpl(String agentName) {
-            super(agentName, 0, null);
-        }
-
-        // Methods.
-
-        @Override
-        protected void processArgument(Map<String, String> args) {
-        }
-
-        @Override
-        public void onStart() {
-
-        }
-
-        @Override
-        public void onKill() {
-
-        }
-
-        @Override
-        protected void treatNoProtocolEvent(Event event) {
-
-        }
-
-        @Override
-        protected void treatEventWithNotFindProtocol(Event event) {
-
-        }
+    @Test
+    public void getProtocolManipulatorNeverReturnsNull() {
+        assertNotNull(PROTOCOL.getProtocolManipulator());
     }
 
+    @Test
+    public void setProtocolManipulatorWithNullArgumentThrowsException() {
+        assertThrows(NullPointerException.class, () -> PROTOCOL.setProtocolManipulator(null));
+    }
+
+    @Test
+    public void setProtocolManipulatorWithNotNullArgumentNotFail() {
+        notFail(() -> PROTOCOL.setProtocolManipulator(new ProtocolManipulator.DefaultProtocolManipulator(PROTOCOL)));
+    }
 }

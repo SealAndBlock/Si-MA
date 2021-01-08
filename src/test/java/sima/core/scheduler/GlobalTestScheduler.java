@@ -445,7 +445,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
                             currentTime));
         };
 
-        testNotFail(
+        notFail(
                 () -> SCHEDULER.scheduleExecutable(e, timeToBeExecuted, Scheduler.ScheduleMode.ONCE, -1, -1));
 
         assertTrue(SCHEDULER.start());

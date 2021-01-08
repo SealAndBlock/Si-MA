@@ -32,7 +32,7 @@ public abstract class SimaTest {
      * @param preConditionTest the pre condition to verify before execute the test
      * @param testRunnable     the test to run after verify the pre condition
      */
-    public void verifyPreConditionAndExecuteTest(PreConditionTest preConditionTest, TestRunnable testRunnable) {
+    public static void verifyPreConditionAndExecuteTest(PreConditionTest preConditionTest, TestRunnable testRunnable) {
         if (preConditionTest.verifyPreConditionTest()) {
             testRunnable.runTest();
         } else {
@@ -45,7 +45,7 @@ public abstract class SimaTest {
      *
      * @param testRunnable the test to run
      */
-    public void testNotFail(TestRunnable testRunnable) {
+    public static void notFail(TestRunnable testRunnable) {
         try {
             testRunnable.runTest();
         } catch (Exception e) {
@@ -53,7 +53,7 @@ public abstract class SimaTest {
         }
     }
 
-    public void verifyNumber(long valToVerify, long expected, long delta) {
+    public static void verifyNumber(long valToVerify, long expected, long delta) {
         assertTrue((expected - delta) <= valToVerify && valToVerify <= (expected + delta),
                 "valToVerify = " + valToVerify + " expected = " + expected + " delta = " + delta + " min = "
                         + (expected - delta) + " max = " + (expected + delta));
