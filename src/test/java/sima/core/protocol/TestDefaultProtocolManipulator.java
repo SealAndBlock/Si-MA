@@ -30,6 +30,6 @@ public class TestDefaultProtocolManipulator extends GlobalTestProtocolManipulato
     public void constructDefaultProtocolManipulatorWithNotNullProtocolThrowsException() {
         AbstractAgent a = new AgentTesting("A_0", 0, null);
         Protocol protocol = new ProtocolTesting("P_TAG_0", a, null);
-        testNotFail(() -> new ProtocolManipulator.DefaultProtocolManipulator(protocol));
+        notFail(() -> new ProtocolManipulator.DefaultProtocolManipulator(protocol));
     }
 }

@@ -30,6 +30,14 @@ public abstract class ProtocolManipulator {
 
     // Methods.
 
+    /**
+     * Reset the state of the {@link ProtocolManipulator}.
+     * <p>
+     * Use when the {@link #manipulatedProtocol} is changed in the method
+     * {@link Protocol#setProtocolManipulator(ProtocolManipulator)}.
+     */
+    public abstract void resetState();
+
     // Getters and Setters.
 
     public Protocol getManipulatedProtocol() {
@@ -48,6 +56,8 @@ public abstract class ProtocolManipulator {
 
     public static class DefaultProtocolManipulator extends ProtocolManipulator {
 
+        // Constructors.
+
         /**
          * Constructs a {@link ProtocolManipulator} with the instance of the the sima.core.protocol which is manipulated by him.
          *
@@ -56,6 +66,13 @@ public abstract class ProtocolManipulator {
          */
         public DefaultProtocolManipulator(Protocol manipulatedProtocol) {
             super(manipulatedProtocol);
+        }
+
+        // Methods.
+
+        @Override
+        public void resetState() {
+            // Nothing.
         }
     }
 }

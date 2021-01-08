@@ -32,6 +32,6 @@ public class TestProtocolIdentifier extends GlobalTestProtocolIdentifier {
 
     @Test
     public void constructProtocolIdentifierWithNotNullArgumentsNotFail() {
-        testNotFail(() -> new ProtocolIdentifier(ProtocolTesting.class, "TAG"));
+        notFail(() -> new ProtocolIdentifier(ProtocolTesting.class, "TAG"));
     }
 }
