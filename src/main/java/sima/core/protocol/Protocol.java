@@ -64,10 +64,10 @@ public abstract class Protocol implements EventCatcher {
 
         this.agentOwner = Optional.of(agentOwner).get();
 
-        this.protocolManipulator = Optional.of(this.getDefaultProtocolManipulator()).get();
+        protocolManipulator = Optional.of(getDefaultProtocolManipulator()).get();
 
         if (args != null)
-            this.processArgument(args);
+            processArgument(args);
     }
 
     // Methods.
@@ -89,8 +89,8 @@ public abstract class Protocol implements EventCatcher {
      * @return the {@link ProtocolIdentifier} of the sima.core.protocol. It never returns null.
      */
     public ProtocolIdentifier getIdentifier() {
-        if (this.protocolIdentifier == null) {
-            this.protocolIdentifier = new ProtocolIdentifier(this.getClass(), this.protocolTag);
+        if (protocolIdentifier == null) {
+            protocolIdentifier = new ProtocolIdentifier(getClass(), protocolTag);
         }
 
         return protocolIdentifier;
@@ -109,7 +109,7 @@ public abstract class Protocol implements EventCatcher {
      * null.
      */
     public void resetDefaultProtocolManipulator() {
-        this.protocolManipulator = Optional.of(this.getDefaultProtocolManipulator()).get();
+        protocolManipulator = Optional.of(getDefaultProtocolManipulator()).get();
     }
 
     // Getters and Setters.

@@ -12,7 +12,7 @@ public class ProtocolTesting extends Protocol {
     private int passToProcessEvent = 0;
     private int passToProcessArgument = 0;
 
-    private DefaultProtocolManipulator defaultProtocolManipulator;
+    private ProtocolManipulator.DefaultProtocolManipulator defaultProtocolManipulator;
 
     // Constructors.
 
@@ -35,7 +35,7 @@ public class ProtocolTesting extends Protocol {
     @Override
     protected ProtocolManipulator getDefaultProtocolManipulator() {
         if (this.defaultProtocolManipulator == null)
-            this.defaultProtocolManipulator = new DefaultProtocolManipulator(this);
+            this.defaultProtocolManipulator = new ProtocolManipulator.DefaultProtocolManipulator(this);
         return this.defaultProtocolManipulator;
     }
 
@@ -52,20 +52,5 @@ public class ProtocolTesting extends Protocol {
 
     public int getPassToProcessArgument() {
         return passToProcessArgument;
-    }
-
-    // Inner class.
-
-    private static class DefaultProtocolManipulator extends ProtocolManipulator {
-
-        /**
-         * Constructs a {@link ProtocolManipulator} with the instance of the the sima.core.protocol which is manipulated by him.
-         *
-         * @param manipulatedProtocol the new manipulated sima.core.protocol (must be not null)
-         * @throws NullPointerException if the manipulated sima.core.protocol is null
-         */
-        public DefaultProtocolManipulator(Protocol manipulatedProtocol) {
-            super(manipulatedProtocol);
-        }
     }
 }

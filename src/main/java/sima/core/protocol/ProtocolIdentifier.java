@@ -2,6 +2,7 @@ package sima.core.protocol;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A sima.core.protocol identificator allows the identification of a sima.core.protocol in an sima.core.agent. If an sima.core.agent <i>A</i> has the same
@@ -35,11 +36,8 @@ public class ProtocolIdentifier implements Serializable {
      * @throws NullPointerException if the protocolName and/or the sima.core.protocol tag is null
      */
     public ProtocolIdentifier(Class<? extends Protocol> protocolClass, String protocolTag) {
-        this.protocolClass = protocolClass;
-        this.protocolTag = protocolTag;
-
-        if (this.protocolClass == null || this.protocolTag == null)
-            throw new NullPointerException();
+        this.protocolClass = Optional.of(protocolClass).get();
+        this.protocolTag = Optional.of(protocolTag).get();
     }
 
     // Methods.
