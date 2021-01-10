@@ -1,6 +1,6 @@
 package sima.core.exception;
 
-public class SimaSimulationFailToStartRunningException extends Throwable {
+public class SimaSimulationFailToStartRunningException extends Exception {
 
     // Constructors.
 

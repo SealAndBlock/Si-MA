@@ -54,11 +54,7 @@ public abstract class Environment implements EventCatcher {
      * @param args            arguments map (map argument name with the argument)
      */
     protected Environment(String environmentName, Map<String, String> args) {
-        this.environmentName = environmentName;
-
-        if (environmentName == null)
-            throw new NullPointerException("The sima.core.environment name cannot be null.");
-
+        this.environmentName = Optional.of(environmentName).get();
         evolvingAgents = new HashSet<>();
 
         if (args != null)
@@ -257,6 +253,19 @@ public abstract class Environment implements EventCatcher {
         if (eventCanBeSentTo(receiver, event)) {
             scheduleEventReceptionToOneAgent(receiver, event);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Environment)) return false;
+        Environment that = (Environment) o;
+        return environmentName.equals(that.environmentName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(environmentName);
     }
 
     // Getters ans Setters.

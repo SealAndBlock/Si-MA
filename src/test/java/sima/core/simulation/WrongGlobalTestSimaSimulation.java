@@ -18,13 +18,14 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled
-public abstract class GlobalTestSimaSimulation extends SimaTest {
+public abstract class WrongGlobalTestSimaSimulation extends SimaTest {
 
     // Static.
 
     private static TestSimulationSchedulerWatcher SCHEDULER_WATCHER;
     private static TestSimaWatcher SIMA_WATCHER;
 
+    private static final int NB_THREAD_THREAD_EXECUTOR = 8;
     private static final long END_SIMULATION = 10_000L;
 
     private static final String SAME_NAME_ENVIRONMENT = "ENV_NAME";
@@ -69,7 +70,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
                 assertThrows(SimaSimulationAlreadyRunningException.class, () ->
                         // Run which launches no exception if the simulation is not already running.
                         SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
-                                Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses,
+                                Scheduler.SchedulerType.MULTI_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, envClasses,
                                 null, SCHEDULER_WATCHER, SIMA_WATCHER));
             }
 
@@ -87,7 +88,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
         try {
             // Run which launches no exception.
             SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
-                    Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
+                    Scheduler.SchedulerType.MULTI_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, envClasses, null,
                     schedulerWatcher, SIMA_WATCHER);
         } catch (Exception e) {
             fail(e);
@@ -101,7 +102,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         assertThrows(UnsupportedOperationException.class, () ->
                 SimaSimulation.runSimulation(Scheduler.TimeMode.REAL_TIME,
-                        Scheduler.SchedulerType.MONO_THREAD, END_SIMULATION, envClasses, null,
+                        Scheduler.SchedulerType.MONO_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, envClasses, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
         assertFalse(SimaSimulation.simaSimulationIsRunning());
@@ -116,7 +117,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         assertThrows(UnsupportedOperationException.class, () ->
                 SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
-                        Scheduler.SchedulerType.MONO_THREAD, END_SIMULATION, envClasses, null,
+                        Scheduler.SchedulerType.MONO_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, envClasses, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
         assertFalse(SimaSimulation.simaSimulationIsRunning());
@@ -131,7 +132,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         try {
             SimaSimulation.runSimulation(Scheduler.TimeMode.REAL_TIME,
-                    Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
+                    Scheduler.SchedulerType.MULTI_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, envClasses, null,
                     SCHEDULER_WATCHER, SIMA_WATCHER);
         } catch (Exception e) {
             fail(e);
@@ -152,7 +153,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         try {
             SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
-                    Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
+                    Scheduler.SchedulerType.MULTI_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, envClasses, null,
                     SCHEDULER_WATCHER, SIMA_WATCHER);
         } catch (Exception e) {
             fail(e);
@@ -170,7 +171,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
     public void throwsExceptionWithNullEnvironmentList() {
         assertThrows(IllegalArgumentException.class, () ->
                 SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
-                        Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, null, null,
+                        Scheduler.SchedulerType.MULTI_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, null, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
         assertFalse(SimaSimulation.simaSimulationIsRunning());
@@ -184,7 +185,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         assertThrows(IllegalArgumentException.class, () ->
                 SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
-                        Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
+                        Scheduler.SchedulerType.MULTI_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, envClasses, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
         assertFalse(SimaSimulation.simaSimulationIsRunning());
@@ -200,7 +201,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
-                        Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
+                        Scheduler.SchedulerType.MULTI_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, envClasses, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
         assertFalse(SimaSimulation.simaSimulationIsRunning());
@@ -212,7 +213,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
         assertTrue(envClasses.add(TestEnvironment.class));
         assertThrows(IllegalArgumentException.class,
                 () -> SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
-                        Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
+                        Scheduler.SchedulerType.MULTI_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, envClasses, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
         assertFalse(SimaSimulation.simaSimulationIsRunning());
@@ -227,7 +228,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         assertThrows(EnvironmentConstructionException.class,
                 () -> SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
-                        Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
+                        Scheduler.SchedulerType.MULTI_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, envClasses, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
         assertFalse(SimaSimulation.simaSimulationIsRunning());
@@ -243,7 +244,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         try {
             SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
-                    Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
+                    Scheduler.SchedulerType.MULTI_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, envClasses, null,
                     SCHEDULER_WATCHER, SIMA_WATCHER);
         } catch (Exception e) {
             fail(e);
@@ -264,7 +265,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         try {
             SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
-                    Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
+                    Scheduler.SchedulerType.MULTI_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, envClasses, null,
                     SCHEDULER_WATCHER, SIMA_WATCHER);
         } catch (Exception e) {
             fail(e);
@@ -285,7 +286,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         assertThrows(SimaSimulationSetupConstructionException.class,
                 () -> SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
-                        Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses,
+                        Scheduler.SchedulerType.MULTI_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, envClasses,
                         WrongConstructorSimulationSetup.class, SCHEDULER_WATCHER, SIMA_WATCHER));
 
         assertFalse(SimaSimulation.simaSimulationIsRunning());
@@ -300,7 +301,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         try {
             SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
-                    Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, TestSimulationSetup.class,
+                    Scheduler.SchedulerType.MULTI_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, envClasses, TestSimulationSetup.class,
                     SCHEDULER_WATCHER, SIMA_WATCHER);
         } catch (Exception e) {
             fail(e);
@@ -321,7 +322,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         try {
             SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
-                    Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, TestSimulationSetup.class,
+                    Scheduler.SchedulerType.MULTI_THREAD, NB_THREAD_THREAD_EXECUTOR, END_SIMULATION, envClasses, TestSimulationSetup.class,
                     SCHEDULER_WATCHER, SIMA_WATCHER);
         } catch (Exception e) {
             fail(e);
@@ -379,26 +380,20 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         // Variables.
 
-        private int isPassToSchedulerStarted = 0;
-        private int isPassToSchedulerKilled = 0;
-        private int isPassToSimulationEndTimeReach = 0;
         private int isPassToNoExecutionToExecute = 0;
 
         // Methods.
 
         @Override
         public void schedulerStarted() {
-            this.isPassToSchedulerStarted++;
         }
 
         @Override
         public void schedulerKilled() {
-            this.isPassToSchedulerKilled++;
         }
 
         @Override
         public void simulationEndTimeReach() {
-            this.isPassToSimulationEndTimeReach++;
         }
 
         @Override
