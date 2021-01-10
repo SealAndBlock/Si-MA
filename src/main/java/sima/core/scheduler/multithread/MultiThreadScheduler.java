@@ -1,5 +1,6 @@
 package sima.core.scheduler.multithread;
 
+import org.jetbrains.annotations.NotNull;
 import sima.core.scheduler.Executable;
 import sima.core.scheduler.Scheduler;
 
@@ -127,6 +128,11 @@ public abstract class MultiThreadScheduler implements Scheduler {
     @Override
     public long getEndSimulation() {
         return endSimulation;
+    }
+
+    @Override
+    public @NotNull SchedulerType getSchedulerType() {
+        return SchedulerType.MULTI_THREAD;
     }
 
     // Inner classes.

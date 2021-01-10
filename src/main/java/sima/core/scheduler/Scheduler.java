@@ -1,5 +1,6 @@
 package sima.core.scheduler;
 
+import org.jetbrains.annotations.NotNull;
 import sima.core.agent.AbstractAgent;
 import sima.core.environment.event.Event;
 import sima.core.exception.NotSchedulableTimeException;
@@ -85,7 +86,7 @@ public interface Scheduler {
      * The nbRepetitions must be  greater or equal to 1, else throws {@link IllegalArgumentException}.
      * <p>
      * <strong>WARNING!</strong> If the Simulation time mode is
-     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
+     * {@link TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable        the executable to schedule
      * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 1)
@@ -113,7 +114,7 @@ public interface Scheduler {
      * 5 after the call of this method.
      * <p>
      * <strong>WARNING!</strong> If the Simulation time mode is
-     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
+     * {@link TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable             the executable to schedule
      * @param simulationSpecificTime the specific time of the simulation when the executable is execute (greater or
@@ -127,7 +128,7 @@ public interface Scheduler {
      * Schedule one time the executable.
      * <p>
      * <strong>WARNING!</strong> If the Simulation time mode is
-     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
+     * {@link TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable  the executable to schedule
      * @param waitingTime the waiting time before begin the schedule of the executable (greater or equal to 1)
@@ -146,7 +147,7 @@ public interface Scheduler {
      * {@code currentTime}.
      * <p>
      * <strong>WARNING!</strong> If the Simulation time mode is
-     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
+     * {@link TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable        the executable to schedule
      * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 1)
@@ -167,7 +168,7 @@ public interface Scheduler {
      * {@code currentTime + 1} because it is not possible to schedule an {@code Executable} in the current time.
      * <p>
      * <strong>WARNING!</strong> If the Simulation time mode is
-     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
+     * {@link TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable        the executable to schedule
      * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 1)
@@ -189,7 +190,7 @@ public interface Scheduler {
      * {@code currentTime}.
      * <p>
      * <strong>WARNING!</strong> If the Simulation time mode is
-     * {@link sima.core.simulation.SimaSimulation.TimeMode#REAL_TIME} the unit time use is the millisecond.
+     * {@link TimeMode#REAL_TIME} the unit time use is the millisecond.
      * <p>
      * The default implementation suppose that the scheduler is the scheduler of the {@link SimaSimulation} and that
      * the simulation is running.
@@ -237,10 +238,38 @@ public interface Scheduler {
     }
 
     /**
+     *
+     * @return the Time mode of the Scheduler.
+     */
+    @NotNull
+    TimeMode getTimeMode();
+
+    /**
+     *
+     * @return the Time mode of the Scheduler
+     */
+    @NotNull
+    SchedulerType getSchedulerType();
+
+    /**
      * Enum to specify how many time an {@link Executable} can be schedule.
      */
     enum ScheduleMode {
         ONCE, REPEATED, INFINITE
+    }
+
+    /**
+     * Time mode of the simulation.
+     */
+    enum TimeMode {
+        REAL_TIME, DISCRETE_TIME, UNSPECIFIED
+    }
+
+    /**
+     * Type of the scheduler. Mono-Thread or Multi-Thread.
+     */
+    enum SchedulerType {
+        MULTI_THREAD, MONO_THREAD
     }
 
     interface SchedulerWatcher {

@@ -3,13 +3,13 @@ package sima.core.simulation;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.Environment;
-import sima.core.scheduler.Scheduler;
-import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
-import sima.core.scheduler.multithread.RealTimeMultiThreadScheduler;
 import sima.core.exception.EnvironmentConstructionException;
 import sima.core.exception.SimaSimulationAlreadyRunningException;
 import sima.core.exception.SimulationSetupConstructionException;
 import sima.core.exception.TwoAgentWithSameIdentifierException;
+import sima.core.scheduler.Scheduler;
+import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
+import sima.core.scheduler.multithread.RealTimeMultiThreadScheduler;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -38,7 +38,7 @@ public class SimaSimulation {
 
     protected SimaSimulationWatcher simaWatcher;
 
-    protected TimeMode timeMode;
+    protected Scheduler.TimeMode timeMode;
 
     protected AgentManager agentManager;
 
@@ -68,6 +68,13 @@ public class SimaSimulation {
         }
     }
 
+    public static void runSimulation(Scheduler scheduler, Set<AbstractAgent> allAgents,
+                                     Set<Environment> allEnvironments,
+                                     Class<? extends SimulationSetup> simulationSetupClass,
+                                     SimaWatcher simaWatcher) {
+        // TODO
+    }
+
     /**
      * Run a simulation.
      * <p>
@@ -79,7 +86,7 @@ public class SimaSimulation {
      * @param environments            the array of environments classes
      * @param simulationSetupClass    the simulation setup class
      */
-    public static void runSimulation(TimeMode simulationTimeMode, SchedulerType simulationSchedulerType,
+    public static void runSimulation(Scheduler.TimeMode simulationTimeMode, Scheduler.SchedulerType simulationSchedulerType,
                                      long endSimulation,
                                      List<Class<? extends Environment>> environments,
                                      Class<? extends SimulationSetup> simulationSetupClass,
@@ -183,7 +190,7 @@ public class SimaSimulation {
 
     /**
      * Kill the Simulation. After this call, the call of the method
-     * {@link #runSimulation(TimeMode, SchedulerType, long, List, Class, Scheduler.SchedulerWatcher, SimaWatcher)}  is
+     * {@link #runSimulation(Scheduler.TimeMode, Scheduler.SchedulerType, long, List, Class, Scheduler.SchedulerWatcher, SimaWatcher)}  is
      * possible.
      * <p>
      * This method is thread safe and synchronized on the lock {@link #LOCK}.
@@ -311,24 +318,8 @@ public class SimaSimulation {
         return this.environments.get(environmentName);
     }
 
-    public static TimeMode timeMode() {
+    public static Scheduler.TimeMode timeMode() {
         return SIMA_SIMULATION.timeMode;
-    }
-
-    // Enum.
-
-    /**
-     * Time mode of the simulation.
-     */
-    public enum TimeMode {
-        REAL_TIME, DISCRETE_TIME, UNSPECIFIED
-    }
-
-    /**
-     * Type of the scheduler. Mono-Thread or Multi-Thread.
-     */
-    public enum SchedulerType {
-        MULTI_THREAD, MONO_THREAD
     }
 
     // Inner classes.

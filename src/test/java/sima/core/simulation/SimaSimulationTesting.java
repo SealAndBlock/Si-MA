@@ -25,7 +25,7 @@ public class SimaSimulationTesting extends SimaSimulation {
      * @param simaWatcher  the siam watcher
      * @throws NullPointerException if one or more fields is/are null except for simaWatcher
      */
-    public static void runTestingSimulation(AgentManager agentManager, Scheduler scheduler, TimeMode timeMode,
+    public static void runTestingSimulation(AgentManager agentManager, Scheduler scheduler, Scheduler.TimeMode timeMode,
                                             Map<String, Environment> environments, SimaWatcher simaWatcher) {
         synchronized (LOCK) {
             // Create the singleton.

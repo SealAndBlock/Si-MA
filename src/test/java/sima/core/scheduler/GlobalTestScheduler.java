@@ -824,7 +824,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         Map<String, Environment> environmentMap = new HashMap<>();
         environmentMap.put(environmentTesting.getEnvironmentName(), environmentTesting);
 
-        SimaSimulationTesting.runTestingSimulation(agentManager, SCHEDULER, SimaSimulation.TimeMode.UNSPECIFIED,
+        SimaSimulationTesting.runTestingSimulation(agentManager, SCHEDULER, Scheduler.TimeMode.UNSPECIFIED,
                 environmentMap, null);
 
         blockSchedulerWatcher.waitUntilKilled();
@@ -832,6 +832,16 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertEquals(1, A1.getPassToProcessEvent());
 
         SimaSimulation.killSimulation();
+    }
+
+    @Test
+    public void getTimeModeNeverReturnsNull() {
+        assertNotNull(SCHEDULER.getTimeMode());
+    }
+
+    @Test
+    public void getSchedulerTypeNeverReturnsNull() {
+        assertNotNull(SCHEDULER.getSchedulerType());
     }
 
     // Methods.
