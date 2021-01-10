@@ -29,7 +29,7 @@ public class SimaSimulationTesting extends SimaSimulation {
                                             Map<String, Environment> environments, SimaWatcher simaWatcher) {
         synchronized (LOCK) {
             // Create the singleton.
-            createNewSingletonInstance();
+            createNewSimaSimulationSingletonInstance();
 
             SIMA_SIMULATION.agentManager = Optional.of(agentManager).get();
             SIMA_SIMULATION.scheduler = Optional.of(scheduler).get();

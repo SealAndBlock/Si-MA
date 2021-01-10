@@ -8,7 +8,7 @@ import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
 import sima.core.exception.EnvironmentConstructionException;
 import sima.core.exception.SimaSimulationAlreadyRunningException;
-import sima.core.exception.SimulationSetupConstructionException;
+import sima.core.exception.SimaSimulationSetupConstructionException;
 import sima.core.scheduler.Scheduler;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
     @Test
     public void throwsNullPointerExceptionWhenSimulationNotRunning() {
         // Simulation not running.
-        assertFalse(SimaSimulation.simulationIsRunning());
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
 
         // Test if all methods throw NullPointerException.
         assertThrows(NullPointerException.class, SimaSimulation::getScheduler);
@@ -104,7 +104,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
                         Scheduler.SchedulerType.MONO_THREAD, END_SIMULATION, envClasses, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
-        assertFalse(SimaSimulation.simulationIsRunning());
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
         assertEquals(0, SIMA_WATCHER.isPassStarted);
         assertEquals(1, SIMA_WATCHER.isPassKilled);
     }
@@ -119,7 +119,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
                         Scheduler.SchedulerType.MONO_THREAD, END_SIMULATION, envClasses, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
-        assertFalse(SimaSimulation.simulationIsRunning());
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
         assertEquals(0, SIMA_WATCHER.isPassStarted);
         assertEquals(1, SIMA_WATCHER.isPassKilled);
     }
@@ -139,7 +139,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         SimaSimulation.waitKillSimulation();
 
-        assertFalse(SimaSimulation.simulationIsRunning());
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
         assertEquals(1, SIMA_WATCHER.isPassStarted);
         assertEquals(1, SCHEDULER_WATCHER.isPassToNoExecutionToExecute);
         assertEquals(1, SIMA_WATCHER.isPassKilled);
@@ -160,7 +160,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         SimaSimulation.waitKillSimulation();
 
-        assertFalse(SimaSimulation.simulationIsRunning());
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
         assertEquals(1, SIMA_WATCHER.isPassStarted);
         assertEquals(1, SCHEDULER_WATCHER.isPassToNoExecutionToExecute);
         assertEquals(1, SIMA_WATCHER.isPassKilled);
@@ -173,7 +173,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
                         Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, null, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
-        assertFalse(SimaSimulation.simulationIsRunning());
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
         assertEquals(0, SIMA_WATCHER.isPassStarted);
         assertEquals(1, SIMA_WATCHER.isPassKilled);
     }
@@ -187,7 +187,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
                         Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
-        assertFalse(SimaSimulation.simulationIsRunning());
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
         assertEquals(0, SIMA_WATCHER.isPassStarted);
         assertEquals(1, SIMA_WATCHER.isPassKilled);
     }
@@ -203,7 +203,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
                         Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
-        assertFalse(SimaSimulation.simulationIsRunning());
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
         assertEquals(0, SIMA_WATCHER.isPassStarted);
         assertEquals(1, SIMA_WATCHER.isPassKilled);
 
@@ -215,7 +215,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
                         Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
-        assertFalse(SimaSimulation.simulationIsRunning());
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
         assertEquals(0, SIMA_WATCHER.isPassStarted);
         assertEquals(2, SIMA_WATCHER.isPassKilled);
     }
@@ -230,7 +230,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
                         Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses, null,
                         SCHEDULER_WATCHER, SIMA_WATCHER));
 
-        assertFalse(SimaSimulation.simulationIsRunning());
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
         assertEquals(0, SIMA_WATCHER.isPassStarted);
         assertEquals(1, SIMA_WATCHER.isPassKilled);
     }
@@ -251,7 +251,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         SimaSimulation.waitKillSimulation();
 
-        assertFalse(SimaSimulation.simulationIsRunning());
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
         assertEquals(1, SIMA_WATCHER.isPassStarted);
         assertEquals(1, SCHEDULER_WATCHER.isPassToNoExecutionToExecute);
         assertEquals(1, SIMA_WATCHER.isPassKilled);
@@ -272,7 +272,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         SimaSimulation.waitKillSimulation();
 
-        assertFalse(SimaSimulation.simulationIsRunning());
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
         assertEquals(1, SIMA_WATCHER.isPassStarted);
         assertEquals(1, SCHEDULER_WATCHER.isPassToNoExecutionToExecute);
         assertEquals(1, SIMA_WATCHER.isPassKilled);
@@ -283,12 +283,12 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
         List<Class<? extends Environment>> envClasses = new ArrayList<>();
         assertTrue(envClasses.add(TestEnvironment.class));
 
-        assertThrows(SimulationSetupConstructionException.class,
+        assertThrows(SimaSimulationSetupConstructionException.class,
                 () -> SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
                         Scheduler.SchedulerType.MULTI_THREAD, END_SIMULATION, envClasses,
                         WrongConstructorSimulationSetup.class, SCHEDULER_WATCHER, SIMA_WATCHER));
 
-        assertFalse(SimaSimulation.simulationIsRunning());
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
         assertEquals(0, SIMA_WATCHER.isPassStarted);
         assertEquals(1, SIMA_WATCHER.isPassKilled);
     }
@@ -308,7 +308,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
 
         SimaSimulation.waitKillSimulation();
 
-        assertFalse(SimaSimulation.simulationIsRunning());
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
         assertEquals(1, SIMA_WATCHER.isPassStarted);
         assertEquals(1, SCHEDULER_WATCHER.isPassToNoExecutionToExecute);
         assertEquals(1, SIMA_WATCHER.isPassKilled);
@@ -332,7 +332,7 @@ public abstract class GlobalTestSimaSimulation extends SimaTest {
         assertEquals(1, TestSimulationSetup.isPassSetupSimulation);
         TestSimulationSetup.reset();
 
-        assertFalse(SimaSimulation.simulationIsRunning());
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
         assertEquals(1, SIMA_WATCHER.isPassStarted);
         assertEquals(1, SCHEDULER_WATCHER.isPassToNoExecutionToExecute);
         assertEquals(1, SIMA_WATCHER.isPassKilled);
