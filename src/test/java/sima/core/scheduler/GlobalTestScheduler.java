@@ -3,13 +3,13 @@ package sima.core.scheduler;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sima.core.SimaTest;
+import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentTesting;
 import sima.core.environment.Environment;
 import sima.core.environment.EnvironmentTesting;
 import sima.core.environment.event.EventTesting;
 import sima.core.exception.NotSchedulableTimeException;
-import sima.core.simulation.AgentManager;
-import sima.core.simulation.LocalAgentManager;
+import sima.core.exception.SimaSimulationFailToStartRunningException;
 import sima.core.simulation.SimaSimulation;
 import sima.core.simulation.SimaSimulationTesting;
 
@@ -68,7 +68,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertTrue(END_SIMULATION >= 100, "END_SIMULATION must be greater or equal to 100 for tests");
         assertNotNull(SCHEDULER, "NULL SCHEDULER -> Tests cannot be realize");
         assertTrue(TIME_EXECUTION_TOLERANCE >= 0, "TIME_EXECUTION_TOLERANCE cannot be less than 0");
-        assertTrue(NB_EXECUTION_TOLERANCE >= 0,"NB_EXECUTION_TOLERANCE cannot be less than 0" );
+        assertTrue(NB_EXECUTION_TOLERANCE >= 0, "NB_EXECUTION_TOLERANCE cannot be less than 0");
     }
 
     // Tests.
@@ -816,18 +816,21 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         // Prepare the simulation.
 
-        AgentManager agentManager = new LocalAgentManager();
-        agentManager.addAgent(A0);
-        agentManager.addAgent(A1);
+        Set<AbstractAgent> agents = new HashSet<>();
+        agents.add(A0);
+        agents.add(A1);
 
-        EnvironmentTesting environmentTesting = new EnvironmentTesting(0);
-        Map<String, Environment> environmentMap = new HashMap<>();
-        environmentMap.put(environmentTesting.getEnvironmentName(), environmentTesting);
+        Set<Environment> environments = new HashSet<>();
+        environments.add(new EnvironmentTesting(0));
 
-        SimaSimulationTesting.runTestingSimulation(agentManager, SCHEDULER, Scheduler.TimeMode.UNSPECIFIED,
-                environmentMap, null);
+        try {
+            SimaSimulationTesting.runTestingSimulation(SCHEDULER, agents, environments, null);
+        } catch (SimaSimulationFailToStartRunningException e) {
+            fail(e);
+        }
 
-        blockSchedulerWatcher.waitUntilKilled();
+        SimaSimulation.waitKillSimulation(); // Two to wait
+        /*blockSchedulerWatcher.waitUntilKilled();*/
 
         assertEquals(1, A1.getPassToProcessEvent());
 

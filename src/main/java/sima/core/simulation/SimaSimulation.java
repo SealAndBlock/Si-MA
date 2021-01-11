@@ -27,7 +27,7 @@ public class SimaSimulation {
 
     protected Scheduler scheduler;
     protected Scheduler.TimeMode timeMode;
-    protected SimulationSchedulerWatcher mainSchedulerWatcher;
+    protected SimulationSchedulerWatcher schedulerWatcher;
 
     protected AgentManager agentManager;
 
@@ -67,7 +67,7 @@ public class SimaSimulation {
                                      Class<? extends SimulationSetup> simulationSetupClass,
                                      SimaWatcher simaWatcher) throws SimaSimulationFailToStartRunningException {
         synchronized (LOCK) {
-            if (simaSimulationIsRunning())
+            if (!simaSimulationIsRunning())
                 try {
                     createNewSimaSimulationSingletonInstance();
                     simaSimulationAddSimaWatcher(simaWatcher);
@@ -75,6 +75,7 @@ public class SimaSimulation {
                     simaSimulationAddAgents(allAgents);
                     simaSimulationAddEnvironments(allEnvironments);
                     simaSimulationCreateAndExecuteSimulationSetup(simulationSetupClass);
+                    simaSimulationStartAllAgents();
                     simaSimulationNotifyOnSimulationStarted();
                     simaSimulationStartScheduler();
                 } catch (Exception e) {
@@ -126,6 +127,9 @@ public class SimaSimulation {
     }
 
     protected static void simaSimulationAddSimaWatcher(SimaWatcher simaWatcher) {
+        if (SIMA_SIMULATION.simaWatcher == null)
+            SIMA_SIMULATION.simaWatcher = new SimaSimulationWatcher();
+
         if (simaWatcher != null)
             SIMA_SIMULATION.simaWatcher.addSimaWatcher(simaWatcher);
     }
@@ -137,8 +141,8 @@ public class SimaSimulation {
     private static void simaSimulationSetScheduler(Scheduler scheduler) {
         SIMA_SIMULATION.scheduler = Optional.of(scheduler).get();
         SIMA_SIMULATION.timeMode = SIMA_SIMULATION.scheduler.getTimeMode();
-        SIMA_SIMULATION.mainSchedulerWatcher = new SimulationSchedulerWatcher();
-        SIMA_SIMULATION.scheduler.addSchedulerWatcher(SIMA_SIMULATION.mainSchedulerWatcher);
+        SIMA_SIMULATION.schedulerWatcher = new SimulationSchedulerWatcher();
+        SIMA_SIMULATION.scheduler.addSchedulerWatcher(SIMA_SIMULATION.schedulerWatcher);
     }
 
     /**
@@ -215,8 +219,19 @@ public class SimaSimulation {
         }
     }
 
+    /**
+     * Start all agents in managed by {@link #agentManager}.
+     */
+    private static void simaSimulationStartAllAgents() {
+        for (AbstractAgent agent : SIMA_SIMULATION.agentManager.getAllAgents()) {
+            if (!agent.isStarted())
+                agent.start();
+        }
+    }
+
     private static void simaSimulationNotifyOnSimulationStarted() {
-        SIMA_SIMULATION.simaWatcher.simulationStarted();
+        if (SIMA_SIMULATION.simaWatcher != null)
+            SIMA_SIMULATION.simaWatcher.notifyOnSimulationStarted();
     }
 
     private static void simaSimulationStartScheduler() {
@@ -346,7 +361,7 @@ public class SimaSimulation {
     }
 
     private static void simaSimulationNotifyOnSimulationKilled() {
-        SIMA_SIMULATION.simaWatcher.simulationKilled();
+        SIMA_SIMULATION.simaWatcher.notifyOnSimulationKilled();
     }
 
     private static void simaSimulationKillScheduler() {
@@ -472,13 +487,13 @@ public class SimaSimulation {
         /**
          * Call back method, called when the simulation is started with a method run.
          */
-        void simulationStarted();
+        void notifyOnSimulationStarted();
 
         /**
          * Call back method, called when the simulation is killed with the method
          * {@link SimaSimulation#killSimulation()}.
          */
-        void simulationKilled();
+        void notifyOnSimulationKilled();
     }
 
     protected static class SimaSimulationWatcher implements SimaWatcher {
@@ -500,13 +515,13 @@ public class SimaSimulation {
         }
 
         @Override
-        public void simulationStarted() {
-            this.otherWatchers.forEach(SimaWatcher::simulationStarted);
+        public void notifyOnSimulationStarted() {
+            this.otherWatchers.forEach(SimaWatcher::notifyOnSimulationStarted);
         }
 
         @Override
-        public void simulationKilled() {
-            this.otherWatchers.forEach(SimaWatcher::simulationKilled);
+        public void notifyOnSimulationKilled() {
+            this.otherWatchers.forEach(SimaWatcher::notifyOnSimulationKilled);
         }
     }
 

@@ -414,12 +414,12 @@ public abstract class WrongGlobalTestSimaSimulation extends SimaTest {
         // Methods.
 
         @Override
-        public void simulationStarted() {
+        public void notifyOnSimulationStarted() {
             this.isPassStarted++;
         }
 
         @Override
-        public void simulationKilled() {
+        public void notifyOnSimulationKilled() {
             this.isPassKilled++;
         }
 
