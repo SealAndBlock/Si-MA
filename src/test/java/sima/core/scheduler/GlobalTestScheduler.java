@@ -11,7 +11,6 @@ import sima.core.environment.event.EventTesting;
 import sima.core.exception.NotSchedulableTimeException;
 import sima.core.exception.SimaSimulationFailToStartRunningException;
 import sima.core.simulation.SimaSimulation;
-import sima.core.simulation.SimaSimulationTesting;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -824,7 +823,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         environments.add(new EnvironmentTesting(0));
 
         try {
-            SimaSimulationTesting.runTestingSimulation(SCHEDULER, agents, environments, null);
+            SimaSimulation.runSimulation(SCHEDULER, agents, environments, null,null);
         } catch (SimaSimulationFailToStartRunningException e) {
             fail(e);
         }

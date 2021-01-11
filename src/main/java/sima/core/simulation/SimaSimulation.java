@@ -15,29 +15,29 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-public class SimaSimulation {
+public final class SimaSimulation {
 
     // Static.
 
-    protected static SimaSimulation SIMA_SIMULATION;
+    private static SimaSimulation SIMA_SIMULATION;
 
-    protected static final Object LOCK = new Object();
+    private static final Object LOCK = new Object();
 
     // Variables
 
-    protected Scheduler scheduler;
-    protected Scheduler.TimeMode timeMode;
-    protected SimulationSchedulerWatcher schedulerWatcher;
+    private Scheduler scheduler;
+    private Scheduler.TimeMode timeMode;
+    private SimulationSchedulerWatcher schedulerWatcher;
 
-    protected AgentManager agentManager;
+    private AgentManager agentManager;
 
-    protected Map<String, Environment> environments;
+    private Map<String, Environment> environments;
 
-    protected SimaSimulationWatcher simaWatcher;
+    private SimaSimulationWatcher simaWatcher;
 
     // Constructors.
 
-    protected SimaSimulation() {
+    private SimaSimulation() {
     }
 
     // Methods.
@@ -119,14 +119,14 @@ public class SimaSimulation {
      * <p>
      * <strong>WARNING!</strong> This method is not thread safe.
      */
-    protected static void createNewSimaSimulationSingletonInstance() {
+    private static void createNewSimaSimulationSingletonInstance() {
         // Create the singleton.
         if (SIMA_SIMULATION == null)
             SIMA_SIMULATION = new SimaSimulation();
 
     }
 
-    protected static void simaSimulationAddSimaWatcher(SimaWatcher simaWatcher) {
+    private static void simaSimulationAddSimaWatcher(SimaWatcher simaWatcher) {
         if (SIMA_SIMULATION.simaWatcher == null)
             SIMA_SIMULATION.simaWatcher = new SimaSimulationWatcher();
 
@@ -496,7 +496,7 @@ public class SimaSimulation {
         void notifyOnSimulationKilled();
     }
 
-    protected static class SimaSimulationWatcher implements SimaWatcher {
+    private static class SimaSimulationWatcher implements SimaWatcher {
 
         // Variables.
 
