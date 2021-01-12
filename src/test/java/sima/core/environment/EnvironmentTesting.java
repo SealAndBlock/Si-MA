@@ -2,7 +2,6 @@ package sima.core.environment;
 
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
-import sima.core.simulation.SimaSimulation;
 
 import java.util.List;
 import java.util.Map;
@@ -14,8 +13,6 @@ public class EnvironmentTesting extends Environment {
 
     public static final String ENV_TEST_NAME = "ENV_TEST";
 
-    public static long SEND_DELAY = 10;
-
     // Variables.
 
     private final List<AgentIdentifier> notAcceptedAgentList = new Vector<>();
@@ -23,7 +20,7 @@ public class EnvironmentTesting extends Environment {
     // Constructors.
 
     public EnvironmentTesting(int number) {
-        super(ENV_TEST_NAME + number, null);
+        super(ENV_TEST_NAME + "_" + number, null);
     }
 
     public EnvironmentTesting(int number, List<AgentIdentifier> notAcceptedAgentList) {

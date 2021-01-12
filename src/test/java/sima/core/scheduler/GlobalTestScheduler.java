@@ -81,14 +81,14 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void canAddOneSchedulerWatcher() {
-        TestSchedulerWatcher watcher0 = new TestSchedulerWatcher();
+        SchedulerWatcherTesting watcher0 = new SchedulerWatcherTesting();
 
         assertTrue(SCHEDULER.addSchedulerWatcher(watcher0));
     }
 
     @Test
     public void cannotAddTwoTimesTheSameSchedulerWatcher() {
-        TestSchedulerWatcher watcher0 = new TestSchedulerWatcher();
+        SchedulerWatcherTesting watcher0 = new SchedulerWatcherTesting();
 
         assertTrue(SCHEDULER.addSchedulerWatcher(watcher0));
         assertFalse(SCHEDULER.addSchedulerWatcher(watcher0));
@@ -101,7 +101,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void canRemoveSchedulerWatcherAdded() {
-        TestSchedulerWatcher watcher0 = new TestSchedulerWatcher();
+        SchedulerWatcherTesting watcher0 = new SchedulerWatcherTesting();
 
         assertTrue(SCHEDULER.addSchedulerWatcher(watcher0));
 
@@ -122,7 +122,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void nothingIsDoneWhenRemoveNonAddedSchedulerWatcher() {
-        TestSchedulerWatcher watcher0 = new TestSchedulerWatcher();
+        SchedulerWatcherTesting watcher0 = new SchedulerWatcherTesting();
 
         try {
             SCHEDULER.removeSchedulerWatcher(watcher0);
@@ -202,7 +202,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void watcherNotifyOneTimeOnSchedulerStart() {
-        TestSchedulerWatcher watcher = new TestSchedulerWatcher();
+        SchedulerWatcherTesting watcher = new SchedulerWatcherTesting();
         SCHEDULER.addSchedulerWatcher(watcher);
 
         assertTrue(SCHEDULER.start());
@@ -212,7 +212,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void watcherNotifyOneTimeOnSchedulerKill() {
-        TestSchedulerWatcher watcher = new TestSchedulerWatcher();
+        SchedulerWatcherTesting watcher = new SchedulerWatcherTesting();
         SCHEDULER.addSchedulerWatcher(watcher);
 
         scheduleLongTimeExecutable();
@@ -232,7 +232,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void watcherNotifyOneTimeOnStartEvenSchedulerKillDirectlyForNoExecutableToExecute() {
-        TestSchedulerWatcher watcher = new TestSchedulerWatcher();
+        SchedulerWatcherTesting watcher = new SchedulerWatcherTesting();
         SCHEDULER.addSchedulerWatcher(watcher);
 
         assertTrue(SCHEDULER.start());
@@ -243,7 +243,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void watcherNotifyOneTimeOnKillSchedulerAfterStartWithNoExecutableToExecute() {
-        TestSchedulerWatcher watcher = new TestSchedulerWatcher();
+        SchedulerWatcherTesting watcher = new SchedulerWatcherTesting();
         SCHEDULER.addSchedulerWatcher(watcher);
 
         assertTrue(SCHEDULER.start());
@@ -254,7 +254,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void watcherNotifyOneTimeOnSchedulerStopAfterNoExecutableToExecuteAtTheStart() {
-        TestSchedulerWatcher watcher = new TestSchedulerWatcher();
+        SchedulerWatcherTesting watcher = new SchedulerWatcherTesting();
         SCHEDULER.addSchedulerWatcher(watcher);
 
         assertTrue(SCHEDULER.start());
@@ -321,8 +321,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void schedulerExecutesAtTimeOneExecutableScheduledOnceTime() {
-        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
-        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+        WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         ExecutableTesting e0 = new ExecutableTesting();
 
@@ -330,15 +330,15 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         assertTrue(SCHEDULER.start());
 
-        blockSchedulerWatcher.waitUntilKilled();
+        waitSchedulerWatcher.waitUntilKilled();
 
         verifyNumber(e0.executedTime, Scheduler.NOW, TIME_EXECUTION_TOLERANCE);
     }
 
     @Test
     public void schedulerExecutesAtTimeSeveralExecutablesScheduledOnceTime() {
-        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
-        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+        WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         ExecutableTesting e0 = new ExecutableTesting();
         ExecutableTesting e1 = new ExecutableTesting();
@@ -350,7 +350,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         assertTrue(SCHEDULER.start());
 
-        blockSchedulerWatcher.waitUntilKilled();
+        waitSchedulerWatcher.waitUntilKilled();
 
         verifyNumber(e0.executedTime, Scheduler.NOW, TIME_EXECUTION_TOLERANCE);
         verifyNumber(e1.executedTime, Scheduler.NOW + 1, TIME_EXECUTION_TOLERANCE);
@@ -359,8 +359,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void schedulerExecutesAtTimeSeveralExecutableAfterTheStart() {
-        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
-        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+        WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         List<Executable> executables = new Vector<>();
 
@@ -371,7 +371,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertTrue(SCHEDULER.start());
 
         // Finish by not reaching time.
-        blockSchedulerWatcher.waitUntilKilled();
+        waitSchedulerWatcher.waitUntilKilled();
 
         for (Executable executable : executables) {
             ExecutableTestingFeederV1 executableFeeder = (ExecutableTestingFeederV1) executable;
@@ -387,11 +387,11 @@ public abstract class GlobalTestScheduler extends SimaTest {
     public void watcherNotifyOneTimeWhenSchedulerFinishByReachingEndSimulation() {
 
         // Order very important
-        TestSchedulerWatcher watcher = new TestSchedulerWatcher();
+        SchedulerWatcherTesting watcher = new SchedulerWatcherTesting();
         SCHEDULER.addSchedulerWatcher(watcher);
 
-        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
-        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+        WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         // Useless.
         List<Executable> executables = new Vector<>();
@@ -402,7 +402,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         assertTrue(SCHEDULER.start());
 
-        blockSchedulerWatcher.waitUntilKilled();
+        waitSchedulerWatcher.waitUntilKilled();
 
         assertEquals(1, watcher.isPassToSchedulerKilled);
         assertEquals(0, watcher.isPassToNoExecutionToExecute);
@@ -423,11 +423,11 @@ public abstract class GlobalTestScheduler extends SimaTest {
     public void scheduleAtSpecificTimeThrowsExceptionIfSpecifiedTimeIsAlreadyPass() {
 
         // Order very important
-        TestSchedulerWatcher watcher = new TestSchedulerWatcher();
+        SchedulerWatcherTesting watcher = new SchedulerWatcherTesting();
         SCHEDULER.addSchedulerWatcher(watcher);
 
-        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
-        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+        WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         long timeToBeExecuted = (long) (0.5 * SCHEDULER.getEndSimulation());
 
@@ -450,7 +450,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertTrue(SCHEDULER.start());
 
         // Finish by not reaching time.
-        blockSchedulerWatcher.waitUntilKilled();
+        waitSchedulerWatcher.waitUntilKilled();
 
         verifyPreConditionAndExecuteTest(isPassed::get,
                 () -> {
@@ -462,8 +462,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void scheduleAtSpecificTimeScheduleAndExecuteAnExecutableAtTheSpecifiedTime() {
-        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
-        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+        WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         long timeToBeExecuted = (long) (0.75 * SCHEDULER.getEndSimulation());
 
@@ -482,15 +482,15 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertTrue(SCHEDULER.start());
 
         // Finish by not reaching time.
-        blockSchedulerWatcher.waitUntilKilled();
+        waitSchedulerWatcher.waitUntilKilled();
 
         assertTrue(isPassed.get());
     }
 
     @Test
     public void scheduleAtSpecificTimeCanScheduleWhenTheSchedulerIsStarted() {
-        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
-        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+        WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         long specificTime = (long) (END_SIMULATION * 0.5);
 
@@ -502,7 +502,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertTrue(SCHEDULER.start());
 
         // Finish by not reaching time.
-        blockSchedulerWatcher.waitUntilKilled();
+        waitSchedulerWatcher.waitUntilKilled();
 
         verifyNumber(executionTime.get(), specificTime, TIME_EXECUTION_TOLERANCE);
     }
@@ -517,8 +517,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void scheduleOnceSchedulesAndExecuteOneTimeAnExecutableAtTime() {
-        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
-        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+        WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         List<Executable> executables = new Vector<>();
 
@@ -529,7 +529,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertTrue(SCHEDULER.start());
 
         // Finish by not reaching time.
-        blockSchedulerWatcher.waitUntilKilled();
+        waitSchedulerWatcher.waitUntilKilled();
 
         for (Executable executable : executables) {
             ExecutableTestingFeederV2 executableFeeder = (ExecutableTestingFeederV2) executable;
@@ -567,8 +567,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void scheduleRepeatedSchedulesAndExecuteAnExecutableAtTimeAndRepetitivelyAsDefine() {
-        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
-        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+        WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         long nbRepetitions = 5;
         long stepBetweenRepetition = 10;
@@ -585,7 +585,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertTrue(SCHEDULER.start());
 
         // Finish by not reaching time.
-        blockSchedulerWatcher.waitUntilKilled();
+        waitSchedulerWatcher.waitUntilKilled();
 
         Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
         for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
@@ -613,8 +613,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void scheduleRepeatedWorksEvenIfRepetitionsPassTheEndSimulation() {
-        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
-        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+        WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         long stepBetweenRepetition = 10;
         long repetitionBegin = Scheduler.NOW;
@@ -632,7 +632,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertTrue(SCHEDULER.start());
 
         // Finish by not reaching time.
-        blockSchedulerWatcher.waitUntilKilled();
+        waitSchedulerWatcher.waitUntilKilled();
 
         Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
         for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
@@ -689,8 +689,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void scheduleWithRepeatedModeSchedulesAndExecuteAnExecutableAtTimeAndRepetitivelyAsDefine() {
-        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
-        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+        WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         long nbRepetitions = 5;
         long stepBetweenRepetition = 10;
@@ -708,7 +708,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertTrue(SCHEDULER.start());
 
         // Finish by not reaching time.
-        blockSchedulerWatcher.waitUntilKilled();
+        waitSchedulerWatcher.waitUntilKilled();
 
         Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
         for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
@@ -751,8 +751,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void scheduleInfinitelySchedulesAndExecuteAnExecutableAtTimeAndRepetitivelyAsDefine() {
-        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
-        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+        WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         long stepBetweenRepetition = 10;
         long repetitionBegin = Scheduler.NOW;
@@ -768,7 +768,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertTrue(SCHEDULER.start());
 
         // Finish by not reaching time.
-        blockSchedulerWatcher.waitUntilKilled();
+        waitSchedulerWatcher.waitUntilKilled();
 
         Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
         for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
@@ -803,8 +803,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Test
     public void scheduleEventScheduleAndExecuteEventAtTime() {
-        BlockSchedulerWatcher blockSchedulerWatcher = new BlockSchedulerWatcher();
-        SCHEDULER.addSchedulerWatcher(blockSchedulerWatcher);
+        WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         // Schedule Event.
 
@@ -855,42 +855,10 @@ public abstract class GlobalTestScheduler extends SimaTest {
      * very sure that all tests will pass and are correct.
      */
     protected void scheduleLongTimeExecutable() {
-        SCHEDULER.scheduleExecutableOnce(new LongTimeExecutable(), Scheduler.NOW);
+        SCHEDULER.scheduleExecutableOnce(new LongTimeExecutableTesting(), Scheduler.NOW);
     }
 
     // Inner classes.
-
-    protected static class TestSchedulerWatcher implements Scheduler.SchedulerWatcher {
-
-        // Variables.
-
-        private int isPassToSchedulerStarted = 0;
-        private int isPassToSchedulerKilled = 0;
-        private int isPassToSimulationEndTimeReach = 0;
-        private int isPassToNoExecutionToExecute = 0;
-
-        // Methods.
-
-        @Override
-        public void schedulerStarted() {
-            isPassToSchedulerStarted++;
-        }
-
-        @Override
-        public void schedulerKilled() {
-            isPassToSchedulerKilled++;
-        }
-
-        @Override
-        public void simulationEndTimeReach() {
-            isPassToSimulationEndTimeReach++;
-        }
-
-        @Override
-        public void noExecutableToExecute() {
-            isPassToNoExecutionToExecute++;
-        }
-    }
 
     protected static class ExecutableTesting implements Executable {
 
@@ -903,23 +871,6 @@ public abstract class GlobalTestScheduler extends SimaTest {
         @Override
         public void execute() {
             executedTime = SCHEDULER.getCurrentTime();
-        }
-    }
-
-    protected static class LongTimeExecutable implements Executable {
-
-        // Static.
-
-        public static final long WAITING_TIME = 3_000L;
-
-        // Methods.
-
-        @Override
-        public void execute() {
-            try {
-                Thread.sleep(WAITING_TIME);
-            } catch (InterruptedException ignored) {
-            }
         }
     }
 
@@ -976,63 +927,6 @@ public abstract class GlobalTestScheduler extends SimaTest {
                     new ExecutableTestingFeederV2(SCHEDULER.getCurrentTime() + 10, executableList);
             SCHEDULER.scheduleExecutableOnce(executableFeederV2, 10);
             executedTime = SCHEDULER.getCurrentTime();
-        }
-    }
-
-    /**
-     * Can block the current thread to wait a new notification of the watched Scheduler. Only work for waiting start and
-     * kill.
-     */
-    protected static class BlockSchedulerWatcher implements Scheduler.SchedulerWatcher {
-
-        // Variables.
-
-        private final Object START_LOCK = new Object();
-        private final Object KILL_LOCK = new Object();
-
-        private int nbKill = 0;
-        private int nbBlockKill = 0;
-
-        // Methods.
-
-        /**
-         * Block until the next call of {@link Scheduler#kill()}.
-         */
-        public void waitUntilKilled() {
-            synchronized (KILL_LOCK) {
-                if (nbBlockKill == nbKill)
-                    try {
-                        KILL_LOCK.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                nbBlockKill = nbKill;
-            }
-        }
-
-        @Override
-        public void schedulerStarted() {
-            synchronized (START_LOCK) {
-                START_LOCK.notifyAll();
-            }
-        }
-
-        @Override
-        public void schedulerKilled() {
-            synchronized (KILL_LOCK) {
-                KILL_LOCK.notifyAll();
-                nbKill++;
-            }
-        }
-
-        @Override
-        public void simulationEndTimeReach() {
-
-        }
-
-        @Override
-        public void noExecutableToExecute() {
-
         }
     }
 
