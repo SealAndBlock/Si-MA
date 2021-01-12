@@ -7,32 +7,35 @@ import sima.core.agent.AgentTesting;
 import sima.core.environment.Environment;
 import sima.core.environment.EnvironmentTesting;
 import sima.core.exception.SimaSimulationFailToStartRunningException;
+import sima.core.scheduler.LongTimeExecutableTesting;
 import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.SchedulerWatcherTesting;
+import sima.core.scheduler.WaitSchedulerWatcher;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SimaSimulationTest extends SimaTest {
 
     // Static.
 
-    private static long END_SIMULATION = 1_000;
-    private static int NB_EXECUTOR_THREAD = 8;
+    private static final long END_SIMULATION = 1_000;
+    private static final int NB_EXECUTOR_THREAD = 8;
     private static Scheduler SCHEDULER;
-    private static Scheduler.SchedulerWatcher SCHEDULER_WATCHER;
+    private static SchedulerWatcherTesting SCHEDULER_WATCHER;
+    private static WaitSchedulerWatcher WAIT_SCHEDULER_WATCHER;
 
     private static AbstractAgent A_0;
     private static AbstractAgent A_1;
+    private static Set<AbstractAgent> ALL_AGENTS;
 
     private static Environment ENV_0;
-
-    private static Set<AbstractAgent> ALL_AGENTS;
     private static Set<Environment> ALL_ENVIRONMENTS;
+
+    private static SimaWatcherTesting SIMA_WATCHER;
 
     // Initialisation.
 
@@ -41,6 +44,8 @@ public class SimaSimulationTest extends SimaTest {
         SCHEDULER = new DiscreteTimeMultiThreadScheduler(END_SIMULATION, NB_EXECUTOR_THREAD);
         SCHEDULER_WATCHER = new SchedulerWatcherTesting();
         SCHEDULER.addSchedulerWatcher(SCHEDULER_WATCHER);
+        WAIT_SCHEDULER_WATCHER = new WaitSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(WAIT_SCHEDULER_WATCHER);
 
         A_0 = new AgentTesting("A_0", 0, null);
         A_1 = new AgentTesting("A_1", 1, null);
@@ -53,6 +58,10 @@ public class SimaSimulationTest extends SimaTest {
 
         ALL_ENVIRONMENTS = new HashSet<>();
         ALL_ENVIRONMENTS.add(ENV_0);
+
+        SIMA_WATCHER = new SimaWatcherTesting();
+
+        SimaSimulation.waitEndSimulation();
     }
 
     // Tests.
@@ -139,14 +148,91 @@ public class SimaSimulationTest extends SimaTest {
     }
 
     @Test
-    public void runSimulationStartAndStopDirectlyWithEmptyScheduler() {
+    public void runSimulationWithNotNullSimaWatcherNotFail() {
         try {
             SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                    SimulationSetupTesting.class, null);
-
+                    SimulationSetupTesting.class, SIMA_WATCHER);
         } catch (SimaSimulationFailToStartRunningException e) {
             fail(e);
         }
     }
 
+    @Test
+    public void runSimulationStartAndStopDirectlyWithEmptyScheduler() {
+        try {
+            SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
+                    SimulationSetupTesting.class, SIMA_WATCHER);
+
+            assertFalse(SimaSimulation.simaSimulationIsRunning());
+            assertEquals(1, SIMA_WATCHER.getPassToOnSimStarted());
+            assertEquals(1, SIMA_WATCHER.getPassToInSimKilled());
+        } catch (SimaSimulationFailToStartRunningException e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    public void simaSimulationIsRunningReturnsFalseIfNoSimaSimulationHasBeenRun() {
+        assertFalse(SimaSimulation.simaSimulationIsRunning());
+    }
+
+    @Test
+    public void simaSimulationIsRunningReturnsTrueIfSimaSimulationIsRunning() {
+        scheduleLongExecutable();
+        try {
+            SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
+                    SimulationSetupTesting.class, SIMA_WATCHER);
+            assertTrue(SimaSimulation.simaSimulationIsRunning());
+        } catch (SimaSimulationFailToStartRunningException e) {
+            fail(e);
+        }
+    }
+
+    private void scheduleLongExecutable() {
+        SCHEDULER.scheduleExecutable(new LongTimeExecutableTesting(), Scheduler.NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
+    }
+
+    @Test
+    public void waitEndSimulationWaitUntilTheEndOfSimaSimulation() {
+        scheduleLongExecutable();
+        try {
+            SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
+                    SimulationSetupTesting.class, SIMA_WATCHER);
+            assertTrue(SimaSimulation.simaSimulationIsRunning());
+            SimaSimulation.waitEndSimulation();
+            assertFalse(SimaSimulation.simaSimulationIsRunning());
+        } catch (SimaSimulationFailToStartRunningException e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    public void runSimulationPendingASimulationIsAlreadyRunningThrowsException() {
+        scheduleLongExecutable();
+        try {
+            SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
+                    SimulationSetupTesting.class, SIMA_WATCHER);
+
+            verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
+                    () -> assertThrows(SimaSimulationFailToStartRunningException.class,
+                            () -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
+                                    SimulationSetupTesting.class, SIMA_WATCHER)));
+        } catch (SimaSimulationFailToStartRunningException e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    public void killSimulationKillTheSimulation() {
+        scheduleLongExecutable();
+        try {
+            SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
+                    SimulationSetupTesting.class, SIMA_WATCHER);
+            SimaSimulation.killSimulation();
+            assertEquals(1, SIMA_WATCHER.getPassToInSimKilled());
+            assertEquals(1, SCHEDULER_WATCHER.isPassToSchedulerKilled);
+        } catch (SimaSimulationFailToStartRunningException e) {
+            fail(e);
+        }
+    }
 }

@@ -82,6 +82,8 @@ public final class SimaSimulation {
                     killSimulation();
                     throw new SimaSimulationFailToStartRunningException(e);
                 }
+            else
+                throw new SimaSimulationFailToStartRunningException("SimaSimulation already started");
         }
     }
 
@@ -243,7 +245,7 @@ public final class SimaSimulation {
      * @return true if the list is not null and not empty, else false.
      */
     private static boolean verifiesEnvironmentList(List<Class<? extends Environment>> environments) {
-        return environments == null || environments.size() < 1;
+        return environments == null || environments.isEmpty();
     }
 
     /**
@@ -373,7 +375,7 @@ public final class SimaSimulation {
      * <p>
      * This method is thread safe and synchronized on the lock {@link #LOCK}.
      */
-    public static void waitKillSimulation() {
+    public static void waitEndSimulation() {
         synchronized (LOCK) {
             if (SimaSimulation.simaSimulationIsRunning())
                 try {

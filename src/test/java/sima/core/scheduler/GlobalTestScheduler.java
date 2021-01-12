@@ -828,7 +828,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
             fail(e);
         }
 
-        SimaSimulation.waitKillSimulation(); // Two to wait
+        SimaSimulation.waitEndSimulation(); // Two to wait
         /*blockSchedulerWatcher.waitUntilKilled();*/
 
         assertEquals(1, A1.getPassToProcessEvent());
