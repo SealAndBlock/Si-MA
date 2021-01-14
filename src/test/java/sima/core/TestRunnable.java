@@ -2,6 +2,6 @@ package sima.core;
 
 public interface TestRunnable {
 
-    void runTest();
+    void runTest() throws Throwable;
 
 }

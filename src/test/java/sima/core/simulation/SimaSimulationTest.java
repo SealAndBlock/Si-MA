@@ -34,6 +34,7 @@ public class SimaSimulationTest extends SimaTest {
 
     private static Environment ENV_0;
     private static Set<Environment> ALL_ENVIRONMENTS;
+    private static Set<Environment> SAME_NAME_ENVIRONMENT_SET;
 
     private static SimaWatcherTesting SIMA_WATCHER;
 
@@ -50,14 +51,20 @@ public class SimaSimulationTest extends SimaTest {
         A_0 = new AgentTesting("A_0", 0, null);
         A_1 = new AgentTesting("A_1", 1, null);
 
-        ENV_0 = new EnvironmentTesting(0);
-
         ALL_AGENTS = new HashSet<>();
         ALL_AGENTS.add(A_0);
         ALL_AGENTS.add(A_1);
 
+        ENV_0 = new EnvironmentTesting(0);
+
         ALL_ENVIRONMENTS = new HashSet<>();
         ALL_ENVIRONMENTS.add(ENV_0);
+
+        Environment sameNameEnv0 = new EnvironmentTesting(1);
+        Environment sameNameEnv1 = new EnvironmentTesting(1);
+        SAME_NAME_ENVIRONMENT_SET = new HashSet<>();
+        SAME_NAME_ENVIRONMENT_SET.add(sameNameEnv0);
+        SAME_NAME_ENVIRONMENT_SET.add(sameNameEnv1);
 
         SIMA_WATCHER = new SimaWatcherTesting();
 
@@ -119,12 +126,15 @@ public class SimaSimulationTest extends SimaTest {
 
     @Test
     public void runSimulationWithAllEnvironmentsNotNullAndNotEmptyNotFail() {
-        try {
-            SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                    SimulationSetupTesting.class, null);
-        } catch (SimaSimulationFailToStartRunningException e) {
-            fail(e);
-        }
+        assertDoesNotThrow(() -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
+                SimulationSetupTesting.class, null));
+    }
+
+    @Test
+    public void runSimulationWithSetWhichContainsSeveralEnvironmentWithSameNameThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                () -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, SAME_NAME_ENVIRONMENT_SET,
+                        SimulationSetupTesting.class, null));
     }
 
     @Test

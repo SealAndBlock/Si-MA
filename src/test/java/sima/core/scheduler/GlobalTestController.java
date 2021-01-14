@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Disabled
@@ -30,7 +31,7 @@ public abstract class GlobalTestController extends GlobalTestExecutable {
 
     @Test
     public void constructControllerWithNullArgsNotFail() {
-        notFail(() -> new Controller(null) {
+        assertDoesNotThrow(() -> new Controller(null) {
 
             @Override
             public void execute() {
@@ -44,7 +45,7 @@ public abstract class GlobalTestController extends GlobalTestExecutable {
 
     @Test
     public void constructControllerWithNotNullArgsNotFail() {
-        notFail(() -> new Controller(new HashMap<>()) {
+        assertDoesNotThrow(() -> new Controller(new HashMap<>()) {
 
             @Override
             public void execute() {

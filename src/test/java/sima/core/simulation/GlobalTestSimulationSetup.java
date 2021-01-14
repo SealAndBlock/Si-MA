@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sima.core.SimaTest;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Disabled
@@ -24,6 +25,6 @@ public abstract class GlobalTestSimulationSetup extends SimaTest {
 
     @Test
     public void setupSimulationNotFail() {
-        notFail(SIMULATION_SETUP::setupSimulation);
+        assertDoesNotThrow(SIMULATION_SETUP::setupSimulation);
     }
 }

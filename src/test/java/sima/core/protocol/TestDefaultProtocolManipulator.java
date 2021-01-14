@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentTesting;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestDefaultProtocolManipulator extends GlobalTestProtocolManipulator {
@@ -30,6 +31,6 @@ public class TestDefaultProtocolManipulator extends GlobalTestProtocolManipulato
     public void constructDefaultProtocolManipulatorWithNotNullProtocolThrowsException() {
         AbstractAgent a = new AgentTesting("A_0", 0, null);
         Protocol protocol = new ProtocolTesting("P_TAG_0", a, null);
-        notFail(() -> new ProtocolManipulator.DefaultProtocolManipulator(protocol));
+        assertDoesNotThrow(() -> new ProtocolManipulator.DefaultProtocolManipulator(protocol));
     }
 }

@@ -2,6 +2,7 @@ package sima.core.protocol;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestProtocolIdentifier extends GlobalTestProtocolIdentifier {
@@ -32,6 +33,6 @@ public class TestProtocolIdentifier extends GlobalTestProtocolIdentifier {
 
     @Test
     public void constructProtocolIdentifierWithNotNullArgumentsNotFail() {
-        notFail(() -> new ProtocolIdentifier(ProtocolTesting.class, "TAG"));
+        assertDoesNotThrow(() -> new ProtocolIdentifier(ProtocolTesting.class, "TAG"));
     }
 }

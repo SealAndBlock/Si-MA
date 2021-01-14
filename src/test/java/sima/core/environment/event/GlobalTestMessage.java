@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentTesting;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled
 public abstract class GlobalTestMessage extends GlobalTestEvent {
@@ -45,12 +44,12 @@ public abstract class GlobalTestMessage extends GlobalTestEvent {
     @Test
     public void constructMessageWithNullContentNotFail() {
         AbstractAgent a = new AgentTesting("A_0", 0, null);
-        notFail(() -> new Message(a.getAgentIdentifier(), null, null, null) {
+        assertDoesNotThrow(() -> new Message(a.getAgentIdentifier(), null, null, null) {
         });
     }
 
     @Test
     public void getContentNotFail() {
-        notFail(MESSAGE::getContent);
+        assertDoesNotThrow(MESSAGE::getContent);
     }
 }

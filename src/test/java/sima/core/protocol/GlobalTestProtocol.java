@@ -68,6 +68,6 @@ public abstract class GlobalTestProtocol extends SimaTest {
 
     @Test
     public void setProtocolManipulatorWithNotNullArgumentNotFail() {
-        notFail(() -> PROTOCOL.setProtocolManipulator(new ProtocolManipulator.DefaultProtocolManipulator(PROTOCOL)));
+        assertDoesNotThrow(() -> PROTOCOL.setProtocolManipulator(new ProtocolManipulator.DefaultProtocolManipulator(PROTOCOL)));
     }
 }

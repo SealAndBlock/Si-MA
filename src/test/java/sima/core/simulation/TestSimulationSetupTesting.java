@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 public class TestSimulationSetupTesting extends GlobalTestSimulationSetup {
 
     // Initialisation.
@@ -19,11 +21,11 @@ public class TestSimulationSetupTesting extends GlobalTestSimulationSetup {
 
     @Test
     public void constructSimulationSetupTestingWithNullArgsNotFail() {
-        notFail(() -> new SimulationSetupTesting(null));
+        assertDoesNotThrow(() -> new SimulationSetupTesting(null));
     }
 
     @Test
     public void constructSimulationSetupTestingWithNotNullArgsNotFail() {
-        notFail(() -> new SimulationSetupTesting(new HashMap<>()));
+        assertDoesNotThrow(() -> new SimulationSetupTesting(new HashMap<>()));
     }
 }
