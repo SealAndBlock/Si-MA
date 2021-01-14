@@ -134,7 +134,7 @@ public abstract class AbstractAgent implements EventCatcher {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(uuid, agentName);
+        return getAgentIdentifier().hashCode();
     }
 
     /**

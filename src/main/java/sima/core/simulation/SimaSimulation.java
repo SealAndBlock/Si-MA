@@ -5,8 +5,8 @@ import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.Environment;
 import sima.core.exception.EnvironmentConstructionException;
+import sima.core.exception.SimaSimulationAlreadyRunningException;
 import sima.core.exception.SimaSimulationFailToStartRunningException;
-import sima.core.exception.TwoAgentWithSameIdentifierException;
 import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 import sima.core.scheduler.multithread.RealTimeMultiThreadScheduler;
@@ -73,8 +73,8 @@ public final class SimaSimulation {
                     simaSimulationSetScheduler(scheduler);
                     simaSimulationAddAgents(allAgents);
                     simaSimulationAddEnvironments(allEnvironments);
-                    simaSimulationCreateAndExecuteSimulationSetup(simulationSetupClass);
                     simaSimulationStartAllAgents();
+                    simaSimulationCreateAndExecuteSimulationSetup(simulationSetupClass);
                     simaSimulationNotifyOnSimulationStarted();
                     simaSimulationStartScheduler();
                 } catch (Exception e) {
@@ -82,7 +82,7 @@ public final class SimaSimulation {
                     throw new SimaSimulationFailToStartRunningException(e);
                 }
             else
-                throw new SimaSimulationFailToStartRunningException("SimaSimulation already started");
+                throw new SimaSimulationFailToStartRunningException(new SimaSimulationAlreadyRunningException());
         }
     }
 
@@ -108,11 +108,15 @@ public final class SimaSimulation {
         if (verifiesEnvironmentList(environments))
             throw new SimaSimulationFailToStartRunningException(new IllegalArgumentException("The simulation need to have at least 1 environments"));
 
-        runSimulation(createScheduler(simulationTimeMode, simulationSchedulerType, nbExecutorThread, endSimulation, schedulerWatcher),
-                null,
-                createAllEnvironments(environments),
-                simulationSetupClass,
-                simaWatcher);
+        try {
+            runSimulation(createScheduler(simulationTimeMode, simulationSchedulerType, nbExecutorThread, endSimulation, schedulerWatcher),
+                    null,
+                    createAllEnvironments(environments),
+                    simulationSetupClass,
+                    simaWatcher);
+        } catch (Exception e) {
+            throw new SimaSimulationFailToStartRunningException(e);
+        }
     }
 
     /**
@@ -175,12 +179,10 @@ public final class SimaSimulation {
 
         SIMA_SIMULATION.environments = new HashMap<>();
         for (Environment environment : allEnvironments) {
-            if (!SIMA_SIMULATION.environments.containsKey(environment.getEnvironmentName())) {
-                SIMA_SIMULATION.environments.put(environment.getEnvironmentName(), environment);
-            } else {
+            boolean added = addEnvironment(environment);
+            if (!added)
                 throw new IllegalArgumentException("Two environments with the same name. The problematic name : "
                         + environment.getEnvironmentName());
-            }
         }
     }
 
@@ -294,6 +296,12 @@ public final class SimaSimulation {
                                                       int nbExecutorThread,
                                                       long endSimulation,
                                                       Scheduler.SchedulerWatcher... schedulerWatchers) {
+        if (simulationTimeMode == null)
+            throw new NullPointerException("Null simulationTimeMode");
+
+        if (simulationSchedulerType == null)
+            throw new NullPointerException("Null simulationSchedulerType");
+
         Scheduler scheduler = null;
         switch (simulationTimeMode) {
             case REAL_TIME -> {
@@ -312,27 +320,11 @@ public final class SimaSimulation {
             }
         }
 
-        if (scheduler == null)
-            scheduler = createDefaultScheduler(nbExecutorThread, endSimulation);
-
         for (Scheduler.SchedulerWatcher schedulerWatcher : schedulerWatchers) {
             scheduler.addSchedulerWatcher(schedulerWatcher);
         }
 
         return scheduler;
-    }
-
-    /**
-     * Create a new instance of the considering default {@code Scheduler}. The default {@code Scheduler} is a
-     * {@link DiscreteTimeMultiThreadScheduler}.
-     *
-     * @param nbExecutorThread the number of executor thread of the scheduler
-     * @param endSimulation    the end time of the simulation
-     * @return a new instance of a Scheduler. Here the default Scheduler is {@link DiscreteTimeMultiThreadScheduler}.
-     */
-    @NotNull
-    private static Scheduler createDefaultScheduler(int nbExecutorThread, long endSimulation) {
-        return new DiscreteTimeMultiThreadScheduler(endSimulation, nbExecutorThread);
     }
 
     /**
@@ -404,8 +396,16 @@ public final class SimaSimulation {
      * @return the current time of the simulation.
      * @see Scheduler#getCurrentTime()
      */
-    public static long currentTime() {
+    public static long getCurrentTime() {
         return SIMA_SIMULATION.scheduler.getCurrentTime();
+    }
+
+    /**
+     * @param agent - the agent to add
+     * @return true if the agent has been added, else false.
+     */
+    public static boolean addAgent(AbstractAgent agent) {
+        return SIMA_SIMULATION.agentManager.addAgent(agent);
     }
 
     /**
@@ -415,9 +415,8 @@ public final class SimaSimulation {
      * @param agentIdentifier the identifier of the wanted agent
      * @return the agent associate to the identifier, returns null if the agent is not found.
      * @throws NullPointerException                if the agentIdentifier is null.
-     * @throws TwoAgentWithSameIdentifierException if there is in the agent manager two agents with the same identifier
      */
-    public static AbstractAgent getAgentFromIdentifier(AgentIdentifier agentIdentifier) {
+    public static AbstractAgent getAgent(AgentIdentifier agentIdentifier) {
         return SIMA_SIMULATION.findAgent(agentIdentifier);
     }
 
@@ -428,39 +427,49 @@ public final class SimaSimulation {
      * @param agentIdentifier the identifier of the wanted agent
      * @return the agent associate to the identifier, returns null if the agent is not found.
      * @throws NullPointerException                if the agentIdentifier is null.
-     * @throws TwoAgentWithSameIdentifierException if there is in the agent manager two agents with the same identifier
      */
     private AbstractAgent findAgent(AgentIdentifier agentIdentifier) {
         if (agentIdentifier == null)
-            throw new NullPointerException("The agent identifier cannot be null.");
+            return null;
 
         List<AbstractAgent> agents = this.agentManager.getAllAgents();
         AbstractAgent res = null;
-        for (AbstractAgent agent : agents) {
+        for (AbstractAgent agent : agents)
             if (agent.getAgentIdentifier().equals(agentIdentifier)) {
-                if (res == null)
-                    res = agent;
-                else
-                    throw new TwoAgentWithSameIdentifierException("Agent1 = " + res + " Agent2 = " + agent);
+                res = agent;
+                break;
             }
-        }
 
         return res;
     }
 
     /**
+     * Verifies if the environment name is not already know by the simulation. If it not the case, add the environment
+     * in the simulation and returns true, else do nothing and returns false.
+     *
+     * @param environment the environment to add
+     * @return true if the environment has beend added, else false.
+     */
+    public static boolean addEnvironment(Environment environment) {
+        if (!SIMA_SIMULATION.environments.containsKey(environment.getEnvironmentName())) {
+            SIMA_SIMULATION.environments.put(environment.getEnvironmentName(), environment);
+            return true;
+        } else
+            return false;
+    }
+
+    /**
      * @return the list of all environments of the simulation.
      */
-    public static List<Environment> getAllEnvironments() {
-        return SIMA_SIMULATION.environments.keySet().stream().collect(ArrayList::new,
-                (list, s) -> list.add(SIMA_SIMULATION.environments.get(s)), ArrayList::addAll);
+    public static @NotNull Set<Environment> getAllEnvironments() {
+        return new HashSet<>(SIMA_SIMULATION.environments.values());
     }
 
     /**
      * @param environmentName the environment of the wanted environment
      * @return the environment of the simulation which has the specified name. If no environment is find, returns null.
      */
-    public static Environment getEnvironmentFromName(String environmentName) {
+    public static Environment getEnvironment(String environmentName) {
         return SIMA_SIMULATION.findEnvironment(environmentName);
     }
 
@@ -470,16 +479,16 @@ public final class SimaSimulation {
      */
     private Environment findEnvironment(String environmentName) {
         if (environmentName == null)
-            throw new NullPointerException("The environment name cannot be null");
+            return null;
 
         return this.environments.get(environmentName);
     }
 
-    public static Scheduler.TimeMode timeMode() {
+    public static @NotNull Scheduler.TimeMode getTimeMode() {
         return SIMA_SIMULATION.scheduler.getTimeMode();
     }
 
-    public static Scheduler.SchedulerType schedulerType() {
+    public static @NotNull Scheduler.SchedulerType getSchedulerType() {
         return SIMA_SIMULATION.scheduler.getSchedulerType();
     }
 

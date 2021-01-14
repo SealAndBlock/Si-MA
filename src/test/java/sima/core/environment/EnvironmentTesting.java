@@ -24,9 +24,19 @@ public class EnvironmentTesting extends Environment {
 
     // Constructors.
 
-    public EnvironmentTesting(int number) {
-        super(ENV_TEST_NAME + "_" + number, null);
+    /**
+     * Required constructor for Environment.
+     *
+     * @param name the environment name
+     * @param args the environment arguments
+     */
+    public EnvironmentTesting(String name, Map<String, String> args) {
+        super(name, args);
         uuid = UUID.randomUUID();
+    }
+
+    public EnvironmentTesting(int number) {
+        this(ENV_TEST_NAME + "_" + number, null);
     }
 
     public EnvironmentTesting(int number, List<AgentIdentifier> notAcceptedAgentList) {

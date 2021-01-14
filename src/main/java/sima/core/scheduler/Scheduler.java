@@ -202,7 +202,7 @@ public interface Scheduler {
     default void scheduleEvent(Event event, long waitingTime) {
         if (event.getReceiver() != null) {
             Executable executable = () -> {
-                AbstractAgent receiver = SimaSimulation.getAgentFromIdentifier(event.getReceiver());
+                AbstractAgent receiver = SimaSimulation.getAgent(event.getReceiver());
                 receiver.processEvent(event);
             };
 
@@ -262,7 +262,7 @@ public interface Scheduler {
      * Time mode of the simulation.
      */
     enum TimeMode {
-        REAL_TIME, DISCRETE_TIME, UNSPECIFIED
+        REAL_TIME, DISCRETE_TIME
     }
 
     /**
