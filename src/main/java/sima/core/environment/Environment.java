@@ -54,15 +54,11 @@ public abstract class Environment implements EventCatcher {
      * @param args            arguments map (map argument name with the argument)
      */
     protected Environment(String environmentName, Map<String, String> args) {
-        this.environmentName = environmentName;
-
-        if (this.environmentName == null)
-            throw new NullPointerException("The sima.core.environment name cannot be null.");
-
-        this.evolvingAgents = new HashSet<>();
+        this.environmentName = Optional.of(environmentName).get();
+        evolvingAgents = new HashSet<>();
 
         if (args != null)
-            this.processArgument(args);
+            processArgument(args);
     }
 
     // Methods.
@@ -100,8 +96,8 @@ public abstract class Environment implements EventCatcher {
      * @return true if the {@code Environment} accept the sima.core.agent, else false.
      */
     public synchronized boolean acceptAgent(AgentIdentifier evolvingAgentIdentifier) {
-        if (evolvingAgentIdentifier != null && this.agentCanBeAccepted(evolvingAgentIdentifier)) {
-            return this.evolvingAgents.add(evolvingAgentIdentifier);
+        if (evolvingAgentIdentifier != null && agentCanBeAccepted(evolvingAgentIdentifier)) {
+            return evolvingAgents.add(evolvingAgentIdentifier);
         } else {
             return false;
         }
@@ -129,9 +125,9 @@ public abstract class Environment implements EventCatcher {
      * @param leavingAgentIdentifier the leaving sima.core.agent
      */
     public synchronized void leave(AgentIdentifier leavingAgentIdentifier) {
-        if (this.isEvolving(leavingAgentIdentifier)) {
-            this.agentIsLeaving(leavingAgentIdentifier);
-            this.evolvingAgents.remove(leavingAgentIdentifier);
+        if (isEvolving(leavingAgentIdentifier)) {
+            agentIsLeaving(leavingAgentIdentifier);
+            evolvingAgents.remove(leavingAgentIdentifier);
         }
     }
 
@@ -155,7 +151,7 @@ public abstract class Environment implements EventCatcher {
      * @see #getEvolvingAgentIdentifiers()
      */
     public synchronized boolean isEvolving(AgentIdentifier agent) {
-        return agent != null && this.evolvingAgents.contains(agent);
+        return agent != null && evolvingAgents.contains(agent);
     }
 
     /**
@@ -163,7 +159,7 @@ public abstract class Environment implements EventCatcher {
      * returns an empty list but never null.
      */
     public synchronized List<AgentIdentifier> getEvolvingAgentIdentifiers() {
-        return this.evolvingAgents.stream().collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+        return evolvingAgents.stream().collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
     }
 
     /**
@@ -187,23 +183,23 @@ public abstract class Environment implements EventCatcher {
         if (event != null) {
             AgentIdentifier sender = event.getSender();
 
-            if (this.isEvolving(sender)) {
+            if (isEvolving(sender)) {
                 if (event.getReceiver() == null) {
                     // No receiver for the event
-                    this.sendEventWithNullReceiver(event);
+                    sendEventWithNullReceiver(event);
                 } else {
                     // Event destined for one identified agent.
                     // getAgent() detects if the sima.core.agent is evolving or not in the sima.core.environment
                     AgentIdentifier receiver = event.getReceiver();
-                    if (this.isEvolving(receiver))
-                        this.verifyAndScheduleEvent(receiver, event);
+                    if (isEvolving(receiver))
+                        verifyAndScheduleEvent(receiver, event);
                     else
                         throw new NotEvolvingAgentInEnvironmentException("The receiver agent " + receiver + " is " +
-                                "not evolving in the environment " + this.getEnvironmentName());
+                                "not evolving in the environment " + getEnvironmentName());
                 }
             } else
                 throw new NotEvolvingAgentInEnvironmentException("The sender sima.core.agent " + sender + " is not " +
-                        "evolving in the sima.core.environment " + this.getEnvironmentName());
+                        "evolving in the sima.core.environment " + getEnvironmentName());
         } else
             throw new NullPointerException("The sent event is null");
     }
@@ -254,9 +250,22 @@ public abstract class Environment implements EventCatcher {
      * @see #scheduleEventReceptionToOneAgent(AgentIdentifier, Event)
      */
     protected void verifyAndScheduleEvent(AgentIdentifier receiver, Event event) {
-        if (this.eventCanBeSentTo(receiver, event)) {
-            this.scheduleEventReceptionToOneAgent(receiver, event);
+        if (eventCanBeSentTo(receiver, event)) {
+            scheduleEventReceptionToOneAgent(receiver, event);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Environment)) return false;
+        Environment that = (Environment) o;
+        return environmentName.equals(that.environmentName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(environmentName);
     }
 
     // Getters ans Setters.
@@ -265,6 +274,6 @@ public abstract class Environment implements EventCatcher {
      * @return the unique name of the sima.core.environment, cannot be null.
      */
     public String getEnvironmentName() {
-        return this.environmentName;
+        return environmentName;
     }
 }

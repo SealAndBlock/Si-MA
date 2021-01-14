@@ -30,7 +30,7 @@ public class TestAgentTesting extends GlobalTestAbstractAgent {
 
     @Test
     public void constructAgentTestingWithNullAgentNameThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> new AgentTesting(null, 0, null));
+        assertThrows(NullPointerException.class, () -> new AgentTesting(null, 0, null));
     }
 
     @Test

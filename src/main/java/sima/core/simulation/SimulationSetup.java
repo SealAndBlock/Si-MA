@@ -1,11 +1,30 @@
 package sima.core.simulation;
 
+import java.util.Map;
+
 /**
  * A {@link SimulationSetup} must always have a default constructor to allow the use of the java reflexivity. This
  * constructor must be in the form SimulationSetup(Map(key:String, value:String)). The argument map is the map which
  * allows to pass argument to the SimulationSetup.
  */
-public interface SimulationSetup {
+public abstract class SimulationSetup {
+
+    // Constructors.
+
+    protected SimulationSetup(Map<String, String> args) {
+        if (args != null)
+            processArgument(args);
+    }
+
+    // Methods.
+
+    /**
+     * Method called in the constructors. It is this method which make all treatment associated to all arguments
+     * received.
+     *
+     * @param args arguments map (map argument name with the argument)
+     */
+    protected abstract void processArgument(Map<String, String> args);
 
     /**
      * Called when the simulation is started and must be setup.
@@ -21,6 +40,6 @@ public interface SimulationSetup {
      * method that the configuration is done. However it is not recommended except if you know how the simulation
      * works.
      */
-    void setupSimulation();
+    public abstract void setupSimulation();
 
 }

@@ -1,6 +1,5 @@
 package sima.core;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,22 +33,13 @@ public abstract class SimaTest {
      */
     public static void verifyPreConditionAndExecuteTest(PreConditionTest preConditionTest, TestRunnable testRunnable) {
         if (preConditionTest.verifyPreConditionTest()) {
-            testRunnable.runTest();
+            try {
+                testRunnable.runTest();
+            } catch (Throwable throwable) {
+                fail(throwable);
+            }
         } else {
             fail("Pre condition tests not verified");
-        }
-    }
-
-    /**
-     * Runs the test and verify if no Exception is thrown, if it is the case, calls {@link Assertions#fail(Throwable)}
-     *
-     * @param testRunnable the test to run
-     */
-    public static void notFail(TestRunnable testRunnable) {
-        try {
-            testRunnable.runTest();
-        } catch (Exception e) {
-            fail(e);
         }
     }
 

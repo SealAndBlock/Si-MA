@@ -2,11 +2,8 @@ package sima.core.environment;
 
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
-import sima.core.simulation.SimaSimulation;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 public class EnvironmentTesting extends Environment {
 
@@ -14,16 +11,32 @@ public class EnvironmentTesting extends Environment {
 
     public static final String ENV_TEST_NAME = "ENV_TEST";
 
-    public static long SEND_DELAY = 10;
-
     // Variables.
+
+    /**
+     * Only to allow several environment with same name.
+     * <p>
+     * With the uui id, two environments with the same name has different hashcode.
+     */
+    private final UUID uuid;
 
     private final List<AgentIdentifier> notAcceptedAgentList = new Vector<>();
 
     // Constructors.
 
+    /**
+     * Required constructor for Environment.
+     *
+     * @param name the environment name
+     * @param args the environment arguments
+     */
+    public EnvironmentTesting(String name, Map<String, String> args) {
+        super(name, args);
+        uuid = UUID.randomUUID();
+    }
+
     public EnvironmentTesting(int number) {
-        super(ENV_TEST_NAME + number, null);
+        this(ENV_TEST_NAME + "_" + number, null);
     }
 
     public EnvironmentTesting(int number, List<AgentIdentifier> notAcceptedAgentList) {
@@ -76,5 +89,10 @@ public class EnvironmentTesting extends Environment {
     @Override
     public void processEvent(Event event) {
         // Nothing
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), uuid);
     }
 }

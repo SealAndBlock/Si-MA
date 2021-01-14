@@ -29,12 +29,12 @@ public class AgentTesting extends AbstractAgent {
     }
 
     @Override
-    public void onStart() {
+    public void notifyOnStart() {
         this.passToOnStart++;
     }
 
     @Override
-    public void onKill() {
+    public void notifyOnKill() {
         this.passToOnKill++;
     }
 

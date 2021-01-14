@@ -41,7 +41,7 @@ public class Message extends Event {
 
     @Override
     public Object clone() {
-        return new Message(this.getSender(), this.getReceiver(), this.getProtocolTargeted(), this.getContent());
+        return new Message(getSender(), getReceiver(), getProtocolTargeted(), getContent());
     }
 
     // Getters and Setters.

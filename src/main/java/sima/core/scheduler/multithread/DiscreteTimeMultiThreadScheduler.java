@@ -286,6 +286,11 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
             return -1;
     }
 
+    @Override
+    public @NotNull TimeMode getTimeMode() {
+        return TimeMode.DISCRETE_TIME;
+    }
+
     // Inner classes.
 
     private class DiscreteTimeExecutorThread extends OneExecutableExecutorThread {

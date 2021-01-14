@@ -6,8 +6,7 @@ import sima.core.SimaTest;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentTesting;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled
 public abstract class GlobalTestProtocolManipulator extends SimaTest {
@@ -39,11 +38,11 @@ public abstract class GlobalTestProtocolManipulator extends SimaTest {
     public void setManipulatedProtocolWithNotNullArgumentNotFail() {
         AbstractAgent a = new AgentTesting("A", 0, null);
         Protocol protocol = new ProtocolTesting("P_TAG", a, null);
-        notFail(() -> PROTOCOL_MANIPULATOR.setManipulatedProtocol(protocol));
+        assertDoesNotThrow(() -> PROTOCOL_MANIPULATOR.setManipulatedProtocol(protocol));
     }
 
     @Test
     public void resetStateNotFail() {
-        notFail(() -> PROTOCOL_MANIPULATOR.resetState());
+        assertDoesNotThrow(() -> PROTOCOL_MANIPULATOR.resetState());
     }
 }

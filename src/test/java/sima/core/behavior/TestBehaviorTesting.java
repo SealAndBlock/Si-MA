@@ -40,7 +40,7 @@ public class TestBehaviorTesting extends GlobalTestBehavior {
     @Test
     public void constructBehaviorTestingWithNullArgsNotFail() {
         AbstractAgent agent = new AgentTesting("A_0", 0, null);
-        notFail(() -> {
+        assertDoesNotThrow(() -> {
             try {
                 new BehaviorTesting(agent, null);
             } catch (BehaviorCannotBePlayedByAgentException e) {
@@ -52,7 +52,7 @@ public class TestBehaviorTesting extends GlobalTestBehavior {
     @Test
     public void constructBehaviorTestingWithNotNullArgsNotFail() {
         AbstractAgent agent = new AgentTesting("A_0", 0, null);
-        notFail(() -> {
+        assertDoesNotThrow(() -> {
             try {
                 new BehaviorTesting(agent, new HashMap<>());
             } catch (BehaviorCannotBePlayedByAgentException e) {

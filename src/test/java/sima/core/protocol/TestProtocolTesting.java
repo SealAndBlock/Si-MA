@@ -8,6 +8,7 @@ import sima.core.environment.event.EventTesting;
 
 import java.util.HashMap;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestProtocolTesting extends GlobalTestProtocol {
@@ -40,22 +41,22 @@ public class TestProtocolTesting extends GlobalTestProtocol {
 
     @Test
     public void constructProtocolTestingWithNullArgsNotFail() {
-        notFail(() -> new ProtocolTesting("TAG", AGENT, null));
+        assertDoesNotThrow(() -> new ProtocolTesting("TAG", AGENT, null));
     }
 
     @Test
     public void constructProtocolTestingWithNotNullArgsNotFail() {
-        notFail(() -> new ProtocolTesting("TAG", AGENT, new HashMap<>()));
+        assertDoesNotThrow(() -> new ProtocolTesting("TAG", AGENT, new HashMap<>()));
     }
 
     @Test
     public void processEventWithNullEventNotFail() {
-        notFail(() -> PROTOCOL.processEvent(null));
+        assertDoesNotThrow(() -> PROTOCOL.processEvent(null));
     }
 
     @Test
     public void processEventWithNotNullEventNotFail() {
-        notFail(() -> {
+        assertDoesNotThrow(() -> {
             AbstractAgent s = new AgentTesting("SENDER", 0, null);
             AbstractAgent r = new AgentTesting("RECEIVER", 0, null);
             Event event = new EventTesting(s.getAgentIdentifier(), r.getAgentIdentifier(), PROTOCOL.getIdentifier());

@@ -258,6 +258,11 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         return (ScheduledExecutorService) executor;
     }
 
+    @Override
+    public @NotNull TimeMode getTimeMode() {
+        return TimeMode.REAL_TIME;
+    }
+
     // Inner class.
 
     public class RealTimeExecutorThread extends OneExecutableExecutorThread {
