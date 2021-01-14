@@ -7,6 +7,7 @@ import sima.core.environment.Environment;
 import sima.core.exception.EnvironmentConstructionException;
 import sima.core.exception.SimaSimulationAlreadyRunningException;
 import sima.core.exception.SimaSimulationFailToStartRunningException;
+import sima.core.exception.SimaSimulationIsNotRunningException;
 import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 import sima.core.scheduler.multithread.RealTimeMultiThreadScheduler;
@@ -389,6 +390,7 @@ public final class SimaSimulation {
      * @return the scheduler of the simulation. Never returns null.
      */
     public static Scheduler getScheduler() {
+        verifySimaSimulationIsRunningAndThrowsException();
         return SIMA_SIMULATION.scheduler;
     }
 
@@ -397,6 +399,7 @@ public final class SimaSimulation {
      * @see Scheduler#getCurrentTime()
      */
     public static long getCurrentTime() {
+        verifySimaSimulationIsRunningAndThrowsException();
         return SIMA_SIMULATION.scheduler.getCurrentTime();
     }
 
@@ -405,6 +408,7 @@ public final class SimaSimulation {
      * @return true if the agent has been added, else false.
      */
     public static boolean addAgent(AbstractAgent agent) {
+        verifySimaSimulationIsRunningAndThrowsException();
         return SIMA_SIMULATION.agentManager.addAgent(agent);
     }
 
@@ -414,9 +418,10 @@ public final class SimaSimulation {
      *
      * @param agentIdentifier the identifier of the wanted agent
      * @return the agent associate to the identifier, returns null if the agent is not found.
-     * @throws NullPointerException                if the agentIdentifier is null.
+     * @throws NullPointerException if the agentIdentifier is null.
      */
     public static AbstractAgent getAgent(AgentIdentifier agentIdentifier) {
+        verifySimaSimulationIsRunningAndThrowsException();
         return SIMA_SIMULATION.findAgent(agentIdentifier);
     }
 
@@ -426,7 +431,7 @@ public final class SimaSimulation {
      *
      * @param agentIdentifier the identifier of the wanted agent
      * @return the agent associate to the identifier, returns null if the agent is not found.
-     * @throws NullPointerException                if the agentIdentifier is null.
+     * @throws NullPointerException if the agentIdentifier is null.
      */
     private AbstractAgent findAgent(AgentIdentifier agentIdentifier) {
         if (agentIdentifier == null)
@@ -451,6 +456,7 @@ public final class SimaSimulation {
      * @return true if the environment has beend added, else false.
      */
     public static boolean addEnvironment(Environment environment) {
+        verifySimaSimulationIsRunningAndThrowsException();
         if (!SIMA_SIMULATION.environments.containsKey(environment.getEnvironmentName())) {
             SIMA_SIMULATION.environments.put(environment.getEnvironmentName(), environment);
             return true;
@@ -462,6 +468,7 @@ public final class SimaSimulation {
      * @return the list of all environments of the simulation.
      */
     public static @NotNull Set<Environment> getAllEnvironments() {
+        verifySimaSimulationIsRunningAndThrowsException();
         return new HashSet<>(SIMA_SIMULATION.environments.values());
     }
 
@@ -470,6 +477,7 @@ public final class SimaSimulation {
      * @return the environment of the simulation which has the specified name. If no environment is find, returns null.
      */
     public static Environment getEnvironment(String environmentName) {
+        verifySimaSimulationIsRunningAndThrowsException();
         return SIMA_SIMULATION.findEnvironment(environmentName);
     }
 
@@ -485,11 +493,22 @@ public final class SimaSimulation {
     }
 
     public static @NotNull Scheduler.TimeMode getTimeMode() {
+        verifySimaSimulationIsRunningAndThrowsException();
         return SIMA_SIMULATION.scheduler.getTimeMode();
     }
 
     public static @NotNull Scheduler.SchedulerType getSchedulerType() {
+        verifySimaSimulationIsRunningAndThrowsException();
         return SIMA_SIMULATION.scheduler.getSchedulerType();
+    }
+
+    /**
+     * Verifies if the SimaSimulation is running, if it is not the case, throws a
+     * {@link SimaSimulationIsNotRunningException}.
+     */
+    private static void verifySimaSimulationIsRunningAndThrowsException() {
+        if (!simaSimulationIsRunning())
+            throw new SimaSimulationIsNotRunningException();
     }
 
     // Inner classes.

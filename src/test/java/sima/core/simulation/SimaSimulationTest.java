@@ -9,6 +9,7 @@ import sima.core.environment.Environment;
 import sima.core.environment.EnvironmentTesting;
 import sima.core.environment.event.Event;
 import sima.core.exception.SimaSimulationFailToStartRunningException;
+import sima.core.exception.SimaSimulationIsNotRunningException;
 import sima.core.scheduler.LongTimeExecutableTesting;
 import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.SchedulerWatcherTesting;
@@ -349,7 +350,7 @@ public class SimaSimulationTest extends SimaTest {
 
     @Test
     public void getSchedulerThrowsExceptionIfSimaSimulationIsNotRunning() {
-        assertThrows(NullPointerException.class, SimaSimulation::getScheduler);
+        assertThrows(SimaSimulationIsNotRunningException.class, SimaSimulation::getScheduler);
     }
 
     @Test
@@ -363,7 +364,7 @@ public class SimaSimulationTest extends SimaTest {
 
     @Test
     public void getCurrentTimeThrowsExceptionIfSimaSimulationIsNotRunning() {
-        assertThrows(NullPointerException.class, SimaSimulation::getCurrentTime);
+        assertThrows(SimaSimulationIsNotRunningException.class, SimaSimulation::getCurrentTime);
     }
 
     @Test
@@ -376,7 +377,7 @@ public class SimaSimulationTest extends SimaTest {
 
     @Test
     public void addAgentThrowsExceptionIfSimulationIsNotRunning() {
-        assertThrows(NullPointerException.class, () -> SimaSimulation.addAgent(A_0));
+        assertThrows(SimaSimulationIsNotRunningException.class, () -> SimaSimulation.addAgent(A_0));
     }
 
     @Test
@@ -397,7 +398,7 @@ public class SimaSimulationTest extends SimaTest {
 
     @Test
     public void getAgentFromIdentifierThrowsExceptionIfSimaSimulationIsNotRunning() {
-        assertThrows(NullPointerException.class, () -> SimaSimulation.getAgent(A_0.getAgentIdentifier()));
+        assertThrows(SimaSimulationIsNotRunningException.class, () -> SimaSimulation.getAgent(A_0.getAgentIdentifier()));
     }
 
     @Test
@@ -427,7 +428,7 @@ public class SimaSimulationTest extends SimaTest {
 
     @Test
     public void addEnvironmentThrowsExceptionIfSimaSimulationIsNotRunning() {
-        assertThrows(NullPointerException.class, () -> SimaSimulation.addEnvironment(NOT_ADDED_ENVIRONMENT_1));
+        assertThrows(SimaSimulationIsNotRunningException.class, () -> SimaSimulation.addEnvironment(NOT_ADDED_ENVIRONMENT_1));
     }
 
     @Test
@@ -454,7 +455,7 @@ public class SimaSimulationTest extends SimaTest {
 
     @Test
     public void getAllEnvironmentsThrowsExceptionIfSimaSimulationIsNotRunning() {
-        assertThrows(NullPointerException.class, SimaSimulation::getAllEnvironments);
+        assertThrows(SimaSimulationIsNotRunningException.class, SimaSimulation::getAllEnvironments);
     }
 
     @Test
@@ -473,7 +474,7 @@ public class SimaSimulationTest extends SimaTest {
 
     @Test
     public void getEnvironmentThrowsExceptionIfSimaSimulationIsNotRunning() {
-        assertThrows(NullPointerException.class, () -> SimaSimulation.getEnvironment(ENV_0.getEnvironmentName()));
+        assertThrows(SimaSimulationIsNotRunningException.class, () -> SimaSimulation.getEnvironment(ENV_0.getEnvironmentName()));
     }
 
     @Test
@@ -505,7 +506,7 @@ public class SimaSimulationTest extends SimaTest {
 
     @Test
     public void getTimeModeThrowsExceptionIfSimaSimulationIsNotRunning() {
-        assertThrows(NullPointerException.class, SimaSimulation::getTimeMode);
+        assertThrows(SimaSimulationIsNotRunningException.class, SimaSimulation::getTimeMode);
     }
 
     @Test
@@ -517,7 +518,7 @@ public class SimaSimulationTest extends SimaTest {
 
     @Test
     public void getSchedulerTypeThrowsExceptionIfSimaSimulationIsNotRunning() {
-        assertThrows(NullPointerException.class, SimaSimulation::getSchedulerType);
+        assertThrows(SimaSimulationIsNotRunningException.class, SimaSimulation::getSchedulerType);
     }
 
     @Test
