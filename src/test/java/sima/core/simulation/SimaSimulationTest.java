@@ -82,32 +82,20 @@ public class SimaSimulationTest extends SimaTest {
 
     @Test
     public void runSimulationWithNotNullSchedulerNotFail() {
-        try {
-            SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                    SimulationSetupTesting.class, null);
-        } catch (SimaSimulationFailToStartRunningException e) {
-            fail(e);
-        }
+        assertDoesNotThrow(() -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
+                    SimulationSetupTesting.class, null));
     }
 
     @Test
     public void runSimulationWithNullAllAgentsNotFail() {
-        try {
-            SimaSimulation.runSimulation(SCHEDULER, null, ALL_ENVIRONMENTS,
-                    SimulationSetupTesting.class, null);
-        } catch (SimaSimulationFailToStartRunningException e) {
-            fail(e);
-        }
+        assertDoesNotThrow(() -> SimaSimulation.runSimulation(SCHEDULER, null, ALL_ENVIRONMENTS,
+                    SimulationSetupTesting.class, null));
     }
 
     @Test
     public void runSimulationWithEmptyAllAgentsNotFail() {
-        try {
-            SimaSimulation.runSimulation(SCHEDULER, new HashSet<>(), ALL_ENVIRONMENTS,
-                    SimulationSetupTesting.class, null);
-        } catch (SimaSimulationFailToStartRunningException e) {
-            fail(e);
-        }
+        assertDoesNotThrow(() -> SimaSimulation.runSimulation(SCHEDULER, new HashSet<>(), ALL_ENVIRONMENTS,
+                    SimulationSetupTesting.class, null));
     }
 
     @Test
@@ -139,32 +127,27 @@ public class SimaSimulationTest extends SimaTest {
 
     @Test
     public void runSimulationWithNullSimulationSetupClassNotFail() {
-        try {
-            SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                    null, null);
-        } catch (SimaSimulationFailToStartRunningException e) {
-            fail(e);
-        }
+        assertDoesNotThrow(() -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
+                null, null));
+    }
+
+    @Test
+    public void runSimulationWithSimulationSetupWhichHasNotCorrectConstructorThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                () -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
+                        WrongSimulationSetup.class, null));
     }
 
     @Test
     public void runSimulationWithNullSimaWatcherNotFail() {
-        try {
-            SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                    SimulationSetupTesting.class, null);
-        } catch (SimaSimulationFailToStartRunningException e) {
-            fail(e);
-        }
+        assertDoesNotThrow(() -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
+                SimulationSetupTesting.class, null));
     }
 
     @Test
     public void runSimulationWithNotNullSimaWatcherNotFail() {
-        try {
-            SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                    SimulationSetupTesting.class, SIMA_WATCHER);
-        } catch (SimaSimulationFailToStartRunningException e) {
-            fail(e);
-        }
+        assertDoesNotThrow(() -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
+                    SimulationSetupTesting.class, SIMA_WATCHER));
     }
 
     @Test
@@ -243,6 +226,23 @@ public class SimaSimulationTest extends SimaTest {
             assertEquals(1, SCHEDULER_WATCHER.isPassToSchedulerKilled);
         } catch (SimaSimulationFailToStartRunningException e) {
             fail(e);
+        }
+    }
+
+    // Inner class.
+
+    private static class WrongSimulationSetup implements SimulationSetup {
+
+        // Constructor.
+
+        public WrongSimulationSetup() {
+        }
+
+        // Methods.
+
+        @Override
+        public void setupSimulation() {
+
         }
     }
 }

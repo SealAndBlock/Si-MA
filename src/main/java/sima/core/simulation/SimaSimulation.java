@@ -26,7 +26,6 @@ public final class SimaSimulation {
     // Variables
 
     private Scheduler scheduler;
-    private Scheduler.TimeMode timeMode;
     private SimulationSchedulerWatcher schedulerWatcher;
 
     private AgentManager agentManager;
@@ -142,7 +141,6 @@ public final class SimaSimulation {
      */
     private static void simaSimulationSetScheduler(Scheduler scheduler) {
         SIMA_SIMULATION.scheduler = Optional.of(scheduler).get();
-        SIMA_SIMULATION.timeMode = SIMA_SIMULATION.scheduler.getTimeMode();
         SIMA_SIMULATION.schedulerWatcher = new SimulationSchedulerWatcher();
         SIMA_SIMULATION.scheduler.addSchedulerWatcher(SIMA_SIMULATION.schedulerWatcher);
     }
@@ -193,8 +191,7 @@ public final class SimaSimulation {
      * @param simulationSetupClass the class of the SimulationSetup
      * @return a new instance of the {@link SimulationSetup} specified class. If the instantiation failed, returns null.
      */
-    @NotNull
-    private static SimulationSetup constructSimulationSetup(Class<? extends SimulationSetup> simulationSetupClass) {
+    private static SimulationSetup createSimulationSetup(Class<? extends SimulationSetup> simulationSetupClass) {
         try {
             Constructor<? extends SimulationSetup> simSetupConstructor =
                     simulationSetupClass.getConstructor(Map.class);
@@ -214,7 +211,7 @@ public final class SimaSimulation {
     private static void simaSimulationCreateAndExecuteSimulationSetup(Class<? extends SimulationSetup> simulationSetupClass)
             throws SimaSimulationFailToStartRunningException {
         if (simulationSetupClass != null) {
-            SimulationSetup simulationSetup = constructSimulationSetup(simulationSetupClass);
+            SimulationSetup simulationSetup = createSimulationSetup(simulationSetupClass);
             if (simulationSetup == null)
                 throw new SimaSimulationFailToStartRunningException("Simulation Setup fail to be instantiate");
             simulationSetup.setupSimulation();
@@ -334,7 +331,7 @@ public final class SimaSimulation {
      * @return a new instance of a Scheduler. Here the default Scheduler is {@link DiscreteTimeMultiThreadScheduler}.
      */
     @NotNull
-    private static DiscreteTimeMultiThreadScheduler createDefaultScheduler(int nbExecutorThread, long endSimulation) {
+    private static Scheduler createDefaultScheduler(int nbExecutorThread, long endSimulation) {
         return new DiscreteTimeMultiThreadScheduler(endSimulation, nbExecutorThread);
     }
 
@@ -479,7 +476,11 @@ public final class SimaSimulation {
     }
 
     public static Scheduler.TimeMode timeMode() {
-        return SIMA_SIMULATION.timeMode;
+        return SIMA_SIMULATION.scheduler.getTimeMode();
+    }
+
+    public static Scheduler.SchedulerType schedulerType() {
+        return SIMA_SIMULATION.scheduler.getSchedulerType();
     }
 
     // Inner classes.
