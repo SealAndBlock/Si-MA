@@ -643,14 +643,20 @@ public class SimaSimulationTest extends SimaTest {
         }
     }
 
-    private static class WrongSimulationSetup implements SimulationSetup {
+    private static class WrongSimulationSetup extends SimulationSetup {
 
         // Constructor.
 
         public WrongSimulationSetup() {
+            super(null);
         }
 
         // Methods.
+
+        @Override
+        protected void processArgument(Map<String, String> args) {
+
+        }
 
         @Override
         public void setupSimulation() {
@@ -658,15 +664,20 @@ public class SimaSimulationTest extends SimaTest {
         }
     }
 
-    private static class SimulationSetupWithLongExecutable implements SimulationSetup {
+    private static class SimulationSetupWithLongExecutable extends SimulationSetup {
 
         // Constructors.
 
-        public SimulationSetupWithLongExecutable(@SuppressWarnings("unused") Map<String, String> dummy) {
-
+        public SimulationSetupWithLongExecutable(Map<String, String> dummy) {
+            super(dummy);
         }
 
         // Methods.
+
+        @Override
+        protected void processArgument(Map<String, String> args) {
+
+        }
 
         @Override
         public void setupSimulation() {
