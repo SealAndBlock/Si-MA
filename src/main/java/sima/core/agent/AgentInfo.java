@@ -44,15 +44,6 @@ public class AgentInfo implements Serializable {
 
     // Methods.
 
-    @Override
-    public String toString() {
-        return "[AgentInfo - " +
-                "agentIdentifier=" + agentIdentifier +
-                ", behaviors=" + behaviors +
-                ", protocols=" + protocols +
-                ", environments=" + environments + "]";
-    }
-
     // Getters and Setters.
 
     public AgentIdentifier getAgentIdentifier() {

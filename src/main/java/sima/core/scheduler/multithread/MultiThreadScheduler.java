@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 
+import static sima.core.simulation.SimaSimulation.SIMA_LOG;
+
 public abstract class MultiThreadScheduler implements Scheduler {
 
     // Variables.
@@ -53,11 +55,15 @@ public abstract class MultiThreadScheduler implements Scheduler {
             throw new IllegalArgumentException("The number of executor thread must be greater or equal to 1.");
 
         schedulerWatchers = new Vector<>();
-
         executorThreadList = new Vector<>();
     }
 
     // Methods.
+
+    @Override
+    public String toString() {
+        return "[Scheduler - " + this.getClass().getName() + "]";
+    }
 
     @Override
     public synchronized boolean addSchedulerWatcher(SchedulerWatcher schedulerWatcher) {
@@ -84,10 +90,12 @@ public abstract class MultiThreadScheduler implements Scheduler {
     }
 
     protected void notifyOnSimulationEndTimeReach() {
+        SIMA_LOG.info(this + " SIMULATION END TIME REACH");
         schedulerWatchers.forEach(SchedulerWatcher::simulationEndTimeReach);
     }
 
     protected void notifyOnNoExecutableToExecute() {
+        SIMA_LOG.info(this + " NO EXECUTABLE TO EXECUTE at time " + getCurrentTime());
         schedulerWatchers.forEach(SchedulerWatcher::noExecutableToExecute);
     }
 
@@ -98,11 +106,13 @@ public abstract class MultiThreadScheduler implements Scheduler {
 
     protected void setStarted() {
         isStarted = true;
+        SIMA_LOG.info(this + " STARTED");
     }
 
     protected void setKilled() {
         isStarted = false;
         isKilled = true;
+        SIMA_LOG.info(this + " KILLED");
     }
 
     /**

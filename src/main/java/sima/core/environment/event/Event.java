@@ -60,9 +60,7 @@ public abstract class Event implements Serializable {
      */
     public Event(AgentIdentifier sender, AgentIdentifier receiver, ProtocolIdentifier protocolTargeted) {
         this.sender = Optional.of(sender).get();
-
         this.receiver = receiver;
-
         this.protocolTargeted = protocolTargeted;
     }
 

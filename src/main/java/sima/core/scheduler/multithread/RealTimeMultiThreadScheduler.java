@@ -9,6 +9,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static sima.core.simulation.SimaSimulation.SIMA_LOG;
+
 public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     // Variables.
@@ -130,7 +132,8 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         while (getRunningExecutorCounter() != 0) {
             try {
                 wait();
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException e) {
+                SIMA_LOG.error("Interrupted during waiting", e);
             }
         }
     }

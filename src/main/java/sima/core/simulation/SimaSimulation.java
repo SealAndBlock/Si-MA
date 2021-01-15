@@ -76,12 +76,13 @@ public final class SimaSimulation {
                     createNewSimaSimulationSingletonInstance();
                     simaSimulationAddSimaWatcher(simaWatcher);
                     simaSimulationSetScheduler(scheduler);
-                    simaSimulationAddAgents(allAgents);
+                    simaSimulationAddAllAgents(allAgents);
                     simaSimulationAddEnvironments(allEnvironments);
                     simaSimulationStartAllAgents();
                     simaSimulationCreateAndExecuteSimulationSetup(simulationSetupClass);
                     simaSimulationNotifyOnSimulationStarted();
                     simaSimulationStartScheduler();
+                    SIMA_LOG.info("SimaSimulation RUN");
                 } catch (Exception e) {
                     killSimulation();
                     throw new SimaSimulationFailToStartRunningException(e);
@@ -164,7 +165,7 @@ public final class SimaSimulation {
      * @param allAgents the set of agents to add.
      * @throws NullPointerException if one agent is null.
      */
-    private static void simaSimulationAddAgents(Set<AbstractAgent> allAgents) {
+    private static void simaSimulationAddAllAgents(Set<AbstractAgent> allAgents) {
         createNewAgentManager();
         if (allAgents != null && !allAgents.isEmpty())
             addAllAgents(allAgents);
@@ -177,7 +178,7 @@ public final class SimaSimulation {
 
     private static void addAllAgents(Set<AbstractAgent> allAgents) {
         for (AbstractAgent agent : allAgents) {
-            SIMA_SIMULATION.agentManager.addAgent(Optional.of(agent).get());
+            addAgent(Optional.of(agent).get());
         }
     }
 
@@ -209,8 +210,7 @@ public final class SimaSimulation {
      */
     private static void addAllEnvironments(Set<Environment> allEnvironments) {
         for (Environment environment : allEnvironments) {
-            boolean added = addEnvironment(environment);
-            if (!added)
+            if (!addEnvironment(environment))
                 throw new IllegalArgumentException("Two environments with the same name. The problematic name : "
                         + environment.getEnvironmentName());
         }
@@ -223,14 +223,11 @@ public final class SimaSimulation {
      * @param simulationSetupClass the class of the SimulationSetup
      * @return a new instance of the {@link SimulationSetup} specified class. If the instantiation failed, returns null.
      */
-    private static SimulationSetup createSimulationSetup(Class<? extends SimulationSetup> simulationSetupClass) {
-        try {
-            Constructor<? extends SimulationSetup> simSetupConstructor =
-                    simulationSetupClass.getConstructor(Map.class);
-            return simSetupConstructor.newInstance((Map<String, String>) null);
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            return null;
-        }
+    private static SimulationSetup createSimulationSetup(Class<? extends SimulationSetup> simulationSetupClass)
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        Constructor<? extends SimulationSetup> simSetupConstructor =
+                simulationSetupClass.getConstructor(Map.class);
+        return simSetupConstructor.newInstance((Map<String, String>) null);
     }
 
     /**
@@ -242,12 +239,18 @@ public final class SimaSimulation {
      */
     private static void simaSimulationCreateAndExecuteSimulationSetup(Class<? extends SimulationSetup> simulationSetupClass)
             throws SimaSimulationFailToStartRunningException {
-        if (simulationSetupClass != null) {
-            SimulationSetup simulationSetup = createSimulationSetup(simulationSetupClass);
-            if (simulationSetup == null)
-                throw new SimaSimulationFailToStartRunningException("Simulation Setup fail to be instantiate");
-            simulationSetup.setupSimulation();
-        }
+        if (simulationSetupClass != null)
+            try {
+                SimulationSetup simulationSetup = createSimulationSetup(simulationSetupClass);
+                executeSimulationSetup(simulationSetup);
+            } catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException e) {
+                throw new SimaSimulationFailToStartRunningException("Simulation Setup fail to be instantiate", e);
+            }
+    }
+
+    private static void executeSimulationSetup(SimulationSetup simulationSetup) {
+        simulationSetup.setupSimulation();
+        SIMA_LOG.info("SimulationSetup EXECUTED");
     }
 
     /**
@@ -388,6 +391,9 @@ public final class SimaSimulation {
     }
 
     private static void destroySimaSimulationSingleton() {
+        if (SIMA_SIMULATION != null)
+            SIMA_LOG.info("SimaSimulation KILLED");
+
         SIMA_SIMULATION = null;
     }
 
@@ -448,7 +454,10 @@ public final class SimaSimulation {
      */
     public static boolean addAgent(AbstractAgent agent) {
         verifySimaSimulationIsRunningAndThrowsException();
-        return SIMA_SIMULATION.agentManager.addAgent(agent);
+        boolean added = SIMA_SIMULATION.agentManager.addAgent(agent);
+        if (added)
+            SIMA_LOG.info(agent + " ADDED in SimaSimulation");
+        return added;
     }
 
     /**
@@ -498,6 +507,7 @@ public final class SimaSimulation {
         verifySimaSimulationIsRunningAndThrowsException();
         if (!SIMA_SIMULATION.environments.containsKey(environment.getEnvironmentName())) {
             SIMA_SIMULATION.environments.put(environment.getEnvironmentName(), environment);
+            SIMA_LOG.info(environment + " ADDED in SimaSimulation");
             return true;
         } else
             return false;

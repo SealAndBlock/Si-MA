@@ -103,7 +103,7 @@ public abstract class AbstractAgent implements EventCatcher {
         if (args != null)
             processArgument(args);
 
-        SIMA_LOG.info(this + " has been created");
+        SIMA_LOG.info(this + " CREATED");
     }
 
     // Methods.
@@ -172,7 +172,7 @@ public abstract class AbstractAgent implements EventCatcher {
 
     private void setStarted() {
         isStarted = true;
-        SIMA_LOG.info("Agent " + this + " STARTED");
+        SIMA_LOG.info(this + " STARTED");
     }
 
     /**
@@ -201,7 +201,7 @@ public abstract class AbstractAgent implements EventCatcher {
     private void setKilled() {
         isStarted = false;
         isKilled = true;
-        SIMA_LOG.info("Agent " + this + " KILLED");
+        SIMA_LOG.info(this + " KILLED");
     }
 
     private void stopPlayingAllBehaviors() {

@@ -63,6 +63,14 @@ public abstract class Environment implements EventCatcher {
 
     // Methods.
 
+    @Override
+    public String toString() {
+        return "[Environment - " +
+                "class=" + this.getClass().getName() +
+                ", environmentName=" + environmentName +
+                ", evolvingAgents=" + evolvingAgents + "]";
+    }
+
     /**
      * Method called in the constructors. It is this method which make all treatment associated to all arguments
      * received.

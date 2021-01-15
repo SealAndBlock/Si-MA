@@ -4,11 +4,11 @@ public class SimaSimulationFailToStartRunningException extends Exception {
 
     // Constructors.
 
-    public SimaSimulationFailToStartRunningException(String s) {
-        super(s);
-    }
-
     public SimaSimulationFailToStartRunningException(Throwable throwable) {
         super(throwable);
+    }
+
+    public SimaSimulationFailToStartRunningException(String message, Throwable cause) {
+        super(message, cause);
     }
 }
