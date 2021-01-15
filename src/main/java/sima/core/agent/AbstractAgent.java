@@ -16,6 +16,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+import static sima.core.simulation.SimaSimulation.SIMA_LOG;
+
 public abstract class AbstractAgent implements EventCatcher {
 
     // Variables.
@@ -100,6 +102,8 @@ public abstract class AbstractAgent implements EventCatcher {
 
         if (args != null)
             processArgument(args);
+
+        SIMA_LOG.info(this + " CREATED");
     }
 
     // Methods.
@@ -111,6 +115,15 @@ public abstract class AbstractAgent implements EventCatcher {
      * @param args arguments map (map argument name with the argument)
      */
     protected abstract void processArgument(Map<String, String> args);
+
+    @Override
+    public String toString() {
+        return "[AGENT - " +
+                "class=" + this.getClass().getName() +
+                ", UUID=" + uuid +
+                ", name=" + agentName +
+                ", numberId=" + numberId + "]";
+    }
 
     /**
      * Only use the attributes {@link #uuid} and {@link #agentName} to compare two agents.
@@ -159,6 +172,7 @@ public abstract class AbstractAgent implements EventCatcher {
 
     private void setStarted() {
         isStarted = true;
+        SIMA_LOG.info(this + " STARTED");
     }
 
     /**
@@ -187,6 +201,7 @@ public abstract class AbstractAgent implements EventCatcher {
     private void setKilled() {
         isStarted = false;
         isKilled = true;
+        SIMA_LOG.info(this + " KILLED");
     }
 
     private void stopPlayingAllBehaviors() {

@@ -1,5 +1,7 @@
 package sima.core.scheduler;
 
+import sima.core.simulation.SimaSimulation;
+
 /**
  * Watcher which wait until that the {@code Scheduler} that it is watching is killed. Do nothing for
  * {@link #noExecutableToExecute()} and {@link #simulationEndTimeReach()}.
@@ -27,7 +29,7 @@ public class WaitSchedulerWatcher implements Scheduler.SchedulerWatcher {
                 try {
                     KILL_LOCK.wait();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    SimaSimulation.SIMA_LOG.error("Interrupt during waiting", e);
                 }
             nbBlockKill = nbKill;
         }

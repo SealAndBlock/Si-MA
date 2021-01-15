@@ -48,6 +48,14 @@ public class AgentIdentifier implements Serializable {
     // Methods.
 
     @Override
+    public String toString() {
+        return "[AgentIdentifier - " +
+                "agentUUID=" + agentUUID +
+                ", agentName=" + agentName +
+                ", agentNumberId=" + agentNumberId + "]";
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof AgentIdentifier)) return false;

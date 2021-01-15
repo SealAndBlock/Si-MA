@@ -6,6 +6,8 @@ import sima.core.exception.BehaviorCannotBePlayedByAgentException;
 import java.util.Map;
 import java.util.Optional;
 
+import static sima.core.simulation.SimaSimulation.SIMA_LOG;
+
 /**
  * Represents the sima.core.behavior that an {@link AbstractAgent} can have.
  * <p>
@@ -53,6 +55,13 @@ public abstract class Behavior {
 
     // Methods.
 
+    @Override
+    public String toString() {
+        return "[Behavior - " +
+                "class=" + this.getClass().getName() +
+                ", agent=" + agent + "]";
+    }
+
     /**
      * Method called in the constructors. It is this method which make all treatment associated to all arguments
      * received.
@@ -78,8 +87,13 @@ public abstract class Behavior {
     public final void startPlaying() {
         if (!isPlaying()) {
             onStartPlaying();
-            isPlaying = true;
+            setStartPlaying();
         }
+    }
+
+    private void setStartPlaying() {
+        isPlaying = true;
+        SIMA_LOG.info(agent + " START PLAYING " + this);
     }
 
     /**
@@ -93,8 +107,13 @@ public abstract class Behavior {
     public final void stopPlaying() {
         if (isPlaying()) {
             onStopPlaying();
-            isPlaying = false;
+            setStopPlaying();
         }
+    }
+
+    private void setStopPlaying() {
+        isPlaying = false;
+        SIMA_LOG.info(agent + " STOP PLAYING " + this);
     }
 
     /**
