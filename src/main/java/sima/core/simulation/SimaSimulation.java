@@ -1,6 +1,8 @@
 package sima.core.simulation;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.Environment;
@@ -19,6 +21,8 @@ import java.util.*;
 public final class SimaSimulation {
 
     // Static.
+
+    public static Logger SIMA_LOG = LoggerFactory.getLogger(SimaSimulation.class);
 
     private static SimaSimulation SIMA_SIMULATION;
 
@@ -91,14 +95,13 @@ public final class SimaSimulation {
      * Run a simulation.
      * <p>
      * This method is thread safe and synchronized on the lock {@link #LOCK}.
-     * 
-     * @see #runSimulation(Scheduler, Set, Set, Class, SimaWatcher)
      *
      * @param simulationTimeMode      the simulation time mode
      * @param simulationSchedulerType the simulation scheduler type
      * @param endSimulation           the end of the simulation
      * @param environments            the array of environments classes
      * @param simulationSetupClass    the simulation setup class
+     * @see #runSimulation(Scheduler, Set, Set, Class, SimaWatcher)
      */
     public static void runSimulation(Scheduler.TimeMode simulationTimeMode, Scheduler.SchedulerType simulationSchedulerType,
                                      int nbExecutorThread,
