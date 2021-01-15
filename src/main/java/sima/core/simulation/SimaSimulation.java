@@ -91,6 +91,8 @@ public final class SimaSimulation {
      * Run a simulation.
      * <p>
      * This method is thread safe and synchronized on the lock {@link #LOCK}.
+     * 
+     * @see #runSimulation(Scheduler, Set, Set, Class, SimaWatcher)
      *
      * @param simulationTimeMode      the simulation time mode
      * @param simulationSchedulerType the simulation scheduler type
@@ -160,11 +162,20 @@ public final class SimaSimulation {
      * @throws NullPointerException if one agent is null.
      */
     private static void simaSimulationAddAgents(Set<AbstractAgent> allAgents) {
-        SIMA_SIMULATION.agentManager = new LocalAgentManager();
+        createNewAgentManager();
         if (allAgents != null && !allAgents.isEmpty())
-            for (AbstractAgent agent : allAgents) {
-                SIMA_SIMULATION.agentManager.addAgent(Optional.of(agent).get());
-            }
+            addAllAgents(allAgents);
+    }
+
+    private static void createNewAgentManager() {
+        if (SIMA_SIMULATION.agentManager == null)
+            SIMA_SIMULATION.agentManager = new LocalAgentManager();
+    }
+
+    private static void addAllAgents(Set<AbstractAgent> allAgents) {
+        for (AbstractAgent agent : allAgents) {
+            SIMA_SIMULATION.agentManager.addAgent(Optional.of(agent).get());
+        }
     }
 
     /**
@@ -178,7 +189,22 @@ public final class SimaSimulation {
         if (allEnvironments.isEmpty())
             throw new IllegalArgumentException("A SimaSimulation needs to have at least one environment to work");
 
-        SIMA_SIMULATION.environments = new HashMap<>();
+        createNewMapEnvironment();
+        addAllEnvironments(allEnvironments);
+    }
+
+    private static void createNewMapEnvironment() {
+        if (SIMA_SIMULATION.environments == null)
+            SIMA_SIMULATION.environments = new HashMap<>();
+    }
+
+    /**
+     * Add all environments contained in the specified set. If several environment have the same name, throws a
+     * {@link IllegalArgumentException}.
+     *
+     * @param allEnvironments all environments to add
+     */
+    private static void addAllEnvironments(Set<Environment> allEnvironments) {
         for (Environment environment : allEnvironments) {
             boolean added = addEnvironment(environment);
             if (!added)
@@ -263,16 +289,18 @@ public final class SimaSimulation {
      */
     private static @NotNull Set<Environment> createAllEnvironments(List<Class<? extends Environment>> environments) {
         Set<Environment> environmentSet = new HashSet<>();
-        for (Class<? extends Environment> environmentClass : environments) {
+        for (Class<? extends Environment> environmentClass : environments)
             try {
                 Environment env = createEnvironment(environmentClass);
+
                 if (!environmentSet.add(env))
                     throw new IllegalArgumentException("Two environments with the same name");
+
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
                     | InvocationTargetException e) {
                 throw new EnvironmentConstructionException(e);
             }
-        }
+
         return environmentSet;
     }
 
@@ -305,26 +333,34 @@ public final class SimaSimulation {
 
         Scheduler scheduler = null;
         switch (simulationTimeMode) {
-            case REAL_TIME -> {
-                switch (simulationSchedulerType) {
-                    case MONO_THREAD -> throw new UnsupportedOperationException("Real Time Mono thread simulation" +
-                            " unsupported.");
-                    case MULTI_THREAD -> scheduler = new RealTimeMultiThreadScheduler(endSimulation, nbExecutorThread);
-                }
-            }
-            case DISCRETE_TIME -> {
-                switch (simulationSchedulerType) {
-                    case MONO_THREAD -> throw new UnsupportedOperationException("Discrete Time Mono thread simulation" +
-                            " unsupported.");
-                    case MULTI_THREAD -> scheduler = new DiscreteTimeMultiThreadScheduler(endSimulation, nbExecutorThread);
-                }
-            }
+            case REAL_TIME -> scheduler = createRealTimeScheduler(simulationSchedulerType, nbExecutorThread, endSimulation, scheduler);
+            case DISCRETE_TIME -> scheduler = createDiscreteTimeScheduler(simulationSchedulerType, nbExecutorThread, endSimulation, scheduler);
         }
 
         for (Scheduler.SchedulerWatcher schedulerWatcher : schedulerWatchers) {
             scheduler.addSchedulerWatcher(schedulerWatcher);
         }
 
+        return scheduler;
+    }
+
+    private static Scheduler createDiscreteTimeScheduler(Scheduler.SchedulerType simulationSchedulerType,
+                                                         int nbExecutorThread, long endSimulation, Scheduler scheduler) {
+        switch (simulationSchedulerType) {
+            case MONO_THREAD -> throw new UnsupportedOperationException("Discrete Time Mono thread simulation" +
+                    " unsupported.");
+            case MULTI_THREAD -> scheduler = new DiscreteTimeMultiThreadScheduler(endSimulation, nbExecutorThread);
+        }
+        return scheduler;
+    }
+
+    private static Scheduler createRealTimeScheduler(Scheduler.SchedulerType simulationSchedulerType,
+                                                     int nbExecutorThread, long endSimulation, Scheduler scheduler) {
+        switch (simulationSchedulerType) {
+            case MONO_THREAD -> throw new UnsupportedOperationException("Real Time Mono thread simulation" +
+                    " unsupported.");
+            case MULTI_THREAD -> scheduler = new RealTimeMultiThreadScheduler(endSimulation, nbExecutorThread);
+        }
         return scheduler;
     }
 
@@ -453,7 +489,7 @@ public final class SimaSimulation {
      * in the simulation and returns true, else do nothing and returns false.
      *
      * @param environment the environment to add
-     * @return true if the environment has beend added, else false.
+     * @return true if the environment has been added, else false.
      */
     public static boolean addEnvironment(Environment environment) {
         verifySimaSimulationIsRunningAndThrowsException();
