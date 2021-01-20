@@ -2,7 +2,7 @@ package sima.core.simulation.configuration;
 
 import java.util.List;
 
-public class SimaSimulationJSON {
+public class SimaSimulationJson {
 
     // Variables.
 
@@ -10,17 +10,17 @@ public class SimaSimulationJSON {
     private final String timeMode;
     private final String schedulerType;
     private final String simulationSetupClass;
-    private final List<EnvironmentJSON> environments;
-    private final List<ProtocolJSON> protocols;
-    private final List<BehaviorJSON> behaviors;
-    private final List<AgentJSON> agents;
+    private final List<EnvironmentJson> environments;
+    private final List<ProtocolJson> protocols;
+    private final List<BehaviorJson> behaviors;
+    private final List<AgentJson> agents;
     private final List<List<String>> args;
 
     // Constructors.
 
-    public SimaSimulationJSON(int nbThreads, String timeMode, String schedulerType, String simulationSetupClass,
-                              List<EnvironmentJSON> environments, List<ProtocolJSON> protocols, List<BehaviorJSON> behaviors,
-                              List<AgentJSON> agents, List<List<String>> args) {
+    public SimaSimulationJson(int nbThreads, String timeMode, String schedulerType, String simulationSetupClass,
+                              List<EnvironmentJson> environments, List<ProtocolJson> protocols, List<BehaviorJson> behaviors,
+                              List<AgentJson> agents, List<List<String>> args) {
         this.nbThreads = nbThreads;
         this.timeMode = timeMode;
         this.schedulerType = schedulerType;
@@ -67,19 +67,19 @@ public class SimaSimulationJSON {
         return simulationSetupClass;
     }
 
-    public List<EnvironmentJSON> getEnvironments() {
+    public List<EnvironmentJson> getEnvironments() {
         return environments;
     }
 
-    public List<ProtocolJSON> getProtocols() {
+    public List<ProtocolJson> getProtocols() {
         return protocols;
     }
 
-    public List<BehaviorJSON> getBehaviors() {
+    public List<BehaviorJson> getBehaviors() {
         return behaviors;
     }
 
-    public List<AgentJSON> getAgents() {
+    public List<AgentJson> getAgents() {
         return agents;
     }
 

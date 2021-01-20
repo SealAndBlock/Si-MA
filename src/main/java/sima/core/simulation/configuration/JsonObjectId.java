@@ -1,6 +1,6 @@
 package sima.core.simulation.configuration;
 
-public class ObjectIdJSON {
+public class JsonObjectId {
 
     // Variables.
 
@@ -8,7 +8,7 @@ public class ObjectIdJSON {
 
     // Constructors.
 
-    public ObjectIdJSON(String id) {
+    public JsonObjectId(String id) {
         this.id = id;
     }
 

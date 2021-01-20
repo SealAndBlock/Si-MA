@@ -2,7 +2,7 @@ package sima.core.simulation.configuration;
 
 import java.util.List;
 
-public class AgentJSON {
+public class AgentJson implements ArgumentativeJsonObject {
 
     // Variables.
 
@@ -16,7 +16,7 @@ public class AgentJSON {
 
     // Constructors.
 
-    public AgentJSON(String agentClass, String namePattern, int numberToCreate, List<String> behaviors,
+    public AgentJson(String agentClass, String namePattern, int numberToCreate, List<String> behaviors,
                      List<String> protocols, List<String> environments, List<List<String>> args) {
         this.agentClass = agentClass;
         this.namePattern = namePattern;
@@ -68,6 +68,7 @@ public class AgentJSON {
         return environments;
     }
 
+    @Override
     public List<List<String>> getArgs() {
         return args;
     }

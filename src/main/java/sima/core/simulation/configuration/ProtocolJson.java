@@ -3,7 +3,7 @@ package sima.core.simulation.configuration;
 
 import java.util.List;
 
-public class ProtocolJSON extends ObjectIdJSON {
+public class ProtocolJson extends JsonObjectId implements ArgumentativeJsonObject {
 
     // Variables.
 
@@ -13,7 +13,7 @@ public class ProtocolJSON extends ObjectIdJSON {
 
     // Constructors.
 
-    public ProtocolJSON(String id, String tag, String protocolClass, List<List<String>> args) {
+    public ProtocolJson(String id, String tag, String protocolClass, List<List<String>> args) {
         super(id);
         this.tag = tag;
         this.protocolClass = protocolClass;
@@ -41,6 +41,7 @@ public class ProtocolJSON extends ObjectIdJSON {
         return protocolClass;
     }
 
+    @Override
     public List<List<String>> getArgs() {
         return args;
     }
