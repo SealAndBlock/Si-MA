@@ -2,7 +2,7 @@ package sima.core.simulation.configuration;
 
 import java.util.List;
 
-public class EnvironmentJSON extends ObjectIdJSON {
+public class EnvironmentJson extends JsonObjectId implements ArgumentativeJsonObject {
 
     // Variables.
 
@@ -12,7 +12,7 @@ public class EnvironmentJSON extends ObjectIdJSON {
 
     // Constructors.
 
-    public EnvironmentJSON(String id, String name, String environmentClass, List<List<String>> args) {
+    public EnvironmentJson(String id, String name, String environmentClass, List<List<String>> args) {
         super(id);
         this.name = name;
         this.environmentClass = environmentClass;
@@ -40,6 +40,7 @@ public class EnvironmentJSON extends ObjectIdJSON {
         return environmentClass;
     }
 
+    @Override
     public List<List<String>> getArgs() {
         return args;
     }

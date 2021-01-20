@@ -1,19 +1,20 @@
 package sima.core.simulation;
 
+import com.google.gson.JsonSyntaxException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
+import sima.core.behavior.Behavior;
 import sima.core.environment.Environment;
-import sima.core.exception.EnvironmentConstructionException;
-import sima.core.exception.SimaSimulationAlreadyRunningException;
-import sima.core.exception.SimaSimulationFailToStartRunningException;
-import sima.core.exception.SimaSimulationIsNotRunningException;
+import sima.core.exception.*;
 import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 import sima.core.scheduler.multithread.RealTimeMultiThreadScheduler;
+import sima.core.simulation.configuration.*;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -22,14 +23,11 @@ public final class SimaSimulation {
 
     // Static.
 
+    private static final Object LOCK = new Object();
     public static Logger SIMA_LOG = LoggerFactory.getLogger(SimaSimulation.class);
-
     private static SimaSimulation SIMA_SIMULATION;
 
-    private static final Object LOCK = new Object();
-
     // Variables
-
     private Scheduler scheduler;
     private SimulationSchedulerWatcher schedulerWatcher;
 
@@ -45,6 +43,175 @@ public final class SimaSimulation {
     }
 
     // Methods.
+
+    public static void runSimulation(String configurationJsonPath) throws SimaSimulationFailToStartRunningException {
+        SimaSimulationJson simaSimulationJson = parseConfiguration(configurationJsonPath);
+        Map<String, BehaviorJson> mapBehaviors = extractMapBehaviors(simaSimulationJson);
+        Map<String, ProtocolJson> mapProtocols = extractMapProtocols(simaSimulationJson);
+        Map<String, EnvironmentJson> mapEnvironments = extractMapEnvironments(simaSimulationJson);
+        Set<AbstractAgent> agents = createAllAgents(simaSimulationJson, mapBehaviors, mapProtocols, mapEnvironments);
+        Set<Environment> environments = createAllEnvironments(simaSimulationJson);
+    }
+
+    private static Map<String, BehaviorJson> extractMapBehaviors(SimaSimulationJson simaSimulationJson) {
+        // TODO bind behavior names with BehaviorJson
+        return null;
+    }
+
+    private static Map<String, ProtocolJson> extractMapProtocols(SimaSimulationJson simaSimulationJson) {
+        // TODO bind protocols names with ProtocolJson
+        return null;
+    }
+
+    private static Map<String, EnvironmentJson> extractMapEnvironments(SimaSimulationJson simaSimulationJson) {
+        // TODO bind environment names with EnvironmentJson
+        return null;
+    }
+
+    @NotNull
+    private static Set<AbstractAgent> createAllAgents(SimaSimulationJson simaSimulationJson,
+                                                      Map<String, BehaviorJson> mapBehaviors,
+                                                      Map<String, ProtocolJson> mapProtocols,
+                                                      Map<String, EnvironmentJson> mapEnvironments)
+            throws SimaSimulationFailToStartRunningException {
+        Set<AbstractAgent> agentSet = new HashSet<>();
+        for (AgentJson agentJson : simaSimulationJson.getAgents()) {
+            if (agentJson.getNumberToCreate() >= 1) {
+                createAgent(agentJson, agentSet, mapBehaviors, mapProtocols, mapEnvironments);
+            } else {
+                SIMA_LOG.error("Cannot have a number create of agent less or equal to 0");
+                throw new SimaSimulationFailToStartRunningException(new ConfigurationException("Create number of agent negative"));
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param agentJson       the json agent configuration
+     * @param agents          the set where the agent will be added after be created
+     * @param mapBehaviors    the behaviorJson map
+     * @param mapProtocols    the protocolJson map
+     * @param mapEnvironments the environmentJson map
+     * @throws SimaSimulationFailToStartRunningException if exception is thrown during process
+     */
+    private static void createAgent(AgentJson agentJson, Set<AbstractAgent> agents, Map<String, BehaviorJson> mapBehaviors,
+                                    Map<String, ProtocolJson> mapProtocols, Map<String, EnvironmentJson> mapEnvironments)
+            throws SimaSimulationFailToStartRunningException {
+        for (int i = 0; i < agentJson.getNumberToCreate(); i++) {
+            AbstractAgent agent = createAgentAndAddInSet(agents, agentJson, i);
+            associateAgentAndBehaviors(agent, agentJson, mapBehaviors);
+            associateAgentAndProtocol(agent, agentJson, mapProtocols);
+            associateAgentAndEnvironments(agent, agentJson, mapEnvironments);
+        }
+    }
+
+    private static void associateAgentAndBehaviors(AbstractAgent agent, AgentJson agentJson, Map<String, BehaviorJson> mapBehaviors)
+            throws SimaSimulationFailToStartRunningException {
+        for (String behaviorId : agentJson.getBehaviors()) {
+            BehaviorJson behaviorJson = mapBehaviors.get(behaviorId);
+            if (behaviorJson != null) {
+                addBehaviorToAgent(agent, behaviorJson);
+            } else {
+                SIMA_LOG.error("BehaviorId " + behaviorId + " not find");
+                throw new SimaSimulationFailToStartRunningException(new ConfigurationException("BehaviorId " + behaviorId + " not find"));
+            }
+        }
+    }
+
+    private static void addBehaviorToAgent(AbstractAgent agent, BehaviorJson behaviorJson) throws SimaSimulationFailToStartRunningException {
+        try {
+            if (!agent.addBehavior((Class<? extends Behavior>) Class.forName(behaviorJson.getBehaviorClass()), parseArgs(behaviorJson))) {
+                SIMA_LOG.error("Impossible to add behavior to agent " + agent);
+                throw new SimaSimulationFailToStartRunningException(new ConfigurationException("Impossible to add behavior to agent " + agent));
+            }
+        } catch (ClassNotFoundException e) {
+            SIMA_LOG.error("Un found behavior class : " + behaviorJson.getBehaviorClass(), e);
+            throw new SimaSimulationFailToStartRunningException(e);
+        }
+    }
+
+    private static void associateAgentAndProtocol(AbstractAgent agent, AgentJson agentJson, Map<String, ProtocolJson> mapProtocols) {
+        for (String protocolId : agentJson.getBehaviors()) {
+            // TODO
+        }
+    }
+
+    private static void associateAgentAndEnvironments(AbstractAgent agent, AgentJson agentJson, Map<String, EnvironmentJson> mapEnvironments) {
+        for (String environmentId : agentJson.getEnvironments()) {
+            // TODO
+        }
+    }
+
+    @NotNull
+    private static AbstractAgent createAgentAndAddInSet(Set<AbstractAgent> agents, AgentJson agentJson, int i) throws SimaSimulationFailToStartRunningException {
+        AbstractAgent agent;
+        try {
+            agent = createAgent((Class<? extends AbstractAgent>) Class.forName(agentJson.getAgentClass()),
+                    String.format(agentJson.getNamePattern(), i),
+                    i,
+                    parseArgs(agentJson));
+            agents.add(agent);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            SIMA_LOG.error("Fail during trying to construct agent", e);
+            throw new SimaSimulationFailToStartRunningException(e);
+        }
+        return agent;
+    }
+
+    private static AbstractAgent createAgent(Class<? extends AbstractAgent> agentClass, String agentName, int agentNumberId, Map<String, String> args)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Constructor<? extends AbstractAgent> constructor = agentClass.getConstructor(String.class, Integer.class, Map.class);
+        return constructor.newInstance(agentName, agentNumberId, args);
+    }
+
+    @NotNull
+    private static Set<Environment> createAllEnvironments(SimaSimulationJson simulationJSON) throws SimaSimulationFailToStartRunningException {
+        Set<Environment> environments = new HashSet<>();
+        for (EnvironmentJson environmentJSON : simulationJSON.getEnvironments()) {
+            createEnvironmentAndAddInSet(environments, environmentJSON, parseArgs(environmentJSON));
+        }
+        return environments;
+    }
+
+    private static void createEnvironmentAndAddInSet(Set<Environment> environments, EnvironmentJson environmentJSON,
+                                                     Map<String, String> args) throws SimaSimulationFailToStartRunningException {
+        try {
+            Environment environment = createEnvironment(
+                    (Class<? extends Environment>) Class.forName(environmentJSON.getName()),
+                    environmentJSON.getName(),
+                    args.isEmpty() ? null : args);
+            environments.add(environment);
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
+            SIMA_LOG.error("Fail during trying to construct environment", e);
+            throw new SimaSimulationFailToStartRunningException(e);
+        }
+    }
+
+    @NotNull
+    private static SimaSimulationJson parseConfiguration(String configurationJsonPath)
+            throws SimaSimulationFailToStartRunningException {
+        try {
+            return ConfigurationParser.parseConfiguration(configurationJsonPath);
+        } catch (IOException | JsonSyntaxException e) {
+            SIMA_LOG.error("Error during the configuration file parsing.", e);
+            throw new SimaSimulationFailToStartRunningException(e);
+        }
+    }
+
+    private static Map<String, String> parseArgs(ArgumentativeJsonObject argumentativeJsonObject)
+            throws SimaSimulationFailToStartRunningException {
+        Map<String, String> args = new HashMap<>();
+        for (List<String> argsCouple : argumentativeJsonObject.getArgs()) {
+            if (argsCouple.size() == 2) {
+                args.put(Optional.of(argsCouple.get(0)).get(), argsCouple.get(1));
+            } else {
+                SIMA_LOG.error("Wrong format for argument. In Json a args is an array of only 2 values: the args name and its value");
+                throw new SimaSimulationFailToStartRunningException(new ConfigurationException("Wrong Args format"));
+            }
+        }
+        return args.isEmpty() ? null : args;
+    }
 
     /**
      * Try to run a Simulation. All instances of needed to run a simulation must be create and pass in argument. In
@@ -87,8 +254,10 @@ public final class SimaSimulation {
                     killSimulation();
                     throw new SimaSimulationFailToStartRunningException(e);
                 }
-            else
+            else {
+                SIMA_LOG.error("Simulation already running");
                 throw new SimaSimulationFailToStartRunningException(new SimaSimulationAlreadyRunningException());
+            }
         }
     }
 
@@ -312,6 +481,26 @@ public final class SimaSimulation {
 
     /**
      * @param environmentClass the environment class
+     * @param args             environment args
+     * @return a new instance of the specified {@code Environment} class.
+     * @throws NoSuchMethodException     if the environment class does not have the correct constructor
+     * @throws InstantiationException    if the class cannot be instantiate
+     * @throws IllegalAccessException    if the environment constructor is not accessible
+     * @throws InvocationTargetException if the environment construction thrown an exception
+     * @throws NullPointerException      if environmentName is nulls
+     */
+    @NotNull
+    private static Environment createEnvironment(Class<? extends Environment> environmentClass, String environmentName,
+                                                 Map<String, String> args) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        Constructor<? extends Environment> constructor = environmentClass.getConstructor(String.class,
+                Map.class);
+        return constructor.newInstance(Optional.of(environmentName).get(), args);
+    }
+
+    /**
+     * Call the method {@link #createEnvironment(Class, String, Map)} with null arguments.
+     *
+     * @param environmentClass the environment class
      * @return a new instance of the specified {@code Environment} class.
      * @throws NoSuchMethodException     if the environment class does not have the correct constructor
      * @throws InstantiationException    if the class cannot be instantiate
@@ -321,10 +510,9 @@ public final class SimaSimulation {
     @NotNull
     private static Environment createEnvironment(Class<? extends Environment> environmentClass)
             throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Constructor<? extends Environment> constructor = environmentClass.getConstructor(String.class,
-                Map.class);
-        return constructor.newInstance(environmentClass.getName(), null);
+        return createEnvironment(environmentClass, environmentClass.getName(), null);
     }
+
 
     private static @NotNull Scheduler createScheduler(Scheduler.TimeMode simulationTimeMode,
                                                       Scheduler.SchedulerType simulationSchedulerType,
@@ -474,29 +662,6 @@ public final class SimaSimulation {
     }
 
     /**
-     * Finds in the {@link #agentManager} the agent which as the same {@link AgentIdentifier} than the specified agent
-     * identifier.
-     *
-     * @param agentIdentifier the identifier of the wanted agent
-     * @return the agent associate to the identifier, returns null if the agent is not found.
-     * @throws NullPointerException if the agentIdentifier is null.
-     */
-    private AbstractAgent findAgent(AgentIdentifier agentIdentifier) {
-        if (agentIdentifier == null)
-            return null;
-
-        List<AbstractAgent> agents = this.agentManager.getAllAgents();
-        AbstractAgent res = null;
-        for (AbstractAgent agent : agents)
-            if (agent.getAgentIdentifier().equals(agentIdentifier)) {
-                res = agent;
-                break;
-            }
-
-        return res;
-    }
-
-    /**
      * Verifies if the environment name is not already know by the simulation. If it not the case, add the environment
      * in the simulation and returns true, else do nothing and returns false.
      *
@@ -530,17 +695,6 @@ public final class SimaSimulation {
         return SIMA_SIMULATION.findEnvironment(environmentName);
     }
 
-    /**
-     * @param environmentName the environment of the wanted environment
-     * @return the environment of the simulation which has the specified name. If no environment is find, returns null.
-     */
-    private Environment findEnvironment(String environmentName) {
-        if (environmentName == null)
-            return null;
-
-        return this.environments.get(environmentName);
-    }
-
     public static @NotNull Scheduler.TimeMode getTimeMode() {
         verifySimaSimulationIsRunningAndThrowsException();
         return SIMA_SIMULATION.scheduler.getTimeMode();
@@ -558,6 +712,40 @@ public final class SimaSimulation {
     private static void verifySimaSimulationIsRunningAndThrowsException() {
         if (!simaSimulationIsRunning())
             throw new SimaSimulationIsNotRunningException();
+    }
+
+    /**
+     * Finds in the {@link #agentManager} the agent which as the same {@link AgentIdentifier} than the specified agent
+     * identifier.
+     *
+     * @param agentIdentifier the identifier of the wanted agent
+     * @return the agent associate to the identifier, returns null if the agent is not found.
+     * @throws NullPointerException if the agentIdentifier is null.
+     */
+    private AbstractAgent findAgent(AgentIdentifier agentIdentifier) {
+        if (agentIdentifier == null)
+            return null;
+
+        List<AbstractAgent> agents = this.agentManager.getAllAgents();
+        AbstractAgent res = null;
+        for (AbstractAgent agent : agents)
+            if (agent.getAgentIdentifier().equals(agentIdentifier)) {
+                res = agent;
+                break;
+            }
+
+        return res;
+    }
+
+    /**
+     * @param environmentName the environment of the wanted environment
+     * @return the environment of the simulation which has the specified name. If no environment is find, returns null.
+     */
+    private Environment findEnvironment(String environmentName) {
+        if (environmentName == null)
+            return null;
+
+        return this.environments.get(environmentName);
     }
 
     // Inner classes.

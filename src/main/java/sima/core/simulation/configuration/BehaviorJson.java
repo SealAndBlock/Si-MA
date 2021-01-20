@@ -2,7 +2,7 @@ package sima.core.simulation.configuration;
 
 import java.util.List;
 
-public class BehaviorJSON extends ObjectIdJSON {
+public class BehaviorJson extends JsonObjectId implements ArgumentativeJsonObject {
 
     // Variables.
 
@@ -11,7 +11,7 @@ public class BehaviorJSON extends ObjectIdJSON {
 
     // Constructors.
 
-    public BehaviorJSON(String id, String behaviorClass, List<List<String>> args) {
+    public BehaviorJson(String id, String behaviorClass, List<List<String>> args) {
         super(id);
         this.behaviorClass = behaviorClass;
         this.args = args;
@@ -34,6 +34,7 @@ public class BehaviorJSON extends ObjectIdJSON {
         return behaviorClass;
     }
 
+    @Override
     public List<List<String>> getArgs() {
         return args;
     }
