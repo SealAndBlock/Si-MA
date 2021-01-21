@@ -3,11 +3,9 @@ package sima.core.simulation;
 import org.junit.jupiter.api.Test;
 import sima.core.SimaTest;
 import sima.core.agent.AbstractAgent;
-import sima.core.agent.AgentIdentifier;
 import sima.core.agent.AgentTesting;
 import sima.core.environment.Environment;
 import sima.core.environment.EnvironmentTesting;
-import sima.core.environment.event.Event;
 import sima.core.exception.SimaSimulationFailToStartRunningException;
 import sima.core.exception.SimaSimulationIsNotRunningException;
 import sima.core.scheduler.LongTimeExecutableTesting;
@@ -15,7 +13,9 @@ import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.SchedulerWatcherTesting;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,7 +36,6 @@ public class SimaSimulationTest extends SimaTest {
     private static Environment NOT_ADDED_ENVIRONMENT_2;
     private static Set<Environment> ALL_ENVIRONMENTS;
     private static Set<Environment> SAME_NAME_ENVIRONMENT_SET;
-    private static List<Class<? extends Environment>> ENVIRONMENT_CLASS_LIST;
 
     private static SimaWatcherTesting SIMA_WATCHER;
 
@@ -65,9 +64,6 @@ public class SimaSimulationTest extends SimaTest {
         SAME_NAME_ENVIRONMENT_SET = new HashSet<>();
         SAME_NAME_ENVIRONMENT_SET.add(sameNameEnv0);
         SAME_NAME_ENVIRONMENT_SET.add(sameNameEnv1);
-
-        ENVIRONMENT_CLASS_LIST = new ArrayList<>();
-        ENVIRONMENT_CLASS_LIST.add(EnvironmentTesting.class);
 
         SIMA_WATCHER = new SimaWatcherTesting();
 
@@ -226,126 +222,6 @@ public class SimaSimulationTest extends SimaTest {
         } catch (SimaSimulationFailToStartRunningException e) {
             fail(e);
         }
-    }
-
-    @Test
-    public void runSimulationWithNullEnvironmentClassListThrowsException() {
-        assertThrows(SimaSimulationFailToStartRunningException.class,
-                () -> SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME, Scheduler.SchedulerType.MULTI_THREAD,
-                        NB_EXECUTOR_THREAD, END_SIMULATION, null, SimulationSetupTesting.class,
-                        new SchedulerWatcherTesting(), new SimaWatcherTesting()));
-    }
-
-    @Test
-    public void runSimulationWithEmptyEnvironmentClassListThrowsException() {
-        assertThrows(SimaSimulationFailToStartRunningException.class,
-                () -> SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME, Scheduler.SchedulerType.MULTI_THREAD,
-                        NB_EXECUTOR_THREAD, END_SIMULATION, new ArrayList<>(), SimulationSetupTesting.class,
-                        new SchedulerWatcherTesting(), new SimaWatcherTesting()));
-    }
-
-    @Test
-    public void runSimulationWithEnvironmentClassListWhichContainsTwoSameEnvironmentClassesThrowsException() {
-        List<Class<? extends Environment>> environmentClasses = new ArrayList<>();
-        environmentClasses.add(ImpossibleSameNameEnvironment.class);
-        environmentClasses.add(ImpossibleSameNameEnvironment.class);
-
-        assertThrows(SimaSimulationFailToStartRunningException.class,
-                () -> SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME, Scheduler.SchedulerType.MULTI_THREAD,
-                        NB_EXECUTOR_THREAD, END_SIMULATION, environmentClasses, SimulationSetupTesting.class,
-                        new SchedulerWatcherTesting(), new SimaWatcherTesting()));
-    }
-
-    @Test
-    public void runSimulationWithEnvironmentClassListWhichContainsEnvironmentClassesWithNotCorrectConstructorThrowsException() {
-        List<Class<? extends Environment>> environmentClasses = new ArrayList<>();
-        environmentClasses.add(EnvironmentTesting.class);
-        environmentClasses.add(WrongEnvironment.class);
-
-        assertThrows(SimaSimulationFailToStartRunningException.class,
-                () -> SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME, Scheduler.SchedulerType.MULTI_THREAD,
-                        NB_EXECUTOR_THREAD, END_SIMULATION, environmentClasses, SimulationSetupTesting.class,
-                        new SchedulerWatcherTesting(), new SimaWatcherTesting()));
-    }
-
-    @Test
-    public void runSimulationWithEnvironmentClassListWhichContainsDifferentEnvironmentClassesNotFail() {
-        List<Class<? extends Environment>> environmentClasses = new ArrayList<>();
-        environmentClasses.add(EnvironmentTesting.class);
-
-        assertDoesNotThrow(() -> SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME,
-                Scheduler.SchedulerType.MULTI_THREAD, NB_EXECUTOR_THREAD, END_SIMULATION, environmentClasses,
-                SimulationSetupTesting.class, new SchedulerWatcherTesting(), new SimaWatcherTesting()));
-    }
-
-    @Test
-    public void runSimulationWithNullTimeModeThrowsException() {
-        assertThrows(SimaSimulationFailToStartRunningException.class,
-                () -> SimaSimulation.runSimulation(null, Scheduler.SchedulerType.MULTI_THREAD,
-                        NB_EXECUTOR_THREAD, END_SIMULATION, ENVIRONMENT_CLASS_LIST, SimulationSetupTesting.class,
-                        new SchedulerWatcherTesting(), new SimaWatcherTesting()));
-    }
-
-    @Test
-    public void runSimulationWithNullSchedulerTypeThrowsException() {
-        assertThrows(SimaSimulationFailToStartRunningException.class,
-                () -> SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME, null,
-                        NB_EXECUTOR_THREAD, END_SIMULATION, ENVIRONMENT_CLASS_LIST, SimulationSetupTesting.class,
-                        new SchedulerWatcherTesting(), new SimaWatcherTesting()));
-    }
-
-    @Test
-    public void runSimulationWithRealTimeMonoThreadThrowsException() {
-        assertThrows(SimaSimulationFailToStartRunningException.class,
-                () -> SimaSimulation.runSimulation(Scheduler.TimeMode.REAL_TIME, Scheduler.SchedulerType.MONO_THREAD,
-                        NB_EXECUTOR_THREAD, END_SIMULATION, ENVIRONMENT_CLASS_LIST, SimulationSetupTesting.class,
-                        new SchedulerWatcherTesting(), new SimaWatcherTesting()));
-    }
-
-    @Test
-    public void runSimulationWithDiscreteTimeMonoThreadThrowsException() {
-        assertThrows(SimaSimulationFailToStartRunningException.class,
-                () -> SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME, Scheduler.SchedulerType.MONO_THREAD,
-                        NB_EXECUTOR_THREAD, END_SIMULATION, ENVIRONMENT_CLASS_LIST, SimulationSetupTesting.class,
-                        new SchedulerWatcherTesting(), new SimaWatcherTesting()));
-    }
-
-    @Test
-    public void runSimulationWithRealTimeMultiThreadNotFailAndHaveTheCorrectScheduler() {
-        assertDoesNotThrow(() -> SimaSimulation.runSimulation(Scheduler.TimeMode.REAL_TIME, Scheduler.SchedulerType.MULTI_THREAD,
-                NB_EXECUTOR_THREAD, END_SIMULATION, ENVIRONMENT_CLASS_LIST, SimulationSetupWithLongExecutable.class,
-                new SchedulerWatcherTesting(), new SimaWatcherTesting()));
-
-        verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning, () -> {
-            assertEquals(Scheduler.TimeMode.REAL_TIME, SimaSimulation.getScheduler().getTimeMode());
-            assertEquals(Scheduler.SchedulerType.MULTI_THREAD, SimaSimulation.getScheduler().getSchedulerType());
-        });
-    }
-
-    @Test
-    public void runSimulationWithDiscreteTimeMultiThreadNotFailAndHaveTheCorrectScheduler() {
-        assertDoesNotThrow(() -> SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME, Scheduler.SchedulerType.MULTI_THREAD,
-                NB_EXECUTOR_THREAD, END_SIMULATION, ENVIRONMENT_CLASS_LIST, SimulationSetupWithLongExecutable.class,
-                new SchedulerWatcherTesting(), new SimaWatcherTesting()));
-
-        verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning, () -> {
-            assertEquals(Scheduler.TimeMode.DISCRETE_TIME, SimaSimulation.getScheduler().getTimeMode());
-            assertEquals(Scheduler.SchedulerType.MULTI_THREAD, SimaSimulation.getScheduler().getSchedulerType());
-        });
-    }
-
-    @Test
-    public void runSimulationWithNullSchedulerWatcherNotFail() {
-        assertDoesNotThrow(() -> SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME, Scheduler.SchedulerType.MULTI_THREAD,
-                NB_EXECUTOR_THREAD, END_SIMULATION, ENVIRONMENT_CLASS_LIST, SimulationSetupWithLongExecutable.class,
-                null, new SimaWatcherTesting()));
-    }
-
-    @Test
-    public void runSimulationWithNullSimaWatcherNotFail2() {
-        assertDoesNotThrow(() -> SimaSimulation.runSimulation(Scheduler.TimeMode.DISCRETE_TIME, Scheduler.SchedulerType.MULTI_THREAD,
-                NB_EXECUTOR_THREAD, END_SIMULATION, ENVIRONMENT_CLASS_LIST, SimulationSetupWithLongExecutable.class,
-                new SchedulerWatcherTesting(), null));
     }
 
     @Test
@@ -551,98 +427,6 @@ public class SimaSimulationTest extends SimaTest {
     }
 
     // Inner class.
-
-    private static class ImpossibleSameNameEnvironment extends Environment {
-
-        // Constructors.
-
-        public ImpossibleSameNameEnvironment(String environmentName, Map<String, String> args) {
-            super(environmentName, args);
-        }
-
-        // Methods.
-
-        @Override
-        protected void processArgument(Map<String, String> args) {
-
-        }
-
-        @Override
-        protected boolean agentCanBeAccepted(AgentIdentifier abstractAgentIdentifier) {
-            return false;
-        }
-
-        @Override
-        protected void agentIsLeaving(AgentIdentifier leavingAgentIdentifier) {
-
-        }
-
-        @Override
-        protected void sendEventWithNullReceiver(Event event) {
-
-        }
-
-        @Override
-        protected boolean eventCanBeSentTo(AgentIdentifier receiver, Event event) {
-            return false;
-        }
-
-        @Override
-        protected void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event) {
-
-        }
-
-        @Override
-        public void processEvent(Event event) {
-
-        }
-    }
-
-    private static class WrongEnvironment extends Environment {
-
-        // Constructors.
-
-        protected WrongEnvironment() {
-            super("WRONG", null);
-        }
-
-        // Methods.
-
-        @Override
-        protected void processArgument(Map<String, String> args) {
-
-        }
-
-        @Override
-        protected boolean agentCanBeAccepted(AgentIdentifier abstractAgentIdentifier) {
-            return false;
-        }
-
-        @Override
-        protected void agentIsLeaving(AgentIdentifier leavingAgentIdentifier) {
-
-        }
-
-        @Override
-        protected void sendEventWithNullReceiver(Event event) {
-
-        }
-
-        @Override
-        protected boolean eventCanBeSentTo(AgentIdentifier receiver, Event event) {
-            return false;
-        }
-
-        @Override
-        protected void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event) {
-
-        }
-
-        @Override
-        public void processEvent(Event event) {
-
-        }
-    }
 
     private static class WrongSimulationSetup extends SimulationSetup {
 
