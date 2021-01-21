@@ -7,8 +7,8 @@ import java.util.List;
 public interface AgentManager {
 
     /**
-     * Add the {@link AbstractAgent} to the {@link AgentManager}. If the {@code AbstractAgent} is already in the
-     * {@code AgentManager}, nothing is done.
+     * Add the {@link AbstractAgent} to the {@link AgentManager}. If the {@code AbstractAgent} is already in the {@code
+     * AgentManager}, nothing is done.
      *
      * @param agent the agent to add
      * @return true if the {@code AbstractAgent} has been added, else false.

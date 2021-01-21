@@ -23,7 +23,8 @@ public class Message extends Event {
     // Constructors.
 
     /**
-     * Constructs a {@link Message} with a sender sima.core.agent, a receiver sima.core.agent, a sima.core.protocol targeted and a content.
+     * Constructs a {@link Message} with a sender sima.core.agent, a receiver sima.core.agent, a sima.core.protocol
+     * targeted and a content.
      *
      * @param sender           the sima.core.agent sender (cannot be null)
      * @param receiver         the sima.core.agent receiver (can be null)

@@ -11,8 +11,8 @@ import static sima.core.simulation.SimaSimulation.SIMA_LOG;
 /**
  * Represents the sima.core.behavior that an {@link AbstractAgent} can have.
  * <p>
- * All inherited classes of {@link Behavior} must have the same constructor {@link #Behavior(AbstractAgent, Map)}.
- * In that way, it allow the use of java reflexivity.
+ * All inherited classes of {@link Behavior} must have the same constructor {@link #Behavior(AbstractAgent, Map)}. In
+ * that way, it allow the use of java reflexivity.
  */
 public abstract class Behavior {
 
@@ -31,9 +31,9 @@ public abstract class Behavior {
     // Constructors.
 
     /**
-     * Initiate the sima.core.behavior with the instance of the sima.core.agent which will play it and an map of arguments. Verifies if
-     * the specified sima.core.agent can play the sima.core.behavior, if it is not the case, throws a
-     * {@link BehaviorCannotBePlayedByAgentException}.
+     * Initiate the sima.core.behavior with the instance of the sima.core.agent which will play it and an map of
+     * arguments. Verifies if the specified sima.core.agent can play the sima.core.behavior, if it is not the case,
+     * throws a {@link BehaviorCannotBePlayedByAgentException}.
      * <p>
      * All inherited classes of {@link Behavior} must have this constructor with sames arguments of this constructor.
      *
@@ -47,7 +47,7 @@ public abstract class Behavior {
 
         if (!canBePlayedBy(agent))
             throw new BehaviorCannotBePlayedByAgentException("The sima.core.agent : " + agent + " cannot play the " +
-                    "behavior " + getClass().getName());
+                                                                     "behavior " + getClass().getName());
 
         if (args != null)
             processArgument(args);
@@ -79,8 +79,8 @@ public abstract class Behavior {
     public abstract boolean canBePlayedBy(AbstractAgent agent);
 
     /**
-     * Call when the sima.core.agent must start to play the sima.core.behavior. Can be call only one time (no effect after the first call).
-     * You must call the method {@link #stopPlaying()} to be allowed to call again this method.
+     * Call when the sima.core.agent must start to play the sima.core.behavior. Can be call only one time (no effect
+     * after the first call). You must call the method {@link #stopPlaying()} to be allowed to call again this method.
      * <p>
      * To implement the start sima.core.behavior, implement the method {@link #onStartPlaying()}.
      */

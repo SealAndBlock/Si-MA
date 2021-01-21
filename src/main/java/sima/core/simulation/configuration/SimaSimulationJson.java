@@ -19,9 +19,10 @@ public class SimaSimulationJson {
 
     // Constructors.
 
-    public SimaSimulationJson(long endTime, int nbThreads, String timeMode, String schedulerType, String simulationSetupClass,
-                              List<EnvironmentJson> environments, List<ProtocolJson> protocols, List<BehaviorJson> behaviors,
-                              List<AgentJson> agents, List<List<String>> args) {
+    public SimaSimulationJson(long endTime, int nbThreads, String timeMode, String schedulerType,
+                              String simulationSetupClass, List<EnvironmentJson> environments,
+                              List<ProtocolJson> protocols, List<BehaviorJson> behaviors, List<AgentJson> agents,
+                              List<List<String>> args) {
         this.endTime = endTime;
         this.nbThreads = nbThreads;
         this.timeMode = timeMode;
