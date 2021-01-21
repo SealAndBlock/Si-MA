@@ -45,6 +45,10 @@ public final class SimaSimulation {
 
     // Methods.
 
+    /**
+     * @param configurationJsonPath the configuration file path
+     * @throws SimaSimulationFailToStartRunningException if sima simulation does not success to run
+     */
     public static void runSimulation(String configurationJsonPath) throws SimaSimulationFailToStartRunningException {
         SimaSimulationJson simaSimulationJson;
         Set<Environment> allEnvironments;
