@@ -73,15 +73,15 @@ public interface Scheduler {
     boolean isKilled();
 
     /**
-     * Schedule the execution of the {@link Executable}. In other words, schedule the moment when the method
-     * {@link Executable#execute()} is called and execute. The waiting time is the number of time unit that the
-     * scheduler must wait after the call of this method to execute the {@code Executable}. The {@link ScheduleMode}
-     * define if the {@code Executable} will be executed once time or in repeated way or in infinitely way. If the
-     * {@code ScheduleMode} is {@link ScheduleMode#REPEATED}, then the specified nbRepetitions and executionTimeStep are
-     * not ignored.
+     * Schedule the execution of the {@link Executable}. In other words, schedule the moment when the method {@link
+     * Executable#execute()} is called and execute. The waiting time is the number of time unit that the scheduler must
+     * wait after the call of this method to execute the {@code Executable}. The {@link ScheduleMode} define if the
+     * {@code Executable} will be executed once time or in repeated way or in infinitely way. If the {@code
+     * ScheduleMode} is {@link ScheduleMode#REPEATED}, then the specified nbRepetitions and executionTimeStep are not
+     * ignored.
      * <p>
-     * The waitingTime must be greater or equal to 1, it is not possible to schedule an {@code Executable} on the
-     * {@code currentTime}. If it is not the case throws {@link IllegalArgumentException}.
+     * The waitingTime must be greater or equal to 1, it is not possible to schedule an {@code Executable} on the {@code
+     * currentTime}. If it is not the case throws {@link IllegalArgumentException}.
      * <p>
      * The nbRepetitions must be  greater or equal to 1, else throws {@link IllegalArgumentException}.
      * <p>
@@ -93,8 +93,8 @@ public interface Scheduler {
      * @param scheduleMode      the schedule mode
      * @param nbRepetitions     the number of times that the executable will be repeated, only take in account if
      *                          scheduleMode equal {@link ScheduleMode#REPEATED}.
-     * @param executionTimeStep the time between each execution of the executable if the schedule mode is
-     *                          {@link ScheduleMode#REPEATED} (greater or equal to 1 if in repeated mod)
+     * @param executionTimeStep the time between each execution of the executable if the schedule mode is {@link
+     *                          ScheduleMode#REPEATED} (greater or equal to 1 if in repeated mod)
      * @throws IllegalArgumentException if waitingTime, nbRepetitions or executionTimeStep is less than 1.
      */
     void scheduleExecutable(Executable executable, long waitingTime, ScheduleMode scheduleMode, long nbRepetitions,
@@ -104,14 +104,14 @@ public interface Scheduler {
      * Schedule the execution of the {@link Executable} at a specific time in the simulation. In other words, schedule
      * the moment in the simulation when the method {@link Executable#execute()} is called and execute.
      * <p>
-     * If the simulationSpecificTime is less or equal to the {@code currentTime}, throws
-     * {@link IllegalArgumentException}.
+     * If the simulationSpecificTime is less or equal to the {@code currentTime}, throws {@link
+     * IllegalArgumentException}.
      * <p>
      * If the simulationSpecificTime is greater than the end of the simulation, nothing id done.
      * <p>
      * Here the simulationSpecificTime is based on the start of the scheduler. Therefore if the simulationSpecificTime
-     * is equal to 5, it is 5 time unit (or milliseconds if REAL_TIME mode) after the start of the scheduler and not
-     * 5 after the call of this method.
+     * is equal to 5, it is 5 time unit (or milliseconds if REAL_TIME mode) after the start of the scheduler and not 5
+     * after the call of this method.
      * <p>
      * <strong>WARNING!</strong> If the Simulation time mode is
      * {@link TimeMode#REAL_TIME} the unit time use is the millisecond.
@@ -143,8 +143,8 @@ public interface Scheduler {
      * Schedule repeatedly the execution of the {@link Executable}. The time between each execution is the
      * executionTimeStep and the number of repetitions is nbRepetitions
      * <p>
-     * The waitingTime must be greater or equal to 1, it is not possible to schedule an {@code Executable} on the
-     * {@code currentTime}.
+     * The waitingTime must be greater or equal to 1, it is not possible to schedule an {@code Executable} on the {@code
+     * currentTime}.
      * <p>
      * <strong>WARNING!</strong> If the Simulation time mode is
      * {@link TimeMode#REAL_TIME} the unit time use is the millisecond.
@@ -173,27 +173,25 @@ public interface Scheduler {
      * @param executable        the executable to schedule
      * @param waitingTime       the waiting time before begin the schedule of the executable (greater or equal to 1)
      * @param executionTimeStep the time between each execution (greater or equal to 1 if in repeated mod)
-     * @throws IllegalArgumentException if waitingTime or executionTimeStep is less
-     *                                  than 1.
+     * @throws IllegalArgumentException if waitingTime or executionTimeStep is less than 1.
      */
     default void scheduleExecutableInfinitely(Executable executable, long waitingTime, long executionTimeStep) {
         this.scheduleExecutable(executable, waitingTime, ScheduleMode.INFINITE, -1, executionTimeStep);
     }
 
     /**
-     * Schedule the to send of the {@link Event}. In other words, schedule the moment when the method
-     * {@link sima.core.agent.AbstractAgent#processEvent(Event)} of the {@link Event#getReceiver()} agent is called.
-     * Therefore, the specified {@code Event} must have a not null receiver, else throws an
-     * {@link NullPointerException}.
+     * Schedule the to send of the {@link Event}. In other words, schedule the moment when the method {@link
+     * sima.core.agent.AbstractAgent#processEvent(Event)} of the {@link Event#getReceiver()} agent is called. Therefore,
+     * the specified {@code Event} must have a not null receiver, else throws an {@link NullPointerException}.
      * <p>
-     * The waitingTime must be greater or equal to 1, it is not possible to schedule an {@code Executable} on the
-     * {@code currentTime}.
+     * The waitingTime must be greater or equal to 1, it is not possible to schedule an {@code Executable} on the {@code
+     * currentTime}.
      * <p>
      * <strong>WARNING!</strong> If the Simulation time mode is
      * {@link TimeMode#REAL_TIME} the unit time use is the millisecond.
      * <p>
-     * The default implementation suppose that the scheduler is the scheduler of the {@link SimaSimulation} and that
-     * the simulation is running.
+     * The default implementation suppose that the scheduler is the scheduler of the {@link SimaSimulation} and that the
+     * simulation is running.
      *
      * @param event       the event to schedule
      * @param waitingTime the time to wait before send the event (greater or equal to 1 if in repeated mod)
@@ -238,14 +236,12 @@ public interface Scheduler {
     }
 
     /**
-     *
      * @return the Time mode of the Scheduler.
      */
     @NotNull
     TimeMode getTimeMode();
 
     /**
-     *
      * @return the Time mode of the Scheduler
      */
     @NotNull

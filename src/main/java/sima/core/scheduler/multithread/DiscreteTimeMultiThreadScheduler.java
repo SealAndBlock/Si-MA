@@ -32,8 +32,8 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     private final Map<Long, LinkedList<Executable>> mapExecutable;
 
     /**
-     * The runnable which for each step, wait for that all executables of the step has been executed and call
-     * the method {@link #executeNextStep()} to pass to the next step time.
+     * The runnable which for each step, wait for that all executables of the step has been executed and call the method
+     * {@link #executeNextStep()} to pass to the next step time.
      */
     private StepFinishWatcher stepFinishWatcher;
 
@@ -81,7 +81,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         Thread finishExecutionWatcher = new Thread(stepFinishWatcher);
         finishExecutionWatcher.start();
     }
-
 
 
     @Override
@@ -198,18 +197,19 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     /**
      * Add the {@link Executable} in function of the {@link sima.core.scheduler.Scheduler.ScheduleMode}.
      * <p>
-     * If the scheduleMode is equal to {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED} or
-     * {@link sima.core.scheduler.Scheduler.ScheduleMode#INFINITE}, the executable is add the number of times that it
-     * must be added. It is the same instance which is added at each times, there is no copy of the {@code Executable}.
+     * If the scheduleMode is equal to {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED} or {@link
+     * sima.core.scheduler.Scheduler.ScheduleMode#INFINITE}, the executable is add the number of times that it must be
+     * added. It is the same instance which is added at each times, there is no copy of the {@code Executable}.
      *
      * @param executable    the executable to add
      * @param waitingTime   the waiting time before execute the action
      * @param scheduleMode  the schedule mode
-     * @param nbRepetitions the number of times that the action must be repeated if the
-     *                      {@link sima.core.scheduler.Scheduler.ScheduleMode} is equal to
-     *                      {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED}
+     * @param nbRepetitions the number of times that the action must be repeated if the {@link
+     *                      sima.core.scheduler.Scheduler.ScheduleMode} is equal to {@link
+     *                      sima.core.scheduler.Scheduler.ScheduleMode#REPEATED}
      */
-    private void addExecutableWithScheduleMode(Executable executable, long waitingTime, Scheduler.ScheduleMode scheduleMode,
+    private void addExecutableWithScheduleMode(Executable executable, long waitingTime,
+                                               Scheduler.ScheduleMode scheduleMode,
                                                long nbRepetitions, long executionTimeStep) {
         switch (scheduleMode) {
             case ONCE -> addExecutableAtTime(executable, currentTime + waitingTime);
@@ -239,7 +239,8 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         }
     }
 
-    private void addRepeatedExecutable(Executable executable, long waitingTime, long nbRepetitions, long executionTimeStep) {
+    private void addRepeatedExecutable(Executable executable, long waitingTime, long nbRepetitions,
+                                       long executionTimeStep) {
         long time = currentTime + waitingTime;
         for (int i = 0; i < nbRepetitions; i++) {
             addExecutableAtTime(executable, time);
@@ -362,7 +363,8 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         }
 
         /**
-         * @return true if all {@link DiscreteTimeExecutorThread} in {@link #executorThreadList} have finished, else false.
+         * @return true if all {@link DiscreteTimeExecutorThread} in {@link #executorThreadList} have finished, else
+         * false.
          */
         private boolean allExecutionsFinished() {
             for (ExecutorThread discreteTimeExecutorThread : scheduler.executorThreadList)

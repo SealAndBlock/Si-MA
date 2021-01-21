@@ -4,8 +4,8 @@ import java.util.Optional;
 
 /**
  * Allows a {@link Protocol} to define several methods which can be control by the {@link ProtocolManipulator}. In that
- * way, it is possible to change the sima.core.behavior of a sima.core.protocol only by changing is current sima.core.protocol manipulator and not by
- * reimplement all the sima.core.protocol.
+ * way, it is possible to change the sima.core.behavior of a sima.core.protocol only by changing is current
+ * sima.core.protocol manipulator and not by reimplement all the sima.core.protocol.
  */
 public abstract class ProtocolManipulator {
 
@@ -19,7 +19,8 @@ public abstract class ProtocolManipulator {
     // Constructors.
 
     /**
-     * Constructs a {@link ProtocolManipulator} with the instance of the the sima.core.protocol which is manipulated by him.
+     * Constructs a {@link ProtocolManipulator} with the instance of the the sima.core.protocol which is manipulated by
+     * him.
      *
      * @param manipulatedProtocol the new manipulated sima.core.protocol (must be not null)
      * @throws NullPointerException if the manipulated sima.core.protocol is null
@@ -33,8 +34,7 @@ public abstract class ProtocolManipulator {
     /**
      * Reset the state of the {@link ProtocolManipulator}.
      * <p>
-     * Use when the {@link #manipulatedProtocol} is changed in the method
-     * {@link Protocol#setProtocolManipulator(ProtocolManipulator)}.
+     * Use when the {@link #manipulatedProtocol} is changed in the method {@link Protocol#setProtocolManipulator(ProtocolManipulator)}.
      */
     public abstract void resetState();
 
@@ -59,7 +59,8 @@ public abstract class ProtocolManipulator {
         // Constructors.
 
         /**
-         * Constructs a {@link ProtocolManipulator} with the instance of the the sima.core.protocol which is manipulated by him.
+         * Constructs a {@link ProtocolManipulator} with the instance of the the sima.core.protocol which is manipulated
+         * by him.
          *
          * @param manipulatedProtocol the new manipulated sima.core.protocol (must be not null)
          * @throws NullPointerException if the manipulated sima.core.protocol is null

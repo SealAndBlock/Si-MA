@@ -22,15 +22,15 @@ public class ConfigurationParser {
      * @throws IOException         for relative problems to the file path
      * @throws JsonSyntaxException if relative problems to the json syntax
      */
-    public static @NotNull SimaSimulationJson parseConfiguration(String configurationJsonPath) throws IOException,
-            JsonSyntaxException {
+    public static @NotNull SimaSimulationJson parseConfiguration(String configurationJsonPath)
+            throws IOException, JsonSyntaxException {
         final Gson gson = createGson();
         return getSimSimulationJSONFromFile(configurationJsonPath, gson);
     }
 
     private @NotNull
-    static SimaSimulationJson getSimSimulationJSONFromFile(String filePath, Gson gson) throws IOException,
-            JsonSyntaxException {
+    static SimaSimulationJson getSimSimulationJSONFromFile(String filePath, Gson gson)
+            throws IOException, JsonSyntaxException {
         try (JsonReader reader = new JsonReader(new FileReader(filePath))) {
             return gson.fromJson(reader, SimaSimulationJson.class);
         }
