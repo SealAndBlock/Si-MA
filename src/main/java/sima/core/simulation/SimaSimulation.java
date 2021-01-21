@@ -1,12 +1,10 @@
 package sima.core.simulation;
 
-import com.google.gson.JsonSyntaxException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
-import sima.core.behavior.Behavior;
 import sima.core.environment.Environment;
 import sima.core.exception.*;
 import sima.core.scheduler.Scheduler;
@@ -45,46 +43,75 @@ public final class SimaSimulation {
     // Methods.
 
     public static void runSimulation(String configurationJsonPath) throws SimaSimulationFailToStartRunningException {
-        SimaSimulationJson simaSimulationJson = parseConfiguration(configurationJsonPath);
-        Map<String, BehaviorJson> mapBehaviors = extractMapBehaviors(simaSimulationJson);
-        Map<String, ProtocolJson> mapProtocols = extractMapProtocols(simaSimulationJson);
-        Map<String, EnvironmentJson> mapEnvironments = extractMapEnvironments(simaSimulationJson);
-        Set<AbstractAgent> agents = createAllAgents(simaSimulationJson, mapBehaviors, mapProtocols, mapEnvironments);
-        Set<Environment> environments = createAllEnvironments(simaSimulationJson);
+        Set<Environment> environments;
+        Set<AbstractAgent> agents;
+        Map<String, BehaviorJson> mapBehaviors;
+        Map<String, ProtocolJson> mapProtocols;
+        Map<String, Environment> mapEnvironments = new HashMap<>();
+        Scheduler scheduler;
+
+        try {
+            SimaSimulationJson simaSimulationJson = parseConfiguration(configurationJsonPath);
+            environments = createAllEnvironments(simaSimulationJson, mapEnvironments);
+            mapBehaviors = extractMapBehaviors(simaSimulationJson);
+            mapProtocols = extractMapProtocols(simaSimulationJson);
+            agents = createAllAgents(simaSimulationJson, mapBehaviors, mapProtocols, mapEnvironments);
+        } catch (Exception e) {
+            SIMA_LOG.error("Fail parse SimaSimulation Json configuration file " + configurationJsonPath, e);
+            throw new SimaSimulationFailToStartRunningException(e);
+        }
     }
 
-    private static Map<String, BehaviorJson> extractMapBehaviors(SimaSimulationJson simaSimulationJson) {
-        // TODO bind behavior names with BehaviorJson
-        return null;
+    private static Map<String, BehaviorJson> extractMapBehaviors(SimaSimulationJson simaSimulationJson) throws ConfigurationException {
+        Map<String, BehaviorJson> mapBehaviors = new HashMap<>();
+        for (BehaviorJson behaviorJson : simaSimulationJson.getBehaviors()) {
+            mapBehaviors.put(Optional.ofNullable(behaviorJson.getId()).orElseThrow(() -> new ConfigurationException("BehaviorId cannot be null")), behaviorJson);
+        }
+        return mapBehaviors;
     }
 
-    private static Map<String, ProtocolJson> extractMapProtocols(SimaSimulationJson simaSimulationJson) {
-        // TODO bind protocols names with ProtocolJson
-        return null;
+    private static Map<String, ProtocolJson> extractMapProtocols(SimaSimulationJson simaSimulationJson) throws ConfigurationException {
+        Map<String, ProtocolJson> mapProtocols = new HashMap<>();
+        for (ProtocolJson protocolJson : simaSimulationJson.getProtocols()) {
+            mapProtocols.put(Optional.ofNullable(protocolJson.getId()).orElseThrow(() -> new ConfigurationException("ProtocolId cannot be null")), protocolJson);
+        }
+        return mapProtocols;
     }
 
-    private static Map<String, EnvironmentJson> extractMapEnvironments(SimaSimulationJson simaSimulationJson) {
-        // TODO bind environment names with EnvironmentJson
-        return null;
-    }
-
-    @NotNull
-    private static Set<AbstractAgent> createAllAgents(SimaSimulationJson simaSimulationJson,
+    /**
+     * Create all agents instance and bind with it all environments, behaviors and protocols which it needs.
+     * @param simaSimulationJson the simaSimulationJson
+     * @param mapBehaviors the map behaviors
+     * @param mapProtocols the map protocols
+     * @param mapEnvironments the map environments
+     * @return a set which contains all instances of agents created from the configuration file.
+     */
+    private static @NotNull  Set<AbstractAgent> createAllAgents(SimaSimulationJson simaSimulationJson,
                                                       Map<String, BehaviorJson> mapBehaviors,
                                                       Map<String, ProtocolJson> mapProtocols,
-                                                      Map<String, EnvironmentJson> mapEnvironments)
-            throws SimaSimulationFailToStartRunningException {
+                                                      Map<String, Environment> mapEnvironments)
+            throws NoSuchMethodException, InstantiationException,
+            ConfigurationException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+
         Set<AbstractAgent> agentSet = new HashSet<>();
         for (AgentJson agentJson : simaSimulationJson.getAgents()) {
-            if (agentJson.getNumberToCreate() >= 1) {
-                createAgent(agentJson, agentSet, mapBehaviors, mapProtocols, mapEnvironments);
-            } else {
-                SIMA_LOG.error("Cannot have a number create of agent less or equal to 0");
-                throw new SimaSimulationFailToStartRunningException(new ConfigurationException("Create number of agent negative"));
-            }
+            verifyAgentNumberToCreate(agentJson.getNumberToCreate());
+            createAgent(agentJson, agentSet, mapBehaviors, mapProtocols, mapEnvironments);
         }
 
         return null;
+    }
+
+    /**
+     * Verifies if the numberToCreate specified is greater or equal to 1. If it is not the case, throws an
+     * {@link ConfigurationException}, else nothing is done.
+     *
+     * @param numberToCreate the numberToCreate to verify
+     * @throws ConfigurationException if numberToCreate is equal or less to 0.
+     */
+    private static void verifyAgentNumberToCreate(int numberToCreate) throws ConfigurationException {
+        if (numberToCreate < 1)
+            throw new ConfigurationException("Cannot have a number create of agent less or equal to 0");
     }
 
     /**
@@ -92,12 +119,13 @@ public final class SimaSimulation {
      * @param agents          the set where the agent will be added after be created
      * @param mapBehaviors    the behaviorJson map
      * @param mapProtocols    the protocolJson map
-     * @param mapEnvironments the environmentJson map
-     * @throws SimaSimulationFailToStartRunningException if exception is thrown during process
+     * @param mapEnvironments the environment map
      */
     private static void createAgent(AgentJson agentJson, Set<AbstractAgent> agents, Map<String, BehaviorJson> mapBehaviors,
-                                    Map<String, ProtocolJson> mapProtocols, Map<String, EnvironmentJson> mapEnvironments)
-            throws SimaSimulationFailToStartRunningException {
+                                    Map<String, ProtocolJson> mapProtocols, Map<String, Environment> mapEnvironments)
+            throws NoSuchMethodException, InvocationTargetException,
+            InstantiationException, IllegalAccessException, ConfigurationException, ClassNotFoundException {
+
         for (int i = 0; i < agentJson.getNumberToCreate(); i++) {
             AbstractAgent agent = createAgentAndAddInSet(agents, agentJson, i);
             associateAgentAndBehaviors(agent, agentJson, mapBehaviors);
@@ -107,107 +135,130 @@ public final class SimaSimulation {
     }
 
     private static void associateAgentAndBehaviors(AbstractAgent agent, AgentJson agentJson, Map<String, BehaviorJson> mapBehaviors)
-            throws SimaSimulationFailToStartRunningException {
+            throws ConfigurationException, ClassNotFoundException {
+
         for (String behaviorId : agentJson.getBehaviors()) {
-            BehaviorJson behaviorJson = mapBehaviors.get(behaviorId);
-            if (behaviorJson != null) {
-                addBehaviorToAgent(agent, behaviorJson);
-            } else {
-                SIMA_LOG.error("BehaviorId " + behaviorId + " not find");
-                throw new SimaSimulationFailToStartRunningException(new ConfigurationException("BehaviorId " + behaviorId + " not find"));
-            }
+            BehaviorJson behaviorJson = Optional.ofNullable(mapBehaviors.get(behaviorId))
+                    .orElseThrow(() -> new ConfigurationException("BehaviorId " + behaviorId + " not found"));
+            addBehaviorToAgent(agent, behaviorJson);
         }
     }
 
-    private static void addBehaviorToAgent(AbstractAgent agent, BehaviorJson behaviorJson) throws SimaSimulationFailToStartRunningException {
-        try {
-            if (!agent.addBehavior((Class<? extends Behavior>) Class.forName(behaviorJson.getBehaviorClass()), parseArgs(behaviorJson))) {
-                SIMA_LOG.error("Impossible to add behavior to agent " + agent);
-                throw new SimaSimulationFailToStartRunningException(new ConfigurationException("Impossible to add behavior to agent " + agent));
-            }
-        } catch (ClassNotFoundException e) {
-            SIMA_LOG.error("Un found behavior class : " + behaviorJson.getBehaviorClass(), e);
-            throw new SimaSimulationFailToStartRunningException(e);
-        }
+    private static void addBehaviorToAgent(AbstractAgent agent, BehaviorJson behaviorJson)
+            throws ClassNotFoundException, ConfigurationException {
+
+        if (!agent.addBehavior(extractClassForName(behaviorJson.getBehaviorClass()), parseArgs(behaviorJson)))
+            throw new ConfigurationException("Unable to add behavior " + behaviorJson.getBehaviorClass() + " to agent " + agent);
     }
 
-    private static void associateAgentAndProtocol(AbstractAgent agent, AgentJson agentJson, Map<String, ProtocolJson> mapProtocols) {
+    private static void associateAgentAndProtocol(AbstractAgent agent, AgentJson agentJson, Map<String, ProtocolJson> mapProtocols)
+            throws ConfigurationException, ClassNotFoundException {
+
         for (String protocolId : agentJson.getBehaviors()) {
-            // TODO
+            ProtocolJson protocolJson = Optional.ofNullable(mapProtocols.get(protocolId))
+                    .orElseThrow(() -> new ConfigurationException("ProtocolId " + protocolId + " not found"));
+            addProtocolToAgent(agent, protocolJson);
         }
     }
 
-    private static void associateAgentAndEnvironments(AbstractAgent agent, AgentJson agentJson, Map<String, EnvironmentJson> mapEnvironments) {
+    private static void addProtocolToAgent(AbstractAgent agent, ProtocolJson protocolJson)
+            throws ConfigurationException, ClassNotFoundException {
+
+        if (!agent.addProtocol(extractClassForName(protocolJson.getProtocolClass()), protocolJson.getTag(), parseArgs(protocolJson)))
+            throw new ConfigurationException("Unable to add protocol " + protocolJson.getProtocolClass() + " to agent " + agent);
+    }
+
+    private static void associateAgentAndEnvironments(AbstractAgent agent, AgentJson agentJson, Map<String, Environment> mapEnvironments)
+            throws ConfigurationException {
+
         for (String environmentId : agentJson.getEnvironments()) {
-            // TODO
+            Environment environment = Optional.ofNullable(mapEnvironments.get(environmentId))
+                    .orElseThrow(() -> new ConfigurationException("EnvironmentId " + environmentId + " not found"));
+            agentJoinEnvironment(agent, environment);
+        }
+    }
+
+    private static void agentJoinEnvironment(AbstractAgent agent, Environment environment) throws ConfigurationException {
+        if (!agent.joinEnvironment(environment)) {
+            throw new ConfigurationException("Agent " + agent + " unable to join the Environment " + environment);
         }
     }
 
     @NotNull
-    private static AbstractAgent createAgentAndAddInSet(Set<AbstractAgent> agents, AgentJson agentJson, int i) throws SimaSimulationFailToStartRunningException {
-        AbstractAgent agent;
-        try {
-            agent = createAgent((Class<? extends AbstractAgent>) Class.forName(agentJson.getAgentClass()),
-                    String.format(agentJson.getNamePattern(), i),
-                    i,
-                    parseArgs(agentJson));
-            agents.add(agent);
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
-            SIMA_LOG.error("Fail during trying to construct agent", e);
-            throw new SimaSimulationFailToStartRunningException(e);
-        }
+    private static AbstractAgent createAgentAndAddInSet(Set<AbstractAgent> agents, AgentJson agentJson, int i)
+            throws ClassNotFoundException, ConfigurationException, InvocationTargetException, NoSuchMethodException,
+            InstantiationException, IllegalAccessException {
+
+        AbstractAgent agent = createAgent(extractClassForName(agentJson.getAgentClass()), String.format(agentJson.getNamePattern(), i), i, parseArgs(agentJson));
+        addAgentInAgentSet(agents, agent);
         return agent;
     }
 
-    private static AbstractAgent createAgent(Class<? extends AbstractAgent> agentClass, String agentName, int agentNumberId, Map<String, String> args)
+    private static void addAgentInAgentSet(Set<AbstractAgent> agents, AbstractAgent agent) throws ConfigurationException {
+        if (!agents.add(agent))
+            throw new ConfigurationException("Fail to add agent is agent set -> Two agent with same hashCode. Agent not added = " + agent);
+    }
+
+    private static @NotNull AbstractAgent createAgent(Class<? extends AbstractAgent> agentClass, String agentName,
+                                                      int agentNumberId, Map<String, String> args)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+
         Constructor<? extends AbstractAgent> constructor = agentClass.getConstructor(String.class, Integer.class, Map.class);
         return constructor.newInstance(agentName, agentNumberId, args);
     }
 
+    /**
+     * Create all instance of all environments define in the Json configuration file and in the same way, fill the
+     * specified mapEnvironment by mapping EnvironmentId with the Environment instance.
+     *
+     * @param simulationJson  the simulationJson
+     * @param mapEnvironments the map of environments which will maps "IdEnvironment" -> "Environment"
+     * @return a set which contains all instances of {@link Environment}.
+     */
     @NotNull
-    private static Set<Environment> createAllEnvironments(SimaSimulationJson simulationJSON) throws SimaSimulationFailToStartRunningException {
+    private static Set<Environment> createAllEnvironments(SimaSimulationJson simulationJson, Map<String, Environment> mapEnvironments)
+            throws ConfigurationException, ClassNotFoundException, NoSuchMethodException, InstantiationException,
+            IllegalAccessException, InvocationTargetException {
+
         Set<Environment> environments = new HashSet<>();
-        for (EnvironmentJson environmentJSON : simulationJSON.getEnvironments()) {
-            createEnvironmentAndAddInSet(environments, environmentJSON, parseArgs(environmentJSON));
+        for (EnvironmentJson environmentJson : simulationJson.getEnvironments()) {
+            Environment environment = createEnvironmentAndAddInSet(environments, environmentJson, parseArgs(environmentJson));
+            mapEnvironments.put(Optional.ofNullable(environmentJson.getId()).orElseThrow(() -> new ConfigurationException("EnvironmentId cannot be null")), environment);
         }
         return environments;
     }
 
-    private static void createEnvironmentAndAddInSet(Set<Environment> environments, EnvironmentJson environmentJSON,
-                                                     Map<String, String> args) throws SimaSimulationFailToStartRunningException {
-        try {
-            Environment environment = createEnvironment(
-                    (Class<? extends Environment>) Class.forName(environmentJSON.getName()),
-                    environmentJSON.getName(),
-                    args.isEmpty() ? null : args);
-            environments.add(environment);
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
-            SIMA_LOG.error("Fail during trying to construct environment", e);
-            throw new SimaSimulationFailToStartRunningException(e);
-        }
+    private static Environment createEnvironmentAndAddInSet(Set<Environment> environments, EnvironmentJson environmentJson,
+                                                            Map<String, String> args)
+            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException,
+            IllegalAccessException {
+
+        Environment environment = createEnvironment(
+                extractClassForName(environmentJson.getName()),
+                environmentJson.getName(),
+                args.isEmpty() ? null : args);
+        environments.add(environment);
+        return environment;
+    }
+
+    private static <T> Class<? extends T> extractClassForName(String className) throws ClassNotFoundException {
+        return (Class<? extends T>) Class.forName(className);
     }
 
     @NotNull
-    private static SimaSimulationJson parseConfiguration(String configurationJsonPath)
-            throws SimaSimulationFailToStartRunningException {
-        try {
-            return ConfigurationParser.parseConfiguration(configurationJsonPath);
-        } catch (IOException | JsonSyntaxException e) {
-            SIMA_LOG.error("Error during the configuration file parsing.", e);
-            throw new SimaSimulationFailToStartRunningException(e);
-        }
+    private static SimaSimulationJson parseConfiguration(String configurationJsonPath) throws IOException {
+        return ConfigurationParser.parseConfiguration(configurationJsonPath);
     }
 
     private static Map<String, String> parseArgs(ArgumentativeJsonObject argumentativeJsonObject)
-            throws SimaSimulationFailToStartRunningException {
+            throws ConfigurationException {
+
         Map<String, String> args = new HashMap<>();
         for (List<String> argsCouple : argumentativeJsonObject.getArgs()) {
             if (argsCouple.size() == 2) {
                 args.put(Optional.of(argsCouple.get(0)).get(), argsCouple.get(1));
             } else {
-                SIMA_LOG.error("Wrong format for argument. In Json a args is an array of only 2 values: the args name and its value");
-                throw new SimaSimulationFailToStartRunningException(new ConfigurationException("Wrong Args format"));
+                throw new ConfigurationException("Wrong format for argument. In Json a args is an array of only 2 values: the args name and its value");
             }
         }
         return args.isEmpty() ? null : args;
