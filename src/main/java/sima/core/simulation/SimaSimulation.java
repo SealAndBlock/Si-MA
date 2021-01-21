@@ -43,23 +43,34 @@ public final class SimaSimulation {
     // Methods.
 
     public static void runSimulation(String configurationJsonPath) throws SimaSimulationFailToStartRunningException {
-        Set<Environment> environments;
-        Set<AbstractAgent> agents;
+        SimaSimulationJson simaSimulationJson;
+        Set<Environment> allEnvironments;
+        Set<AbstractAgent> allAgents;
         Map<String, BehaviorJson> mapBehaviors;
         Map<String, ProtocolJson> mapProtocols;
         Map<String, Environment> mapEnvironments = new HashMap<>();
         Scheduler scheduler;
+        Class<? extends SimulationSetup> simulationSetupClass;
 
         try {
-            SimaSimulationJson simaSimulationJson = parseConfiguration(configurationJsonPath);
-            environments = createAllEnvironments(simaSimulationJson, mapEnvironments);
+            simaSimulationJson = parseConfiguration(configurationJsonPath);
+            allEnvironments = createAllEnvironments(simaSimulationJson, mapEnvironments);
             mapBehaviors = extractMapBehaviors(simaSimulationJson);
             mapProtocols = extractMapProtocols(simaSimulationJson);
-            agents = createAllAgents(simaSimulationJson, mapBehaviors, mapProtocols, mapEnvironments);
+            allAgents = createAllAgents(simaSimulationJson, mapBehaviors, mapProtocols, mapEnvironments);
+            scheduler = createScheduler(
+                    Scheduler.TimeMode.valueOf(simaSimulationJson.getTimeMode()),
+                    Scheduler.SchedulerType.valueOf(simaSimulationJson.getSchedulerType()),
+                    simaSimulationJson.getNbThreads(),
+                    simaSimulationJson.getEndTime(),
+                    (Scheduler.SchedulerWatcher) null);
+            simulationSetupClass = extractClassForName(simaSimulationJson.getSimulationSetupClass());
         } catch (Exception e) {
             SIMA_LOG.error("Fail parse SimaSimulation Json configuration file " + configurationJsonPath, e);
             throw new SimaSimulationFailToStartRunningException(e);
         }
+
+        runSimulation(scheduler, allAgents, allEnvironments, simulationSetupClass, null);
     }
 
     private static Map<String, BehaviorJson> extractMapBehaviors(SimaSimulationJson simaSimulationJson) throws ConfigurationException {
@@ -80,16 +91,17 @@ public final class SimaSimulation {
 
     /**
      * Create all agents instance and bind with it all environments, behaviors and protocols which it needs.
+     *
      * @param simaSimulationJson the simaSimulationJson
-     * @param mapBehaviors the map behaviors
-     * @param mapProtocols the map protocols
-     * @param mapEnvironments the map environments
+     * @param mapBehaviors       the map behaviors
+     * @param mapProtocols       the map protocols
+     * @param mapEnvironments    the map environments
      * @return a set which contains all instances of agents created from the configuration file.
      */
-    private static @NotNull  Set<AbstractAgent> createAllAgents(SimaSimulationJson simaSimulationJson,
-                                                      Map<String, BehaviorJson> mapBehaviors,
-                                                      Map<String, ProtocolJson> mapProtocols,
-                                                      Map<String, Environment> mapEnvironments)
+    private static @NotNull Set<AbstractAgent> createAllAgents(SimaSimulationJson simaSimulationJson,
+                                                               Map<String, BehaviorJson> mapBehaviors,
+                                                               Map<String, ProtocolJson> mapProtocols,
+                                                               Map<String, Environment> mapEnvironments)
             throws NoSuchMethodException, InstantiationException,
             ConfigurationException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
 

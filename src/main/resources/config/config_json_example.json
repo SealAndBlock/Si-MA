@@ -1,7 +1,8 @@
 {
+  "endTime": 10000,
   "nbThreads": 8,
-  "timeMode": "DISCRETE",
-  "schedulerType": "MULTI",
+  "timeMode": "DISCRETE_TIME",
+  "schedulerType": "MULTI_THREAD",
   "simulationSetupClass": "sima.core.simulation.SimulationSetupSimple",
   "environments": [
     {

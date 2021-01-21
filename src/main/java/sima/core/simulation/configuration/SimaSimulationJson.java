@@ -6,6 +6,7 @@ public class SimaSimulationJson {
 
     // Variables.
 
+    private final long endTime;
     private final int nbThreads;
     private final String timeMode;
     private final String schedulerType;
@@ -18,9 +19,10 @@ public class SimaSimulationJson {
 
     // Constructors.
 
-    public SimaSimulationJson(int nbThreads, String timeMode, String schedulerType, String simulationSetupClass,
+    public SimaSimulationJson(long endTime, int nbThreads, String timeMode, String schedulerType, String simulationSetupClass,
                               List<EnvironmentJson> environments, List<ProtocolJson> protocols, List<BehaviorJson> behaviors,
                               List<AgentJson> agents, List<List<String>> args) {
+        this.endTime = endTime;
         this.nbThreads = nbThreads;
         this.timeMode = timeMode;
         this.schedulerType = schedulerType;
@@ -50,6 +52,10 @@ public class SimaSimulationJson {
     }
 
     // Getters and Setters.
+
+    public long getEndTime() {
+        return endTime;
+    }
 
     public int getNbThreads() {
         return nbThreads;
