@@ -29,6 +29,7 @@ public final class SimaSimulation {
     private static SimaSimulation SIMA_SIMULATION;
 
     // Variables
+
     private Scheduler scheduler;
     private SimulationSchedulerWatcher schedulerWatcher;
 
