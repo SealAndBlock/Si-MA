@@ -2,15 +2,15 @@
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
 
-name: sima.core build/test on all branches
+name: sima.core build/test on all branches excepted master
 
 on:
   push:
-    branches: [ "*" ]
+    branches: [ "*", "!master" ]
 
 jobs:
   build-test-deploy:
-    name: Build-Test sima.core on all branches
+    name: Build-Test sima.core on all branches excepted master
     runs-on: ubuntu-latest
 
     steps:
