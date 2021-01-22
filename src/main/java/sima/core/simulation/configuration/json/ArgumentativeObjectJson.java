@@ -1,8 +1,8 @@
-package sima.core.simulation.configuration;
+package sima.core.simulation.configuration.json;
 
 import java.util.List;
 
-public interface ArgumentativeJsonObject {
+public interface ArgumentativeObjectJson {
 
     /**
      * In Json configuration, argument of an object are an array of array. Seconds arrays are array which must contains

@@ -1,9 +1,9 @@
-package sima.core.simulation.configuration;
+package sima.core.simulation.configuration.json;
 
 
 import java.util.List;
 
-public class ProtocolJson extends JsonObjectId implements ArgumentativeJsonObject {
+public class ProtocolJson extends ObjectIdJson implements ArgumentativeObjectJson {
 
     // Variables.
 
@@ -24,7 +24,7 @@ public class ProtocolJson extends JsonObjectId implements ArgumentativeJsonObjec
 
     @Override
     public String toString() {
-        return "ProtocolJSON{" +
+        return "ProtocolJson {" +
                 "tag='" + tag + '\'' +
                 ", protocolClass='" + protocolClass + '\'' +
                 ", args=" + args +

@@ -1,8 +1,8 @@
-package sima.core.simulation.configuration;
+package sima.core.simulation.configuration.json;
 
 import java.util.List;
 
-public class BehaviorJson extends JsonObjectId implements ArgumentativeJsonObject {
+public class BehaviorJson extends ObjectIdJson implements ArgumentativeObjectJson {
 
     // Variables.
 
@@ -21,7 +21,7 @@ public class BehaviorJson extends JsonObjectId implements ArgumentativeJsonObjec
 
     @Override
     public String toString() {
-        return "BehaviorJSON{" +
+        return "BehaviorJson {" +
                 "id=" + getId() +
                 ", behaviorClass='" + behaviorClass + '\'' +
                 ", args=" + args +

@@ -1,6 +1,6 @@
-package sima.core.simulation.configuration;
+package sima.core.simulation.configuration.json;
 
-public class JsonObjectId {
+public class ObjectIdJson {
 
     // Variables.
 
@@ -8,7 +8,7 @@ public class JsonObjectId {
 
     // Constructors.
 
-    public JsonObjectId(String id) {
+    public ObjectIdJson(String id) {
         this.id = id;
     }
 
@@ -16,7 +16,7 @@ public class JsonObjectId {
 
     @Override
     public String toString() {
-        return "ObjectIdJSON{" +
+        return "ObjectIdJson {" +
                 "id='" + id + '\'' +
                 '}';
     }

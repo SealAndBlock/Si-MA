@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import org.jetbrains.annotations.NotNull;
+import sima.core.simulation.configuration.json.SimaSimulationJson;
 
 import java.io.FileReader;
 import java.io.IOException;

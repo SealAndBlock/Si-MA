@@ -1,8 +1,8 @@
-package sima.core.simulation.configuration;
+package sima.core.simulation.configuration.json;
 
 import java.util.List;
 
-public class EnvironmentJson extends JsonObjectId implements ArgumentativeJsonObject {
+public class EnvironmentJson extends ObjectIdJson implements ArgumentativeObjectJson {
 
     // Variables.
 
@@ -23,7 +23,7 @@ public class EnvironmentJson extends JsonObjectId implements ArgumentativeJsonOb
 
     @Override
     public String toString() {
-        return "EnvironmentJSON{" +
+        return "EnvironmentJson {" +
                 "name='" + name + '\'' +
                 ", environmentClass='" + environmentClass + '\'' +
                 ", args=" + args +

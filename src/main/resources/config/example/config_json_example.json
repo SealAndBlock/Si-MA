@@ -6,6 +6,15 @@
   "simulationSetupClass": "sima.core.simulation.SimulationSetupSimple",
   "schedulerWatcherClass": "sima.core.simulation.SimpleSchedulerWatcher",
   "simWatcherClass": "sima.core.simulation.SimpleSimaWatcher",
+  "controllers": [
+    {
+      "controllerClass": "sima.core.scheduler.SimpleController",
+      "scheduleMode": "ONCE",
+      "beginAt": 10,
+      "nbRepetitions": 5,
+      "repetitionStep": 5
+    }
+  ],
   "environments": [
     {
       "id": "FullyEnv",

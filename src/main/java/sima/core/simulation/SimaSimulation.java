@@ -10,10 +10,12 @@ import sima.core.exception.ConfigurationException;
 import sima.core.exception.SimaSimulationAlreadyRunningException;
 import sima.core.exception.SimaSimulationFailToStartRunningException;
 import sima.core.exception.SimaSimulationIsNotRunningException;
+import sima.core.scheduler.Controller;
 import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 import sima.core.scheduler.multithread.RealTimeMultiThreadScheduler;
-import sima.core.simulation.configuration.*;
+import sima.core.simulation.configuration.ConfigurationParser;
+import sima.core.simulation.configuration.json.*;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -58,6 +60,7 @@ public final class SimaSimulation {
         Map<String, ProtocolJson> mapProtocols;
         Map<String, Environment> mapEnvironments = new HashMap<>();
         Scheduler scheduler;
+        List<ControllerJson> controllers;
         Class<? extends SimulationSetup> simulationSetupClass;
         SimaWatcher simaWatcher;
 
@@ -72,6 +75,7 @@ public final class SimaSimulation {
                                         simaSimulationJson.getNbThreads(), simaSimulationJson.getEndTime(),
                                         createSchedulerWatcherFromClassName(
                                                 simaSimulationJson.getSchedulerWatcherClass()));
+            extractAndScheduleControllers(scheduler, simaSimulationJson.getControllers());
             simulationSetupClass = simaSimulationJson.getSimulationSetupClass() == null ? null
                     : extractClassForName(simaSimulationJson.getSimulationSetupClass());
             simaWatcher = createSimaWatcherFromClassName(simaSimulationJson.getSimaWatcherClass());
@@ -81,6 +85,41 @@ public final class SimaSimulation {
         }
 
         runSimulation(scheduler, allAgents, allEnvironments, simulationSetupClass, simaWatcher);
+    }
+
+    private static void extractAndScheduleControllers(Scheduler scheduler, List<ControllerJson> controllers)
+            throws ConfigurationException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+                   InstantiationException, IllegalAccessException {
+        if (controllers != null)
+            createAndScheduleControllers(scheduler, controllers);
+    }
+
+    private static void createAndScheduleControllers(Scheduler scheduler, List<ControllerJson> controllers)
+            throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+                   InstantiationException, ConfigurationException {
+        for (ControllerJson controllerJson : controllers)
+            scheduleController(scheduler, controllerJson,
+                               createControllerFromClassName(controllerJson.getControllerClass(),
+                                                             parseArgs(controllerJson)));
+    }
+
+    private static void scheduleController(Scheduler scheduler, ControllerJson controllerJson, Controller controller) {
+        switch (Scheduler.ScheduleMode.valueOf(controllerJson.getScheduleMode())) {
+            case ONCE -> scheduler.scheduleExecutableOnce(controller, controllerJson.getBeginAt());
+            case REPEATED -> scheduler.scheduleExecutableRepeated(controller, controllerJson.getBeginAt(),
+                                                                  controllerJson.getNbRepetitions(),
+                                                                  controllerJson.getRepetitionStep());
+            case INFINITE -> scheduler.scheduleExecutableInfinitely(controller, controllerJson.getBeginAt(),
+                                                                    controllerJson.getRepetitionStep());
+        }
+    }
+
+    private static Controller createControllerFromClassName(String controllerClassName, Map<String, String> args)
+            throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+                   InstantiationException {
+        Class<? extends Controller> controllerClass = extractClassForName(controllerClassName);
+        Constructor<? extends Controller> constructor = controllerClass.getConstructor(Map.class);
+        return constructor.newInstance(args);
     }
 
     private static SimaWatcher createSimaWatcherFromClassName(String simaWatcherClassName)
@@ -338,12 +377,12 @@ public final class SimaSimulation {
         return ConfigurationParser.parseConfiguration(configurationJsonPath);
     }
 
-    private static Map<String, String> parseArgs(ArgumentativeJsonObject argumentativeJsonObject)
+    private static Map<String, String> parseArgs(ArgumentativeObjectJson argumentativeObjectJson)
             throws ConfigurationException {
 
         Map<String, String> args = new HashMap<>();
-        if (argumentativeJsonObject.getArgs() != null)
-            for (List<String> argsCouple : argumentativeJsonObject.getArgs()) {
+        if (argumentativeObjectJson.getArgs() != null)
+            for (List<String> argsCouple : argumentativeObjectJson.getArgs()) {
                 if (argsCouple.size() == 2) {
                     args.put(Optional.of(argsCouple.get(0)).get(), argsCouple.get(1));
                 } else {

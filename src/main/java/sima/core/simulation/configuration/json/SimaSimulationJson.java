@@ -1,4 +1,4 @@
-package sima.core.simulation.configuration;
+package sima.core.simulation.configuration.json;
 
 import java.util.List;
 
@@ -13,18 +13,18 @@ public class SimaSimulationJson {
     private final String simulationSetupClass;
     private final String schedulerWatcherClass;
     private final String simaWatcherClass;
+    private final List<ControllerJson> controllers;
     private final List<EnvironmentJson> environments;
     private final List<ProtocolJson> protocols;
     private final List<BehaviorJson> behaviors;
     private final List<AgentJson> agents;
-    private final List<List<String>> args;
 
     // Constructors.
 
     public SimaSimulationJson(long endTime, int nbThreads, String timeMode, String schedulerType,
                               String simulationSetupClass, String schedulerWatcherClass, String simaWatcherClass,
-                              List<EnvironmentJson> environments, List<ProtocolJson> protocols,
-                              List<BehaviorJson> behaviors, List<AgentJson> agents, List<List<String>> args) {
+                              List<ControllerJson> controllers, List<EnvironmentJson> environments,
+                              List<ProtocolJson> protocols, List<BehaviorJson> behaviors, List<AgentJson> agents) {
         this.endTime = endTime;
         this.nbThreads = nbThreads;
         this.timeMode = timeMode;
@@ -32,11 +32,11 @@ public class SimaSimulationJson {
         this.simulationSetupClass = simulationSetupClass;
         this.schedulerWatcherClass = schedulerWatcherClass;
         this.simaWatcherClass = simaWatcherClass;
+        this.controllers = controllers;
         this.environments = environments;
         this.protocols = protocols;
         this.behaviors = behaviors;
         this.agents = agents;
-        this.args = args;
     }
 
     // Methods.
@@ -52,7 +52,6 @@ public class SimaSimulationJson {
                 ", protocols=" + protocols +
                 ", behaviors=" + behaviors +
                 ", agents=" + agents +
-                ", args=" + args +
                 '}';
     }
 
@@ -86,6 +85,10 @@ public class SimaSimulationJson {
         return simaWatcherClass;
     }
 
+    public List<ControllerJson> getControllers() {
+        return controllers;
+    }
+
     public List<EnvironmentJson> getEnvironments() {
         return environments;
     }
@@ -100,9 +103,5 @@ public class SimaSimulationJson {
 
     public List<AgentJson> getAgents() {
         return agents;
-    }
-
-    public List<List<String>> getArgs() {
-        return args;
     }
 }
