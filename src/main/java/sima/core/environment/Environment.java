@@ -8,6 +8,8 @@ import sima.core.exception.NotEvolvingAgentInEnvironmentException;
 
 import java.util.*;
 
+import static sima.core.simulation.SimaSimulation.SIMA_LOG;
+
 /**
  * Represents an {@code Environment} where {@link AbstractAgent} evolves. An {@code Environment} can be the
  * representation of the physic layer of the communication. An {@code Environment} determine if two agents can
@@ -104,7 +106,11 @@ public abstract class Environment implements EventCatcher {
      */
     public synchronized boolean acceptAgent(AgentIdentifier evolvingAgentIdentifier) {
         if (evolvingAgentIdentifier != null && agentCanBeAccepted(evolvingAgentIdentifier)) {
-            return evolvingAgents.add(evolvingAgentIdentifier);
+            boolean added = evolvingAgents.add(evolvingAgentIdentifier);
+            if (added)
+                SIMA_LOG.info("Agent with identifier = " + evolvingAgentIdentifier + " JOIN " + this);
+
+            return added;
         } else {
             return false;
         }

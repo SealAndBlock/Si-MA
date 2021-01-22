@@ -404,6 +404,27 @@ public class SimaSimulationTest extends SimaTest {
                 () -> assertEquals(SCHEDULER.getSchedulerType(), SimaSimulation.getSchedulerType()));
     }
 
+    @Test
+    public void runSimulationWithJsonConfigurationWithNullFileThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(null));
+    }
+
+    @Test
+    public void runSimulationWithJsonConfigurationWithEmptyFileThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(""));
+    }
+
+    @Test
+    public void runSimulationWithJsonConfigurationTest1() {
+        try {
+            SimaSimulation.runSimulation("src/test/resources/config/testConfig1.json");
+        } catch (SimaSimulationFailToStartRunningException e) {
+            fail(e);
+        }
+    }
+
     // Methods.
 
     private void runSimulationWithLongExecutable() {

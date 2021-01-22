@@ -8,6 +8,7 @@
   "simWatcherClass": "sima.core.simulation.SimpleSimaWatcher",
   "environments": [
     {
+      "id": "FullyEnv",
       "name": "FullyConnectedEnvironment",
       "environmentClass": "sima.core.environment.FullyConnectedNetwork",
       "args": [
@@ -73,7 +74,7 @@
         "proto"
       ],
       "environments": [
-        "FullConnect"
+        "FullyEnv"
       ],
       "args": [
         [

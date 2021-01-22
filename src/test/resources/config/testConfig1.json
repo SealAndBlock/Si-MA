@@ -1,0 +1,24 @@
+{
+  "endTime": 10000,
+  "nbThreads": 8,
+  "timeMode": "DISCRETE_TIME",
+  "schedulerType": "MULTI_THREAD",
+  "simulationSetupClass": "sima.core.simulation.SimulationSetupTesting",
+  "environments": [
+    {
+      "id": "TestEnvID",
+      "name": "TestEnvironment",
+      "environmentClass": "sima.core.environment.EnvironmentTesting"
+    }
+  ],
+  "agents": [
+    {
+      "agentClass": "sima.core.agent.AgentTesting",
+      "namePattern": "A_%d",
+      "numberToCreate": 5,
+      "environments": [
+        "TestEnvID"
+      ]
+    }
+  ]
+}

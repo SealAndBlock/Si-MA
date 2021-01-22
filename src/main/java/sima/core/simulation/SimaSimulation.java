@@ -72,11 +72,12 @@ public final class SimaSimulation {
                                         simaSimulationJson.getNbThreads(), simaSimulationJson.getEndTime(),
                                         createSchedulerWatcherFromClassName(
                                                 simaSimulationJson.getSchedulerWatcherClass()));
-            simulationSetupClass = extractClassForName(simaSimulationJson.getSimulationSetupClass());
+            simulationSetupClass = simaSimulationJson.getSimulationSetupClass() == null ? null
+                    : extractClassForName(simaSimulationJson.getSimulationSetupClass());
             simaWatcher = createSimaWatcherFromClassName(simaSimulationJson.getSimaWatcherClass());
         } catch (Exception e) {
-            SIMA_LOG.error("Fail parse SimaSimulation Json configuration file " + configurationJsonPath, e);
-            throw new SimaSimulationFailToStartRunningException(e);
+            throw new SimaSimulationFailToStartRunningException(
+                    "Fail parse SimaSimulation Json configuration file : " + configurationJsonPath, e);
         }
 
         runSimulation(scheduler, allAgents, allEnvironments, simulationSetupClass, simaWatcher);
@@ -116,23 +117,35 @@ public final class SimaSimulation {
     private static @NotNull Map<String, BehaviorJson> extractMapBehaviors(SimaSimulationJson simaSimulationJson)
             throws ConfigurationException {
         Map<String, BehaviorJson> mapBehaviors = new HashMap<>();
-        for (BehaviorJson behaviorJson : simaSimulationJson.getBehaviors()) {
-            mapBehaviors.put(Optional.ofNullable(behaviorJson.getId())
-                                     .orElseThrow(() -> new ConfigurationException("BehaviorId cannot be null")),
-                             behaviorJson);
-        }
+        fillMapBehaviors(simaSimulationJson, mapBehaviors);
         return mapBehaviors;
+    }
+
+    private static void fillMapBehaviors(SimaSimulationJson simaSimulationJson, Map<String, BehaviorJson> mapBehaviors)
+            throws ConfigurationException {
+        if (simaSimulationJson.getBehaviors() != null)
+            for (BehaviorJson behaviorJson : simaSimulationJson.getBehaviors()) {
+                mapBehaviors.put(Optional.ofNullable(behaviorJson.getId())
+                                         .orElseThrow(() -> new ConfigurationException("BehaviorId cannot be null")),
+                                 behaviorJson);
+            }
     }
 
     private static @NotNull Map<String, ProtocolJson> extractMapProtocols(SimaSimulationJson simaSimulationJson)
             throws ConfigurationException {
         Map<String, ProtocolJson> mapProtocols = new HashMap<>();
-        for (ProtocolJson protocolJson : simaSimulationJson.getProtocols()) {
-            mapProtocols.put(Optional.ofNullable(protocolJson.getId())
-                                     .orElseThrow(() -> new ConfigurationException("ProtocolId cannot be null")),
-                             protocolJson);
-        }
+        fillMapProtocols(simaSimulationJson, mapProtocols);
         return mapProtocols;
+    }
+
+    private static void fillMapProtocols(SimaSimulationJson simaSimulationJson, Map<String, ProtocolJson> mapProtocols)
+            throws ConfigurationException {
+        if (simaSimulationJson.getProtocols() != null)
+            for (ProtocolJson protocolJson : simaSimulationJson.getProtocols()) {
+                mapProtocols.put(Optional.ofNullable(protocolJson.getId())
+                                         .orElseThrow(() -> new ConfigurationException("ProtocolId cannot be null")),
+                                 protocolJson);
+            }
     }
 
     /**
@@ -197,11 +210,12 @@ public final class SimaSimulation {
                                                    Map<String, BehaviorJson> mapBehaviors)
             throws ConfigurationException, ClassNotFoundException {
 
-        for (String behaviorId : agentJson.getBehaviors()) {
-            BehaviorJson behaviorJson = Optional.ofNullable(mapBehaviors.get(behaviorId))
-                    .orElseThrow(() -> new ConfigurationException("BehaviorId " + behaviorId + " not found"));
-            addBehaviorToAgent(agent, behaviorJson);
-        }
+        if (agentJson.getBehaviors() != null)
+            for (String behaviorId : agentJson.getBehaviors()) {
+                BehaviorJson behaviorJson = Optional.ofNullable(mapBehaviors.get(behaviorId))
+                        .orElseThrow(() -> new ConfigurationException("BehaviorId " + behaviorId + " not found"));
+                addBehaviorToAgent(agent, behaviorJson);
+            }
     }
 
     private static void addBehaviorToAgent(AbstractAgent agent, BehaviorJson behaviorJson)
@@ -216,11 +230,12 @@ public final class SimaSimulation {
                                                   Map<String, ProtocolJson> mapProtocols)
             throws ConfigurationException, ClassNotFoundException {
 
-        for (String protocolId : agentJson.getBehaviors()) {
-            ProtocolJson protocolJson = Optional.ofNullable(mapProtocols.get(protocolId))
-                    .orElseThrow(() -> new ConfigurationException("ProtocolId " + protocolId + " not found"));
-            addProtocolToAgent(agent, protocolJson);
-        }
+        if (agentJson.getProtocols() != null)
+            for (String protocolId : agentJson.getProtocols()) {
+                ProtocolJson protocolJson = Optional.ofNullable(mapProtocols.get(protocolId))
+                        .orElseThrow(() -> new ConfigurationException("ProtocolId " + protocolId + " not found"));
+                addProtocolToAgent(agent, protocolJson);
+            }
     }
 
     private static void addProtocolToAgent(AbstractAgent agent, ProtocolJson protocolJson)
@@ -236,11 +251,12 @@ public final class SimaSimulation {
                                                       Map<String, Environment> mapEnvironments)
             throws ConfigurationException {
 
-        for (String environmentId : agentJson.getEnvironments()) {
-            Environment environment = Optional.ofNullable(mapEnvironments.get(environmentId))
-                    .orElseThrow(() -> new ConfigurationException("EnvironmentId " + environmentId + " not found"));
-            agentJoinEnvironment(agent, environment);
-        }
+        if (agentJson.getEnvironments() != null)
+            for (String environmentId : agentJson.getEnvironments()) {
+                Environment environment = Optional.ofNullable(mapEnvironments.get(environmentId))
+                        .orElseThrow(() -> new ConfigurationException("EnvironmentId " + environmentId + " not found"));
+                agentJoinEnvironment(agent, environment);
+            }
     }
 
     private static void agentJoinEnvironment(AbstractAgent agent, Environment environment)
@@ -272,7 +288,7 @@ public final class SimaSimulation {
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 
         Constructor<? extends AbstractAgent> constructor =
-                agentClass.getConstructor(String.class, Integer.class, Map.class);
+                agentClass.getConstructor(String.class, int.class, Map.class);
         return constructor.newInstance(agentName, agentNumberId, args);
     }
 
@@ -307,7 +323,7 @@ public final class SimaSimulation {
                    IllegalAccessException {
 
         Environment environment =
-                createEnvironment(extractClassForName(environmentJson.getName()), environmentJson.getName(),
+                createEnvironment(extractClassForName(environmentJson.getEnvironmentClass()), environmentJson.getName(),
                                   args != null ? (args.isEmpty() ? null : args) : null);
         environments.add(environment);
         return environment;
@@ -326,14 +342,15 @@ public final class SimaSimulation {
             throws ConfigurationException {
 
         Map<String, String> args = new HashMap<>();
-        for (List<String> argsCouple : argumentativeJsonObject.getArgs()) {
-            if (argsCouple.size() == 2) {
-                args.put(Optional.of(argsCouple.get(0)).get(), argsCouple.get(1));
-            } else {
-                throw new ConfigurationException(
-                        "Wrong format for argument. In Json a args is an array of only 2 values: the args name and its value");
+        if (argumentativeJsonObject.getArgs() != null)
+            for (List<String> argsCouple : argumentativeJsonObject.getArgs()) {
+                if (argsCouple.size() == 2) {
+                    args.put(Optional.of(argsCouple.get(0)).get(), argsCouple.get(1));
+                } else {
+                    throw new ConfigurationException(
+                            "Wrong format for argument. In Json a args is an array of only 2 values: the args name and its value");
+                }
             }
-        }
         return args.isEmpty() ? null : args;
     }
 
@@ -512,7 +529,7 @@ public final class SimaSimulation {
 
     private static void executeSimulationSetup(SimulationSetup simulationSetup) {
         simulationSetup.setupSimulation();
-        SIMA_LOG.info("SimulationSetup EXECUTED");
+        SIMA_LOG.info("SimulationSetup " + simulationSetup.getClass() + " EXECUTED");
     }
 
     /**
