@@ -79,7 +79,7 @@ public final class SimaSimulation {
         runSimulation(scheduler, allAgents, allEnvironments, simulationSetupClass, null);
     }
 
-    private static Map<String, BehaviorJson> extractMapBehaviors(SimaSimulationJson simaSimulationJson)
+    private static @NotNull Map<String, BehaviorJson> extractMapBehaviors(SimaSimulationJson simaSimulationJson)
             throws ConfigurationException {
         Map<String, BehaviorJson> mapBehaviors = new HashMap<>();
         for (BehaviorJson behaviorJson : simaSimulationJson.getBehaviors()) {
@@ -90,7 +90,7 @@ public final class SimaSimulation {
         return mapBehaviors;
     }
 
-    private static Map<String, ProtocolJson> extractMapProtocols(SimaSimulationJson simaSimulationJson)
+    private static @NotNull Map<String, ProtocolJson> extractMapProtocols(SimaSimulationJson simaSimulationJson)
             throws ConfigurationException {
         Map<String, ProtocolJson> mapProtocols = new HashMap<>();
         for (ProtocolJson protocolJson : simaSimulationJson.getProtocols()) {
@@ -123,7 +123,7 @@ public final class SimaSimulation {
             createAgent(agentJson, agentSet, mapBehaviors, mapProtocols, mapEnvironments);
         }
 
-        return null;
+        return agentSet;
     }
 
     /**
@@ -216,8 +216,7 @@ public final class SimaSimulation {
         }
     }
 
-    @NotNull
-    private static AbstractAgent createAgentAndAddInSet(Set<AbstractAgent> agents, AgentJson agentJson, int i)
+    private static @NotNull AbstractAgent createAgentAndAddInSet(Set<AbstractAgent> agents, AgentJson agentJson, int i)
             throws ClassNotFoundException, ConfigurationException, InvocationTargetException, NoSuchMethodException,
                    InstantiationException, IllegalAccessException {
 
@@ -251,8 +250,7 @@ public final class SimaSimulation {
      * @param mapEnvironments the map of environments which will maps "IdEnvironment" -> "Environment"
      * @return a set which contains all instances of {@link Environment}.
      */
-    @NotNull
-    private static Set<Environment> createAllEnvironments(SimaSimulationJson simulationJson,
+    private static @NotNull Set<Environment> createAllEnvironments(SimaSimulationJson simulationJson,
                                                           Map<String, Environment> mapEnvironments)
             throws ConfigurationException, ClassNotFoundException, NoSuchMethodException, InstantiationException,
                    IllegalAccessException, InvocationTargetException {
@@ -268,18 +266,19 @@ public final class SimaSimulation {
         return environments;
     }
 
-    private static Environment createEnvironmentAndAddInSet(Set<Environment> environments,
+    private static @NotNull Environment createEnvironmentAndAddInSet(Set<Environment> environments,
                                                             EnvironmentJson environmentJson, Map<String, String> args)
             throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException,
                    IllegalAccessException {
 
         Environment environment =
                 createEnvironment(extractClassForName(environmentJson.getName()), environmentJson.getName(),
-                                  args.isEmpty() ? null : args);
+                                  args != null ? (args.isEmpty() ? null : args) : null);
         environments.add(environment);
         return environment;
     }
 
+    @SuppressWarnings("unchecked")
     private static <T> Class<? extends T> extractClassForName(String className) throws ClassNotFoundException {
         return (Class<? extends T>) Class.forName(className);
     }
@@ -448,7 +447,8 @@ public final class SimaSimulation {
      * @param simulationSetupClass the class of the SimulationSetup
      * @return a new instance of the {@link SimulationSetup} specified class. If the instantiation failed, returns null.
      */
-    private static SimulationSetup createSimulationSetup(Class<? extends SimulationSetup> simulationSetupClass)
+    @SuppressWarnings("JavaReflectionInvocation")
+    private static @NotNull SimulationSetup createSimulationSetup(Class<? extends SimulationSetup> simulationSetupClass)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
 
         Constructor<? extends SimulationSetup> simSetupConstructor =
@@ -509,9 +509,9 @@ public final class SimaSimulation {
      * @throws InvocationTargetException if the environment construction thrown an exception
      * @throws NullPointerException      if environmentName is nulls
      */
-    @NotNull
-    private static Environment createEnvironment(Class<? extends Environment> environmentClass, String environmentName,
-                                                 Map<String, String> args)
+    private static @NotNull Environment createEnvironment(Class<? extends Environment> environmentClass,
+                                                          String environmentName,
+                                                          Map<String, String> args)
             throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
 
         Constructor<? extends Environment> constructor = environmentClass.getConstructor(String.class, Map.class);
@@ -531,9 +531,9 @@ public final class SimaSimulation {
         Scheduler scheduler = null;
         switch (simulationTimeMode) {
             case REAL_TIME -> scheduler =
-                    createRealTimeScheduler(simulationSchedulerType, nbExecutorThread, endSimulation, scheduler);
+                    createRealTimeScheduler(simulationSchedulerType, nbExecutorThread, endSimulation);
             case DISCRETE_TIME -> scheduler =
-                    createDiscreteTimeScheduler(simulationSchedulerType, nbExecutorThread, endSimulation, scheduler);
+                    createDiscreteTimeScheduler(simulationSchedulerType, nbExecutorThread, endSimulation);
         }
 
         for (Scheduler.SchedulerWatcher schedulerWatcher : schedulerWatchers) {
@@ -543,9 +543,9 @@ public final class SimaSimulation {
         return scheduler;
     }
 
-    private static Scheduler createDiscreteTimeScheduler(Scheduler.SchedulerType simulationSchedulerType,
-                                                         int nbExecutorThread, long endSimulation,
-                                                         Scheduler scheduler) {
+    private static @NotNull Scheduler createDiscreteTimeScheduler(Scheduler.SchedulerType simulationSchedulerType,
+                                                                  int nbExecutorThread, long endSimulation) {
+        Scheduler scheduler = null;
         switch (simulationSchedulerType) {
             case MONO_THREAD -> throw new UnsupportedOperationException("Discrete Time Mono thread simulation" +
                                                                                 " unsupported.");
@@ -554,8 +554,9 @@ public final class SimaSimulation {
         return scheduler;
     }
 
-    private static Scheduler createRealTimeScheduler(Scheduler.SchedulerType simulationSchedulerType,
-                                                     int nbExecutorThread, long endSimulation, Scheduler scheduler) {
+    private static @NotNull Scheduler createRealTimeScheduler(Scheduler.SchedulerType simulationSchedulerType,
+                                                              int nbExecutorThread, long endSimulation) {
+        Scheduler scheduler = null;
         switch (simulationSchedulerType) {
             case MONO_THREAD -> throw new UnsupportedOperationException("Real Time Mono thread simulation" +
                                                                                 " unsupported.");
