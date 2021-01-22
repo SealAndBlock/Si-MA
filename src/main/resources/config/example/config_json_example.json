@@ -4,6 +4,8 @@
   "timeMode": "DISCRETE_TIME",
   "schedulerType": "MULTI_THREAD",
   "simulationSetupClass": "sima.core.simulation.SimulationSetupSimple",
+  "schedulerWatcherClass": "sima.core.simulation.SimpleSchedulerWatcher",
+  "simWatcherClass": "sima.core.simulation.SimpleSimaWatcher",
   "environments": [
     {
       "name": "FullyConnectedEnvironment",

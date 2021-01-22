@@ -59,6 +59,7 @@ public final class SimaSimulation {
         Map<String, Environment> mapEnvironments = new HashMap<>();
         Scheduler scheduler;
         Class<? extends SimulationSetup> simulationSetupClass;
+        SimaWatcher simaWatcher;
 
         try {
             simaSimulationJson = parseConfiguration(configurationJsonPath);
@@ -69,14 +70,47 @@ public final class SimaSimulation {
             scheduler = createScheduler(Scheduler.TimeMode.valueOf(simaSimulationJson.getTimeMode()),
                                         Scheduler.SchedulerType.valueOf(simaSimulationJson.getSchedulerType()),
                                         simaSimulationJson.getNbThreads(), simaSimulationJson.getEndTime(),
-                                        (Scheduler.SchedulerWatcher) null);
+                                        createSchedulerWatcherFromClassName(
+                                                simaSimulationJson.getSchedulerWatcherClass()));
             simulationSetupClass = extractClassForName(simaSimulationJson.getSimulationSetupClass());
+            simaWatcher = createSimaWatcherFromClassName(simaSimulationJson.getSimaWatcherClass());
         } catch (Exception e) {
             SIMA_LOG.error("Fail parse SimaSimulation Json configuration file " + configurationJsonPath, e);
             throw new SimaSimulationFailToStartRunningException(e);
         }
 
-        runSimulation(scheduler, allAgents, allEnvironments, simulationSetupClass, null);
+        runSimulation(scheduler, allAgents, allEnvironments, simulationSetupClass, simaWatcher);
+    }
+
+    private static SimaWatcher createSimaWatcherFromClassName(String simaWatcherClassName)
+            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException,
+                   IllegalAccessException {
+        if (simaWatcherClassName != null && !simaWatcherClassName.isEmpty()) {
+            return createSimaWatcher(extractClassForName(simaWatcherClassName));
+        } else
+            return null;
+    }
+
+    private static SimaWatcher createSimaWatcher(Class<? extends SimaWatcher> extractClassForName)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Constructor<? extends SimaWatcher> constructor = extractClassForName.getConstructor();
+        return constructor.newInstance();
+    }
+
+    private static Scheduler.SchedulerWatcher createSchedulerWatcherFromClassName(String schedulerWatcherClassName)
+            throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+                   InstantiationException {
+        if (schedulerWatcherClassName != null && !schedulerWatcherClassName.isEmpty())
+            return createSchedulerWatcher(extractClassForName(schedulerWatcherClassName));
+        else
+            return null;
+    }
+
+    private static @NotNull Scheduler.SchedulerWatcher createSchedulerWatcher(
+            Class<? extends Scheduler.SchedulerWatcher> schedulerWatcherClass)
+            throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        Constructor<? extends Scheduler.SchedulerWatcher> constructor = schedulerWatcherClass.getConstructor();
+        return constructor.newInstance();
     }
 
     private static @NotNull Map<String, BehaviorJson> extractMapBehaviors(SimaSimulationJson simaSimulationJson)
@@ -251,7 +285,7 @@ public final class SimaSimulation {
      * @return a set which contains all instances of {@link Environment}.
      */
     private static @NotNull Set<Environment> createAllEnvironments(SimaSimulationJson simulationJson,
-                                                          Map<String, Environment> mapEnvironments)
+                                                                   Map<String, Environment> mapEnvironments)
             throws ConfigurationException, ClassNotFoundException, NoSuchMethodException, InstantiationException,
                    IllegalAccessException, InvocationTargetException {
 
@@ -267,7 +301,8 @@ public final class SimaSimulation {
     }
 
     private static @NotNull Environment createEnvironmentAndAddInSet(Set<Environment> environments,
-                                                            EnvironmentJson environmentJson, Map<String, String> args)
+                                                                     EnvironmentJson environmentJson,
+                                                                     Map<String, String> args)
             throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException,
                    IllegalAccessException {
 

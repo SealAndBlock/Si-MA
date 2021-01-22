@@ -11,6 +11,8 @@ public class SimaSimulationJson {
     private final String timeMode;
     private final String schedulerType;
     private final String simulationSetupClass;
+    private final String schedulerWatcherClass;
+    private final String simaWatcherClass;
     private final List<EnvironmentJson> environments;
     private final List<ProtocolJson> protocols;
     private final List<BehaviorJson> behaviors;
@@ -20,14 +22,16 @@ public class SimaSimulationJson {
     // Constructors.
 
     public SimaSimulationJson(long endTime, int nbThreads, String timeMode, String schedulerType,
-                              String simulationSetupClass, List<EnvironmentJson> environments,
-                              List<ProtocolJson> protocols, List<BehaviorJson> behaviors, List<AgentJson> agents,
-                              List<List<String>> args) {
+                              String simulationSetupClass, String schedulerWatcherClass, String simaWatcherClass,
+                              List<EnvironmentJson> environments, List<ProtocolJson> protocols,
+                              List<BehaviorJson> behaviors, List<AgentJson> agents, List<List<String>> args) {
         this.endTime = endTime;
         this.nbThreads = nbThreads;
         this.timeMode = timeMode;
         this.schedulerType = schedulerType;
         this.simulationSetupClass = simulationSetupClass;
+        this.schedulerWatcherClass = schedulerWatcherClass;
+        this.simaWatcherClass = simaWatcherClass;
         this.environments = environments;
         this.protocols = protocols;
         this.behaviors = behaviors;
@@ -72,6 +76,14 @@ public class SimaSimulationJson {
 
     public String getSimulationSetupClass() {
         return simulationSetupClass;
+    }
+
+    public String getSchedulerWatcherClass() {
+        return schedulerWatcherClass;
+    }
+
+    public String getSimaWatcherClass() {
+        return simaWatcherClass;
     }
 
     public List<EnvironmentJson> getEnvironments() {
