@@ -6,24 +6,12 @@ public class ControllerJson implements ArgumentativeObjectJson {
 
     // Variables.
 
-    private final String controllerClass;
-    private final String scheduleMode;
-    private final long beginAt;
-    private final long nbRepetitions;
-    private final long repetitionStep;
-    private final List<List<String>> args;
-
-    // Constructors.
-
-    public ControllerJson(String controllerClass, String scheduleMode, long beginAt, long nbRepetitions,
-                          long repetitionStep, List<List<String>> args) {
-        this.controllerClass = controllerClass;
-        this.scheduleMode = scheduleMode;
-        this.beginAt = beginAt;
-        this.nbRepetitions = nbRepetitions;
-        this.repetitionStep = repetitionStep;
-        this.args = args;
-    }
+    private String controllerClass;
+    private String scheduleMode;
+    private long beginAt;
+    private long nbRepetitions;
+    private long repetitionStep;
+    private List<List<String>> args;
 
     // Getters.
 

@@ -7,29 +7,9 @@ public class ProtocolJson extends ObjectIdJson implements ArgumentativeObjectJso
 
     // Variables.
 
-    private final String tag;
-    private final String protocolClass;
-    private final List<List<String>> args;
-
-    // Constructors.
-
-    public ProtocolJson(String id, String tag, String protocolClass, List<List<String>> args) {
-        super(id);
-        this.tag = tag;
-        this.protocolClass = protocolClass;
-        this.args = args;
-    }
-
-    // Methods.
-
-    @Override
-    public String toString() {
-        return "ProtocolJson {" +
-                "tag='" + tag + '\'' +
-                ", protocolClass='" + protocolClass + '\'' +
-                ", args=" + args +
-                '}';
-    }
+    private String tag;
+    private String protocolClass;
+    private List<List<String>> args;
 
     // Getters.
 

@@ -6,29 +6,9 @@ public class EnvironmentJson extends ObjectIdJson implements ArgumentativeObject
 
     // Variables.
 
-    private final String name;
-    private final String environmentClass;
-    private final List<List<String>> args;
-
-    // Constructors.
-
-    public EnvironmentJson(String id, String name, String environmentClass, List<List<String>> args) {
-        super(id);
-        this.name = name;
-        this.environmentClass = environmentClass;
-        this.args = args;
-    }
-
-    // Methods.
-
-    @Override
-    public String toString() {
-        return "EnvironmentJson {" +
-                "name='" + name + '\'' +
-                ", environmentClass='" + environmentClass + '\'' +
-                ", args=" + args +
-                '}';
-    }
+    private String name;
+    private String environmentClass;
+    private List<List<String>> args;
 
     // Getters.
 

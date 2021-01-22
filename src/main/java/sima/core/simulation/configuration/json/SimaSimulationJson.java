@@ -6,56 +6,20 @@ public class SimaSimulationJson {
 
     // Variables.
 
-    private final long endTime;
-    private final int nbThreads;
-    private final String timeMode;
-    private final String schedulerType;
-    private final String simulationSetupClass;
-    private final String schedulerWatcherClass;
-    private final String simaWatcherClass;
-    private final List<ControllerJson> controllers;
-    private final List<EnvironmentJson> environments;
-    private final List<ProtocolJson> protocols;
-    private final List<BehaviorJson> behaviors;
-    private final List<AgentJson> agents;
+    private long endTime;
+    private int nbThreads;
+    private String timeMode;
+    private String schedulerType;
+    private String simulationSetupClass;
+    private String schedulerWatcherClass;
+    private String simaWatcherClass;
+    private List<ControllerJson> controllers;
+    private List<EnvironmentJson> environments;
+    private List<ProtocolJson> protocols;
+    private List<BehaviorJson> behaviors;
+    private List<AgentJson> agents;
 
-    // Constructors.
-
-    public SimaSimulationJson(long endTime, int nbThreads, String timeMode, String schedulerType,
-                              String simulationSetupClass, String schedulerWatcherClass, String simaWatcherClass,
-                              List<ControllerJson> controllers, List<EnvironmentJson> environments,
-                              List<ProtocolJson> protocols, List<BehaviorJson> behaviors, List<AgentJson> agents) {
-        this.endTime = endTime;
-        this.nbThreads = nbThreads;
-        this.timeMode = timeMode;
-        this.schedulerType = schedulerType;
-        this.simulationSetupClass = simulationSetupClass;
-        this.schedulerWatcherClass = schedulerWatcherClass;
-        this.simaWatcherClass = simaWatcherClass;
-        this.controllers = controllers;
-        this.environments = environments;
-        this.protocols = protocols;
-        this.behaviors = behaviors;
-        this.agents = agents;
-    }
-
-    // Methods.
-
-    @Override
-    public String toString() {
-        return "SimaSimulationJSON{" +
-                "nbThreads=" + nbThreads +
-                ", timeMode='" + timeMode + '\'' +
-                ", schedulerType='" + schedulerType + '\'' +
-                ", simulationSetupClass='" + simulationSetupClass + '\'' +
-                ", environments=" + environments +
-                ", protocols=" + protocols +
-                ", behaviors=" + behaviors +
-                ", agents=" + agents +
-                '}';
-    }
-
-    // Getters and Setters.
+    // Getters.
 
     public long getEndTime() {
         return endTime;

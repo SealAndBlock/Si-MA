@@ -6,43 +6,15 @@ public class AgentJson implements ArgumentativeObjectJson {
 
     // Variables.
 
-    private final String agentClass;
-    private final String namePattern;
-    private final int numberToCreate;
-    private final List<String> behaviors;
-    private final List<String> protocols;
-    private final List<String> environments;
-    private final List<List<String>> args;
+    private String agentClass;
+    private String namePattern;
+    private int numberToCreate;
+    private List<String> behaviors;
+    private List<String> protocols;
+    private List<String> environments;
+    private List<List<String>> args;
 
-    // Constructors.
-
-    public AgentJson(String agentClass, String namePattern, int numberToCreate, List<String> behaviors,
-                     List<String> protocols, List<String> environments, List<List<String>> args) {
-        this.agentClass = agentClass;
-        this.namePattern = namePattern;
-        this.numberToCreate = numberToCreate;
-        this.behaviors = behaviors;
-        this.protocols = protocols;
-        this.environments = environments;
-        this.args = args;
-    }
-
-    // Methods.
-
-    @Override
-    public String toString() {
-        return "AgentJson {" +
-                "agentClass='" + agentClass + '\'' +
-                ", namePattern='" + namePattern + '\'' +
-                ", numberToCreate=" + numberToCreate +
-                ", behaviors=" + behaviors +
-                ", protocols=" + protocols +
-                ", environments=" + environments +
-                ", args=" + args +
-                '}';
-    }
-
-    // Getters and Setters.
+    // Getters.
 
     public String getAgentClass() {
         return agentClass;

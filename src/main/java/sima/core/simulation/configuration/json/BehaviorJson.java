@@ -6,27 +6,8 @@ public class BehaviorJson extends ObjectIdJson implements ArgumentativeObjectJso
 
     // Variables.
 
-    private final String behaviorClass;
-    private final List<List<String>> args;
-
-    // Constructors.
-
-    public BehaviorJson(String id, String behaviorClass, List<List<String>> args) {
-        super(id);
-        this.behaviorClass = behaviorClass;
-        this.args = args;
-    }
-
-    // Methods.
-
-    @Override
-    public String toString() {
-        return "BehaviorJson {" +
-                "id=" + getId() +
-                ", behaviorClass='" + behaviorClass + '\'' +
-                ", args=" + args +
-                '}';
-    }
+    private String behaviorClass;
+    private List<List<String>> args;
 
     // Getters.
 
