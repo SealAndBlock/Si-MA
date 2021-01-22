@@ -7,13 +7,13 @@
     <distributionManagement>
         <snapshotRepository>
             <id>nexus-snapshots</id>
-            <url>http://92.170.145.217:8081/repository/sima.core-snapshot/</url>
+            <url>http://92.170.145.217:8081/repository/sima.core-mixed/</url>
         </snapshotRepository>
     </distributionManagement>
 
     <groupId>sima.core</groupId>
     <artifactId>sima.core</artifactId>
-    <version>0.1.19-SNAPSHOT</version>
+    <version>0.0.1-MIXED</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
