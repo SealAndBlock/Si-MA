@@ -1,0 +1,13 @@
+{
+  "endTime": 10000,
+  "nbThreads": 8,
+  "timeMode": "UNKNOWN",
+  "schedulerType": "MULTI_THREAD",
+  "environments": [
+    {
+      "id": "TestEnvID",
+      "name": "TestEnvironment",
+      "environmentClass": "sima.core.simulation.specific.SpecificEnvironmentTesting"
+    }
+  ]
+}

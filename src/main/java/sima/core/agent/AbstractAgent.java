@@ -353,7 +353,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * Construct an instance of the specified Behavior classed.
      *
      * @param behaviorClass the behavior class
-     * @param behaviorArgs  the args to pass to the constructor of the {@Code Behavior}
+     * @param behaviorArgs  the args to pass to the constructor of the {@code Behavior}
      * @return a new instance of the Behavior class specified.
      * @throws NoSuchMethodException     If the Behavior class does not have the correct constructor
      * @throws InstantiationException    If there is a problem during the instantiation
@@ -383,6 +383,7 @@ public abstract class AbstractAgent implements EventCatcher {
             throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Behavior behavior = constructBehavior(behaviorClass, behaviorArgs);
         mapBehaviors.put(behaviorClass.getName(), behavior);
+        SIMA_LOG.info(this + " ADD BEHAVIOR " + behavior);
     }
 
     /**
@@ -468,7 +469,7 @@ public abstract class AbstractAgent implements EventCatcher {
             Protocol protocol = constructProtocol(protocolClass, protocolTag, args);
             ProtocolIdentifier protocolIdentifier = protocol.getIdentifier();
             if (isNotAddedProtocol(protocolIdentifier)) {
-                mapProtocol.put(protocolIdentifier, protocol);
+                mapProtocol(protocolIdentifier, protocol);
                 return true;
             } else {
                 return false;
@@ -477,6 +478,11 @@ public abstract class AbstractAgent implements EventCatcher {
                 | InvocationTargetException e) {
             return false;
         }
+    }
+
+    private void mapProtocol(ProtocolIdentifier protocolIdentifier, Protocol protocol) {
+        mapProtocol.put(protocolIdentifier, protocol);
+        SIMA_LOG.info(this + " ADD PROTOCOL " + protocol);
     }
 
     private boolean isNotAddedProtocol(ProtocolIdentifier protocolIdentifier) {

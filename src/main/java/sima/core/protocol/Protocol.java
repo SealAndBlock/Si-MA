@@ -71,6 +71,16 @@ public abstract class Protocol implements EventCatcher {
 
     // Methods.
 
+    @Override
+    public String toString() {
+        return "Protocol [" +
+                "protocolIdentifier=" + protocolIdentifier +
+                ", protocolTag=" + protocolTag +
+                ", agentOwner=" + agentOwner +
+                ", protocolManipulator=" + protocolManipulator +
+                ']';
+    }
+
     /**
      * Method called in the constructors. It is this method which make all treatment associated to all arguments
      * received.

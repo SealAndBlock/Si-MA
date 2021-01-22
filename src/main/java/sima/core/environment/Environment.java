@@ -69,8 +69,7 @@ public abstract class Environment implements EventCatcher {
     public String toString() {
         return "[Environment - " +
                 "class=" + this.getClass().getName() +
-                ", environmentName=" + environmentName +
-                ", evolvingAgents=" + evolvingAgents + "]";
+                ", environmentName=" + environmentName + "]";
     }
 
     /**

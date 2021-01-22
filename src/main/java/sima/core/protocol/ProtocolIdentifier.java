@@ -44,6 +44,13 @@ public class ProtocolIdentifier implements Serializable {
     // Methods.
 
     @Override
+    public String toString() {
+        return "ProtocolIdentifier [" +
+                "protocolClass=" + protocolClass +
+                ", protocolTag=" + protocolTag + "]";
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ProtocolIdentifier)) return false;

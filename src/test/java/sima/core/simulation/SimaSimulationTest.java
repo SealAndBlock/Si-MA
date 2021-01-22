@@ -12,6 +12,8 @@ import sima.core.scheduler.LongTimeExecutableTesting;
 import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.SchedulerWatcherTesting;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
+import sima.core.simulation.specific.SpecificControllerTesting;
+import sima.core.simulation.specific.SpecificSimulationSetupTesting;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -22,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SimaSimulationTest extends SimaTest {
 
     // Static.
+
+    private static final String PREFIX_CONFIG_PATH = "src/test/resources/config/";
 
     private static final long END_SIMULATION = 1_000;
     private static final int NB_EXECUTOR_THREAD = 8;
@@ -75,85 +79,85 @@ public class SimaSimulationTest extends SimaTest {
     @Test
     public void runSimulationWithNullSchedulerThrowsException() {
         assertThrows(SimaSimulationFailToStartRunningException.class,
-                () -> SimaSimulation.runSimulation(null, ALL_AGENTS, ALL_ENVIRONMENTS,
-                        SimulationSetupTesting.class, null));
+                     () -> SimaSimulation.runSimulation(null, ALL_AGENTS, ALL_ENVIRONMENTS,
+                                                        SimulationSetupTesting.class, null));
     }
 
     @Test
     public void runSimulationWithNotNullSchedulerNotFail() {
         assertDoesNotThrow(() -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                SimulationSetupTesting.class, null));
+                                                              SimulationSetupTesting.class, null));
     }
 
     @Test
     public void runSimulationWithNullAllAgentsNotFail() {
         assertDoesNotThrow(() -> SimaSimulation.runSimulation(SCHEDULER, null, ALL_ENVIRONMENTS,
-                SimulationSetupTesting.class, null));
+                                                              SimulationSetupTesting.class, null));
     }
 
     @Test
     public void runSimulationWithEmptyAllAgentsNotFail() {
         assertDoesNotThrow(() -> SimaSimulation.runSimulation(SCHEDULER, new HashSet<>(), ALL_ENVIRONMENTS,
-                SimulationSetupTesting.class, null));
+                                                              SimulationSetupTesting.class, null));
     }
 
     @Test
     public void runSimulationWithNullAllEnvironmentsThrowsException() {
         assertThrows(SimaSimulationFailToStartRunningException.class,
-                () -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, null,
-                        SimulationSetupTesting.class, null));
+                     () -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, null,
+                                                        SimulationSetupTesting.class, null));
     }
 
     @Test
     public void runSimulationWithEmptyAllEnvironmentsThrowsException() {
         assertThrows(SimaSimulationFailToStartRunningException.class,
-                () -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, new HashSet<>(),
-                        SimulationSetupTesting.class, null));
+                     () -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, new HashSet<>(),
+                                                        SimulationSetupTesting.class, null));
     }
 
     @Test
     public void runSimulationWithAllEnvironmentsNotNullAndNotEmptyNotFail() {
         assertDoesNotThrow(() -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                SimulationSetupTesting.class, null));
+                                                              SimulationSetupTesting.class, null));
     }
 
     @Test
     public void runSimulationWithSetWhichContainsSeveralEnvironmentWithSameNameThrowsException() {
         assertThrows(SimaSimulationFailToStartRunningException.class,
-                () -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, SAME_NAME_ENVIRONMENT_SET,
-                        SimulationSetupTesting.class, null));
+                     () -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, SAME_NAME_ENVIRONMENT_SET,
+                                                        SimulationSetupTesting.class, null));
     }
 
     @Test
     public void runSimulationWithNullSimulationSetupClassNotFail() {
         assertDoesNotThrow(() -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                null, null));
+                                                              null, null));
     }
 
     @Test
     public void runSimulationWithSimulationSetupWhichHasNotCorrectConstructorThrowsException() {
         assertThrows(SimaSimulationFailToStartRunningException.class,
-                () -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                        WrongSimulationSetup.class, null));
+                     () -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
+                                                        WrongSimulationSetup.class, null));
     }
 
     @Test
     public void runSimulationWithNullSimaWatcherNotFail() {
         assertDoesNotThrow(() -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                SimulationSetupTesting.class, null));
+                                                              SimulationSetupTesting.class, null));
     }
 
     @Test
     public void runSimulationWithNotNullSimaWatcherNotFail() {
         assertDoesNotThrow(() -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                SimulationSetupTesting.class, SIMA_WATCHER));
+                                                              SimulationSetupTesting.class, SIMA_WATCHER));
     }
 
     @Test
     public void runSimulationStartAndStopDirectlyWithEmptyScheduler() {
         try {
             SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                    SimulationSetupTesting.class, SIMA_WATCHER);
+                                         SimulationSetupTesting.class, SIMA_WATCHER);
 
             assertFalse(SimaSimulation.simaSimulationIsRunning());
             assertEquals(1, SIMA_WATCHER.getPassToOnSimStarted());
@@ -173,7 +177,7 @@ public class SimaSimulationTest extends SimaTest {
         schedulerScheduleLongExecutable();
         try {
             SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                    SimulationSetupTesting.class, SIMA_WATCHER);
+                                         SimulationSetupTesting.class, SIMA_WATCHER);
             assertTrue(SimaSimulation.simaSimulationIsRunning());
         } catch (SimaSimulationFailToStartRunningException e) {
             fail(e);
@@ -185,7 +189,7 @@ public class SimaSimulationTest extends SimaTest {
         schedulerScheduleLongExecutable();
         try {
             SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                    SimulationSetupTesting.class, SIMA_WATCHER);
+                                         SimulationSetupTesting.class, SIMA_WATCHER);
             assertTrue(SimaSimulation.simaSimulationIsRunning());
             SimaSimulation.waitEndSimulation();
             assertFalse(SimaSimulation.simaSimulationIsRunning());
@@ -199,12 +203,15 @@ public class SimaSimulationTest extends SimaTest {
         schedulerScheduleLongExecutable();
         try {
             SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                    SimulationSetupTesting.class, SIMA_WATCHER);
+                                         SimulationSetupTesting.class, SIMA_WATCHER);
 
             verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                    () -> assertThrows(SimaSimulationFailToStartRunningException.class,
-                            () -> SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                                    SimulationSetupTesting.class, SIMA_WATCHER)));
+                                             () -> assertThrows(SimaSimulationFailToStartRunningException.class,
+                                                                () -> SimaSimulation.runSimulation(SCHEDULER,
+                                                                                                   ALL_AGENTS,
+                                                                                                   ALL_ENVIRONMENTS,
+                                                                                                   SimulationSetupTesting.class,
+                                                                                                   SIMA_WATCHER)));
         } catch (SimaSimulationFailToStartRunningException e) {
             fail(e);
         }
@@ -215,7 +222,7 @@ public class SimaSimulationTest extends SimaTest {
         schedulerScheduleLongExecutable();
         try {
             SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                    SimulationSetupTesting.class, SIMA_WATCHER);
+                                         SimulationSetupTesting.class, SIMA_WATCHER);
             SimaSimulation.killSimulation();
             assertEquals(1, SIMA_WATCHER.getPassToInSimKilled());
             assertEquals(1, SCHEDULER_WATCHER.isPassToSchedulerKilled);
@@ -234,7 +241,7 @@ public class SimaSimulationTest extends SimaTest {
         runSimulationWithLongExecutable();
 
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                () -> assertNotNull(SimaSimulation.getScheduler())
+                                         () -> assertNotNull(SimaSimulation.getScheduler())
         );
     }
 
@@ -248,7 +255,7 @@ public class SimaSimulationTest extends SimaTest {
         runSimulationWithLongExecutable();
 
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                () -> assertTrue(0 <= SimaSimulation.getCurrentTime()));
+                                         () -> assertTrue(0 <= SimaSimulation.getCurrentTime()));
     }
 
     @Test
@@ -260,7 +267,7 @@ public class SimaSimulationTest extends SimaTest {
     public void addAgentReturnsTrueIfAgentHasNotBeenAlreadyAdded() {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                () -> assertTrue(SimaSimulation.addAgent(A_0)));
+                                         () -> assertTrue(SimaSimulation.addAgent(A_0)));
     }
 
     @Test
@@ -268,65 +275,68 @@ public class SimaSimulationTest extends SimaTest {
         runSimulationWithLongExecutable();
         SimaSimulation.addAgent(A_0);
         verifyPreConditionAndExecuteTest(() -> SimaSimulation.simaSimulationIsRunning()
-                        && SimaSimulation.getAgent(A_0.getAgentIdentifier()) != null,
-                () -> assertFalse(SimaSimulation.addAgent(A_0)));
+                                                 && SimaSimulation.getAgent(A_0.getAgentIdentifier()) != null,
+                                         () -> assertFalse(SimaSimulation.addAgent(A_0)));
     }
 
     @Test
     public void getAgentFromIdentifierThrowsExceptionIfSimaSimulationIsNotRunning() {
-        assertThrows(SimaSimulationIsNotRunningException.class, () -> SimaSimulation.getAgent(A_0.getAgentIdentifier()));
+        assertThrows(SimaSimulationIsNotRunningException.class,
+                     () -> SimaSimulation.getAgent(A_0.getAgentIdentifier()));
     }
 
     @Test
     public void getAgentFromIdentifierWithNullAgentIdentifierReturnsNull() {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                () -> assertNull(SimaSimulation.getAgent(null)));
+                                         () -> assertNull(SimaSimulation.getAgent(null)));
     }
 
     @Test
     public void getAgentFromIdentifierReturnsNullIfTheAgentIsNotPresent() {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                () -> assertNull(SimaSimulation.getAgent(A_0.getAgentIdentifier())));
+                                         () -> assertNull(SimaSimulation.getAgent(A_0.getAgentIdentifier())));
     }
 
     @Test
     public void getAgentFromIdentifierReturnsTheCorrespondingAgentToTheAgentIdentifierIfItIsPresent() {
         runSimulationWithAgentAdded();
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                () -> {
-                    AbstractAgent a = SimaSimulation.getAgent(A_0.getAgentIdentifier());
-                    assertNotNull(a);
-                    assertSame(a, A_0);
-                });
+                                         () -> {
+                                             AbstractAgent a = SimaSimulation.getAgent(A_0.getAgentIdentifier());
+                                             assertNotNull(a);
+                                             assertSame(a, A_0);
+                                         });
     }
 
     @Test
     public void addEnvironmentThrowsExceptionIfSimaSimulationIsNotRunning() {
-        assertThrows(SimaSimulationIsNotRunningException.class, () -> SimaSimulation.addEnvironment(NOT_ADDED_ENVIRONMENT_1));
+        assertThrows(SimaSimulationIsNotRunningException.class,
+                     () -> SimaSimulation.addEnvironment(NOT_ADDED_ENVIRONMENT_1));
     }
 
     @Test
     public void addEnvironmentReturnsTrueForANotAddedEnvironmentIfSimaSimulationIsRunning() {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                () -> assertTrue(SimaSimulation.addEnvironment(NOT_ADDED_ENVIRONMENT_1)));
+                                         () -> assertTrue(SimaSimulation.addEnvironment(NOT_ADDED_ENVIRONMENT_1)));
     }
 
     @Test
     public void addEnvironmentReturnsFalseWithAlreadyAddedEnvironmentIfSimaSimulationIsRunning() {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                () -> assertFalse(SimaSimulation.addEnvironment(ENV_0)));
+                                         () -> assertFalse(SimaSimulation.addEnvironment(ENV_0)));
     }
 
     @Test
     public void addEnvironmentCanAddSeveralEnvironmentWithSameClassButDifferentNameIfSimaSimulationIsRunning() {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                () -> assertTrue(SimaSimulation.addEnvironment(NOT_ADDED_ENVIRONMENT_1)
-                        && SimaSimulation.addEnvironment(NOT_ADDED_ENVIRONMENT_2)));
+                                         () -> assertTrue(SimaSimulation.addEnvironment(NOT_ADDED_ENVIRONMENT_1)
+                                                                  && SimaSimulation.addEnvironment(
+                                                 NOT_ADDED_ENVIRONMENT_2)));
     }
 
     @Test
@@ -338,33 +348,35 @@ public class SimaSimulationTest extends SimaTest {
     public void getAllEnvironmentsNeverReturnsNullIfSimaSimulationIsRunning() {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                () -> assertNotNull(SimaSimulation.getAllEnvironments()));
+                                         () -> assertNotNull(SimaSimulation.getAllEnvironments()));
     }
 
     @Test
     public void getAllEnvironmentReturnsASetWhichContainsAddedEnvironmentIfSimaSimulationIsRunning() {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                () -> assertTrue(SimaSimulation.getAllEnvironments().contains(ENV_0)));
+                                         () -> assertTrue(SimaSimulation.getAllEnvironments().contains(ENV_0)));
     }
 
     @Test
     public void getEnvironmentThrowsExceptionIfSimaSimulationIsNotRunning() {
-        assertThrows(SimaSimulationIsNotRunningException.class, () -> SimaSimulation.getEnvironment(ENV_0.getEnvironmentName()));
+        assertThrows(SimaSimulationIsNotRunningException.class,
+                     () -> SimaSimulation.getEnvironment(ENV_0.getEnvironmentName()));
     }
 
     @Test
     public void getEnvironmentReturnsNullWithNullEnvironmentNameIfSimaSimulationIsRunning() {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                () -> assertNull(SimaSimulation.getEnvironment(null)));
+                                         () -> assertNull(SimaSimulation.getEnvironment(null)));
     }
 
     @Test
     public void getEnvironmentReturnsNullWithNotAssociatedNameWithEnvironmentIfSimaSimulationIsRunning() {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                () -> assertNull(SimaSimulation.getEnvironment(EnvironmentTesting.class.getName())));
+                                         () -> assertNull(
+                                                 SimaSimulation.getEnvironment(EnvironmentTesting.class.getName())));
     }
 
     @Test
@@ -372,12 +384,13 @@ public class SimaSimulationTest extends SimaTest {
         runSimulationWithLongExecutable();
         SimaSimulation.addEnvironment(NOT_ADDED_ENVIRONMENT_1);
         verifyPreConditionAndExecuteTest(() -> SimaSimulation.simaSimulationIsRunning()
-                        && SimaSimulation.getAllEnvironments().contains(NOT_ADDED_ENVIRONMENT_1),
-                () -> {
-                    Environment env = SimaSimulation.getEnvironment(NOT_ADDED_ENVIRONMENT_1.getEnvironmentName());
-                    assertNotNull(env);
-                    assertSame(env, NOT_ADDED_ENVIRONMENT_1);
-                });
+                                                 && SimaSimulation.getAllEnvironments().contains(NOT_ADDED_ENVIRONMENT_1),
+                                         () -> {
+                                             Environment env = SimaSimulation.getEnvironment(
+                                                     NOT_ADDED_ENVIRONMENT_1.getEnvironmentName());
+                                             assertNotNull(env);
+                                             assertSame(env, NOT_ADDED_ENVIRONMENT_1);
+                                         });
     }
 
     @Test
@@ -389,7 +402,7 @@ public class SimaSimulationTest extends SimaTest {
     public void getTimeModeReturnsTheCorrectTimeModeIfSimaSimulationIsRunning() {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                () -> assertEquals(SCHEDULER.getTimeMode(), SimaSimulation.getTimeMode()));
+                                         () -> assertEquals(SCHEDULER.getTimeMode(), SimaSimulation.getTimeMode()));
     }
 
     @Test
@@ -401,7 +414,8 @@ public class SimaSimulationTest extends SimaTest {
     public void getSchedulerTypeReturnsTheCorrectSchedulerTypeIfSimaSimulationIsRunning() {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
-                () -> assertEquals(SCHEDULER.getSchedulerType(), SimaSimulation.getSchedulerType()));
+                                         () -> assertEquals(SCHEDULER.getSchedulerType(),
+                                                            SimaSimulation.getSchedulerType()));
     }
 
     @Test
@@ -417,19 +431,67 @@ public class SimaSimulationTest extends SimaTest {
     }
 
     @Test
-    public void runSimulationWithJsonConfigurationTest1() {
-        try {
-            SimaSimulation.runSimulation("src/test/resources/config/testConfig1.json");
-        } catch (SimaSimulationFailToStartRunningException e) {
-            fail(e);
-        }
+    public void runSimulationWithMinimumConfigNotFail() {
+        assertDoesNotThrow(() -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "minimumConfig.json"));
+    }
+
+    @Test
+    public void runSimulationWithNegativeEndTimeConfigThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "negativeEndTime.json"));
+    }
+
+    @Test
+    public void runSimulationWithNegativeNbThreadsConfigThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "negativeNbThreads.json"));
+    }
+
+    @Test
+    public void runSimulationWithUnknownTimeModeConfigThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "unknownTimeMode.json"));
+    }
+
+    @Test
+    public void runSimulationWithUnknownSchedulerTypeConfigThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "unknownSchedulerType.json"));
+    }
+
+    @Test
+    public void runSimulationWithUnknownEnvironmentClassConfigThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "unknownEnvironmentClass.json"));
+    }
+
+    @Test
+    public void runSimulationWithoutEnvironmentsInConfigThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "withoutEnvironmentsConfig.json"));
+    }
+
+    @Test
+    public void runSimulationWithoutAgentsInConfigNotFail() {
+        assertDoesNotThrow(() -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "withoutAgentsConfig.json"));
+    }
+
+    @Test
+    public void runSimulationWithFullConfigNotFail() {
+        assertDoesNotThrow(() -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "fullConfig.json"));
+
+        SimaSimulation.waitEndSimulation();
+
+        assertEquals(1, SpecificControllerTesting.PASS_EXECUTE);
+        assertEquals(1, SpecificSimulationSetupTesting.PASS_SETUP_SIMULATION);
     }
 
     // Methods.
 
     private void runSimulationWithLongExecutable() {
         try {
-            SimaSimulation.runSimulation(SCHEDULER, null, ALL_ENVIRONMENTS, SimulationSetupWithLongExecutable.class, null);
+            SimaSimulation.runSimulation(SCHEDULER, null, ALL_ENVIRONMENTS, SimulationSetupWithLongExecutable.class,
+                                         null);
         } catch (SimaSimulationFailToStartRunningException e) {
             fail(e);
         }
@@ -437,7 +499,8 @@ public class SimaSimulationTest extends SimaTest {
 
     private void runSimulationWithAgentAdded() {
         try {
-            SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS, SimulationSetupWithLongExecutable.class, null);
+            SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
+                                         SimulationSetupWithLongExecutable.class, null);
         } catch (SimaSimulationFailToStartRunningException e) {
             fail(e);
         }

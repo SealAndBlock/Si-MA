@@ -202,14 +202,23 @@ public final class SimaSimulation {
                                                                Map<String, Environment> mapEnvironments)
             throws NoSuchMethodException, InstantiationException, ConfigurationException, IllegalAccessException,
                    InvocationTargetException, ClassNotFoundException {
-
         Set<AbstractAgent> agentSet = new HashSet<>();
-        for (AgentJson agentJson : simaSimulationJson.getAgents()) {
-            verifyAgentNumberToCreate(agentJson.getNumberToCreate());
-            createAgent(agentJson, agentSet, mapBehaviors, mapProtocols, mapEnvironments);
-        }
-
+        createAndAssociateAllAgents(simaSimulationJson, mapBehaviors, mapProtocols, mapEnvironments, agentSet);
         return agentSet;
+    }
+
+    private static void createAndAssociateAllAgents(SimaSimulationJson simaSimulationJson,
+                                                    Map<String, BehaviorJson> mapBehaviors,
+                                                    Map<String, ProtocolJson> mapProtocols,
+                                                    Map<String, Environment> mapEnvironments,
+                                                    Set<AbstractAgent> agentSet)
+            throws ConfigurationException, NoSuchMethodException, InvocationTargetException, InstantiationException,
+                   IllegalAccessException, ClassNotFoundException {
+        if (simaSimulationJson.getAgents() != null)
+            for (AgentJson agentJson : simaSimulationJson.getAgents()) {
+                verifyAgentNumberToCreate(agentJson.getNumberToCreate());
+                createAgent(agentJson, agentSet, mapBehaviors, mapProtocols, mapEnvironments);
+            }
     }
 
     /**
@@ -345,14 +354,26 @@ public final class SimaSimulation {
                    IllegalAccessException, InvocationTargetException {
 
         Set<Environment> environments = new HashSet<>();
-        for (EnvironmentJson environmentJson : simulationJson.getEnvironments()) {
-            Environment environment =
-                    createEnvironmentAndAddInSet(environments, environmentJson, parseArgs(environmentJson));
-            mapEnvironments.put(Optional.ofNullable(environmentJson.getId())
-                                        .orElseThrow(() -> new ConfigurationException("EnvironmentId cannot be null")),
-                                environment);
-        }
+        createAndAddInSetAndMapEnvironment(simulationJson, mapEnvironments, environments);
         return environments;
+    }
+
+    private static void createAndAddInSetAndMapEnvironment(SimaSimulationJson simulationJson,
+                                                           Map<String, Environment> mapEnvironments,
+                                                           Set<Environment> environments)
+            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException,
+                   IllegalAccessException, ConfigurationException {
+        if (simulationJson.getEnvironments() != null && !simulationJson.getEnvironments().isEmpty())
+            for (EnvironmentJson environmentJson : simulationJson.getEnvironments()) {
+                Environment environment =
+                        createEnvironmentAndAddInSet(environments, environmentJson, parseArgs(environmentJson));
+                mapEnvironments.put(Optional.ofNullable(environmentJson.getId())
+                                            .orElseThrow(
+                                                    () -> new ConfigurationException("EnvironmentId cannot be null")),
+                                    environment);
+            }
+        else
+            throw new ConfigurationException("The simulation need at least one environment");
     }
 
     private static @NotNull Environment createEnvironmentAndAddInSet(Set<Environment> environments,
