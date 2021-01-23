@@ -7,7 +7,12 @@
     {
       "id": "SEnvT",
       "name": "SpecificEnvironmentTesting",
-      "environmentClass": "sima.core.simulation.specific.SpecificEnvironmentTesting"
+      "environmentClass": "sima.core.simulation.specific.SpecificEnvironmentTesting",
+      "args": [
+        [
+          "args1"
+        ]
+      ]
     }
   ]
 }

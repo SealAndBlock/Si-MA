@@ -5,32 +5,56 @@
   "schedulerType": "MULTI_THREAD",
   "simulationSetupClass": "sima.core.simulation.specific.SpecificSimulationSetupTesting",
   "schedulerWatcherClass": "sima.core.simulation.specific.SpecificSchedulerWatcherTesting",
-  "simWatcherClass": "sima.core.simulation.specific.SpecificSimaWatcherTesting",
+  "simaWatcherClass": "sima.core.simulation.specific.SpecificSimaWatcherTesting",
   "controllers": [
     {
       "controllerClass": "sima.core.simulation.specific.SpecificControllerTesting",
       "scheduleMode": "ONCE",
-      "beginAt": 10
+      "beginAt": 10,
+      "args": [
+        [
+          "cArg1",
+          "arg1"
+        ]
+      ]
     }
   ],
   "environments": [
     {
       "id": "SEnvT",
       "name": "SpecificEnvironmentTesting",
-      "environmentClass": "sima.core.simulation.specific.SpecificEnvironmentTesting"
+      "environmentClass": "sima.core.simulation.specific.SpecificEnvironmentTesting",
+      "args": [
+        [
+          "eArg1",
+          "arg1"
+        ]
+      ]
     }
   ],
   "protocols": [
     {
       "id": "SProT",
       "tag": "SpecificProtocolTestingTag",
-      "protocolClass": "sima.core.simulation.specific.SpecificProtocolTesting"
+      "protocolClass": "sima.core.simulation.specific.SpecificProtocolTesting",
+      "args": [
+        [
+          "pArg1",
+          "arg1"
+        ]
+      ]
     }
   ],
   "behaviors": [
     {
       "id": "SBehT",
-      "behaviorClass": "sima.core.simulation.specific.SpecificBehaviorTesting"
+      "behaviorClass": "sima.core.simulation.specific.SpecificBehaviorTesting",
+      "args": [
+        [
+          "bArg1",
+          "arg1"
+        ]
+      ]
     }
   ],
   "agents": [
@@ -46,6 +70,12 @@
       ],
       "environments": [
         "SEnvT"
+      ],
+      "args": [
+        [
+          "aArg1",
+          "arg1"
+        ]
       ]
     }
   ]

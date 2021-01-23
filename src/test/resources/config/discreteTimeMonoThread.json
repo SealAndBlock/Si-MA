@@ -2,7 +2,7 @@
   "endTime": 10000,
   "nbThreads": 8,
   "timeMode": "DISCRETE_TIME",
-  "schedulerType": "MULTI_THREAD",
+  "schedulerType": "MONO_THREAD",
   "environments": [
     {
       "id": "SEnvT",

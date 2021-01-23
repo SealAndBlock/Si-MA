@@ -60,7 +60,6 @@ public final class SimaSimulation {
         Map<String, ProtocolJson> mapProtocols;
         Map<String, Environment> mapEnvironments = new HashMap<>();
         Scheduler scheduler;
-        List<ControllerJson> controllers;
         Class<? extends SimulationSetup> simulationSetupClass;
         SimaWatcher simaWatcher;
 
@@ -380,13 +379,17 @@ public final class SimaSimulation {
                                                                      EnvironmentJson environmentJson,
                                                                      Map<String, String> args)
             throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException,
-                   IllegalAccessException {
+                   IllegalAccessException, ConfigurationException {
 
         Environment environment =
                 createEnvironment(extractClassForName(environmentJson.getEnvironmentClass()), environmentJson.getName(),
                                   args != null ? (args.isEmpty() ? null : args) : null);
-        environments.add(environment);
-        return environment;
+        if (environments.add(environment))
+            return environment;
+        else
+            throw new ConfigurationException("Two environments with the same hashCode (Probably due to the fact that "
+                                                     + "they have the same name). Problematic Environment = "
+                                                     + environment);
     }
 
     @SuppressWarnings("unchecked")
@@ -403,14 +406,13 @@ public final class SimaSimulation {
 
         Map<String, String> args = new HashMap<>();
         if (argumentativeObjectJson.getArgs() != null)
-            for (List<String> argsCouple : argumentativeObjectJson.getArgs()) {
-                if (argsCouple.size() == 2) {
+            for (List<String> argsCouple : argumentativeObjectJson.getArgs())
+                if (argsCouple.size() == 2)
                     args.put(Optional.of(argsCouple.get(0)).get(), argsCouple.get(1));
-                } else {
+                else
                     throw new ConfigurationException(
                             "Wrong format for argument. In Json a args is an array of only 2 values: the args name and its value");
-                }
-            }
+
         return args.isEmpty() ? null : args;
     }
 

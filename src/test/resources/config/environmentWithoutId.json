@@ -5,7 +5,6 @@
   "schedulerType": "MULTI_THREAD",
   "environments": [
     {
-      "id": "SEnvT",
       "name": "SpecificEnvironmentTesting",
       "environmentClass": "sima.core.simulation.specific.SpecificEnvironmentTesting"
     }

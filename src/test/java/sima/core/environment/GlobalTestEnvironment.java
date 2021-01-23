@@ -20,16 +20,17 @@ public abstract class GlobalTestEnvironment extends SimaTest {
     // Statics.
 
     protected static Environment ENVIRONMENT;
+    protected static Environment ENVIRONMENT_EQUAL;
 
     /**
-     * An instance of {@link AbstractAgent} which we are sure that the method
-     * {@link Environment#agentCanBeAccepted(AgentIdentifier)} returns <strong>TRUE</strong>.
+     * An instance of {@link AbstractAgent} which we are sure that the method {@link
+     * Environment#agentCanBeAccepted(AgentIdentifier)} returns <strong>TRUE</strong>.
      */
     protected static AgentIdentifier ACCEPTED_AGENT;
 
     /**
-     * An instance of {@link AbstractAgent} which we are sure that the method
-     * {@link Environment#agentCanBeAccepted(AgentIdentifier)} returns <strong>FALSE</strong>.
+     * An instance of {@link AbstractAgent} which we are sure that the method {@link
+     * Environment#agentCanBeAccepted(AgentIdentifier)} returns <strong>FALSE</strong>.
      */
     protected static AgentIdentifier NOT_ACCEPTED_AGENT;
 
@@ -38,6 +39,7 @@ public abstract class GlobalTestEnvironment extends SimaTest {
     @Override
     protected void verifyAndSetup() {
         assertNotNull(ENVIRONMENT, " ENVIRONMENT cannot be null for tests");
+        assertNotNull(ENVIRONMENT_EQUAL, " ENVIRONMENT_EQUAL cannot be null for tests");
         assertNotNull(ACCEPTED_AGENT, " ACCEPTED_AGENT cannot be null for tests");
         assertNotNull(NOT_ACCEPTED_AGENT, " NOT_ACCEPTED_AGENT cannot be null for tests");
 
@@ -185,8 +187,8 @@ public abstract class GlobalTestEnvironment extends SimaTest {
 
     @Test
     public void isEvolvingReturnsTrueForAnAgentWhichHasBeenAccepted() {
-        this.verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.acceptAgent(ACCEPTED_AGENT),
-                () -> assertTrue(ENVIRONMENT.isEvolving(ACCEPTED_AGENT)));
+        verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.acceptAgent(ACCEPTED_AGENT),
+                                         () -> assertTrue(ENVIRONMENT.isEvolving(ACCEPTED_AGENT)));
     }
 
     @Test
@@ -196,19 +198,19 @@ public abstract class GlobalTestEnvironment extends SimaTest {
 
     @Test
     public void isEvolvingReturnsFalseForANotAcceptedAgent() {
-        this.verifyPreConditionAndExecuteTest(() -> !ENVIRONMENT.agentCanBeAccepted(NOT_ACCEPTED_AGENT),
-                () -> assertFalse(ENVIRONMENT.isEvolving(NOT_ACCEPTED_AGENT)));
+        verifyPreConditionAndExecuteTest(() -> !ENVIRONMENT.agentCanBeAccepted(NOT_ACCEPTED_AGENT),
+                                         () -> assertFalse(ENVIRONMENT.isEvolving(NOT_ACCEPTED_AGENT)));
     }
 
     @Test
     public void isEvolvingReturnsFalseAfterThatAnEvolvingAgentLeaveTheEnvironment() {
         ENVIRONMENT.acceptAgent(ACCEPTED_AGENT);
 
-        this.verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT),
-                () -> {
-                    ENVIRONMENT.leave(ACCEPTED_AGENT);
-                    assertFalse(ENVIRONMENT.isEvolving(ACCEPTED_AGENT));
-                });
+        verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT),
+                                         () -> {
+                                             ENVIRONMENT.leave(ACCEPTED_AGENT);
+                                             assertFalse(ENVIRONMENT.isEvolving(ACCEPTED_AGENT));
+                                         });
     }
 
     @Test
@@ -218,25 +220,28 @@ public abstract class GlobalTestEnvironment extends SimaTest {
 
     @Test
     public void evolvingAgentListContainsTheAgentIdentifierAfterThatItHasBeenAccepted() {
-        this.verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.acceptAgent(ACCEPTED_AGENT),
-                () -> assertTrue(ENVIRONMENT.getEvolvingAgentIdentifiers().contains(ACCEPTED_AGENT)));
+        verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.acceptAgent(ACCEPTED_AGENT),
+                                         () -> assertTrue(
+                                                 ENVIRONMENT.getEvolvingAgentIdentifiers().contains(ACCEPTED_AGENT)));
     }
 
     @Test
     public void evolvingAgentListDoesNotContainsTheAgentIdentifierOfAnNotAcceptedAgent() {
-        this.verifyPreConditionAndExecuteTest(() -> !ENVIRONMENT.acceptAgent(NOT_ACCEPTED_AGENT),
-                () -> assertFalse(ENVIRONMENT.getEvolvingAgentIdentifiers().contains(NOT_ACCEPTED_AGENT)));
+        verifyPreConditionAndExecuteTest(() -> !ENVIRONMENT.acceptAgent(NOT_ACCEPTED_AGENT),
+                                         () -> assertFalse(ENVIRONMENT.getEvolvingAgentIdentifiers()
+                                                                   .contains(NOT_ACCEPTED_AGENT)));
     }
 
     @Test
     public void evolvingAgentListDoesNotContainsAnAgentWhichHasLeftTheEnvironment() {
         ENVIRONMENT.acceptAgent(ACCEPTED_AGENT);
 
-        this.verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.getEvolvingAgentIdentifiers().contains(ACCEPTED_AGENT),
-                () -> {
-                    ENVIRONMENT.leave(ACCEPTED_AGENT);
-                    assertFalse(ENVIRONMENT.getEvolvingAgentIdentifiers().contains(ACCEPTED_AGENT));
-                });
+        verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.getEvolvingAgentIdentifiers().contains(ACCEPTED_AGENT),
+                                         () -> {
+                                             ENVIRONMENT.leave(ACCEPTED_AGENT);
+                                             assertFalse(ENVIRONMENT.getEvolvingAgentIdentifiers()
+                                                                 .contains(ACCEPTED_AGENT));
+                                         });
     }
 
     @Test
@@ -246,18 +251,19 @@ public abstract class GlobalTestEnvironment extends SimaTest {
 
     @Test
     public void sendEventThrowsExceptionIfSenderAgentIsNotEvolvingInTheEnvironment() {
-        this.verifyPreConditionAndExecuteTest(() -> !ENVIRONMENT.isEvolving(ACCEPTED_AGENT),
-                () -> {
-                    Event event = new EventTesting(ACCEPTED_AGENT, ACCEPTED_AGENT, null);
-                    assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> ENVIRONMENT.sendEvent(event));
-                });
+        verifyPreConditionAndExecuteTest(() -> !ENVIRONMENT.isEvolving(ACCEPTED_AGENT),
+                                         () -> {
+                                             Event event = new EventTesting(ACCEPTED_AGENT, ACCEPTED_AGENT, null);
+                                             assertThrows(NotEvolvingAgentInEnvironmentException.class,
+                                                          () -> ENVIRONMENT.sendEvent(event));
+                                         });
     }
 
     @Test
     public void sendEventThrowsExceptionIfReceiverAgentIsNotEvolvingInTheEnvironment() {
         ENVIRONMENT.acceptAgent(ACCEPTED_AGENT);
 
-        this.verifyPreConditionAndExecuteTest(
+        verifyPreConditionAndExecuteTest(
                 () -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT) && !ENVIRONMENT.isEvolving(NOT_ACCEPTED_AGENT),
                 () -> {
                     Event event = new EventTesting(ACCEPTED_AGENT, NOT_ACCEPTED_AGENT, null);
@@ -274,29 +280,39 @@ public abstract class GlobalTestEnvironment extends SimaTest {
     public void sendEventNotFailForAnEventWithNoReceiver() {
         ENVIRONMENT.acceptAgent(ACCEPTED_AGENT);
 
-        this.verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT),
-                () -> {
-                    try {
-                        Event event = new EventTesting(ACCEPTED_AGENT, null, null);
-                        ENVIRONMENT.sendEvent(event);
-                    } catch (Exception e) {
-                        fail(e);
-                    }
-                });
+        verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT),
+                                         () -> {
+                                             try {
+                                                 Event event = new EventTesting(ACCEPTED_AGENT, null, null);
+                                                 ENVIRONMENT.sendEvent(event);
+                                             } catch (Exception e) {
+                                                 fail(e);
+                                             }
+                                         });
     }
 
     @Test
     public void sendEventNotFailForAnEventWithAnEvolvingAgentReceiver() {
         ENVIRONMENT.acceptAgent(ACCEPTED_AGENT);
 
-        this.verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT),
-                () -> {
-                    try {
-                        Event event = new EventTesting(ACCEPTED_AGENT, ACCEPTED_AGENT, null);
-                        ENVIRONMENT.sendEvent(event);
-                    } catch (Exception e) {
-                        fail(e);
-                    }
-                });
+        verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT),
+                                         () -> {
+                                             try {
+                                                 Event event = new EventTesting(ACCEPTED_AGENT, ACCEPTED_AGENT, null);
+                                                 ENVIRONMENT.sendEvent(event);
+                                             } catch (Exception e) {
+                                                 fail(e);
+                                             }
+                                         });
+    }
+
+    @Test
+    public void equalsReturnsTrueWithTwoEqualEnvironment() {
+        assertEquals(ENVIRONMENT, ENVIRONMENT_EQUAL);
+    }
+    
+    @Test
+    public void equalsReturnsFalseWithAnNotInstanceOfEnvironment() {
+        assertNotEquals(new Object(), ENVIRONMENT);
     }
 }

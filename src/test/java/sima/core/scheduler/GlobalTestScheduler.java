@@ -285,7 +285,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 0,
                 Scheduler.ScheduleMode.ONCE, -1, -1));
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 0,
-                Scheduler.ScheduleMode.REPEATED, -1, -1));
+                                                                                        Scheduler.ScheduleMode.REPEATED, -1, -1));
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 0,
                 Scheduler.ScheduleMode.INFINITE, -1, -1));
     }
@@ -295,7 +295,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         ExecutableTesting e0 = new ExecutableTesting();
 
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 1,
-                Scheduler.ScheduleMode.REPEATED, 0, 1));
+                                                                                        Scheduler.ScheduleMode.REPEATED, 0, 1));
     }
 
     @Test
@@ -303,7 +303,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         ExecutableTesting e0 = new ExecutableTesting();
 
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 1,
-                Scheduler.ScheduleMode.REPEATED, 1, 0));
+                                                                                        Scheduler.ScheduleMode.REPEATED, 1, 0));
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 1,
                 Scheduler.ScheduleMode.INFINITE, -1, 0));
     }
@@ -702,7 +702,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
                 SCHEDULER.getCurrentTime());
 
         SCHEDULER.scheduleExecutable(executable, repetitionBegin, Scheduler.ScheduleMode.REPEATED, nbRepetitions,
-                stepBetweenRepetition);
+                                     stepBetweenRepetition);
 
         assertTrue(SCHEDULER.start());
 

@@ -72,6 +72,9 @@ public class SimaSimulationTest extends SimaTest {
         SIMA_WATCHER = new SimaWatcherTesting();
 
         SimaSimulation.waitEndSimulation();
+
+        SpecificControllerTesting.PASS_EXECUTE = 0;
+        SpecificSimulationSetupTesting.PASS_SETUP_SIMULATION = 0;
     }
 
     // Tests.
@@ -460,9 +463,85 @@ public class SimaSimulationTest extends SimaTest {
     }
 
     @Test
+    public void runSimulationWithDiscreteTimeMonoThreadSchedulerThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "discreteTimeMonoThread.json"));
+    }
+
+    @Test
+    public void runSimulationWithRealTimeMonoThreadSchedulerThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "realTimeMonoThread.json"));
+    }
+
+    @Test
+    public void runSimulationWithRealTimeMultiThreadSchedulerThrowsException() {
+        assertDoesNotThrow(() -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "realTimeMultiThread.json"));
+    }
+
+    @Test
+    public void runSimulationWithWrongFormatArgsThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "wrongFormatArgs.json"));
+    }
+
+    @Test
+    public void runSimulationWithControllerScheduledOnceNotFail() {
+        assertDoesNotThrow(() -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "controllerScheduledOnce.json"));
+    }
+
+    @Test
+    public void runSimulationWithControllerScheduledRepeatedNotFail() {
+        assertDoesNotThrow(() -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "controllerScheduledRepeated.json"));
+    }
+
+    @Test
+    public void runSimulationWithControllerScheduledInfinitelyNotFail() {
+        assertDoesNotThrow(
+                () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "controllerScheduledInfinitely.json"));
+    }
+
+    @Test
+    public void runSimulationWithBehaviorWhichDoesNotAcceptOneAgentThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "behaviorWhichDoesNotAcceptAgent.json"));
+    }
+
+    @Test
+    public void runSimulationWithAgentWhichDoesNotAcceptToAddProtocolThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "agentWhichDoesNotAcceptToAddProtocol"
+                                                                + ".json"));
+    }
+
+    @Test
     public void runSimulationWithUnknownEnvironmentClassConfigThrowsException() {
         assertThrows(SimaSimulationFailToStartRunningException.class,
                      () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "unknownEnvironmentClass.json"));
+    }
+
+    @Test
+    public void runSimulationWithUnknownEnvironmentIdInAgentThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "unknownEnvironmentIdInAgent.json"));
+    }
+
+    @Test
+    public void runSimulationWithTwoEnvironmentsWithHashCodeThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "twoEnvironmentsWithSameHashCode.json"));
+    }
+
+    @Test
+    public void runSimulationWithEnvironmentWhichDoesNotAcceptAgentThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "environmentDoesNotAcceptAgent.json"));
+    }
+
+    @Test
+    public void runSimulationWithEnvironmentWithoutIdThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "environmentWithoutId.json"));
     }
 
     @Test
@@ -474,6 +553,12 @@ public class SimaSimulationTest extends SimaTest {
     @Test
     public void runSimulationWithoutAgentsInConfigNotFail() {
         assertDoesNotThrow(() -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "withoutAgentsConfig.json"));
+    }
+
+    @Test
+    public void runSimulationWithNegativeAgentNumberToCreateThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "negativeAgentNumberToCreate.json"));
     }
 
     @Test
