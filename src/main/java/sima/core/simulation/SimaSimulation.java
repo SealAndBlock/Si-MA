@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class SimaSimulation {
 
@@ -213,11 +214,13 @@ public final class SimaSimulation {
                                                     Set<AbstractAgent> agentSet)
             throws ConfigurationException, NoSuchMethodException, InvocationTargetException, InstantiationException,
                    IllegalAccessException, ClassNotFoundException {
-        if (simaSimulationJson.getAgents() != null)
+        if (simaSimulationJson.getAgents() != null) {
+            AtomicInteger counter = new AtomicInteger(0);
             for (AgentJson agentJson : simaSimulationJson.getAgents()) {
                 verifyAgentNumberToCreate(agentJson.getNumberToCreate());
-                createAgent(agentJson, agentSet, mapBehaviors, mapProtocols, mapEnvironments);
+                createAgent(agentJson, agentSet, mapBehaviors, mapProtocols, mapEnvironments, counter);
             }
+        }
     }
 
     /**
@@ -241,12 +244,12 @@ public final class SimaSimulation {
      */
     private static void createAgent(AgentJson agentJson, Set<AbstractAgent> agents,
                                     Map<String, BehaviorJson> mapBehaviors, Map<String, ProtocolJson> mapProtocols,
-                                    Map<String, Environment> mapEnvironments)
+                                    Map<String, Environment> mapEnvironments, AtomicInteger counter)
             throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException,
                    ConfigurationException, ClassNotFoundException {
 
         for (int i = 0; i < agentJson.getNumberToCreate(); i++) {
-            AbstractAgent agent = createAgentAndAddInSet(agents, agentJson, i);
+            AbstractAgent agent = createAgentAndAddInSet(agents, agentJson, counter.getAndIncrement());
             associateAgentAndBehaviors(agent, agentJson, mapBehaviors);
             associateAgentAndProtocol(agent, agentJson, mapProtocols);
             associateAgentAndEnvironments(agent, agentJson, mapEnvironments);

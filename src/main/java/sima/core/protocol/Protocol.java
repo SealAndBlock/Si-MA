@@ -64,9 +64,6 @@ public abstract class Protocol implements EventCatcher {
         this.protocolTag = Optional.of(protocolTag).get();
         this.agentOwner = Optional.of(agentOwner).get();
         protocolManipulator = Optional.of(getDefaultProtocolManipulator()).get();
-
-        if (args != null)
-            processArgument(args);
     }
 
     // Methods.
@@ -80,14 +77,6 @@ public abstract class Protocol implements EventCatcher {
                 ", protocolManipulator=" + protocolManipulator +
                 ']';
     }
-
-    /**
-     * Method called in the constructors. It is this method which make all treatment associated to all arguments
-     * received.
-     *
-     * @param args arguments map (map argument name with the argument)
-     */
-    protected abstract void processArgument(Map<String, String> args);
 
     /**
      * Returns the {@link ProtocolIdentifier} of the sima.core.protocol. The sima.core.protocol identifier must allow an

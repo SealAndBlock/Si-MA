@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -36,10 +35,6 @@ public abstract class GlobalTestController extends GlobalTestExecutable {
             @Override
             public void execute() {
             }
-
-            @Override
-            protected void processArgument(Map<String, String> args) {
-            }
         });
     }
 
@@ -49,10 +44,6 @@ public abstract class GlobalTestController extends GlobalTestExecutable {
 
             @Override
             public void execute() {
-            }
-
-            @Override
-            protected void processArgument(Map<String, String> args) {
             }
         });
     }

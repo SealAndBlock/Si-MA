@@ -12,19 +12,9 @@ public abstract class SimulationSetup {
     // Constructors.
 
     protected SimulationSetup(Map<String, String> args) {
-        if (args != null)
-            processArgument(args);
     }
 
     // Methods.
-
-    /**
-     * Method called in the constructors. It is this method which make all treatment associated to all arguments
-     * received.
-     *
-     * @param args arguments map (map argument name with the argument)
-     */
-    protected abstract void processArgument(Map<String, String> args);
 
     /**
      * Called when the simulation is started and must be setup.

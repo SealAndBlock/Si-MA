@@ -25,10 +25,6 @@ public class BehaviorTesting extends Behavior {
     // Methods.
 
     @Override
-    protected void processArgument(Map<String, String> args) {
-    }
-
-    @Override
     public boolean canBePlayedBy(AbstractAgent agent) {
         return agent != null && !NOT_PLAYABLE_AGENT_LIST.contains(agent);
     }

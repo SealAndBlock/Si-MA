@@ -29,10 +29,6 @@ public class ProtocolTesting extends Protocol {
     }
 
     @Override
-    protected void processArgument(Map<String, String> args) {
-    }
-
-    @Override
     protected ProtocolManipulator getDefaultProtocolManipulator() {
         if (this.defaultProtocolManipulator == null)
             this.defaultProtocolManipulator = new DefaultProtocolManipulator(this);

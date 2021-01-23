@@ -6,7 +6,6 @@ public class ControllerTesting extends Controller {
 
     // Variables.
 
-    private int passProcessArgument;
     private int passExecute;
 
     // Constructors.
@@ -18,24 +17,11 @@ public class ControllerTesting extends Controller {
     // Methods.
 
     @Override
-    protected void processArgument(Map<String, String> args) {
-        passProcessArgument++;
-    }
-
-    @Override
     public void execute() {
         passExecute++;
     }
 
     // Getters and Setters.
-
-    public int getPassProcessArgument() {
-        return passProcessArgument;
-    }
-
-    public void setPassProcessArgument(int passProcessArgument) {
-        this.passProcessArgument = passProcessArgument;
-    }
 
     public int getPassExecute() {
         return passExecute;
