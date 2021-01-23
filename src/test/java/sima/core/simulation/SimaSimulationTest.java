@@ -24,7 +24,7 @@ public class SimaSimulationTest extends SimaTest {
 
     // Static.
 
-    private static final String PREFIX_CONFIG_PATH = "src/test/resources/config/";
+    public static final String PREFIX_CONFIG_PATH = "src/test/resources/config/";
 
     private static final long END_SIMULATION = 1_000;
     private static final int NB_EXECUTOR_THREAD = 8;
