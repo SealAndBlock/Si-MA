@@ -303,7 +303,7 @@ public class SimaSimulationTest extends SimaTest {
 
     @Test
     public void getAgentFromIdentifierReturnsTheCorrespondingAgentToTheAgentIdentifierIfItIsPresent() {
-        runSimulationWithAgentAdded();
+        runSimulationWithAgentAddedAndLongExecutable();
         verifyPreConditionAndExecuteTest(SimaSimulation::simaSimulationIsRunning,
                                          () -> {
                                              AbstractAgent a = SimaSimulation.getAgent(A_0.getAgentIdentifier());
@@ -573,21 +573,11 @@ public class SimaSimulationTest extends SimaTest {
     // Methods.
 
     private void runSimulationWithLongExecutable() {
-        try {
-            SimaSimulation.runSimulation(SCHEDULER, null, ALL_ENVIRONMENTS, SimulationSetupWithLongExecutable.class,
-                                         null);
-        } catch (SimaSimulationFailToStartRunningException e) {
-            fail(e);
-        }
+        runSimulationWithLongExecutable(SCHEDULER, ALL_ENVIRONMENTS, null);
     }
 
-    private void runSimulationWithAgentAdded() {
-        try {
-            SimaSimulation.runSimulation(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS,
-                                         SimulationSetupWithLongExecutable.class, null);
-        } catch (SimaSimulationFailToStartRunningException e) {
-            fail(e);
-        }
+    private void runSimulationWithAgentAddedAndLongExecutable() {
+        runSimulationWithLongExecutable(SCHEDULER, ALL_AGENTS, ALL_ENVIRONMENTS, null);
     }
 
     private void schedulerScheduleLongExecutable() {
