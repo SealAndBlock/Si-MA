@@ -41,23 +41,29 @@ public class FullyConnectedNetworkEnvironment extends Environment {
             maxSendDelay = minSendDelay;
     }
 
+    private void setFromArgsMinSendDelay(Map<String, String> args) {
+        if (args.containsKey(MIN_SEND_DELAY_ARGS))
+            try {
+                minSendDelay = Integer.parseInt(args.get(MIN_SEND_DELAY_ARGS));
+            } catch (NumberFormatException e) {
+                minSendDelay = DEFAULT_MIN_SEND_DELAY;
+            }
+
+        if (minSendDelay < 1)
+            minSendDelay = 1;
+    }
+
     private void setFromArgsMaxSendDelay(Map<String, String> args) {
         if (args.containsKey(MAX_SEND_DELAY_ARGS)) {
             try {
-                maxSendDelay = Long.parseLong(args.get(MAX_SEND_DELAY_ARGS));
+                maxSendDelay = Integer.parseInt(args.get(MAX_SEND_DELAY_ARGS));
             } catch (NumberFormatException e) {
                 maxSendDelay = DEFAULT_MAX_SEND_DELAY;
             }
         }
-    }
 
-    private void setFromArgsMinSendDelay(Map<String, String> args) {
-        if (args.containsKey(MIN_SEND_DELAY_ARGS))
-            try {
-                minSendDelay = Long.parseLong(args.get(MIN_SEND_DELAY_ARGS));
-            } catch (NumberFormatException e) {
-                minSendDelay = DEFAULT_MIN_SEND_DELAY;
-            }
+        if (maxSendDelay < 1)
+            maxSendDelay = 1;
     }
 
     /**
@@ -110,5 +116,15 @@ public class FullyConnectedNetworkEnvironment extends Environment {
     @Override
     public void processEvent(Event event) {
         // Nothing.
+    }
+
+    // Getters.
+
+    public long getMinSendDelay() {
+        return minSendDelay;
+    }
+
+    public long getMaxSendDelay() {
+        return maxSendDelay;
     }
 }

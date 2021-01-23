@@ -6,19 +6,23 @@ public class SimaSimulationUtils {
 
     // Static.
 
-    private static Random RANDOM;
+    private static final Random RANDOM = new Random();
 
     // Methods.
 
     /**
-     * Compute a random value in the interval [min;max]. The random computation is done with {@link #RANDOM}.
+     * Compute a random value in the interval [min;max[. The random computation is done with {@link #RANDOM}.
+     *
+     * <strong>WARNING!</strong> only works with positive value
      *
      * @param min the min value (include)
-     * @param max the max value (also include)
-     * @return a random value in the interval [min;max]
+     * @param max the max value (exclude)
+     * @return a random value in the interval [min;max[
      */
     public static long randomLong(long min, long max) {
-        return min + (Math.abs(randomLong()) % ((max + 1) - min));
+        if (max - min == 0)
+            return min;
+        return min + (Math.abs(randomLong()) % (max - min));
     }
 
     /**
@@ -30,14 +34,18 @@ public class SimaSimulationUtils {
     }
 
     /**
-     * Compute a random value in the interval [min;max]. The random computation is done with {@link #RANDOM}.
+     * Compute a random value in the interval [min;max[. The random computation is done with {@link #RANDOM}.
+     *
+     * <strong>WARNING!</strong> only works with positive value
      *
      * @param min the min value (include)
-     * @param max the max value (also include)
-     * @return a random value in the interval [min;max]
+     * @param max the max value (exclude)
+     * @return a random value in the interval [min;max[
      */
     public static int randomInt(int min, int max) {
-        return min + (Math.abs(randomInt()) % ((max + 1) - min));
+        if (max - min == 0)
+            return min;
+        return min + (Math.abs(randomInt()) % (max - min));
     }
 
     /**
