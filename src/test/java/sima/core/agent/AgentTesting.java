@@ -10,8 +10,7 @@ public class AgentTesting extends AbstractAgent {
 
     private int passToOnStart;
     private int passToOnKill;
-    private int passToTreatNoProtocolEvent;
-    private int passToTreatEventWithNotFindProtocol;
+    private int passToProcessNoProtocolEvent;
     private int passToProcessEvent;
 
     // Constructors.
@@ -39,13 +38,8 @@ public class AgentTesting extends AbstractAgent {
     }
 
     @Override
-    protected void treatNoProtocolEvent(Event event) {
-        passToTreatNoProtocolEvent++;
-    }
-
-    @Override
-    protected void treatEventWithNotFindProtocol(Event event) {
-        passToTreatEventWithNotFindProtocol++;
+    protected void processNoProtocolEvent(Event event) {
+        passToProcessNoProtocolEvent++;
     }
 
     // Getters and Setters.
@@ -58,12 +52,8 @@ public class AgentTesting extends AbstractAgent {
         return passToOnKill;
     }
 
-    public int getPassToTreatNoProtocolEvent() {
-        return passToTreatNoProtocolEvent;
-    }
-
-    public int getPassToTreatEventWithNotFindProtocol() {
-        return passToTreatEventWithNotFindProtocol;
+    public int getPassToProcessNoProtocolEvent() {
+        return passToProcessNoProtocolEvent;
     }
 
     public int getPassToProcessEvent() {

@@ -3,16 +3,16 @@ package sima.core.agent;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sima.core.SimaTest;
-import sima.core.exception.AgentNotStartedException;
-import sima.core.exception.AlreadyKilledAgentException;
-import sima.core.exception.AlreadyStartedAgentException;
-import sima.core.exception.KilledAgentException;
 import sima.core.behavior.Behavior;
 import sima.core.behavior.BehaviorNotPlayableTesting;
 import sima.core.behavior.BehaviorTesting;
 import sima.core.environment.Environment;
 import sima.core.environment.EnvironmentTesting;
 import sima.core.environment.event.EventTesting;
+import sima.core.exception.AgentNotStartedException;
+import sima.core.exception.AlreadyKilledAgentException;
+import sima.core.exception.AlreadyStartedAgentException;
+import sima.core.exception.KilledAgentException;
 import sima.core.protocol.*;
 
 import java.util.ArrayList;
@@ -141,11 +141,6 @@ public abstract class GlobalTestAbstractAgent extends SimaTest {
 
         assertTrue(env.isEvolving(AGENT_0.getAgentIdentifier()));
         this.verifyAgent0IsEvolving(env);
-    }
-
-    @Test
-    public void joinNullEnvironmentThrowsException() {
-        assertThrows(NullPointerException.class, () -> AGENT_0.joinEnvironment(null));
     }
 
     @Test
@@ -446,11 +441,6 @@ public abstract class GlobalTestAbstractAgent extends SimaTest {
     }
 
     @Test
-    public void tryToStopANullBehaviorThrowsException() {
-        assertThrows(NullPointerException.class, () -> AGENT_0.stopPlayingBehavior(null));
-    }
-
-    @Test
     public void afterStartAndKillAnAgentAllBehaviorsOfTheAgentAreNotPlayed() {
         AGENT_0.start();
         assertTrue(AGENT_0.isStarted());
@@ -478,10 +468,6 @@ public abstract class GlobalTestAbstractAgent extends SimaTest {
 
         AGENT_0.joinEnvironment(env0);
         AGENT_0.joinEnvironment(env1);
-
-        List<Environment> environmentList = new ArrayList<>();
-        environmentList.add(env0);
-        environmentList.add(env1);
 
         AGENT_0.kill();
         assertTrue(AGENT_0.isKilled());
@@ -593,26 +579,19 @@ public abstract class GlobalTestAbstractAgent extends SimaTest {
 
         EventTesting e = new EventTesting(AGENT_0.getAgentIdentifier(), AGENT_0.getAgentIdentifier(), null);
 
-        try {
-            AGENT_0.processEvent(e);
-        } catch (Exception exception) {
-            fail(exception);
-        }
+
+            assertDoesNotThrow(() -> AGENT_0.processEvent(e));
     }
 
     @Test
-    public void processEventNotThrowsExceptionIfTheAgentDoesNotHaveTheEventProtocolTargeted() {
+    public void processEventWithEventWithNotAddedProtocolThrowsException() {
         AGENT_0.start();
 
         String p0 = "P_0";
         ProtocolIdentifier p0Identifier = new ProtocolIdentifier(ProtocolTesting.class, p0);
         EventTesting e = new EventTesting(AGENT_0.getAgentIdentifier(), AGENT_0.getAgentIdentifier(), p0Identifier);
 
-        try {
-            AGENT_0.processEvent(e);
-        } catch (Exception exception) {
-            fail(exception);
-        }
+        assertThrows(IllegalArgumentException.class, () -> AGENT_0.processEvent(e));
     }
 
     @Test

@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sima.core.SimaTest;
 import sima.core.agent.AbstractAgent;
-import sima.core.environment.event.Event;
+import sima.core.agent.AgentTesting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,13 +27,13 @@ public abstract class GlobalTestAgentManager extends SimaTest {
 
     @Test
     public void canAddAbstractAgent() {
-        TestAgent agent = new TestAgent("AGENT1");
+        AgentTesting agent = new AgentTesting("AGENT1", 0, null);
         assertTrue(AGENT_MANAGER.addAgent(agent));
     }
 
     @Test
     public void cannotAddSameAbstractAgent() {
-        TestAgent agent = new TestAgent("AGENT1");
+        AgentTesting agent = new AgentTesting("AGENT1",0, null);
         assertTrue(AGENT_MANAGER.addAgent(agent));
         assertFalse(AGENT_MANAGER.addAgent(agent));
     }
@@ -45,11 +45,11 @@ public abstract class GlobalTestAgentManager extends SimaTest {
 
     @Test
     public void canAddSeveralDifferentAgent() {
-        TestAgent agent0 = new TestAgent("AGENT1");
-        TestAgent agent1 = new TestAgent("AGENT2");
-        TestAgent agent2 = new TestAgent("AGENT3");
-        TestAgent agent3 = new TestAgent("AGENT4");
-        TestAgent agent4 = new TestAgent("AGENT5");
+        AgentTesting agent0 = new AgentTesting("AGENT1",0, null);
+        AgentTesting agent1 = new AgentTesting("AGENT2",1, null);
+        AgentTesting agent2 = new AgentTesting("AGENT3",2, null);
+        AgentTesting agent3 = new AgentTesting("AGENT4",3, null);
+        AgentTesting agent4 = new AgentTesting("AGENT5",4, null);
 
         assertTrue(AGENT_MANAGER.addAgent(agent0));
         assertTrue(AGENT_MANAGER.addAgent(agent1));
@@ -60,13 +60,12 @@ public abstract class GlobalTestAgentManager extends SimaTest {
 
     @Test
     public void returnsAllAddedAgents() {
-        TestAgent agent0 = new TestAgent("AGENT1");
-        TestAgent agent1 = new TestAgent("AGENT2");
-        TestAgent agent2 = new TestAgent("AGENT3");
-        TestAgent agent3 = new TestAgent("AGENT4");
-        TestAgent agent4 = new TestAgent("AGENT5");
-
-        TestAgent notAddedAgent = new TestAgent("AGENT_NOT_ADDED");
+        AgentTesting agent0 = new AgentTesting("AGENT1",0, null);
+        AgentTesting agent1 = new AgentTesting("AGENT2",1, null);
+        AgentTesting agent2 = new AgentTesting("AGENT3",2, null);
+        AgentTesting agent3 = new AgentTesting("AGENT4",3, null);
+        AgentTesting agent4 = new AgentTesting("AGENT5",4, null);
+        AgentTesting notAddedAgent = new AgentTesting("AGENT_NOT_ADDED", 5, null);
 
         List<AbstractAgent> agentList = new ArrayList<>();
         assertTrue(agentList.add(agent0));
@@ -84,39 +83,6 @@ public abstract class GlobalTestAgentManager extends SimaTest {
         List<AbstractAgent> returnedList = AGENT_MANAGER.getAllAgents();
         assertTrue(returnedList.containsAll(agentList));
         assertFalse(returnedList.contains(notAddedAgent));
-    }
-
-    // Inner classes.
-
-    private static class TestAgent extends AbstractAgent {
-
-        // Constructors.
-
-        public TestAgent(String agentName) {
-            super(agentName, 0, null);
-        }
-
-        // Methods.
-
-        @Override
-        public void onnStart() {
-
-        }
-
-        @Override
-        public void onKill() {
-
-        }
-
-        @Override
-        protected void treatNoProtocolEvent(Event event) {
-
-        }
-
-        @Override
-        protected void treatEventWithNotFindProtocol(Event event) {
-
-        }
     }
 
 }

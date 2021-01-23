@@ -515,12 +515,12 @@ public abstract class AbstractAgent implements EventCatcher {
      * Method called by an sima.core.environment when an event occurs and that the receiver is the sima.core.agent. This
      * method is here to allow the sima.core.agent to manage how the event must be treated.
      * <p>
-     * If the event is a <i>general event</i>, the method {@link #treatNoProtocolEvent(Event)} is called.
+     * If the event is a <i>general event</i>, the method {@link #processNoProtocolEvent(Event)} is called.
      * <p>
      * If the event has a sima.core.protocol targeted, then the sima.core.agent search the associated sima.core.protocol
      * and call the method {@link Protocol#processEvent(Event)} is the sima.core.protocol is find. In the case where the
-     * targeted sima.core.protocol is not find among all sima.core.protocol that the sima.core.agent possesses, the
-     * method {@link #treatEventWithNotFindProtocol(Event)} is called.
+     * targeted sima.core.protocol is not find among all sima.core.protocol that the sima.core.agent possesses, throws
+     * {@link IllegalArgumentException}.
      * <p>
      * This method must be thread safe, in the implementation of {@link AbstractAgent}, the method is synchronized.
      *
@@ -533,13 +533,12 @@ public abstract class AbstractAgent implements EventCatcher {
         if (isStarted) {
             if (event.isProtocolEvent()) {
                 Protocol protocolTarget = getProtocol(event.getProtocolTargeted());
-                if (protocolTarget != null) {
+                if (protocolTarget != null)
                     protocolTarget.processEvent(event);
-                } else {
-                    treatEventWithNotFindProtocol(event);
-                }
+                else
+                    throw new IllegalArgumentException("Event with not added protocol");
             } else {
-                treatNoProtocolEvent(event);
+                processNoProtocolEvent(event);
             }
         } else {
             throw new AgentNotStartedException("The agent " + agentIdentifier + " is not started, cannot " +
@@ -554,16 +553,7 @@ public abstract class AbstractAgent implements EventCatcher {
      * @param event the event received
      * @see Event#isProtocolEvent()
      */
-    protected abstract void treatNoProtocolEvent(Event event);
-
-    /**
-     * This method is called whe the sima.core.agent received an event with a target sima.core.protocol, but the
-     * sima.core.agent does not have this sima.core.protocol. This method allows the sima.core.agent to treat this type
-     * of event.
-     *
-     * @param event the event received
-     */
-    protected abstract void treatEventWithNotFindProtocol(Event event);
+    protected abstract void processNoProtocolEvent(Event event);
 
     public AgentIdentifier getAgentIdentifier() {
         return agentIdentifier;
