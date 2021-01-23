@@ -20,8 +20,7 @@ import static sima.core.simulation.SimaSimulation.SIMA_LOG;
  * <p>
  * With the method {@link #sendEvent(Event)}, it is possible to send {@link Event}. This method first verifies if the
  * sima.core.agent sender is evolving in the sima.core.environment and after that, the methods {@link
- * #eventCanBeSentTo(AgentIdentifier, Event)} and {@link #scheduleEventReceptionToOneAgent(AgentIdentifier, Event)} are
- * called.
+ * #eventCanBeSentTo(AgentIdentifier, Event)} and {@link #scheduleEventReception(AgentIdentifier, Event)} are called.
  * <p>
  * First, the method verifies if the {@code Event} can be sent to the specified sima.core.agent receiver, it is in the
  * method that the network and the connection between agents are simulated.
@@ -183,37 +182,33 @@ public abstract class Environment implements EventCatcher {
      * {@link #verifyAndScheduleEvent(AgentIdentifier, Event)} is called to try to send the {@code Event} to the
      * sima.core.agent receiver.
      * <p>
-     * If the sima.core.agent receiver is null, therefore the method {@link #sendEventWithNullReceiver(Event)} is called
-     * to manage which agents must receive the {@code Event}.
+     * If the sima.core.agent receiver is null, therefore the method {@link #broadcastEvent(Event)} is called to manage
+     * which agents must receive the {@code Event}.
      *
      * @param event the event to send
      * @throws NotEvolvingAgentInEnvironmentException if the sender and/or the receiver agent are not evolving in the
      *                                                {@link Environment}.
      */
     public synchronized void sendEvent(Event event) throws NotEvolvingAgentInEnvironmentException {
-        if (event != null) {
-            AgentIdentifier sender = event.getSender();
-
-            if (isEvolving(sender)) {
+        if (event != null)
+            if (isEvolving(event.getSender()))
                 if (event.getReceiver() == null)
-                    // No receiver for the event
-                    sendEventWithNullReceiver(event);
-                else {
+                    // No receiver for the event -> broadcast event
+                    broadcastEvent(event);
+                else
                     // Event destined for one identified agent.
                     // getAgent() detects if the sima.core.agent is evolving or not in the sima.core.environment
-                    AgentIdentifier receiver = event.getReceiver();
-                    if (isEvolving(receiver))
-                        verifyAndScheduleEvent(receiver, event);
+                    if (isEvolving(event.getReceiver()))
+                        verifyAndScheduleEvent(event.getReceiver(), event);
                     else
-                        throw new NotEvolvingAgentInEnvironmentException("The receiver agent " + receiver + " is " +
-                                                                                 "not evolving in the environment "
-                                                                                 + getEnvironmentName());
-                }
-            } else
-                throw new NotEvolvingAgentInEnvironmentException("The sender sima.core.agent " + sender + " is not " +
-                                                                         "evolving in the sima.core.environment "
-                                                                         + getEnvironmentName());
-        } else
+                        throw new NotEvolvingAgentInEnvironmentException(
+                                "The receiver agent " + event.getReceiver() + " is "
+                                        + "not evolving in the environment " + getEnvironmentName());
+            else
+                throw new NotEvolvingAgentInEnvironmentException(
+                        "The sender sima.core.agent " + event.getSender() + " is not "
+                                + "evolving in the sima.core.environment " + getEnvironmentName());
+        else
             throw new NullPointerException("The sent event is null");
     }
 
@@ -221,23 +216,29 @@ public abstract class Environment implements EventCatcher {
      * Method called in the function {@link #sendEvent(Event)} when the sender is correctly identified but the receiver
      * is null.
      * <p>
-     * An {@code Event} with null receiver can be considered has an event which is destined to all agents which can be
+     * An {@code Event} with null receiver is considered has an event which is destined to all agents which can be
      * received the event from the agent sender.
+     * <p>
+     * This method browse all agents in the environments and verifies if the event can be sent to the receiver from the
+     * sender. If it is the case, schedule the reception of the event for the receiver.
      *
      * @param event the event without receiver to send
      */
-    protected abstract void sendEventWithNullReceiver(Event event);
+    protected void broadcastEvent(Event event) {
+        for (AgentIdentifier agentIdentifier : getEvolvingAgentIdentifiers())
+            verifyAndScheduleEvent(agentIdentifier, event.cloneAndAddReceiver(agentIdentifier));
+    }
 
     /**
-     * This method verifies if it is possible to send the event to the specified sima.core.agent. Return true if the
-     * event can be sent to the receiver, else false.
+     * This method verifies if it is possible to send the event to the specified {@link AbstractAgent} from the event
+     * sender. Return true if the event can be sent to the receiver from the sender, else false.
      * <p>
      * It is in this method that we can simulate the network link. For example, If two agents are not connected, maybe
      * the event cannot be sent to the sima.core.agent receiver.
      *
      * @param receiver the agent receiver
      * @param event    the event to send to the receiver
-     * @return true if the event can be sent to the receiver, else false.
+     * @return true if the event can be sent to the receiver from the sender, else false.
      */
     protected abstract boolean eventCanBeSentTo(AgentIdentifier receiver, Event event);
 
@@ -248,13 +249,13 @@ public abstract class Environment implements EventCatcher {
      * @param receiver the sima.core.agent receiver
      * @param event    the event to send to the receiver
      */
-    protected abstract void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event);
+    protected abstract void scheduleEventReception(AgentIdentifier receiver, Event event);
 
     /**
      * First verifies if the event can be sent to the sima.core.agent receiver with the function {@link
      * #eventCanBeSentTo(AgentIdentifier, Event)}. If it is the case, calls the function {@link
-     * #scheduleEventReceptionToOneAgent(AgentIdentifier, Event)} to schedule the moment when the sima.core.agent
-     * receiver will receive the {@code Event}.
+     * #scheduleEventReception(AgentIdentifier, Event)} to schedule the moment when the sima.core.agent receiver will
+     * receive the {@code Event}.
      * <p>
      * This method is called in the method {@link #sendEvent(Event)} when the sender has been correctly identified and
      * that the receiver of the {@code Event} is not null.
@@ -263,11 +264,11 @@ public abstract class Environment implements EventCatcher {
      * @param event    the event to receiver
      * @see #sendEvent(Event)
      * @see #eventCanBeSentTo(AgentIdentifier, Event)
-     * @see #scheduleEventReceptionToOneAgent(AgentIdentifier, Event)
+     * @see #scheduleEventReception(AgentIdentifier, Event)
      */
     protected void verifyAndScheduleEvent(AgentIdentifier receiver, Event event) {
         if (eventCanBeSentTo(receiver, event))
-            scheduleEventReceptionToOneAgent(receiver, event);
+            scheduleEventReception(receiver, event);
     }
 
     @Override

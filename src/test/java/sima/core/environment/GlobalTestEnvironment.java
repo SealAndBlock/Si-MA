@@ -71,7 +71,7 @@ public abstract class GlobalTestEnvironment extends SimaTest {
             }
 
             @Override
-            protected void sendEventWithNullReceiver(Event event) {
+            protected void broadcastEvent(Event event) {
             }
 
             @Override
@@ -80,7 +80,7 @@ public abstract class GlobalTestEnvironment extends SimaTest {
             }
 
             @Override
-            protected void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event) {
+            protected void scheduleEventReception(AgentIdentifier receiver, Event event) {
             }
         });
     }
@@ -108,7 +108,7 @@ public abstract class GlobalTestEnvironment extends SimaTest {
                 }
 
                 @Override
-                protected void sendEventWithNullReceiver(Event event) {
+                protected void broadcastEvent(Event event) {
                 }
 
                 @Override
@@ -117,7 +117,7 @@ public abstract class GlobalTestEnvironment extends SimaTest {
                 }
 
                 @Override
-                protected void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event) {
+                protected void scheduleEventReception(AgentIdentifier receiver, Event event) {
                 }
             };
         } catch (Exception e) {
@@ -148,7 +148,7 @@ public abstract class GlobalTestEnvironment extends SimaTest {
                 }
 
                 @Override
-                protected void sendEventWithNullReceiver(Event event) {
+                protected void broadcastEvent(Event event) {
                 }
 
                 @Override
@@ -157,7 +157,7 @@ public abstract class GlobalTestEnvironment extends SimaTest {
                 }
 
                 @Override
-                protected void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event) {
+                protected void scheduleEventReception(AgentIdentifier receiver, Event event) {
                 }
             };
         } catch (Exception e) {

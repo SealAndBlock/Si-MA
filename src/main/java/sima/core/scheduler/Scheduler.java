@@ -136,7 +136,7 @@ public interface Scheduler {
      * @see #scheduleExecutable(Executable, long, ScheduleMode, long, long)
      */
     default void scheduleExecutableOnce(Executable executable, long waitingTime) {
-        this.scheduleExecutable(executable, waitingTime, ScheduleMode.ONCE, -1, -1);
+        scheduleExecutable(executable, waitingTime, ScheduleMode.ONCE, -1, -1);
     }
 
     /**
@@ -158,7 +158,7 @@ public interface Scheduler {
      */
     default void scheduleExecutableRepeated(Executable executable, long waitingTime, long nbRepetitions,
                                             long executionTimeStep) {
-        this.scheduleExecutable(executable, waitingTime, ScheduleMode.REPEATED, nbRepetitions, executionTimeStep);
+        scheduleExecutable(executable, waitingTime, ScheduleMode.REPEATED, nbRepetitions, executionTimeStep);
     }
 
     /**
@@ -176,7 +176,7 @@ public interface Scheduler {
      * @throws IllegalArgumentException if waitingTime or executionTimeStep is less than 1.
      */
     default void scheduleExecutableInfinitely(Executable executable, long waitingTime, long executionTimeStep) {
-        this.scheduleExecutable(executable, waitingTime, ScheduleMode.INFINITE, -1, executionTimeStep);
+        scheduleExecutable(executable, waitingTime, ScheduleMode.INFINITE, -1, executionTimeStep);
     }
 
     /**
@@ -198,15 +198,17 @@ public interface Scheduler {
      * @throws IllegalArgumentException if the waitingTime is less than 1 or if the event receiver is null.
      */
     default void scheduleEvent(Event event, long waitingTime) {
-        if (event.getReceiver() != null) {
-            Executable executable = () -> {
-                AbstractAgent receiver = SimaSimulation.getAgent(event.getReceiver());
-                receiver.processEvent(event);
-            };
-
-            this.scheduleExecutableOnce(executable, waitingTime);
-        } else
+        if (event.getReceiver() != null)
+            scheduleExecutableOnce(createExecutableFromEvent(event), waitingTime);
+        else
             throw new IllegalArgumentException("The Event receiver is null");
+    }
+
+    private @NotNull Executable createExecutableFromEvent(Event event) {
+        return () -> {
+            AbstractAgent receiver = SimaSimulation.getAgent(event.getReceiver());
+            receiver.processEvent(event);
+        };
     }
 
     /**

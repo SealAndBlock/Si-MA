@@ -69,7 +69,7 @@ public class EnvironmentTesting extends Environment {
      * @param event the event without receiver to send
      */
     @Override
-    protected void sendEventWithNullReceiver(Event event) {
+    protected void broadcastEvent(Event event) {
         for (AgentIdentifier agentIdentifier : this.getEvolvingAgentIdentifiers()) {
             this.verifyAndScheduleEvent(agentIdentifier, event);
         }
@@ -81,7 +81,7 @@ public class EnvironmentTesting extends Environment {
     }
 
     @Override
-    protected void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event) {
+    protected void scheduleEventReception(AgentIdentifier receiver, Event event) {
         /*SimaSimulation.getScheduler().scheduleEvent(event.cloneAndAddReceiver(receiver), SEND_DELAY);*/
         // Nothing
     }

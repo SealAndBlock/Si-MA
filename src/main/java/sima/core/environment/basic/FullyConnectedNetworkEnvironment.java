@@ -83,20 +83,6 @@ public class FullyConnectedNetworkEnvironment extends Environment {
     }
 
     /**
-     * When an Event is send without receiver, it is consider that the event must be broadcast to all agent in the
-     * environment.
-     *
-     * @param event the event without receiver to send
-     */
-    @Override
-    protected void sendEventWithNullReceiver(Event event) {
-        for (AgentIdentifier agentIdentifier : getEvolvingAgentIdentifiers()) {
-            Event eventForAgent = event.cloneAndAddReceiver(agentIdentifier);
-            scheduleEventReceptionToOneAgent(agentIdentifier, eventForAgent);
-        }
-    }
-
-    /**
      * All agents are connected, therefore all event can be sent to any agent.
      *
      * @param receiver the agent receiver
@@ -109,7 +95,7 @@ public class FullyConnectedNetworkEnvironment extends Environment {
     }
 
     @Override
-    protected void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event) {
+    protected void scheduleEventReception(AgentIdentifier receiver, Event event) {
         SimaSimulation.getScheduler().scheduleEvent(event, randomLong(minSendDelay, maxSendDelay));
     }
 
