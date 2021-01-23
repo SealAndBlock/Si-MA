@@ -8,8 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static sima.core.environment.basic.FullyConnectedNetworkEnvironment.MAX_SEND_DELAY_ARGS;
-import static sima.core.environment.basic.FullyConnectedNetworkEnvironment.MIN_SEND_DELAY_ARGS;
+import static sima.core.environment.basic.FullyConnectedNetworkEnvironment.*;
 
 public class TestFullyConnectedNetworkEnvironment extends GlobalTestEnvironment {
 
@@ -93,5 +92,16 @@ public class TestFullyConnectedNetworkEnvironment extends GlobalTestEnvironment 
         FullyConnectedNetworkEnvironment env = new FullyConnectedNetworkEnvironment("ENV", args);
         assertEquals(1, env.getMinSendDelay());
         assertEquals(1, env.getMaxSendDelay());
+    }
+
+    @Test
+    public void ifSpecifiedDelayAreNotNumberTheDelayIsEqualToDefault() {
+        Map<String, String> args = new HashMap<>();
+        args.put(MIN_SEND_DELAY_ARGS, "-Adf50");
+        args.put(MAX_SEND_DELAY_ARGS, "-70FSQ");
+
+        FullyConnectedNetworkEnvironment env = new FullyConnectedNetworkEnvironment("ENV", args);
+        assertEquals(DEFAULT_MIN_SEND_DELAY, env.getMinSendDelay());
+        assertEquals(DEFAULT_MAX_SEND_DELAY, env.getMaxSendDelay());
     }
 }
