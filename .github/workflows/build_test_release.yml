@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: sima.core build/test/deploy on master
+name: sima.core build/test/release on master
 
 on:
   release:
@@ -9,7 +9,7 @@ on:
       - created
 jobs:
   build-test-deploy:
-    name: Build-Test-Deploy sima.core
+    name: Build-Test-Release sima.core
     runs-on: ubuntu-latest
 
     steps:
@@ -28,6 +28,6 @@ jobs:
         uses: whelk-io/maven-settings-xml-action@v12
         with:
           servers: '[{"id": "nexus-releases", "username": "Callimard", "password": "SonatypeUpload"}]'
-      - name: Deploy on Nexus Sonatype
+      - name: Remease on Nexus Sonatype
         if: ${{ success() }}
         run: mvn deploy clean -Dmaven.test.skip=true
