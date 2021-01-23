@@ -5,8 +5,6 @@ import sima.core.environment.event.EventTesting;
 import sima.core.protocol.ProtocolIdentifier;
 import sima.core.protocol.ProtocolTesting;
 
-import java.util.HashMap;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestAgentTesting extends GlobalTestAbstractAgent {
@@ -41,12 +39,6 @@ public class TestAgentTesting extends GlobalTestAbstractAgent {
             fail(e);
         }
 
-    }
-
-    @Test
-    public void processArgumentIsCalledIfConstructorArgumentArgsIsNotNull() {
-        AgentTesting a = new AgentTesting("A_0", 0, new HashMap<>());
-        assertEquals(1, a.getPassToProcessArgument());
     }
 
     @Test

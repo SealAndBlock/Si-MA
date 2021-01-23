@@ -19,11 +19,6 @@ public class BehaviorNotPlayableTesting extends Behavior {
     // Methods.
 
     @Override
-    protected void processArgument(Map<String, String> args) {
-        // Nothing
-    }
-
-    @Override
     public boolean canBePlayedBy(AbstractAgent agent) {
         // Cannot be play by any agent
         return false;

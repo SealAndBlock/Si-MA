@@ -13,18 +13,7 @@ public abstract class Controller implements Executable {
     // Constructors.
 
     protected Controller(Map<String, String> args) {
-        if (args != null)
-            this.processArgument(args);
     }
 
-    // Methods.
-
-    /**
-     * Method called in the constructors. It is this method which make all treatment associated to all arguments
-     * received.
-     *
-     * @param args arguments map (map argument name with the argument)
-     */
-    protected abstract void processArgument(Map<String, String> args);
 
 }

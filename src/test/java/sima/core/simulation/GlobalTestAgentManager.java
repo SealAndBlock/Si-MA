@@ -8,7 +8,6 @@ import sima.core.environment.event.Event;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -98,10 +97,6 @@ public abstract class GlobalTestAgentManager extends SimaTest {
         }
 
         // Methods.
-
-        @Override
-        protected void processArgument(Map<String, String> args) {
-        }
 
         @Override
         public void onnStart() {

@@ -48,9 +48,6 @@ public abstract class Behavior {
         if (!canBePlayedBy(agent))
             throw new BehaviorCannotBePlayedByAgentException("The sima.core.agent : " + agent + " cannot play the " +
                                                                      "behavior " + getClass().getName());
-
-        if (args != null)
-            processArgument(args);
     }
 
     // Methods.
@@ -61,14 +58,6 @@ public abstract class Behavior {
                 "class=" + this.getClass().getName() +
                 ", agent=" + agent + "]";
     }
-
-    /**
-     * Method called in the constructors. It is this method which make all treatment associated to all arguments
-     * received.
-     *
-     * @param args arguments map (map argument name with the argument)
-     */
-    protected abstract void processArgument(Map<String, String> args);
 
     /**
      * Verify if the sima.core.agent can play the sima.core.behavior or not.

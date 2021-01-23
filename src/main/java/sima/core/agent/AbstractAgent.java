@@ -37,10 +37,9 @@ public abstract class AbstractAgent implements EventCatcher {
     private final String agentName;
 
     /**
-     * A number greater or equal to 0. This number is define by the {@code SimaSimulation}.
-     * This number can be consider has the a unique number which represents the sequence number of agent creation. It is
-     * true only if you use the method {@link sima.core.simulation.SimaSimulation#runSimulation(String)} to run and
-     * instantiate yours agents.
+     * A number greater or equal to 0. This number is define by the {@code SimaSimulation}. This number can be consider
+     * has the a unique number which represents the sequence number of agent creation. It is true only if you use the
+     * method {@link sima.core.simulation.SimaSimulation#runSimulation(String)} to run and instantiate yours agents.
      */
     private final int numberId;
 
@@ -103,21 +102,10 @@ public abstract class AbstractAgent implements EventCatcher {
         mapBehaviors = new HashMap<>();
         mapProtocol = new HashMap<>();
 
-        if (args != null)
-            processArgument(args);
-
         SIMA_LOG.info(this + " CREATED");
     }
 
     // Methods.
-
-    /**
-     * Method called in the constructors. It is this method which make all treatment associated to all arguments
-     * received.
-     *
-     * @param args arguments map (map argument name with the argument)
-     */
-    protected abstract void processArgument(Map<String, String> args);
 
     @Override
     public String toString() {

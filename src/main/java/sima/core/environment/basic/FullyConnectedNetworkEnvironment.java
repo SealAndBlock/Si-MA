@@ -34,7 +34,6 @@ public class FullyConnectedNetworkEnvironment extends Environment {
 
     // Methods.
 
-
     protected void processArgument(Map<String, String> args) {
         if (args != null)
             extractSendDelays(args);

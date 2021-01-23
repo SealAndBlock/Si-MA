@@ -16,7 +16,6 @@ import sima.core.simulation.specific.SpecificControllerTesting;
 import sima.core.simulation.specific.SpecificSimulationSetupTesting;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -606,11 +605,6 @@ public class SimaSimulationTest extends SimaTest {
         }
 
         // Methods.
-
-        @Override
-        protected void processArgument(Map<String, String> args) {
-
-        }
 
         @Override
         public void setupSimulation() {

@@ -16,11 +16,6 @@ public class SimulationSetupWithLongExecutable extends SimulationSetup {
     // Methods.
 
     @Override
-    protected void processArgument(Map<String, String> args) {
-
-    }
-
-    @Override
     public void setupSimulation() {
         SimaSimulation.getScheduler().scheduleExecutableOnce(new LongTimeExecutableTesting(), Scheduler.NOW);
     }

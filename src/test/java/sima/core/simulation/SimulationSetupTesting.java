@@ -18,10 +18,6 @@ public class SimulationSetupTesting extends SimulationSetup {
     // Methods.
 
     @Override
-    protected void processArgument(Map<String, String> args) {
-    }
-
-    @Override
     public void setupSimulation() {
         passToSetupSimulation++;
     }
