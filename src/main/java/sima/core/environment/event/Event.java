@@ -11,11 +11,11 @@ import java.util.Optional;
 /**
  * Represents an event which can occur during the simulation.
  * <p>
- * An event has a sender {@link AbstractAgent} which is the sima.core.agent which as send (trigger) the event. It also has a
- * receiver which is the sima.core.agent which will receive the event.
+ * An event has a sender {@link AbstractAgent} which is the sima.core.agent which as send (trigger) the event. It also
+ * has a receiver which is the sima.core.agent which will receive the event.
  * <p>
- * In plus, the event as a sima.core.protocol in attribute which is the sima.core.protocol which will process the event with the method
- * {@link Protocol#processEvent(Event)}.
+ * In plus, the event as a sima.core.protocol in attribute which is the sima.core.protocol which will process the event
+ * with the method {@link Protocol#processEvent(Event)}.
  * <p>
  * An Event is {@link Serializable}. Therefore all sub classes must have attribute {@link Serializable} attributes or
  * using the key word <i>transient</i>.
@@ -35,22 +35,22 @@ public abstract class Event implements Serializable {
     private AgentIdentifier receiver;
 
     /**
-     * The class of the sima.core.protocol which will process the event. An event can have a null instance of this property. In
-     * that way the sima.core.agent receive the event and chose itself how to manage the event. An event which has not sima.core.protocol
-     * targeted is called <i>general event</i>.
+     * The class of the sima.core.protocol which will process the event. An event can have a null instance of this
+     * property. In that way the sima.core.agent receive the event and chose itself how to manage the event. An event
+     * which has not sima.core.protocol targeted is called <i>general event</i>.
      */
     private final ProtocolIdentifier protocolTargeted;
 
     // Constructors.
 
     /**
-     * Constructs an {@link Event} with the sima.core.agent which sends the event, the sima.core.agent which will receive the event, and
-     * the class of the sima.core.protocol which must process the event.
+     * Constructs an {@link Event} with the sima.core.agent which sends the event, the sima.core.agent which will
+     * receive the event, and the class of the sima.core.protocol which must process the event.
      * <p>
      * The sender cannot be null, if it is the case a {@link NullPointerException} is thrown.
      * <p>
-     * The receiver can be null, in that case it is to the sima.core.environment to manage which sima.core.agent(s) are the receivers
-     * of the {@code Event}.
+     * The receiver can be null, in that case it is to the sima.core.environment to manage which sima.core.agent(s) are
+     * the receivers of the {@code Event}.
      *
      * @param sender           the sima.core.agent sender (cannot be null)
      * @param receiver         the sima.core.agent receiver
@@ -82,8 +82,8 @@ public abstract class Event implements Serializable {
     }
 
     /**
-     * Returns true if the event is a {@code ProtocolEvent}, else false. An event is a {@code ProtocolEvent} if it
-     * has a sima.core.protocol targeted not null.
+     * Returns true if the event is a {@code ProtocolEvent}, else false. An event is a {@code ProtocolEvent} if it has a
+     * sima.core.protocol targeted not null.
      *
      * @return true if the sima.core.protocol targeted is not null, else false.
      */

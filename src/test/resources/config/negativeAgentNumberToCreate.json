@@ -1,0 +1,35 @@
+{
+  "endTime": 10000,
+  "nbThreads": 8,
+  "timeMode": "DISCRETE_TIME",
+  "schedulerType": "MULTI_THREAD",
+  "environments": [
+    {
+      "id": "TestEnvID",
+      "name": "TestEnvironment",
+      "environmentClass": "sima.core.simulation.specific.SpecificEnvironmentTesting"
+    }
+  ],
+  "agents": [
+    {
+      "agentClass": "sima.core.simulation.specific.SpecificAgentTesting",
+      "namePattern": "SpecificAgentTesting_%d",
+      "numberToCreate": -1,
+      "behaviors": [
+        "SBehT"
+      ],
+      "protocols": [
+        "SProT"
+      ],
+      "environments": [
+        "SEnvT"
+      ],
+      "args": [
+        [
+          "aArg1",
+          "arg1"
+        ]
+      ]
+    }
+  ]
+}

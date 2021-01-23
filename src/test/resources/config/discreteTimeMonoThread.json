@@ -1,0 +1,13 @@
+{
+  "endTime": 10000,
+  "nbThreads": 8,
+  "timeMode": "DISCRETE_TIME",
+  "schedulerType": "MONO_THREAD",
+  "environments": [
+    {
+      "id": "SEnvT",
+      "name": "SpecificEnvironmentTesting",
+      "environmentClass": "sima.core.simulation.specific.SpecificEnvironmentTesting"
+    }
+  ]
+}

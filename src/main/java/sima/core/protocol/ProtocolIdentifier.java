@@ -5,9 +5,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * A sima.core.protocol identificator allows the identification of a sima.core.protocol in an sima.core.agent. If an sima.core.agent <i>A</i> has the same
- * sima.core.protocol <i>P</i> than the sima.core.agent <i>B</i>, then a sima.core.protocol identificator <i>PI</i> for the sima.core.protocol <i>P</i> must
- * allow the identification of the sima.core.protocol <i>P</i> in the sima.core.agent <i>A</i> and the sima.core.agent <i>B</i>.
+ * A sima.core.protocol identifier allows the identification of a sima.core.protocol in an sima.core.agent. If an sima
+ * .core.agent <i>A</i> has the same sima.core.protocol <i>P</i> than the sima.core.agent <i>B</i>, then a
+ * sima.core.protocol identifier <i>PI</i> for the sima.core.protocol <i>P</i> must allow the identification of the
+ * sima.core.protocol <i>P</i> in the sima.core.agent <i>A</i> and the sima.core.agent <i>B</i>.
  * <p>
  * This object is {@link Serializable}, therefore all its attributes must be {@link Serializable} are used the key word
  * <i>transient</i>.
@@ -41,6 +42,13 @@ public class ProtocolIdentifier implements Serializable {
     }
 
     // Methods.
+
+    @Override
+    public String toString() {
+        return "ProtocolIdentifier [" +
+                "protocolClass=" + protocolClass +
+                ", protocolTag=" + protocolTag + "]";
+    }
 
     @Override
     public boolean equals(Object o) {

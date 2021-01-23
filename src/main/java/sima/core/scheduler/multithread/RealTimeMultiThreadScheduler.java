@@ -60,12 +60,14 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
     }
 
     /**
-     * Schedule in {@link #executor} all {@code ExecutorThread} in {@link #executorThreadList}. Theses are in
-     * {@link #executorThreadList} because a schedule method has been called before the start of the {@code Scheduler}.
+     * Schedule in {@link #executor} all {@code ExecutorThread} in {@link #executorThreadList}. Theses are in {@link
+     * #executorThreadList} because a schedule method has been called before the start of the {@code Scheduler}.
      */
     private void scheduleExecutorThread() {
         executorThreadList.forEach(executorThread ->
-                getExecutor().schedule(executorThread, ((RealTimeExecutorThread) executorThread).getDelay(), TimeUnit.MILLISECONDS));
+                                           getExecutor().schedule(executorThread,
+                                                                  ((RealTimeExecutorThread) executorThread).getDelay(),
+                                                                  TimeUnit.MILLISECONDS));
     }
 
     private boolean noExecutableToExecute() {
@@ -125,8 +127,8 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
     }
 
     /**
-     * Wait until each {@link sima.core.scheduler.multithread.MultiThreadScheduler.ExecutorThread} which are already
-     * run finish.
+     * Wait until each {@link sima.core.scheduler.multithread.MultiThreadScheduler.ExecutorThread} which are already run
+     * finish.
      */
     private void waitRunningExecutorThreads() {
         while (getRunningExecutorCounter() != 0) {
@@ -174,7 +176,8 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         }
     }
 
-    private void addRepeatedExecutable(Executable executable, long waitingTime, long nbRepetitions, long executionTimeStep) {
+    private void addRepeatedExecutable(Executable executable, long waitingTime, long nbRepetitions,
+                                       long executionTimeStep) {
         for (int i = 0; i < nbRepetitions; i++) {
             if (waitingTime + (i * executionTimeStep) > getEndSimulation()) break;
             addOnceExecutable(executable, waitingTime + (i * executionTimeStep));
@@ -310,9 +313,8 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         }
 
         /**
-         * Verifies if all conditions are satisfied to execute the {@link Executable}. If it is the case, the
-         * {@code Executable} is executed and returns true, else the {@code Executable} is not executed and returns
-         * false.
+         * Verifies if all conditions are satisfied to execute the {@link Executable}. If it is the case, the {@code
+         * Executable} is executed and returns true, else the {@code Executable} is not executed and returns false.
          *
          * @return true if the {@link Executable} has been executed, else false.
          */

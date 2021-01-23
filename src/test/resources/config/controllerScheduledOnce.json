@@ -1,0 +1,20 @@
+{
+  "endTime": 10000,
+  "nbThreads": 8,
+  "timeMode": "DISCRETE_TIME",
+  "schedulerType": "MULTI_THREAD",
+  "controllers": [
+    {
+      "controllerClass": "sima.core.simulation.specific.SpecificControllerTesting",
+      "scheduleMode": "ONCE",
+      "beginAt": 10
+    }
+  ],
+  "environments": [
+    {
+      "id": "TestEnvID",
+      "name": "TestEnvironment",
+      "environmentClass": "sima.core.simulation.specific.SpecificEnvironmentTesting"
+    }
+  ]
+}

@@ -8,6 +8,8 @@ import sima.core.exception.NotEvolvingAgentInEnvironmentException;
 
 import java.util.*;
 
+import static sima.core.simulation.SimaSimulation.SIMA_LOG;
+
 /**
  * Represents an {@code Environment} where {@link AbstractAgent} evolves. An {@code Environment} can be the
  * representation of the physic layer of the communication. An {@code Environment} determine if two agents can
@@ -17,9 +19,9 @@ import java.util.*;
  * can communicate only with sima.core.agent which are in this scope.
  * <p>
  * With the method {@link #sendEvent(Event)}, it is possible to send {@link Event}. This method first verifies if the
- * sima.core.agent sender is evolving in the sima.core.environment and after that, the methods
- * {@link #eventCanBeSentTo(AgentIdentifier, Event)} and {@link #scheduleEventReceptionToOneAgent(AgentIdentifier, Event)}
- * are called.
+ * sima.core.agent sender is evolving in the sima.core.environment and after that, the methods {@link
+ * #eventCanBeSentTo(AgentIdentifier, Event)} and {@link #scheduleEventReceptionToOneAgent(AgentIdentifier, Event)} are
+ * called.
  * <p>
  * First, the method verifies if the {@code Event} can be sent to the specified sima.core.agent receiver, it is in the
  * method that the network and the connection between agents are simulated.
@@ -67,8 +69,7 @@ public abstract class Environment implements EventCatcher {
     public String toString() {
         return "[Environment - " +
                 "class=" + this.getClass().getName() +
-                ", environmentName=" + environmentName +
-                ", evolvingAgents=" + evolvingAgents + "]";
+                ", environmentName=" + environmentName + "]";
     }
 
     /**
@@ -80,40 +81,43 @@ public abstract class Environment implements EventCatcher {
     protected abstract void processArgument(Map<String, String> args);
 
     /**
-     * Add the sima.core.agent in the sima.core.environment. The sima.core.agent can be not accept in the
-     * {@link Environment}, in that case, the methods returns false. If the sima.core.agent has already been accepted in
-     * the {@code Environment}, this method does not accept the {@code AgentIdentifier} and returns false.
+     * Add the sima.core.agent in the sima.core.environment. The sima.core.agent can be not accept in the {@link
+     * Environment}, in that case, the methods returns false. If the sima.core.agent has already been accepted in the
+     * {@code Environment}, this method does not accept the {@code AgentIdentifier} and returns false.
      *
      * <strong>WARNING!</strong> An agent is only identify by the couple {@link AbstractAgent#getUUID()} and
      * {@link AbstractAgent#getAgentName()}. When the environment accept the agent, the only significant values are
-     * {@link AgentIdentifier#getAgentUUID()} and {@link AgentIdentifier#getAgentName()}, the other values of
-     * {@link AgentIdentifier} can change during the time after the acceptation. In that way, it must be ask the agent
-     * directly with the method {@link AbstractAgent#getInfo()} if we want update value.
+     * {@link AgentIdentifier#getAgentUUID()} and {@link AgentIdentifier#getAgentName()}, the other values of {@link
+     * AgentIdentifier} can change during the time after the acceptation. In that way, it must be ask the agent directly
+     * with the method {@link AbstractAgent#getInfo()} if we want update value.
      * <p>
      * In this method, only the environment has conscience that the agent is evolving in it. For that the agent be
-     * notify that it is evolving in the environment, it is better to use the method
-     * {@link AbstractAgent#joinEnvironment(Environment)}. In this method, the agent and the environment are both
-     * conscience that the agent is evolving in the environment.
+     * notify that it is evolving in the environment, it is better to use the method {@link
+     * AbstractAgent#joinEnvironment(Environment)}. In this method, the agent and the environment are both conscience
+     * that the agent is evolving in the environment.
      * <p>
      * If this method is called and that the concerned agent is not conscience that it has been accepted and it is now
-     * evolving in the environment, then you can use the method
-     * {@link AbstractAgent#setEvolvingInEnvironment(Environment)} which set the environment in the agent for that the
-     * agent know that it is evolving in the environment.
+     * evolving in the environment, then you can use the method {@link AbstractAgent#setEvolvingInEnvironment(Environment)}
+     * which set the environment in the agent for that the agent know that it is evolving in the environment.
      *
      * @param evolvingAgentIdentifier the {@link AgentIdentifier} of the agent which will evolve in the environment
      * @return true if the {@code Environment} accept the sima.core.agent, else false.
      */
     public synchronized boolean acceptAgent(AgentIdentifier evolvingAgentIdentifier) {
         if (evolvingAgentIdentifier != null && agentCanBeAccepted(evolvingAgentIdentifier)) {
-            return evolvingAgents.add(evolvingAgentIdentifier);
+            boolean added = evolvingAgents.add(evolvingAgentIdentifier);
+            if (added)
+                SIMA_LOG.info("Agent with identifier = " + evolvingAgentIdentifier + " JOIN " + this);
+
+            return added;
         } else {
             return false;
         }
     }
 
     /**
-     * Verifies if the agent can be accepted and evolving in the {@link Environment}. This method is called
-     * in the method {@link #acceptAgent(AgentIdentifier)}.
+     * Verifies if the agent can be accepted and evolving in the {@link Environment}. This method is called in the
+     * method {@link #acceptAgent(AgentIdentifier)}.
      *
      * @param abstractAgentIdentifier the {@link AgentIdentifier} of the agent to verify
      * @return true if the  can be accepted in the sima.core.environment, else false.
@@ -127,8 +131,7 @@ public abstract class Environment implements EventCatcher {
      * agent from the {@code Environment}.
      * <p>
      * In this method the agent is not notify that it is leaving the environment. For that the agent be conscience that
-     * it leaves the environment, it is recommended to use the method
-     * {@link AbstractAgent#leaveEnvironment(Environment)}
+     * it leaves the environment, it is recommended to use the method {@link AbstractAgent#leaveEnvironment(Environment)}
      *
      * @param leavingAgentIdentifier the leaving sima.core.agent
      */
@@ -140,9 +143,9 @@ public abstract class Environment implements EventCatcher {
     }
 
     /**
-     * Call back method called when an agent is leaving the {@link Environment}, in other word, when the method
-     * {@link #leave(AgentIdentifier)} is called. This method is called before the sima.core.agent is removed from the
-     * list of evolving agent.
+     * Call back method called when an agent is leaving the {@link Environment}, in other word, when the method {@link
+     * #leave(AgentIdentifier)} is called. This method is called before the sima.core.agent is removed from the list of
+     * evolving agent.
      *
      * @param leavingAgentIdentifier the leaving sima.core.agent
      */
@@ -151,8 +154,8 @@ public abstract class Environment implements EventCatcher {
     /**
      * Verifies if the agent is evolving in the {@link Environment}. An agent is evolving in the {@code Environment} if
      * it is in the list of evolving sima.core.agent, therefore it possible to verify if an agent is evolving in the
-     * {@code Environment} by calling the method {@link #getEvolvingAgentIdentifiers()} and see if the agent is contained is
-     * the returned list.
+     * {@code Environment} by calling the method {@link #getEvolvingAgentIdentifiers()} and see if the agent is
+     * contained is the returned list.
      *
      * @param agent the agent to verify
      * @return true if the agent is evolving in the {@code Environment}, else false.
@@ -163,8 +166,8 @@ public abstract class Environment implements EventCatcher {
     }
 
     /**
-     * @return the list of all {@link AgentIdentifier} of all agents evolving in the sima.core.environment, if there is no sima.core.agent,
-     * returns an empty list but never null.
+     * @return the list of all {@link AgentIdentifier} of all agents evolving in the sima.core.environment, if there is
+     * no sima.core.agent, returns an empty list but never null.
      */
     public synchronized List<AgentIdentifier> getEvolvingAgentIdentifiers() {
         return evolvingAgents.stream().collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
@@ -173,15 +176,15 @@ public abstract class Environment implements EventCatcher {
     /**
      * Send an {@link Event} to the {@link Event#getReceiver()}.
      * <p>
-     * This method verifies in first if the {@link Event#getSender()} is evolving in the sima.core.environment and do the same
-     * for the receiver. If it is not the case, a {@link NotEvolvingAgentInEnvironmentException} is thrown.
+     * This method verifies in first if the {@link Event#getSender()} is evolving in the sima.core.environment and do
+     * the same for the receiver. If it is not the case, a {@link NotEvolvingAgentInEnvironmentException} is thrown.
      * <p>
      * After that, if the receiver is not null, then the event is destined to one sima.core.agent and the function
-     * {@link #verifyAndScheduleEvent(AgentIdentifier, Event)} is called to try to send the {@code Event} to the sima.core.agent
-     * receiver.
+     * {@link #verifyAndScheduleEvent(AgentIdentifier, Event)} is called to try to send the {@code Event} to the
+     * sima.core.agent receiver.
      * <p>
-     * If the sima.core.agent receiver is null, therefore the method {@link #sendEventWithNullReceiver(Event)} is called to
-     * manage which agents must receive the {@code Event}.
+     * If the sima.core.agent receiver is null, therefore the method {@link #sendEventWithNullReceiver(Event)} is called
+     * to manage which agents must receive the {@code Event}.
      *
      * @param event the event to send
      * @throws NotEvolvingAgentInEnvironmentException if the sender and/or the receiver agent are not evolving in the
@@ -203,11 +206,13 @@ public abstract class Environment implements EventCatcher {
                         verifyAndScheduleEvent(receiver, event);
                     else
                         throw new NotEvolvingAgentInEnvironmentException("The receiver agent " + receiver + " is " +
-                                "not evolving in the environment " + getEnvironmentName());
+                                                                                 "not evolving in the environment "
+                                                                                 + getEnvironmentName());
                 }
             } else
                 throw new NotEvolvingAgentInEnvironmentException("The sender sima.core.agent " + sender + " is not " +
-                        "evolving in the sima.core.environment " + getEnvironmentName());
+                                                                         "evolving in the sima.core.environment "
+                                                                         + getEnvironmentName());
         } else
             throw new NullPointerException("The sent event is null");
     }
@@ -221,8 +226,8 @@ public abstract class Environment implements EventCatcher {
     protected abstract void sendEventWithNullReceiver(Event event);
 
     /**
-     * This method verifies if it is possible to send the event to the specified sima.core.agent. Return true if the event can be
-     * sent to the receiver, else false.
+     * This method verifies if it is possible to send the event to the specified sima.core.agent. Return true if the
+     * event can be sent to the receiver, else false.
      * <p>
      * It is in this method that we can simulate the network link. For example, If two agents are not connected, maybe
      * the event cannot be sent to the sima.core.agent receiver.
@@ -234,8 +239,8 @@ public abstract class Environment implements EventCatcher {
     protected abstract boolean eventCanBeSentTo(AgentIdentifier receiver, Event event);
 
     /**
-     * Schedules the moment when the sima.core.agent receiver will receive the event. In other words, schedules the moment when
-     * the sima.core.agent receiver will call the method {@link AbstractAgent#processEvent(Event)}.
+     * Schedules the moment when the sima.core.agent receiver will receive the event. In other words, schedules the
+     * moment when the sima.core.agent receiver will call the method {@link AbstractAgent#processEvent(Event)}.
      *
      * @param receiver the sima.core.agent receiver
      * @param event    the event to send to the receiver
@@ -243,10 +248,10 @@ public abstract class Environment implements EventCatcher {
     protected abstract void scheduleEventReceptionToOneAgent(AgentIdentifier receiver, Event event);
 
     /**
-     * First verifies if the event can be sent to the sima.core.agent receiver with the function
-     * {@link #eventCanBeSentTo(AgentIdentifier, Event)}. If it is the case, calls the function
-     * {@link #scheduleEventReceptionToOneAgent(AgentIdentifier, Event)} to schedule the moment when the sima.core.agent receiver
-     * will receive the {@code Event}.
+     * First verifies if the event can be sent to the sima.core.agent receiver with the function {@link
+     * #eventCanBeSentTo(AgentIdentifier, Event)}. If it is the case, calls the function {@link
+     * #scheduleEventReceptionToOneAgent(AgentIdentifier, Event)} to schedule the moment when the sima.core.agent
+     * receiver will receive the {@code Event}.
      * <p>
      * This method is called in the method {@link #sendEvent(Event)} when the sender has been correctly identified and
      * that the receiver of the {@code Event} is not null.

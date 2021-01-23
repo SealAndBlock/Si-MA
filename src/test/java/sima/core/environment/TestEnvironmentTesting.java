@@ -23,6 +23,7 @@ public class TestEnvironmentTesting extends GlobalTestEnvironment {
         notAcceptedAgent.add(NOT_ACCEPTED_AGENT);
 
         ENVIRONMENT = new EnvironmentTesting(0, notAcceptedAgent);
+        ENVIRONMENT_EQUAL = new EnvironmentTesting(0, notAcceptedAgent);
 
         super.verifyAndSetup();
     }

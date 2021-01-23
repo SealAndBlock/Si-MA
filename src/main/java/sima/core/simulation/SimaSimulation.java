@@ -6,14 +6,18 @@ import org.slf4j.LoggerFactory;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.Environment;
-import sima.core.exception.EnvironmentConstructionException;
+import sima.core.exception.ConfigurationException;
 import sima.core.exception.SimaSimulationAlreadyRunningException;
 import sima.core.exception.SimaSimulationFailToStartRunningException;
 import sima.core.exception.SimaSimulationIsNotRunningException;
+import sima.core.scheduler.Controller;
 import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 import sima.core.scheduler.multithread.RealTimeMultiThreadScheduler;
+import sima.core.simulation.configuration.ConfigurationParser;
+import sima.core.simulation.configuration.json.*;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -22,11 +26,9 @@ public final class SimaSimulation {
 
     // Static.
 
-    public static Logger SIMA_LOG = LoggerFactory.getLogger(SimaSimulation.class);
-
-    private static SimaSimulation SIMA_SIMULATION;
-
     private static final Object LOCK = new Object();
+    public static Logger SIMA_LOG = LoggerFactory.getLogger(SimaSimulation.class);
+    private static SimaSimulation SIMA_SIMULATION;
 
     // Variables
 
@@ -47,8 +49,376 @@ public final class SimaSimulation {
     // Methods.
 
     /**
-     * Try to run a Simulation. All instances of needed to run a simulation must be create and pass in argument. In
-     * that way, this method only make the start of the simulation.
+     * @param configurationJsonPath the configuration file path
+     * @throws SimaSimulationFailToStartRunningException if sima simulation does not success to run
+     */
+    public static void runSimulation(String configurationJsonPath) throws SimaSimulationFailToStartRunningException {
+        SimaSimulationJson simaSimulationJson;
+        Set<Environment> allEnvironments;
+        Set<AbstractAgent> allAgents;
+        Map<String, BehaviorJson> mapBehaviors;
+        Map<String, ProtocolJson> mapProtocols;
+        Map<String, Environment> mapEnvironments = new HashMap<>();
+        Scheduler scheduler;
+        Class<? extends SimulationSetup> simulationSetupClass;
+        SimaWatcher simaWatcher;
+
+        try {
+            simaSimulationJson = parseConfiguration(configurationJsonPath);
+            allEnvironments = createAllEnvironments(simaSimulationJson, mapEnvironments);
+            mapBehaviors = extractMapBehaviors(simaSimulationJson);
+            mapProtocols = extractMapProtocols(simaSimulationJson);
+            allAgents = createAllAgents(simaSimulationJson, mapBehaviors, mapProtocols, mapEnvironments);
+            scheduler = createScheduler(Scheduler.TimeMode.valueOf(simaSimulationJson.getTimeMode()),
+                                        Scheduler.SchedulerType.valueOf(simaSimulationJson.getSchedulerType()),
+                                        simaSimulationJson.getNbThreads(), simaSimulationJson.getEndTime(),
+                                        createSchedulerWatcherFromClassName(
+                                                simaSimulationJson.getSchedulerWatcherClass()));
+            extractAndScheduleControllers(scheduler, simaSimulationJson.getControllers());
+            simulationSetupClass = simaSimulationJson.getSimulationSetupClass() == null ? null
+                    : extractClassForName(simaSimulationJson.getSimulationSetupClass());
+            simaWatcher = createSimaWatcherFromClassName(simaSimulationJson.getSimaWatcherClass());
+        } catch (Exception e) {
+            throw new SimaSimulationFailToStartRunningException(
+                    "Fail parse SimaSimulation Json configuration file : " + configurationJsonPath, e);
+        }
+
+        runSimulation(scheduler, allAgents, allEnvironments, simulationSetupClass, simaWatcher);
+    }
+
+    private static void extractAndScheduleControllers(Scheduler scheduler, List<ControllerJson> controllers)
+            throws ConfigurationException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+                   InstantiationException, IllegalAccessException {
+        if (controllers != null)
+            createAndScheduleControllers(scheduler, controllers);
+    }
+
+    private static void createAndScheduleControllers(Scheduler scheduler, List<ControllerJson> controllers)
+            throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+                   InstantiationException, ConfigurationException {
+        for (ControllerJson controllerJson : controllers)
+            scheduleController(scheduler, controllerJson,
+                               createControllerFromClassName(controllerJson.getControllerClass(),
+                                                             parseArgs(controllerJson)));
+    }
+
+    private static void scheduleController(Scheduler scheduler, ControllerJson controllerJson, Controller controller) {
+        switch (Scheduler.ScheduleMode.valueOf(controllerJson.getScheduleMode())) {
+            case ONCE -> scheduler.scheduleExecutableOnce(controller, controllerJson.getBeginAt());
+            case REPEATED -> scheduler.scheduleExecutableRepeated(controller, controllerJson.getBeginAt(),
+                                                                  controllerJson.getNbRepetitions(),
+                                                                  controllerJson.getRepetitionStep());
+            case INFINITE -> scheduler.scheduleExecutableInfinitely(controller, controllerJson.getBeginAt(),
+                                                                    controllerJson.getRepetitionStep());
+        }
+    }
+
+    private static Controller createControllerFromClassName(String controllerClassName, Map<String, String> args)
+            throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+                   InstantiationException {
+        Class<? extends Controller> controllerClass = extractClassForName(controllerClassName);
+        Constructor<? extends Controller> constructor = controllerClass.getConstructor(Map.class);
+        return constructor.newInstance(args);
+    }
+
+    private static SimaWatcher createSimaWatcherFromClassName(String simaWatcherClassName)
+            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException,
+                   IllegalAccessException {
+        if (simaWatcherClassName != null && !simaWatcherClassName.isEmpty()) {
+            return createSimaWatcher(extractClassForName(simaWatcherClassName));
+        } else
+            return null;
+    }
+
+    private static SimaWatcher createSimaWatcher(Class<? extends SimaWatcher> extractClassForName)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Constructor<? extends SimaWatcher> constructor = extractClassForName.getConstructor();
+        return constructor.newInstance();
+    }
+
+    private static Scheduler.SchedulerWatcher createSchedulerWatcherFromClassName(String schedulerWatcherClassName)
+            throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+                   InstantiationException {
+        if (schedulerWatcherClassName != null && !schedulerWatcherClassName.isEmpty())
+            return createSchedulerWatcher(extractClassForName(schedulerWatcherClassName));
+        else
+            return null;
+    }
+
+    private static @NotNull Scheduler.SchedulerWatcher createSchedulerWatcher(
+            Class<? extends Scheduler.SchedulerWatcher> schedulerWatcherClass)
+            throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        Constructor<? extends Scheduler.SchedulerWatcher> constructor = schedulerWatcherClass.getConstructor();
+        return constructor.newInstance();
+    }
+
+    private static @NotNull Map<String, BehaviorJson> extractMapBehaviors(SimaSimulationJson simaSimulationJson)
+            throws ConfigurationException {
+        Map<String, BehaviorJson> mapBehaviors = new HashMap<>();
+        fillMapBehaviors(simaSimulationJson, mapBehaviors);
+        return mapBehaviors;
+    }
+
+    private static void fillMapBehaviors(SimaSimulationJson simaSimulationJson, Map<String, BehaviorJson> mapBehaviors)
+            throws ConfigurationException {
+        if (simaSimulationJson.getBehaviors() != null)
+            for (BehaviorJson behaviorJson : simaSimulationJson.getBehaviors()) {
+                mapBehaviors.put(Optional.ofNullable(behaviorJson.getId())
+                                         .orElseThrow(() -> new ConfigurationException("BehaviorId cannot be null")),
+                                 behaviorJson);
+            }
+    }
+
+    private static @NotNull Map<String, ProtocolJson> extractMapProtocols(SimaSimulationJson simaSimulationJson)
+            throws ConfigurationException {
+        Map<String, ProtocolJson> mapProtocols = new HashMap<>();
+        fillMapProtocols(simaSimulationJson, mapProtocols);
+        return mapProtocols;
+    }
+
+    private static void fillMapProtocols(SimaSimulationJson simaSimulationJson, Map<String, ProtocolJson> mapProtocols)
+            throws ConfigurationException {
+        if (simaSimulationJson.getProtocols() != null)
+            for (ProtocolJson protocolJson : simaSimulationJson.getProtocols()) {
+                mapProtocols.put(Optional.ofNullable(protocolJson.getId())
+                                         .orElseThrow(() -> new ConfigurationException("ProtocolId cannot be null")),
+                                 protocolJson);
+            }
+    }
+
+    /**
+     * Create all agents instance and bind with it all environments, behaviors and protocols which it needs.
+     *
+     * @param simaSimulationJson the simaSimulationJson
+     * @param mapBehaviors       the map behaviors
+     * @param mapProtocols       the map protocols
+     * @param mapEnvironments    the map environments
+     * @return a set which contains all instances of agents created from the configuration file.
+     */
+    private static @NotNull Set<AbstractAgent> createAllAgents(SimaSimulationJson simaSimulationJson,
+                                                               Map<String, BehaviorJson> mapBehaviors,
+                                                               Map<String, ProtocolJson> mapProtocols,
+                                                               Map<String, Environment> mapEnvironments)
+            throws NoSuchMethodException, InstantiationException, ConfigurationException, IllegalAccessException,
+                   InvocationTargetException, ClassNotFoundException {
+        Set<AbstractAgent> agentSet = new HashSet<>();
+        createAndAssociateAllAgents(simaSimulationJson, mapBehaviors, mapProtocols, mapEnvironments, agentSet);
+        return agentSet;
+    }
+
+    private static void createAndAssociateAllAgents(SimaSimulationJson simaSimulationJson,
+                                                    Map<String, BehaviorJson> mapBehaviors,
+                                                    Map<String, ProtocolJson> mapProtocols,
+                                                    Map<String, Environment> mapEnvironments,
+                                                    Set<AbstractAgent> agentSet)
+            throws ConfigurationException, NoSuchMethodException, InvocationTargetException, InstantiationException,
+                   IllegalAccessException, ClassNotFoundException {
+        if (simaSimulationJson.getAgents() != null)
+            for (AgentJson agentJson : simaSimulationJson.getAgents()) {
+                verifyAgentNumberToCreate(agentJson.getNumberToCreate());
+                createAgent(agentJson, agentSet, mapBehaviors, mapProtocols, mapEnvironments);
+            }
+    }
+
+    /**
+     * Verifies if the numberToCreate specified is greater or equal to 1. If it is not the case, throws an {@link
+     * ConfigurationException}, else nothing is done.
+     *
+     * @param numberToCreate the numberToCreate to verify
+     * @throws ConfigurationException if numberToCreate is equal or less to 0.
+     */
+    private static void verifyAgentNumberToCreate(int numberToCreate) throws ConfigurationException {
+        if (numberToCreate < 1)
+            throw new ConfigurationException("Cannot have a number create of agent less or equal to 0");
+    }
+
+    /**
+     * @param agentJson       the json agent configuration
+     * @param agents          the set where the agent will be added after be created
+     * @param mapBehaviors    the behaviorJson map
+     * @param mapProtocols    the protocolJson map
+     * @param mapEnvironments the environment map
+     */
+    private static void createAgent(AgentJson agentJson, Set<AbstractAgent> agents,
+                                    Map<String, BehaviorJson> mapBehaviors, Map<String, ProtocolJson> mapProtocols,
+                                    Map<String, Environment> mapEnvironments)
+            throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException,
+                   ConfigurationException, ClassNotFoundException {
+
+        for (int i = 0; i < agentJson.getNumberToCreate(); i++) {
+            AbstractAgent agent = createAgentAndAddInSet(agents, agentJson, i);
+            associateAgentAndBehaviors(agent, agentJson, mapBehaviors);
+            associateAgentAndProtocol(agent, agentJson, mapProtocols);
+            associateAgentAndEnvironments(agent, agentJson, mapEnvironments);
+        }
+    }
+
+    private static void associateAgentAndBehaviors(AbstractAgent agent, AgentJson agentJson,
+                                                   Map<String, BehaviorJson> mapBehaviors)
+            throws ConfigurationException, ClassNotFoundException {
+
+        if (agentJson.getBehaviors() != null)
+            for (String behaviorId : agentJson.getBehaviors()) {
+                BehaviorJson behaviorJson = Optional.ofNullable(mapBehaviors.get(behaviorId))
+                        .orElseThrow(() -> new ConfigurationException("BehaviorId " + behaviorId + " not found"));
+                addBehaviorToAgent(agent, behaviorJson);
+            }
+    }
+
+    private static void addBehaviorToAgent(AbstractAgent agent, BehaviorJson behaviorJson)
+            throws ClassNotFoundException, ConfigurationException {
+
+        if (!agent.addBehavior(extractClassForName(behaviorJson.getBehaviorClass()), parseArgs(behaviorJson)))
+            throw new ConfigurationException(
+                    "Unable to add behavior " + behaviorJson.getBehaviorClass() + " to agent " + agent);
+    }
+
+    private static void associateAgentAndProtocol(AbstractAgent agent, AgentJson agentJson,
+                                                  Map<String, ProtocolJson> mapProtocols)
+            throws ConfigurationException, ClassNotFoundException {
+
+        if (agentJson.getProtocols() != null)
+            for (String protocolId : agentJson.getProtocols()) {
+                ProtocolJson protocolJson = Optional.ofNullable(mapProtocols.get(protocolId))
+                        .orElseThrow(() -> new ConfigurationException("ProtocolId " + protocolId + " not found"));
+                addProtocolToAgent(agent, protocolJson);
+            }
+    }
+
+    private static void addProtocolToAgent(AbstractAgent agent, ProtocolJson protocolJson)
+            throws ConfigurationException, ClassNotFoundException {
+
+        if (!agent.addProtocol(extractClassForName(protocolJson.getProtocolClass()), protocolJson.getTag(),
+                               parseArgs(protocolJson)))
+            throw new ConfigurationException(
+                    "Unable to add protocol " + protocolJson.getProtocolClass() + " to agent " + agent);
+    }
+
+    private static void associateAgentAndEnvironments(AbstractAgent agent, AgentJson agentJson,
+                                                      Map<String, Environment> mapEnvironments)
+            throws ConfigurationException {
+
+        if (agentJson.getEnvironments() != null)
+            for (String environmentId : agentJson.getEnvironments()) {
+                Environment environment = Optional.ofNullable(mapEnvironments.get(environmentId))
+                        .orElseThrow(() -> new ConfigurationException("EnvironmentId " + environmentId + " not found"));
+                agentJoinEnvironment(agent, environment);
+            }
+    }
+
+    private static void agentJoinEnvironment(AbstractAgent agent, Environment environment)
+            throws ConfigurationException {
+        if (!agent.joinEnvironment(environment)) {
+            throw new ConfigurationException("Agent " + agent + " unable to join the Environment " + environment);
+        }
+    }
+
+    private static @NotNull AbstractAgent createAgentAndAddInSet(Set<AbstractAgent> agents, AgentJson agentJson, int i)
+            throws ClassNotFoundException, ConfigurationException, InvocationTargetException, NoSuchMethodException,
+                   InstantiationException, IllegalAccessException {
+
+        AbstractAgent agent = createAgent(extractClassForName(agentJson.getAgentClass()),
+                                          String.format(agentJson.getNamePattern(), i), i, parseArgs(agentJson));
+        addAgentInAgentSet(agents, agent);
+        return agent;
+    }
+
+    private static void addAgentInAgentSet(Set<AbstractAgent> agents, AbstractAgent agent)
+            throws ConfigurationException {
+        if (!agents.add(agent))
+            throw new ConfigurationException(
+                    "Fail to add agent is agent set -> Two agent with same hashCode. Agent not added = " + agent);
+    }
+
+    private static @NotNull AbstractAgent createAgent(Class<? extends AbstractAgent> agentClass, String agentName,
+                                                      int agentNumberId, Map<String, String> args)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+
+        Constructor<? extends AbstractAgent> constructor =
+                agentClass.getConstructor(String.class, int.class, Map.class);
+        return constructor.newInstance(agentName, agentNumberId, args);
+    }
+
+    /**
+     * Create all instance of all environments define in the Json configuration file and in the same way, fill the
+     * specified mapEnvironment by mapping EnvironmentId with the Environment instance.
+     *
+     * @param simulationJson  the simulationJson
+     * @param mapEnvironments the map of environments which will maps "IdEnvironment" -> "Environment"
+     * @return a set which contains all instances of {@link Environment}.
+     */
+    private static @NotNull Set<Environment> createAllEnvironments(SimaSimulationJson simulationJson,
+                                                                   Map<String, Environment> mapEnvironments)
+            throws ConfigurationException, ClassNotFoundException, NoSuchMethodException, InstantiationException,
+                   IllegalAccessException, InvocationTargetException {
+
+        Set<Environment> environments = new HashSet<>();
+        createAndAddInSetAndMapEnvironment(simulationJson, mapEnvironments, environments);
+        return environments;
+    }
+
+    private static void createAndAddInSetAndMapEnvironment(SimaSimulationJson simulationJson,
+                                                           Map<String, Environment> mapEnvironments,
+                                                           Set<Environment> environments)
+            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException,
+                   IllegalAccessException, ConfigurationException {
+        if (simulationJson.getEnvironments() != null && !simulationJson.getEnvironments().isEmpty())
+            for (EnvironmentJson environmentJson : simulationJson.getEnvironments()) {
+                Environment environment =
+                        createEnvironmentAndAddInSet(environments, environmentJson, parseArgs(environmentJson));
+                mapEnvironments.put(Optional.ofNullable(environmentJson.getId())
+                                            .orElseThrow(
+                                                    () -> new ConfigurationException("EnvironmentId cannot be null")),
+                                    environment);
+            }
+        else
+            throw new ConfigurationException("The simulation need at least one environment");
+    }
+
+    private static @NotNull Environment createEnvironmentAndAddInSet(Set<Environment> environments,
+                                                                     EnvironmentJson environmentJson,
+                                                                     Map<String, String> args)
+            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException,
+                   IllegalAccessException, ConfigurationException {
+
+        Environment environment =
+                createEnvironment(extractClassForName(environmentJson.getEnvironmentClass()), environmentJson.getName(),
+                                  args != null ? (args.isEmpty() ? null : args) : null);
+        if (environments.add(environment))
+            return environment;
+        else
+            throw new ConfigurationException("Two environments with the same hashCode (Probably due to the fact that "
+                                                     + "they have the same name). Problematic Environment = "
+                                                     + environment);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Class<? extends T> extractClassForName(String className) throws ClassNotFoundException {
+        return (Class<? extends T>) Class.forName(className);
+    }
+
+    private static @NotNull SimaSimulationJson parseConfiguration(String configurationJsonPath) throws IOException {
+        return ConfigurationParser.parseConfiguration(configurationJsonPath);
+    }
+
+    private static Map<String, String> parseArgs(ArgumentativeObjectJson argumentativeObjectJson)
+            throws ConfigurationException {
+
+        Map<String, String> args = new HashMap<>();
+        if (argumentativeObjectJson.getArgs() != null)
+            for (List<String> argsCouple : argumentativeObjectJson.getArgs())
+                if (argsCouple.size() == 2)
+                    args.put(Optional.of(argsCouple.get(0)).get(), argsCouple.get(1));
+                else
+                    throw new ConfigurationException(
+                            "Wrong format for argument. In Json a args is an array of only 2 values: the args name and its value");
+
+        return args.isEmpty() ? null : args;
+    }
+
+    /**
+     * Try to run a Simulation. All instances of needed to run a simulation must be create and pass in argument. In that
+     * way, this method only make the start of the simulation.
      * <p>
      * The set {@code allAgents} contains all the agents of the simulation. However all this agents are not adding in
      * any environment. To bind agent and environments, you must make it in the {@link SimulationSetup}.
@@ -68,8 +438,8 @@ public final class SimaSimulation {
      */
     public static void runSimulation(Scheduler scheduler, Set<AbstractAgent> allAgents,
                                      Set<Environment> allEnvironments,
-                                     Class<? extends SimulationSetup> simulationSetupClass,
-                                     SimaWatcher simaWatcher) throws SimaSimulationFailToStartRunningException {
+                                     Class<? extends SimulationSetup> simulationSetupClass, SimaWatcher simaWatcher)
+            throws SimaSimulationFailToStartRunningException {
         synchronized (LOCK) {
             if (!simaSimulationIsRunning())
                 try {
@@ -87,42 +457,10 @@ public final class SimaSimulation {
                     killSimulation();
                     throw new SimaSimulationFailToStartRunningException(e);
                 }
-            else
+            else {
+                SIMA_LOG.error("Simulation already running");
                 throw new SimaSimulationFailToStartRunningException(new SimaSimulationAlreadyRunningException());
-        }
-    }
-
-    /**
-     * Run a simulation.
-     * <p>
-     * This method is thread safe and synchronized on the lock {@link #LOCK}.
-     *
-     * @param simulationTimeMode      the simulation time mode
-     * @param simulationSchedulerType the simulation scheduler type
-     * @param endSimulation           the end of the simulation
-     * @param environments            the array of environments classes
-     * @param simulationSetupClass    the simulation setup class
-     * @see #runSimulation(Scheduler, Set, Set, Class, SimaWatcher)
-     */
-    public static void runSimulation(Scheduler.TimeMode simulationTimeMode, Scheduler.SchedulerType simulationSchedulerType,
-                                     int nbExecutorThread,
-                                     long endSimulation,
-                                     List<Class<? extends Environment>> environments,
-                                     Class<? extends SimulationSetup> simulationSetupClass,
-                                     Scheduler.SchedulerWatcher schedulerWatcher,
-                                     SimaWatcher simaWatcher) throws SimaSimulationFailToStartRunningException {
-
-        if (verifiesEnvironmentList(environments))
-            throw new SimaSimulationFailToStartRunningException(new IllegalArgumentException("The simulation need to have at least 1 environments"));
-
-        try {
-            runSimulation(createScheduler(simulationTimeMode, simulationSchedulerType, nbExecutorThread, endSimulation, schedulerWatcher),
-                    null,
-                    createAllEnvironments(environments),
-                    simulationSetupClass,
-                    simaWatcher);
-        } catch (Exception e) {
-            throw new SimaSimulationFailToStartRunningException(e);
+            }
         }
     }
 
@@ -203,8 +541,8 @@ public final class SimaSimulation {
     }
 
     /**
-     * Add all environments contained in the specified set. If several environment have the same name, throws a
-     * {@link IllegalArgumentException}.
+     * Add all environments contained in the specified set. If several environment have the same name, throws a {@link
+     * IllegalArgumentException}.
      *
      * @param allEnvironments all environments to add
      */
@@ -212,7 +550,7 @@ public final class SimaSimulation {
         for (Environment environment : allEnvironments) {
             if (!addEnvironment(environment))
                 throw new IllegalArgumentException("Two environments with the same name. The problematic name : "
-                        + environment.getEnvironmentName());
+                                                           + environment.getEnvironmentName());
         }
     }
 
@@ -223,22 +561,25 @@ public final class SimaSimulation {
      * @param simulationSetupClass the class of the SimulationSetup
      * @return a new instance of the {@link SimulationSetup} specified class. If the instantiation failed, returns null.
      */
-    private static SimulationSetup createSimulationSetup(Class<? extends SimulationSetup> simulationSetupClass)
+    @SuppressWarnings("JavaReflectionInvocation")
+    private static @NotNull SimulationSetup createSimulationSetup(Class<? extends SimulationSetup> simulationSetupClass)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+
         Constructor<? extends SimulationSetup> simSetupConstructor =
                 simulationSetupClass.getConstructor(Map.class);
         return simSetupConstructor.newInstance((Map<String, String>) null);
     }
 
     /**
-     * Create a new instance of the specified {@link SimulationSetup} class and call the method
-     * {@link SimulationSetup#setupSimulation()}.
+     * Create a new instance of the specified {@link SimulationSetup} class and call the method {@link
+     * SimulationSetup#setupSimulation()}.
      *
      * @param simulationSetupClass the class of the SimulationSetup
      * @throws SimaSimulationFailToStartRunningException if problem during the instantiation of the simulation setup
      */
-    private static void simaSimulationCreateAndExecuteSimulationSetup(Class<? extends SimulationSetup> simulationSetupClass)
-            throws SimaSimulationFailToStartRunningException {
+    private static void simaSimulationCreateAndExecuteSimulationSetup(
+            Class<? extends SimulationSetup> simulationSetupClass) throws SimaSimulationFailToStartRunningException {
+
         if (simulationSetupClass != null)
             try {
                 SimulationSetup simulationSetup = createSimulationSetup(simulationSetupClass);
@@ -250,7 +591,7 @@ public final class SimaSimulation {
 
     private static void executeSimulationSetup(SimulationSetup simulationSetup) {
         simulationSetup.setupSimulation();
-        SIMA_LOG.info("SimulationSetup EXECUTED");
+        SIMA_LOG.info("SimulationSetup " + simulationSetup.getClass() + " EXECUTED");
     }
 
     /**
@@ -273,63 +614,27 @@ public final class SimaSimulation {
     }
 
     /**
-     * @param environments the environment list to verify
-     * @return true if the list is not null and not empty, else false.
-     */
-    private static boolean verifiesEnvironmentList(List<Class<? extends Environment>> environments) {
-        return environments == null || environments.isEmpty();
-    }
-
-    /**
-     * Create a set which contains all new instances created for each {@code Environment} classes contains in the
-     * specified environment class list.
-     * <p>
-     * If the specified list contains several same {@code Environment} class, then a {@link IllegalArgumentException} is
-     * thrown because the the environment name compute for each environment is the name of the {@code Environment}
-     * class.
-     *
-     * @param environments the list of environment class
-     * @return a set of all instances of each specified environment class.
-     * @throws IllegalArgumentException         if the specified list contains several same {@code Environment} class
-     * @throws EnvironmentConstructionException if one environment construction failed
-     */
-    private static @NotNull Set<Environment> createAllEnvironments(List<Class<? extends Environment>> environments) {
-        Set<Environment> environmentSet = new HashSet<>();
-        for (Class<? extends Environment> environmentClass : environments)
-            try {
-                Environment env = createEnvironment(environmentClass);
-
-                if (!environmentSet.add(env))
-                    throw new IllegalArgumentException("Two environments with the same name");
-
-            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
-                    | InvocationTargetException e) {
-                throw new EnvironmentConstructionException(e);
-            }
-
-        return environmentSet;
-    }
-
-    /**
      * @param environmentClass the environment class
+     * @param args             environment args
      * @return a new instance of the specified {@code Environment} class.
      * @throws NoSuchMethodException     if the environment class does not have the correct constructor
      * @throws InstantiationException    if the class cannot be instantiate
      * @throws IllegalAccessException    if the environment constructor is not accessible
      * @throws InvocationTargetException if the environment construction thrown an exception
+     * @throws NullPointerException      if environmentName is nulls
      */
-    @NotNull
-    private static Environment createEnvironment(Class<? extends Environment> environmentClass)
+    private static @NotNull Environment createEnvironment(Class<? extends Environment> environmentClass,
+                                                          String environmentName,
+                                                          Map<String, String> args)
             throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Constructor<? extends Environment> constructor = environmentClass.getConstructor(String.class,
-                Map.class);
-        return constructor.newInstance(environmentClass.getName(), null);
+
+        Constructor<? extends Environment> constructor = environmentClass.getConstructor(String.class, Map.class);
+        return constructor.newInstance(Optional.of(environmentName).get(), args);
     }
 
     private static @NotNull Scheduler createScheduler(Scheduler.TimeMode simulationTimeMode,
                                                       Scheduler.SchedulerType simulationSchedulerType,
-                                                      int nbExecutorThread,
-                                                      long endSimulation,
+                                                      int nbExecutorThread, long endSimulation,
                                                       Scheduler.SchedulerWatcher... schedulerWatchers) {
         if (simulationTimeMode == null)
             throw new NullPointerException("Null simulationTimeMode");
@@ -339,8 +644,10 @@ public final class SimaSimulation {
 
         Scheduler scheduler = null;
         switch (simulationTimeMode) {
-            case REAL_TIME -> scheduler = createRealTimeScheduler(simulationSchedulerType, nbExecutorThread, endSimulation, scheduler);
-            case DISCRETE_TIME -> scheduler = createDiscreteTimeScheduler(simulationSchedulerType, nbExecutorThread, endSimulation, scheduler);
+            case REAL_TIME -> scheduler =
+                    createRealTimeScheduler(simulationSchedulerType, nbExecutorThread, endSimulation);
+            case DISCRETE_TIME -> scheduler =
+                    createDiscreteTimeScheduler(simulationSchedulerType, nbExecutorThread, endSimulation);
         }
 
         for (Scheduler.SchedulerWatcher schedulerWatcher : schedulerWatchers) {
@@ -350,30 +657,30 @@ public final class SimaSimulation {
         return scheduler;
     }
 
-    private static Scheduler createDiscreteTimeScheduler(Scheduler.SchedulerType simulationSchedulerType,
-                                                         int nbExecutorThread, long endSimulation, Scheduler scheduler) {
+    private static @NotNull Scheduler createDiscreteTimeScheduler(Scheduler.SchedulerType simulationSchedulerType,
+                                                                  int nbExecutorThread, long endSimulation) {
+        Scheduler scheduler = null;
         switch (simulationSchedulerType) {
             case MONO_THREAD -> throw new UnsupportedOperationException("Discrete Time Mono thread simulation" +
-                    " unsupported.");
+                                                                                " unsupported.");
             case MULTI_THREAD -> scheduler = new DiscreteTimeMultiThreadScheduler(endSimulation, nbExecutorThread);
         }
         return scheduler;
     }
 
-    private static Scheduler createRealTimeScheduler(Scheduler.SchedulerType simulationSchedulerType,
-                                                     int nbExecutorThread, long endSimulation, Scheduler scheduler) {
+    private static @NotNull Scheduler createRealTimeScheduler(Scheduler.SchedulerType simulationSchedulerType,
+                                                              int nbExecutorThread, long endSimulation) {
+        Scheduler scheduler = null;
         switch (simulationSchedulerType) {
             case MONO_THREAD -> throw new UnsupportedOperationException("Real Time Mono thread simulation" +
-                    " unsupported.");
+                                                                                " unsupported.");
             case MULTI_THREAD -> scheduler = new RealTimeMultiThreadScheduler(endSimulation, nbExecutorThread);
         }
         return scheduler;
     }
 
     /**
-     * Kill the Simulation. After this call, the call of the method
-     * {@link #runSimulation(Scheduler.TimeMode, Scheduler.SchedulerType, int, long, List, Class, Scheduler.SchedulerWatcher, SimaWatcher)}  is
-     * possible.
+     * Kill the Simulation. After this call, the call of the method {@code runSimulation} is possible.
      * <p>
      * This method is thread safe and synchronized on the lock {@link #LOCK}.
      */
@@ -454,10 +761,11 @@ public final class SimaSimulation {
      */
     public static boolean addAgent(AbstractAgent agent) {
         verifySimaSimulationIsRunningAndThrowsException();
-        boolean added = SIMA_SIMULATION.agentManager.addAgent(agent);
-        if (added)
+        if (SIMA_SIMULATION.agentManager.addAgent(agent)) {
             SIMA_LOG.info(agent + " ADDED in SimaSimulation");
-        return added;
+            return true;
+        } else
+            return false;
     }
 
     /**
@@ -471,29 +779,6 @@ public final class SimaSimulation {
     public static AbstractAgent getAgent(AgentIdentifier agentIdentifier) {
         verifySimaSimulationIsRunningAndThrowsException();
         return SIMA_SIMULATION.findAgent(agentIdentifier);
-    }
-
-    /**
-     * Finds in the {@link #agentManager} the agent which as the same {@link AgentIdentifier} than the specified agent
-     * identifier.
-     *
-     * @param agentIdentifier the identifier of the wanted agent
-     * @return the agent associate to the identifier, returns null if the agent is not found.
-     * @throws NullPointerException if the agentIdentifier is null.
-     */
-    private AbstractAgent findAgent(AgentIdentifier agentIdentifier) {
-        if (agentIdentifier == null)
-            return null;
-
-        List<AbstractAgent> agents = this.agentManager.getAllAgents();
-        AbstractAgent res = null;
-        for (AbstractAgent agent : agents)
-            if (agent.getAgentIdentifier().equals(agentIdentifier)) {
-                res = agent;
-                break;
-            }
-
-        return res;
     }
 
     /**
@@ -530,17 +815,6 @@ public final class SimaSimulation {
         return SIMA_SIMULATION.findEnvironment(environmentName);
     }
 
-    /**
-     * @param environmentName the environment of the wanted environment
-     * @return the environment of the simulation which has the specified name. If no environment is find, returns null.
-     */
-    private Environment findEnvironment(String environmentName) {
-        if (environmentName == null)
-            return null;
-
-        return this.environments.get(environmentName);
-    }
-
     public static @NotNull Scheduler.TimeMode getTimeMode() {
         verifySimaSimulationIsRunningAndThrowsException();
         return SIMA_SIMULATION.scheduler.getTimeMode();
@@ -552,12 +826,46 @@ public final class SimaSimulation {
     }
 
     /**
-     * Verifies if the SimaSimulation is running, if it is not the case, throws a
-     * {@link SimaSimulationIsNotRunningException}.
+     * Verifies if the SimaSimulation is running, if it is not the case, throws a {@link
+     * SimaSimulationIsNotRunningException}.
      */
     private static void verifySimaSimulationIsRunningAndThrowsException() {
         if (!simaSimulationIsRunning())
             throw new SimaSimulationIsNotRunningException();
+    }
+
+    /**
+     * Finds in the {@link #agentManager} the agent which as the same {@link AgentIdentifier} than the specified agent
+     * identifier.
+     *
+     * @param agentIdentifier the identifier of the wanted agent
+     * @return the agent associate to the identifier, returns null if the agent is not found.
+     * @throws NullPointerException if the agentIdentifier is null.
+     */
+    private AbstractAgent findAgent(AgentIdentifier agentIdentifier) {
+        if (agentIdentifier == null)
+            return null;
+
+        List<AbstractAgent> agents = this.agentManager.getAllAgents();
+        AbstractAgent res = null;
+        for (AbstractAgent agent : agents)
+            if (agent.getAgentIdentifier().equals(agentIdentifier)) {
+                res = agent;
+                break;
+            }
+
+        return res;
+    }
+
+    /**
+     * @param environmentName the environment of the wanted environment
+     * @return the environment of the simulation which has the specified name. If no environment is find, returns null.
+     */
+    private Environment findEnvironment(String environmentName) {
+        if (environmentName == null)
+            return null;
+
+        return this.environments.get(environmentName);
     }
 
     // Inner classes.
@@ -570,8 +878,8 @@ public final class SimaSimulation {
         void notifyOnSimulationStarted();
 
         /**
-         * Call back method, called when the simulation is killed with the method
-         * {@link SimaSimulation#killSimulation()}.
+         * Call back method, called when the simulation is killed with the method {@link
+         * SimaSimulation#killSimulation()}.
          */
         void notifyOnSimulationKilled();
     }
