@@ -469,10 +469,6 @@ public abstract class GlobalTestAbstractAgent extends SimaTest {
         AGENT_0.joinEnvironment(env0);
         AGENT_0.joinEnvironment(env1);
 
-        List<Environment> environmentList = new ArrayList<>();
-        environmentList.add(env0);
-        environmentList.add(env1);
-
         AGENT_0.kill();
         assertTrue(AGENT_0.isKilled());
 
