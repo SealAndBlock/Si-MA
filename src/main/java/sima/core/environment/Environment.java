@@ -220,6 +220,9 @@ public abstract class Environment implements EventCatcher {
     /**
      * Method called in the function {@link #sendEvent(Event)} when the sender is correctly identified but the receiver
      * is null.
+     * <p>
+     * An {@code Event} with null receiver can be considered has an event which is destined to all agents which can be
+     * received the event from the agent sender.
      *
      * @param event the event without receiver to send
      */
