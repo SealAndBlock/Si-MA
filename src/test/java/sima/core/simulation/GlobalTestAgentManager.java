@@ -104,12 +104,12 @@ public abstract class GlobalTestAgentManager extends SimaTest {
         }
 
         @Override
-        public void notifyOnStart() {
+        public void onnStart() {
 
         }
 
         @Override
-        public void notifyOnKill() {
+        public void onKill() {
 
         }
 

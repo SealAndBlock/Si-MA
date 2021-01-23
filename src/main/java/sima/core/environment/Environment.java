@@ -195,10 +195,10 @@ public abstract class Environment implements EventCatcher {
             AgentIdentifier sender = event.getSender();
 
             if (isEvolving(sender)) {
-                if (event.getReceiver() == null) {
+                if (event.getReceiver() == null)
                     // No receiver for the event
                     sendEventWithNullReceiver(event);
-                } else {
+                else {
                     // Event destined for one identified agent.
                     // getAgent() detects if the sima.core.agent is evolving or not in the sima.core.environment
                     AgentIdentifier receiver = event.getReceiver();
@@ -263,9 +263,8 @@ public abstract class Environment implements EventCatcher {
      * @see #scheduleEventReceptionToOneAgent(AgentIdentifier, Event)
      */
     protected void verifyAndScheduleEvent(AgentIdentifier receiver, Event event) {
-        if (eventCanBeSentTo(receiver, event)) {
+        if (eventCanBeSentTo(receiver, event))
             scheduleEventReceptionToOneAgent(receiver, event);
-        }
     }
 
     @Override

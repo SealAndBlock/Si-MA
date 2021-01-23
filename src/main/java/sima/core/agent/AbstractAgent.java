@@ -37,7 +37,10 @@ public abstract class AbstractAgent implements EventCatcher {
     private final String agentName;
 
     /**
-     * A number greater or equal to 0. This number is define by the {@code Simulator}.
+     * A number greater or equal to 0. This number is define by the {@code SimaSimulation}.
+     * This number can be consider has the a unique number which represents the sequence number of agent creation. It is
+     * true only if you use the method {@link sima.core.simulation.SimaSimulation#runSimulation(String)} to run and
+     * instantiate yours agents.
      */
     private final int numberId;
 
@@ -153,7 +156,7 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * Start the sima.core.agent.
      * <p>
-     * When an sima.core.agent is starting, the method {@link #notifyOnStart()} is called.
+     * When an sima.core.agent is starting, the method {@link #onnStart()} is called.
      *
      * @throws KilledAgentException         if the sima.core.agent is killed
      * @throws AlreadyStartedAgentException if the sima.core.agent have already been started
@@ -161,7 +164,7 @@ public abstract class AbstractAgent implements EventCatcher {
     public synchronized final void start() {
         if (!isKilled && !isStarted) {
             setStarted();
-            notifyOnStart();
+            onnStart();
         } else {
             if (isKilled)
                 throw new KilledAgentException();
@@ -178,13 +181,13 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * Method call when the sima.core.agent is started in the method {@link #start()}.
      */
-    protected abstract void notifyOnStart();
+    protected abstract void onnStart();
 
     /**
      * Kill the sima.core.agent. When an sima.core.agent is killed, it cannot be restarted.
      * <p>
      * When an sima.core.agent is killed, it stops to play all its behaviors, leaves all the environments where it was
-     * evolving and call the method {@link #notifyOnKill()}.
+     * evolving and call the method {@link #onKill()}.
      *
      * @throws AlreadyKilledAgentException if the sima.core.agent have already been killed
      */
@@ -193,7 +196,7 @@ public abstract class AbstractAgent implements EventCatcher {
             setKilled();
             stopPlayingAllBehaviors();
             leaveAllEnvironments();
-            notifyOnKill();
+            onKill();
         } else
             throw new AlreadyKilledAgentException();
     }
@@ -221,7 +224,7 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * Method call when the sima.core.agent is killed in the method {@link #kill()}
      */
-    protected abstract void notifyOnKill();
+    protected abstract void onKill();
 
     /**
      * @param environment the sima.core.environment that the sima.core.agent want join

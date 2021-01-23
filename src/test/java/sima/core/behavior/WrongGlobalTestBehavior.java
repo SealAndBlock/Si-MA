@@ -94,12 +94,12 @@ public class WrongGlobalTestBehavior {
         }
 
         @Override
-        public void notifyOnStart() {
+        public void onnStart() {
 
         }
 
         @Override
-        public void notifyOnKill() {
+        public void onKill() {
 
         }
 
