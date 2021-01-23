@@ -3,7 +3,6 @@ package sima.core.environment;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
-import sima.core.environment.event.EventCatcher;
 import sima.core.exception.NotEvolvingAgentInEnvironmentException;
 
 import java.util.*;
@@ -30,7 +29,7 @@ import static sima.core.simulation.SimaSimulation.SIMA_LOG;
  *
  * @author guilr
  */
-public abstract class Environment implements EventCatcher {
+public abstract class Environment {
 
     // Variables.
 
@@ -57,9 +56,6 @@ public abstract class Environment implements EventCatcher {
     protected Environment(String environmentName, Map<String, String> args) {
         this.environmentName = Optional.of(environmentName).get();
         evolvingAgents = new HashSet<>();
-
-        if (args != null)
-            processArgument(args);
     }
 
     // Methods.
@@ -70,14 +66,6 @@ public abstract class Environment implements EventCatcher {
                 "class=" + this.getClass().getName() +
                 ", environmentName=" + environmentName + "]";
     }
-
-    /**
-     * Method called in the constructors. It is this method which make all treatment associated to all arguments
-     * received.
-     *
-     * @param args arguments map (map argument name with the argument)
-     */
-    protected abstract void processArgument(Map<String, String> args);
 
     /**
      * Add the sima.core.agent in the sima.core.environment. The sima.core.agent can be not accept in the {@link

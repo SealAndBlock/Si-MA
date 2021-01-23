@@ -49,11 +49,6 @@ public class EnvironmentTesting extends Environment {
     // Methods.
 
     @Override
-    protected void processArgument(Map<String, String> args) {
-        // Nothings.
-    }
-
-    @Override
     protected boolean agentCanBeAccepted(AgentIdentifier abstractAgentIdentifier) {
         return !this.notAcceptedAgentList.contains(abstractAgentIdentifier);
     }
@@ -83,11 +78,6 @@ public class EnvironmentTesting extends Environment {
     @Override
     protected void scheduleEventReception(AgentIdentifier receiver, Event event) {
         /*SimaSimulation.getScheduler().scheduleEvent(event.cloneAndAddReceiver(receiver), SEND_DELAY);*/
-        // Nothing
-    }
-
-    @Override
-    public void processEvent(Event event) {
         // Nothing
     }
 

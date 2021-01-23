@@ -28,17 +28,39 @@ public class FullyConnectedNetworkEnvironment extends Environment {
 
     public FullyConnectedNetworkEnvironment(String environmentName, Map<String, String> args) {
         super(environmentName, args);
+        initSendDelay();
+        processArgument(args);
     }
 
     // Methods.
 
-    @Override
+
     protected void processArgument(Map<String, String> args) {
+        if (args != null)
+            extractSendDelays(args);
+    }
+
+    private void initSendDelay() {
+        minSendDelay = DEFAULT_MIN_SEND_DELAY;
+        maxSendDelay = DEFAULT_MAX_SEND_DELAY;
+    }
+
+    private void extractSendDelays(Map<String, String> args) {
         setFromArgsMinSendDelay(args);
         setFromArgsMaxSendDelay(args);
+        verifiesDelays();
+    }
 
-        if (maxSendDelay < minSendDelay)
+    /**
+     * Verifies if {@link #minSendDelay} is really less or equal to {@link #maxSendDelay}. If it is not the case,
+     * inverse values to make it valid.
+     */
+    private void verifiesDelays() {
+        if (maxSendDelay < minSendDelay) {
+            long tmp = maxSendDelay;
             maxSendDelay = minSendDelay;
+            minSendDelay = tmp;
+        }
     }
 
     private void setFromArgsMinSendDelay(Map<String, String> args) {
@@ -97,11 +119,6 @@ public class FullyConnectedNetworkEnvironment extends Environment {
     @Override
     protected void scheduleEventReception(AgentIdentifier receiver, Event event) {
         SimaSimulation.getScheduler().scheduleEvent(event, randomLong(minSendDelay, maxSendDelay));
-    }
-
-    @Override
-    public void processEvent(Event event) {
-        // Nothing.
     }
 
     // Getters.
