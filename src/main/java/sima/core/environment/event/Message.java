@@ -40,6 +40,7 @@ public class Message extends Event {
 
     // Methods.
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public Object clone() {
         return new Message(getSender(), getReceiver(), getProtocolTargeted(), getContent());

@@ -1,6 +1,15 @@
 package sima.core;
 
 import org.junit.jupiter.api.BeforeEach;
+import sima.core.agent.AbstractAgent;
+import sima.core.environment.Environment;
+import sima.core.exception.SimaSimulationFailToStartRunningException;
+import sima.core.scheduler.Scheduler;
+import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
+import sima.core.simulation.SimaSimulation;
+import sima.core.simulation.SimulationSetupWithLongExecutable;
+
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -45,8 +54,30 @@ public abstract class SimaTest {
 
     public static void verifyNumber(long valToVerify, long expected, long delta) {
         assertTrue((expected - delta) <= valToVerify && valToVerify <= (expected + delta),
-                "valToVerify = " + valToVerify + " expected = " + expected + " delta = " + delta + " min = "
-                        + (expected - delta) + " max = " + (expected + delta));
+                   "valToVerify = " + valToVerify + " expected = " + expected + " delta = " + delta + " min = "
+                           + (expected - delta) + " max = " + (expected + delta));
+    }
+
+    public static void runSimulationWithLongExecutable(Set<AbstractAgent> allAgents, Set<Environment> allEnvironments,
+                                                       SimaSimulation.SimaWatcher simaWatcher) {
+        runSimulationWithLongExecutable(new DiscreteTimeMultiThreadScheduler(1000, 8), allAgents, allEnvironments,
+                                        simaWatcher);
+    }
+
+    public static void runSimulationWithLongExecutable(Scheduler scheduler, Set<Environment> allEnvironments,
+                                                       SimaSimulation.SimaWatcher simaWatcher) {
+        runSimulationWithLongExecutable(scheduler, null, allEnvironments, simaWatcher);
+    }
+
+    public static void runSimulationWithLongExecutable(Scheduler scheduler, Set<AbstractAgent> allAgents,
+                                                       Set<Environment> allEnvironments,
+                                                       SimaSimulation.SimaWatcher simaWatcher) {
+        try {
+            SimaSimulation.runSimulation(scheduler, allAgents, allEnvironments, SimulationSetupWithLongExecutable.class,
+                                         simaWatcher);
+        } catch (SimaSimulationFailToStartRunningException e) {
+            fail(e);
+        }
     }
 
 }

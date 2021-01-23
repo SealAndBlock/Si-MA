@@ -12,11 +12,11 @@ import sima.core.exception.KilledAgentException;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import static sima.core.simulation.SimaSimulation.SIMA_LOG;
+import static sima.core.utils.Utils.instantiate;
 
 public abstract class AbstractAgent implements EventCatcher {
 
@@ -354,9 +354,7 @@ public abstract class AbstractAgent implements EventCatcher {
     @NotNull
     private Behavior constructBehavior(Class<? extends Behavior> behaviorClass, Map<String, String> behaviorArgs)
             throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Constructor<? extends Behavior> constructor = behaviorClass.
-                getConstructor(AbstractAgent.class, Map.class);
-        return constructor.newInstance(this, behaviorArgs);
+        return instantiate(behaviorClass, new Class[]{AbstractAgent.class, Map.class}, this, behaviorArgs);
     }
 
     /**
@@ -496,10 +494,8 @@ public abstract class AbstractAgent implements EventCatcher {
     private Protocol constructProtocol(Class<? extends Protocol> protocolClass, String protocolTag,
                                        Map<String, String> protocolArgs)
             throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Constructor<? extends Protocol> protocolClassConstructor = protocolClass.getConstructor(String.class,
-                                                                                                AbstractAgent.class,
-                                                                                                Map.class);
-        return protocolClassConstructor.newInstance(protocolTag, this, protocolArgs);
+        return instantiate(protocolClass, new Class[]{String.class, AbstractAgent.class, Map.class}, protocolTag,
+                           this, protocolArgs);
     }
 
     /**

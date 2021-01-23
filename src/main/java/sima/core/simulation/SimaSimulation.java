@@ -18,10 +18,12 @@ import sima.core.simulation.configuration.ConfigurationParser;
 import sima.core.simulation.configuration.json.*;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static sima.core.utils.Utils.extractClassForName;
+import static sima.core.utils.Utils.instantiate;
 
 public final class SimaSimulation {
 
@@ -114,12 +116,12 @@ public final class SimaSimulation {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static Controller createControllerFromClassName(String controllerClassName, Map<String, String> args)
             throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
                    InstantiationException {
-        Class<? extends Controller> controllerClass = extractClassForName(controllerClassName);
-        Constructor<? extends Controller> constructor = controllerClass.getConstructor(Map.class);
-        return constructor.newInstance(args);
+        return instantiate((Class<? extends Controller>) extractClassForName(controllerClassName),
+                           new Class[]{Map.class}, args);
     }
 
     private static SimaWatcher createSimaWatcherFromClassName(String simaWatcherClassName)
@@ -131,10 +133,9 @@ public final class SimaSimulation {
             return null;
     }
 
-    private static SimaWatcher createSimaWatcher(Class<? extends SimaWatcher> extractClassForName)
+    private static SimaWatcher createSimaWatcher(Class<? extends SimaWatcher> simaWatcherClass)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Constructor<? extends SimaWatcher> constructor = extractClassForName.getConstructor();
-        return constructor.newInstance();
+        return instantiate(simaWatcherClass);
     }
 
     private static Scheduler.SchedulerWatcher createSchedulerWatcherFromClassName(String schedulerWatcherClassName)
@@ -149,8 +150,7 @@ public final class SimaSimulation {
     private static @NotNull Scheduler.SchedulerWatcher createSchedulerWatcher(
             Class<? extends Scheduler.SchedulerWatcher> schedulerWatcherClass)
             throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Constructor<? extends Scheduler.SchedulerWatcher> constructor = schedulerWatcherClass.getConstructor();
-        return constructor.newInstance();
+        return instantiate(schedulerWatcherClass);
     }
 
     private static @NotNull Map<String, BehaviorJson> extractMapBehaviors(SimaSimulationJson simaSimulationJson)
@@ -336,10 +336,7 @@ public final class SimaSimulation {
     private static @NotNull AbstractAgent createAgent(Class<? extends AbstractAgent> agentClass, String agentName,
                                                       int agentNumberId, Map<String, String> args)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-
-        Constructor<? extends AbstractAgent> constructor =
-                agentClass.getConstructor(String.class, int.class, Map.class);
-        return constructor.newInstance(agentName, agentNumberId, args);
+        return instantiate(agentClass, new Class[]{String.class, int.class, Map.class}, agentName, agentNumberId, args);
     }
 
     /**
@@ -393,11 +390,6 @@ public final class SimaSimulation {
             throw new ConfigurationException("Two environments with the same hashCode (Probably due to the fact that "
                                                      + "they have the same name). Problematic Environment = "
                                                      + environment);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> Class<? extends T> extractClassForName(String className) throws ClassNotFoundException {
-        return (Class<? extends T>) Class.forName(className);
     }
 
     private static @NotNull SimaSimulationJson parseConfiguration(String configurationJsonPath) throws IOException {
@@ -564,13 +556,9 @@ public final class SimaSimulation {
      * @param simulationSetupClass the class of the SimulationSetup
      * @return a new instance of the {@link SimulationSetup} specified class. If the instantiation failed, returns null.
      */
-    @SuppressWarnings("JavaReflectionInvocation")
     private static @NotNull SimulationSetup createSimulationSetup(Class<? extends SimulationSetup> simulationSetupClass)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-
-        Constructor<? extends SimulationSetup> simSetupConstructor =
-                simulationSetupClass.getConstructor(Map.class);
-        return simSetupConstructor.newInstance((Map<String, String>) null);
+        return instantiate(simulationSetupClass, new Class[]{Map.class}, (Map<String, String>) null);
     }
 
     /**
@@ -630,9 +618,7 @@ public final class SimaSimulation {
                                                           String environmentName,
                                                           Map<String, String> args)
             throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-
-        Constructor<? extends Environment> constructor = environmentClass.getConstructor(String.class, Map.class);
-        return constructor.newInstance(Optional.of(environmentName).get(), args);
+        return instantiate(environmentClass, new Class[]{String.class, Map.class}, environmentName, args);
     }
 
     private static @NotNull Scheduler createScheduler(Scheduler.TimeMode simulationTimeMode,

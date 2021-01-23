@@ -8,10 +8,7 @@ import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
 import sima.core.environment.event.EventTesting;
 import sima.core.exception.NotEvolvingAgentInEnvironmentException;
-import sima.core.exception.SimaSimulationFailToStartRunningException;
-import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 import sima.core.simulation.SimaSimulation;
-import sima.core.simulation.SimulationSetupWithLongExecutable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -231,17 +228,12 @@ public abstract class GlobalTestEnvironment extends SimaTest {
     // Methods.
 
     private void runSimulationWithLongExecutable() {
-        try {
-            Set<Environment> allEnvironments = new HashSet<>();
-            allEnvironments.add(ENVIRONMENT);
+        Set<Environment> allEnvironments = new HashSet<>();
+        allEnvironments.add(ENVIRONMENT);
 
-            Set<AbstractAgent> allAgents = new HashSet<>();
-            allAgents.add(ACCEPTED_AGENT);
+        Set<AbstractAgent> allAgents = new HashSet<>();
+        allAgents.add(ACCEPTED_AGENT);
 
-            SimaSimulation.runSimulation(new DiscreteTimeMultiThreadScheduler(1000, 8), allAgents, allEnvironments,
-                                         SimulationSetupWithLongExecutable.class, null);
-        } catch (SimaSimulationFailToStartRunningException e) {
-            fail(e);
-        }
+        runSimulationWithLongExecutable(allAgents, allEnvironments, null);
     }
 }
