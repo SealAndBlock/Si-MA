@@ -185,13 +185,14 @@ public abstract class GlobalTestEnvironment extends SimaTest {
     }
 
     @Test
-    public void sendEventNotFailForAnEventWithNoReceiver() {
+    public void sendEventForAnEventWithNoReceiverThrowsException() {
         ENVIRONMENT.acceptAgent(ACCEPTED_AGENT_IDENTIFIER);
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT_IDENTIFIER),
                                          () -> {
                                              Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER, null, null);
-                                             ENVIRONMENT.sendEvent(event);
+                                             assertThrows(IllegalArgumentException.class,
+                                                          () -> ENVIRONMENT.sendEvent(event));
                                          });
     }
 

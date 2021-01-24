@@ -118,7 +118,7 @@ public abstract class Environment {
      * agent from the {@code Environment}.
      * <p>
      * In this method the agent is not notify that it is leaving the environment. For that the agent be conscience that
-     * it leaves the environment, it is recommended to use the method {@link AbstractAgent#leaveEnvironment(Environment)}
+     * it leaves the environment, it's recommended to use the method {@link AbstractAgent#leaveEnvironment(Environment)}
      *
      * @param leavingAgentIdentifier the leaving sima.core.agent
      */
@@ -168,21 +168,20 @@ public abstract class Environment {
      * <p>
      * After that, if the receiver is not null, then the event is destined to one sima.core.agent and the function
      * {@link #verifyAndScheduleEvent(AgentIdentifier, Event)} is called to try to send the {@code Event} to the
-     * sima.core.agent receiver.
-     * <p>
-     * If the sima.core.agent receiver is null, therefore the method {@link #broadcastEvent(Event)} is called to manage
-     * which agents must receive the {@code Event}.
+     * sima.core.agent receiver. If the receiver is null, throws {@link IllegalArgumentException}.
      *
      * @param event the event to send
      * @throws NotEvolvingAgentInEnvironmentException if the sender and/or the receiver agent are not evolving in the
      *                                                {@link Environment}.
+     * @throws IllegalArgumentException               if the event has no receiver.
      */
     public synchronized void sendEvent(Event event) {
         if (event != null)
             if (isEvolving(event.getSender()))
                 if (event.getReceiver() == null)
                     // No receiver for the event -> broadcast event
-                    broadcastEvent(event);
+                    throw new IllegalArgumentException("Event receiver null -> Impossible to known where the event "
+                                                               + "must be sent");
                 else
                     // Event destined for one identified agent.
                     // getAgent() detects if the sima.core.agent is evolving or not in the sima.core.environment
@@ -198,23 +197,6 @@ public abstract class Environment {
                                 + "evolving in the sima.core.environment " + getEnvironmentName());
         else
             throw new NullPointerException("The sent event is null");
-    }
-
-    /**
-     * Method called in the function {@link #sendEvent(Event)} when the sender is correctly identified but the receiver
-     * is null.
-     * <p>
-     * An {@code Event} with null receiver is considered has an event which is destined to all agents which can be
-     * received the event from the agent sender.
-     * <p>
-     * This method browse all agents in the environments and verifies if the event can be sent to the receiver from the
-     * sender. If it is the case, schedule the reception of the event for the receiver.
-     *
-     * @param event the event without receiver to send
-     */
-    protected void broadcastEvent(Event event) {
-        for (AgentIdentifier agentIdentifier : getEvolvingAgentIdentifiers())
-            verifyAndScheduleEvent(agentIdentifier, event.cloneAndAddReceiver(agentIdentifier));
     }
 
     /**
