@@ -1,13 +1,13 @@
 package sima.core.scheduler;
 
 /**
- * Sleep current during 3000ms.
+ * Sleep current during 500ms.
  */
 public class LongTimeExecutableTesting implements Executable {
 
     // Static.
 
-    public static final long WAITING_TIME = 3_000L;
+    public static final long WAITING_TIME = 500L;
 
     // Methods.
 

@@ -3,7 +3,8 @@ package sima.core.environment.event;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sima.core.SimaTest;
-import sima.core.agent.AgentTesting;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,47 +33,27 @@ public abstract class GlobalTestEvent extends SimaTest {
     // Tests.
 
     @Test
-    public void cloneAndAddReceiverReturnsAnEventWhichIsTheSameEventWithAReceiverInPlus() {
-        AgentTesting receiver = new AgentTesting("A_0", 0, null);
-        Event e = EVENT.cloneAndAddReceiver(receiver.getAgentIdentifier());
-
-        this.verifyPreConditionAndExecuteTest(() -> e != null,
-                () -> {
-                    assertEquals(e.getSender(), EVENT.getSender());
-                    assertNotEquals(e.getReceiver(), EVENT.getReceiver());
-                    assertEquals(e.getProtocolTargeted(), EVENT.getProtocolTargeted());
-                });
-    }
-
-    @Test
-    public void cloneAndAddReceiverThrowsExceptionIfTheEventNotSupportsClone() {
-        AgentTesting a = new AgentTesting("TEST_A", 0, null);
-
-        Event e = new Event(a.getAgentIdentifier(), null, null) {
-            @Override
-            protected Object clone() throws CloneNotSupportedException {
-                throw new CloneNotSupportedException();
-            }
-        };
-
-        AgentTesting receiver = new AgentTesting("A_1", 1, null);
-        assertNull(e.cloneAndAddReceiver(receiver.getAgentIdentifier()));
-    }
-
-    @Test
     public void getSenderNeverReturnsNull() {
         assertNotNull(EVENT.getSender());
     }
 
     @Test
     public void isProtocolEventReturnsFalseIfProtocolTargetedIsNull() {
-        this.verifyPreConditionAndExecuteTest(() -> NO_PROTOCOL_EVENT.getProtocolTargeted() == null,
-                () -> assertFalse(NO_PROTOCOL_EVENT.isProtocolEvent()));
+        verifyPreConditionAndExecuteTest(() -> NO_PROTOCOL_EVENT.getProtocolTargeted() == null,
+                                         () -> assertFalse(NO_PROTOCOL_EVENT.isProtocolEvent()));
     }
 
     @Test
     public void isProtocolEventReturnsTrueIfProtocolTargetedIsNotNull() {
-        this.verifyPreConditionAndExecuteTest(() -> PROTOCOL_EVENT.getProtocolTargeted() != null,
-                () -> assertTrue(PROTOCOL_EVENT.isProtocolEvent()));
+        verifyPreConditionAndExecuteTest(() -> PROTOCOL_EVENT.getProtocolTargeted() != null,
+                                         () -> assertTrue(PROTOCOL_EVENT.isProtocolEvent()));
+    }
+
+    @Test
+    public void cloneNotFail() {
+        AtomicReference<Event> clone = new AtomicReference<>();
+        assertDoesNotThrow(() -> clone.set(EVENT.clone()));
+
+        assertNotSame(clone.get(), EVENT);
     }
 }

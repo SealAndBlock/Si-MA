@@ -58,18 +58,6 @@ public class EnvironmentTesting extends Environment {
         // Nothing
     }
 
-    /**
-     * Sends to all agents the event.
-     *
-     * @param event the event without receiver to send
-     */
-    @Override
-    protected void broadcastEvent(Event event) {
-        for (AgentIdentifier agentIdentifier : this.getEvolvingAgentIdentifiers()) {
-            this.verifyAndScheduleEvent(agentIdentifier, event);
-        }
-    }
-
     @Override
     protected boolean eventCanBeSentTo(AgentIdentifier receiver, Event event) {
         return true;

@@ -12,7 +12,8 @@ public abstract class GlobalTestMessage extends GlobalTestEvent {
 
     // Static.
 
-    protected static Message MESSAGE;
+    protected static Message MESSAGE_WITH_NOT_NULL_CONTENT;
+    protected static Message MESSAGE_WITH_NULL_CONTENT;
 
     protected Message MESSAGE_PROTOCOL_EVENT;
     protected Message MESSAGE_NO_PROTOCOL_EVENT;
@@ -21,11 +22,12 @@ public abstract class GlobalTestMessage extends GlobalTestEvent {
 
     @Override
     protected void verifyAndSetup() {
-        assertNotNull(MESSAGE, "MESSAGE cannot be null for tests");
+        assertNotNull(MESSAGE_WITH_NOT_NULL_CONTENT, "MESSAGE_WITH_NOT_NULL_CONTENT cannot be null for tests");
+        assertNotNull(MESSAGE_WITH_NULL_CONTENT, "MESSAGE_WITH_NULL_CONTENT cannot be null for tests");
         assertNotNull(MESSAGE_PROTOCOL_EVENT, "MESSAGE_PROTOCOL_EVENT cannot be null for tests");
         assertNotNull(MESSAGE_NO_PROTOCOL_EVENT, "MESSAGE_NO_PROTOCOL_EVENT cannot be null for tests");
 
-        EVENT = MESSAGE;
+        EVENT = MESSAGE_WITH_NOT_NULL_CONTENT;
         PROTOCOL_EVENT = MESSAGE_PROTOCOL_EVENT;
         NO_PROTOCOL_EVENT = MESSAGE_NO_PROTOCOL_EVENT;
 
@@ -37,8 +39,8 @@ public abstract class GlobalTestMessage extends GlobalTestEvent {
     @Test
     public void constructMessageWithNullSenderThrowsException() {
         assertThrows(NullPointerException.class,
-                () -> new Message(null, null, null, null) {
-                });
+                     () -> new Message(null, null, null, null) {
+                     });
     }
 
     @Test
@@ -50,6 +52,11 @@ public abstract class GlobalTestMessage extends GlobalTestEvent {
 
     @Test
     public void getContentNotFail() {
-        assertDoesNotThrow(MESSAGE::getContent);
+        assertDoesNotThrow(MESSAGE_WITH_NOT_NULL_CONTENT::getContent);
+    }
+
+    @Test
+    public void cloneForMessageWithNullContentDoesNotFail() {
+        assertDoesNotThrow(() -> MESSAGE_WITH_NULL_CONTENT.clone());
     }
 }

@@ -20,7 +20,7 @@ import java.util.Optional;
  * An Event is {@link Serializable}. Therefore all sub classes must have attribute {@link Serializable} attributes or
  * using the key word <i>transient</i>.
  */
-public abstract class Event implements Serializable {
+public abstract class Event implements Transportable {
 
     // Variables.
 
@@ -32,7 +32,7 @@ public abstract class Event implements Serializable {
     /**
      * The agent receiver of the event.
      */
-    private AgentIdentifier receiver;
+    private final AgentIdentifier receiver;
 
     /**
      * The class of the sima.core.protocol which will process the event. An event can have a null instance of this
@@ -64,19 +64,13 @@ public abstract class Event implements Serializable {
         this.protocolTargeted = protocolTargeted;
     }
 
-    /**
-     * Create a clone of the event and set to this clone the specified receiver. This methods is useful for environment
-     * which must manage event with null receiver. Indeed, it is not possible to schedule an event with no receiver.
-     *
-     * @param receiver the receiver of the event
-     * @return a new instance of the event but with a new receiver.
-     */
-    public final Event cloneAndAddReceiver(AgentIdentifier receiver) {
+    // Methods.
+
+    @Override
+    public Event clone() {
         try {
-            Event newInstance = (Event) clone();
-            newInstance.receiver = receiver;
-            return newInstance;
-        } catch (CloneNotSupportedException e) {
+            return (Event) super.clone();
+        } catch (CloneNotSupportedException ignored) {
             return null;
         }
     }

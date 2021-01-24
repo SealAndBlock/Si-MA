@@ -2,23 +2,24 @@ package sima.core.environment.event;
 
 import sima.core.agent.AgentIdentifier;
 import sima.core.protocol.ProtocolIdentifier;
+import sima.core.utils.Box;
 
 import java.io.Serializable;
 
 /**
  * A message is a particular event which has a content.
  */
-public class Message extends Event {
+public class Message extends Event implements Box<Transportable> {
 
     // Variables.
 
     /**
      * The content of the message.
      * <p>
-     * Because a {@link Message} is an {@link Event} and that an {@link Event} is {@link Serializable}, the content of
+     * Because a {@link Message} is an {@link Event} and that an {@link Event} is {@link Transportable}, the content of
      * the message must be {@link Serializable}.
      */
-    private final Serializable content;
+    private Transportable content;
 
     // Constructors.
 
@@ -32,7 +33,7 @@ public class Message extends Event {
      * @throws NullPointerException if the sender is null
      */
     public Message(AgentIdentifier sender, AgentIdentifier receiver, ProtocolIdentifier protocolTargeted,
-                   Serializable content) {
+                   Transportable content) {
         super(sender, receiver, protocolTargeted);
 
         this.content = content;
@@ -40,15 +41,18 @@ public class Message extends Event {
 
     // Methods.
 
-    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
-    public Object clone() {
-        return new Message(getSender(), getReceiver(), getProtocolTargeted(), getContent());
+    public Message clone() {
+        Message clone = (Message) super.clone();
+        if (content != null)
+            clone.content = content.clone();
+        return clone;
     }
 
     // Getters and Setters.
 
-    public Serializable getContent() {
+    @Override
+    public Transportable getContent() {
         return content;
     }
 }
