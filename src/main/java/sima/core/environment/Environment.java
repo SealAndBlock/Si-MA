@@ -177,7 +177,7 @@ public abstract class Environment {
      * @throws NotEvolvingAgentInEnvironmentException if the sender and/or the receiver agent are not evolving in the
      *                                                {@link Environment}.
      */
-    public synchronized void sendEvent(Event event) throws NotEvolvingAgentInEnvironmentException {
+    public synchronized void sendEvent(Event event) {
         if (event != null)
             if (isEvolving(event.getSender()))
                 if (event.getReceiver() == null)

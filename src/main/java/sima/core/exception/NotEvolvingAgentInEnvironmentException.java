@@ -1,6 +1,6 @@
 package sima.core.exception;
 
-public class NotEvolvingAgentInEnvironmentException extends Exception {
+public class NotEvolvingAgentInEnvironmentException extends RuntimeException {
 
     // Constructors.
 

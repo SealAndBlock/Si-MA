@@ -190,12 +190,8 @@ public abstract class GlobalTestEnvironment extends SimaTest {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT_IDENTIFIER),
                                          () -> {
-                                             try {
-                                                 Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER, null, null);
-                                                 ENVIRONMENT.sendEvent(event);
-                                             } catch (Exception e) {
-                                                 fail(e);
-                                             }
+                                             Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER, null, null);
+                                             ENVIRONMENT.sendEvent(event);
                                          });
     }
 
@@ -205,13 +201,9 @@ public abstract class GlobalTestEnvironment extends SimaTest {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT_IDENTIFIER),
                                          () -> {
-                                             try {
-                                                 Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER,
-                                                                                ACCEPTED_AGENT_IDENTIFIER, null);
-                                                 ENVIRONMENT.sendEvent(event);
-                                             } catch (Exception e) {
-                                                 fail(e);
-                                             }
+                                             Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER,
+                                                                            ACCEPTED_AGENT_IDENTIFIER, null);
+                                             ENVIRONMENT.sendEvent(event);
                                          });
     }
 
