@@ -8,7 +8,7 @@ public class SpecificAgentTesting extends AgentTesting {
 
     // Constructors.
 
-    public SpecificAgentTesting(String agentName, int numberId, Map<String, String> args) {
-        super(agentName, numberId, args);
+    public SpecificAgentTesting(String agentName, int sequenceId, int uniqueId, Map<String, String> args) {
+        super(agentName, sequenceId, uniqueId, args);
     }
 }

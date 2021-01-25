@@ -9,7 +9,7 @@ public class TestAgentInfo extends GlobalTestAgentInfo {
 
     // Static.
 
-    protected static final AgentTesting AGENT_TESTING = new AgentTesting("A_0", 0, null);
+    protected static final AgentTesting AGENT_TESTING = new AgentTesting("A_0", 0, 0, null);
 
     // Initialisation.
 

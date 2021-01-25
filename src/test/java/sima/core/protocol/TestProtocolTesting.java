@@ -21,7 +21,7 @@ public class TestProtocolTesting extends GlobalTestProtocol {
 
     @Override
     protected void verifyAndSetup() {
-        AGENT = new AgentTesting("A_0", 0, null);
+        AGENT = new AgentTesting("A_0", 0, 0, null);
         PROTOCOL = new ProtocolTesting("TAG_P_TEST", AGENT, null);
 
         super.verifyAndSetup();
@@ -57,8 +57,8 @@ public class TestProtocolTesting extends GlobalTestProtocol {
     @Test
     public void processEventWithNotNullEventNotFail() {
         assertDoesNotThrow(() -> {
-            AbstractAgent s = new AgentTesting("SENDER", 0, null);
-            AbstractAgent r = new AgentTesting("RECEIVER", 0, null);
+            AbstractAgent s = new AgentTesting("SENDER", 0, 0, null);
+            AbstractAgent r = new AgentTesting("RECEIVER", 0, 0, null);
             Event event = new EventTesting(s.getAgentIdentifier(), r.getAgentIdentifier(), PROTOCOL.getIdentifier());
             PROTOCOL.processEvent(event);
         });

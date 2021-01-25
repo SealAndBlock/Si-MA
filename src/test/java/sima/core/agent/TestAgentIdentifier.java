@@ -2,8 +2,7 @@ package sima.core.agent;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.UUID;
-
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestAgentIdentifier extends GlobalTestAgentIdentifier {
@@ -12,10 +11,9 @@ public class TestAgentIdentifier extends GlobalTestAgentIdentifier {
 
     @Override
     public void verifyAndSetup() {
-        UUID a0 = UUID.randomUUID();
-        AGENT_IDENTIFIER_0 = new AgentIdentifier(a0, "A_0", 0);
-        AGENT_IDENTIFIER_1 = new AgentIdentifier(UUID.randomUUID(), "A_1", 1);
-        AGENT_IDENTIFIER_0_SAME = new AgentIdentifier(a0, "A_0", 0);
+        AGENT_IDENTIFIER_0 = new AgentIdentifier("A_0", 0, 0);
+        AGENT_IDENTIFIER_1 = new AgentIdentifier("A_1", 1, 1);
+        AGENT_IDENTIFIER_0_SAME = new AgentIdentifier("A_0", 0, 0);
 
         super.verifyAndSetup();
     }
@@ -23,17 +21,27 @@ public class TestAgentIdentifier extends GlobalTestAgentIdentifier {
     // Tests.
 
     @Test
-    public void constructAgentIdentifierWithNullUUIDThrowsException() {
-        assertThrows(NullPointerException.class, () -> new AgentIdentifier(null, "A_TEST", 0));
-    }
-
-    @Test
     public void constructAgentIdentifierWithNullAgentNameThrowsException() {
-        assertThrows(NullPointerException.class, () -> new AgentIdentifier(UUID.randomUUID(), null, 0));
+        assertThrows(NullPointerException.class, () -> new AgentIdentifier(null, 0, 0));
     }
 
     @Test
-    public void constructAgentIdentifierWithNegativeAgentNumberIdThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> new AgentIdentifier(UUID.randomUUID(), "A_TEST", -1));
+    public void constructAgentIdentifierWithNegativeAgentSequenceIdThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> new AgentIdentifier("A_TEST", -1, 0));
+    }
+
+    @Test
+    public void constructAgentIdentifierWithPositiveAgentSequenceIdNotFail() {
+        assertDoesNotThrow(() -> new AgentIdentifier("A_TEST", 0, 0));
+    }
+
+    @Test
+    public void constructAgentIdentifierWithNegativeAgentUniqueIdThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> new AgentIdentifier("A_TEST", 0, -1));
+    }
+
+    @Test
+    public void constructAgentIdentifierWithPositiveAgentUniqueIdNotFail() {
+        assertDoesNotThrow(() -> new AgentIdentifier("A_TEST", 0, 0));
     }
 }

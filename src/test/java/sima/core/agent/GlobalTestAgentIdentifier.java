@@ -48,17 +48,17 @@ public abstract class GlobalTestAgentIdentifier extends SimaTest {
     }
 
     @Test
-    public void getAgentUUIDNeverReturnsNull() {
-        assertNotNull(AGENT_IDENTIFIER_0.getAgentUUID());
-    }
-
-    @Test
     public void getAgentNameNeverReturnsNull() {
         assertNotNull(AGENT_IDENTIFIER_0.getAgentName());
     }
 
     @Test
-    public void getAgentNumberIdNeverReturnsNegativeNumber() {
-        assertTrue(AGENT_IDENTIFIER_0.getAgentNumberId() >= 0);
+    public void getAgentUniqueIdNeverReturnsNegativeNumber() {
+        assertTrue(AGENT_IDENTIFIER_0.getAgentUniqueId() >= 0);
+    }
+
+    @Test
+    public void getAgentSequenceIdNeverReturnsNegativeNumber() {
+        assertTrue(AGENT_IDENTIFIER_0.getAgentSequenceId() >= 0);
     }
 }

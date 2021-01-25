@@ -13,7 +13,7 @@ public class TestDefaultProtocolManipulator extends GlobalTestProtocolManipulato
 
     @Override
     protected void verifyAndSetup() {
-        AbstractAgent a = new AgentTesting("A_0", 0, null);
+        AbstractAgent a = new AgentTesting("A_0", 0,0, null);
         Protocol protocol = new ProtocolTesting("P_TAG_0", a, null);
         PROTOCOL_MANIPULATOR = new ProtocolManipulator.DefaultProtocolManipulator(protocol);
 
@@ -29,7 +29,7 @@ public class TestDefaultProtocolManipulator extends GlobalTestProtocolManipulato
 
     @Test
     public void constructDefaultProtocolManipulatorWithNotNullProtocolThrowsException() {
-        AbstractAgent a = new AgentTesting("A_0", 0, null);
+        AbstractAgent a = new AgentTesting("A_0", 0, 0,null);
         Protocol protocol = new ProtocolTesting("P_TAG_0", a, null);
         assertDoesNotThrow(() -> new ProtocolManipulator.DefaultProtocolManipulator(protocol));
     }

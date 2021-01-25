@@ -23,25 +23,21 @@ public abstract class AbstractAgent implements EventCatcher {
     // Variables.
 
     /**
-     * The {@link UUID} of the sima.core.agent.
-     * <p>
-     * This id is use for the simulation to identify several sima.core.agent. It can be also use in simulation to
-     * identify sima.core.agent but it can be ignore and the identification of sima.core.agent can be done with
-     * protocols defined by the user.
-     */
-    private final UUID uuid;
-
-    /**
      * The name of the sima.core.agent
      */
     private final String agentName;
 
     /**
-     * A number greater or equal to 0. This number is define by the {@code SimaSimulation}. This number can be consider
-     * has the a unique number which represents the sequence number of agent creation. It is true only if you use the
-     * method {@link sima.core.simulation.SimaSimulation#runSimulation(String)} to run and instantiate yours agents.
+     * A number greater or equal to 0. The id of the agent in function of the sequence construction where it was
+     * create.
      */
-    private final int numberId;
+    private final int sequenceId;
+
+    /**
+     * A number greater or equal to 0. This number must be the only ide define for an agent, For example if one agent as
+     * the id 1, only this agent can have the id 1.
+     */
+    private final int uniqueId;
 
     private final AgentIdentifier agentIdentifier;
 
@@ -83,21 +79,26 @@ public abstract class AbstractAgent implements EventCatcher {
     /**
      * Constructs an sima.core.agent with a name and no environments, behaviors and protocols.
      *
-     * @param agentName the agent name
-     * @param numberId  the number Id of the agent
-     * @param args      the map of argument
+     * @param agentName  the agent name
+     * @param sequenceId the sequenceId
+     * @param uniqueId   the number Id of the agent
+     * @param args       the map of argument
      * @throws IllegalArgumentException if the numberId is less than 0.
      * @throws NullPointerException     if agentName is null.
      */
-    protected AbstractAgent(String agentName, int numberId, Map<String, String> args) {
-        uuid = UUID.randomUUID();
-        this.numberId = numberId;
-        if (numberId < 0)
-            throw new IllegalArgumentException("The numberId must be greater or equal to 0, the current numberId = " +
-                                                       numberId);
+    protected AbstractAgent(String agentName, int sequenceId, int uniqueId, Map<String, String> args) {
+        this.sequenceId = sequenceId;
+        if (sequenceId < 0)
+            throw new IllegalArgumentException("The sequenceId must be greater or equal to 0, the current sequenceId "
+                                                       + "= " + sequenceId);
+
+        this.uniqueId = uniqueId;
+        if (uniqueId < 0)
+            throw new IllegalArgumentException(
+                    "The uniqueId must be greater or equal to 0, the current uniqueId = " + uniqueId);
 
         this.agentName = Optional.of(agentName).get();
-        agentIdentifier = new AgentIdentifier(uuid, agentName, numberId);
+        agentIdentifier = new AgentIdentifier(agentName, sequenceId, uniqueId);
         mapEnvironments = new HashMap<>();
         mapBehaviors = new HashMap<>();
         mapProtocol = new HashMap<>();
@@ -111,13 +112,13 @@ public abstract class AbstractAgent implements EventCatcher {
     public String toString() {
         return "[AGENT - " +
                 "class=" + this.getClass().getName() +
-                ", UUID=" + uuid +
                 ", name=" + agentName +
-                ", numberId=" + numberId + "]";
+                ", sequenceId=" + sequenceId +
+                ", uniqueId=" + uniqueId + "]";
     }
 
     /**
-     * Only use the attributes {@link #uuid} and {@link #agentName} to compare two agents.
+     * Only use the attributes and {@link #agentName} to compare two agents.
      *
      * @param o the object to compare to the sima.core.agent
      * @return true if the object is equal to the sima.core.agent.
@@ -127,12 +128,12 @@ public abstract class AbstractAgent implements EventCatcher {
         if (this == o) return true;
         if (!(o instanceof AbstractAgent)) return false;
         AbstractAgent that = (AbstractAgent) o;
-        return uuid.equals(that.uuid) && agentName.equals(that.agentName);
+        return agentName.equals(that.agentName) && sequenceId == that.sequenceId && uniqueId == that.uniqueId;
     }
 
     /**
-     * Compute the hash code of the sima.core.agent. Use only the attribute {@link #uuid} and {@link #agentName} to
-     * compute the hash code.
+     * Compute the hash code of the sima.core.agent. Use the hashCode generate by the {@link #getAgentIdentifier()}
+     * of the agent.
      *
      * @return the hash code of the sima.core.agent.
      */
@@ -565,16 +566,16 @@ public abstract class AbstractAgent implements EventCatcher {
 
     // Getters and Setters.
 
-    public UUID getUUID() {
-        return uuid;
-    }
-
     public String getAgentName() {
         return agentName;
     }
 
-    public int getNumberId() {
-        return numberId;
+    public int getSequenceId() {
+        return sequenceId;
+    }
+
+    public int getUniqueId() {
+        return uniqueId;
     }
 
     public List<Environment> getEnvironmentList() {
