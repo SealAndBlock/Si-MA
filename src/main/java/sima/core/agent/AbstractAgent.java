@@ -557,15 +557,6 @@ public abstract class AbstractAgent implements EventCatcher {
             throw new UnsupportedOperationException("No operation for event with no protocol targeted");
     }
 
-    /**
-     * This method is called when the sima.core.agent received a <i>general event</i>. This method allows the
-     * sima.core.agent to treat all general event that it receives.
-     *
-     * @param event the event received
-     * @see Event#isProtocolEvent()
-     */
-    protected abstract void processNoProtocolEvent(Event event);
-
     public AgentIdentifier getAgentIdentifier() {
         return agentIdentifier;
     }

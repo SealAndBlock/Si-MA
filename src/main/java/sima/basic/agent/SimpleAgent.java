@@ -24,12 +24,4 @@ public class SimpleAgent extends AbstractAgent {
     protected void onKill() {
         // Nothing
     }
-
-    /**
-     * @param event the event received
-     */
-    @Override
-    protected void processNoProtocolEvent(Event event) {
-        // Nothing.
-    }
 }

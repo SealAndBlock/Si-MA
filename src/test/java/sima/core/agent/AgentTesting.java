@@ -33,12 +33,8 @@ public class AgentTesting extends AbstractAgent {
 
     @Override
     protected void inProcessEvent(Event event) {
+        super.inProcessEvent(event);
         passToProcessEvent++;
-    }
-
-    @Override
-    protected void processNoProtocolEvent(Event event) {
-        passToProcessNoProtocolEvent++;
     }
 
     // Getters and Setters.

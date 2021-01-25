@@ -54,18 +54,12 @@ public class TestAgentTesting extends GlobalTestAbstractAgent {
     }
 
     @Test
-    public void processEventCallTreatNoProtocolEventMethodIfEventHasNoProtocolTargeted() {
-        String p0 = "P_0";
-        AGENT_0.addProtocol(ProtocolTesting.class, p0, null);
-
+    public void processEventWithEventWithNoProtocolTargetedThrowsException() {
+        AGENT_0.addProtocol(ProtocolTesting.class, "P_0", null);
         AGENT_0.start();
 
         EventTesting e = new EventTesting(AGENT_0.getAgentIdentifier(), AGENT_0.getAgentIdentifier(), null);
-
-        AGENT_0.processEvent(e);
-
-        AgentTesting A0 = (AgentTesting) AGENT_0;
-        assertEquals(1, A0.getPassToProcessNoProtocolEvent());
+        assertThrows(UnsupportedOperationException.class, () -> AGENT_0.processEvent(e));
     }
 
     @Test
