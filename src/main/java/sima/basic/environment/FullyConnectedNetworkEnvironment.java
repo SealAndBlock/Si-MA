@@ -1,4 +1,4 @@
-package sima.core.environment.basic;
+package sima.basic.environment;
 
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.Environment;

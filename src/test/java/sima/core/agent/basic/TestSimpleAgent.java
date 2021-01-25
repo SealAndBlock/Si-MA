@@ -1,6 +1,7 @@
 package sima.core.agent.basic;
 
 import org.junit.jupiter.api.Test;
+import sima.basic.agent.SimpleAgent;
 import sima.core.agent.GlobalTestAbstractAgent;
 
 import java.util.HashMap;

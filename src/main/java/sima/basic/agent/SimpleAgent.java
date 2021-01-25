@@ -1,4 +1,4 @@
-package sima.core.agent.basic;
+package sima.basic.agent;
 
 import sima.core.agent.AbstractAgent;
 import sima.core.environment.event.Event;
