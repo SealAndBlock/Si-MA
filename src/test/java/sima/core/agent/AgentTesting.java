@@ -32,8 +32,7 @@ public class AgentTesting extends AbstractAgent {
     }
 
     @Override
-    public synchronized void processEvent(Event event) {
-        super.processEvent(event);
+    protected void inProcessEvent(Event event) {
         passToProcessEvent++;
     }
 
