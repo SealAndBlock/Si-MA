@@ -8,6 +8,8 @@ import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
 import sima.core.environment.event.EventTesting;
 import sima.core.exception.NotEvolvingAgentInEnvironmentException;
+import sima.core.protocol.ProtocolIdentifier;
+import sima.core.protocol.ProtocolTesting;
 import sima.core.simulation.SimaSimulation;
 
 import java.util.HashSet;
@@ -19,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public abstract class GlobalTestEnvironment extends SimaTest {
 
     // Statics.
+
+    protected static final String PROTOCOL_TESTING_TAG = "P_TEST";
 
     protected static Environment ENVIRONMENT;
     protected static Environment ENVIRONMENT_EQUAL;
@@ -45,6 +49,9 @@ public abstract class GlobalTestEnvironment extends SimaTest {
      */
     protected static AgentIdentifier NOT_EVOLVING_AGENT_IDENTIFIER;
 
+
+    protected static ProtocolIdentifier PROTOCOL_TESTING_IDENTIFIER;
+
     // Initialisation.
 
     @Override
@@ -62,6 +69,11 @@ public abstract class GlobalTestEnvironment extends SimaTest {
         assertNotEquals(ACCEPTED_AGENT_IDENTIFIER, NOT_EVOLVING_AGENT_IDENTIFIER,
                         "ACCEPTED_AGENT_IDENTIFIER cannot be equals of " +
                                 "NOT_EVOLVING_AGENT_IDENTIFIER");
+
+        assertTrue(ACCEPTED_AGENT.addProtocol(ProtocolTesting.class, PROTOCOL_TESTING_TAG, null), "The ACCEPTED_AGENT"
+                + " must be able to add ProtocolTesting.class");
+
+        PROTOCOL_TESTING_IDENTIFIER = new ProtocolIdentifier(ProtocolTesting.class, PROTOCOL_TESTING_TAG);
 
         SimaSimulation.waitEndSimulation();
     }
@@ -161,7 +173,8 @@ public abstract class GlobalTestEnvironment extends SimaTest {
         verifyPreConditionAndExecuteTest(() -> !ENVIRONMENT.isEvolving(NOT_EVOLVING_AGENT_IDENTIFIER),
                                          () -> {
                                              Event event = new EventTesting(NOT_EVOLVING_AGENT_IDENTIFIER,
-                                                                            NOT_EVOLVING_AGENT_IDENTIFIER, null);
+                                                                            NOT_EVOLVING_AGENT_IDENTIFIER,
+                                                                            PROTOCOL_TESTING_IDENTIFIER);
                                              assertThrows(NotEvolvingAgentInEnvironmentException.class,
                                                           () -> ENVIRONMENT.sendEvent(event));
                                          });
@@ -173,7 +186,8 @@ public abstract class GlobalTestEnvironment extends SimaTest {
         verifyPreConditionAndExecuteTest(
                 () -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT_IDENTIFIER) && !ENVIRONMENT.isEvolving(
                         NOT_EVOLVING_AGENT_IDENTIFIER), () -> {
-                    Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER, NOT_EVOLVING_AGENT_IDENTIFIER, null);
+                    Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER, NOT_EVOLVING_AGENT_IDENTIFIER,
+                                                   PROTOCOL_TESTING_IDENTIFIER);
                     assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> ENVIRONMENT.sendEvent(event));
                 });
     }
@@ -200,7 +214,7 @@ public abstract class GlobalTestEnvironment extends SimaTest {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT_IDENTIFIER), () -> {
             Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER,
-                                           ACCEPTED_AGENT_IDENTIFIER, null);
+                                           ACCEPTED_AGENT_IDENTIFIER, PROTOCOL_TESTING_IDENTIFIER);
             assertDoesNotThrow(() -> ENVIRONMENT.sendEvent(event));
         });
     }
@@ -213,7 +227,8 @@ public abstract class GlobalTestEnvironment extends SimaTest {
     @Test
     public void sprayEventWithNotEvolvingSenderThrowsException() {
         verifyPreConditionAndExecuteTest(() -> !ENVIRONMENT.isEvolving(NOT_EVOLVING_AGENT_IDENTIFIER), () -> {
-            Event event = new EventTesting(NOT_EVOLVING_AGENT_IDENTIFIER, NOT_EVOLVING_AGENT_IDENTIFIER, null);
+            Event event = new EventTesting(NOT_EVOLVING_AGENT_IDENTIFIER, NOT_EVOLVING_AGENT_IDENTIFIER,
+                                           PROTOCOL_TESTING_IDENTIFIER);
             assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> ENVIRONMENT.sprayEvent(event));
         });
     }
@@ -224,7 +239,7 @@ public abstract class GlobalTestEnvironment extends SimaTest {
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT_IDENTIFIER), () -> {
             Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER,
-                                           ACCEPTED_AGENT_IDENTIFIER, null);
+                                           ACCEPTED_AGENT_IDENTIFIER, PROTOCOL_TESTING_IDENTIFIER);
             assertDoesNotThrow(() -> ENVIRONMENT.sprayEvent(event));
         });
     }

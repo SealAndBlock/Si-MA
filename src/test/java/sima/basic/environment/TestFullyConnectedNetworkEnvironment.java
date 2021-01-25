@@ -1,4 +1,4 @@
-package sima.core.environment.basic;
+package sima.basic.environment;
 
 import org.junit.jupiter.api.Test;
 import sima.basic.environment.FullyConnectedNetworkEnvironment;

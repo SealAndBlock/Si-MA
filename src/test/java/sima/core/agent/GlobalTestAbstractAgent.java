@@ -571,19 +571,6 @@ public abstract class GlobalTestAbstractAgent extends SimaTest {
     }
 
     @Test
-    public void processEventNotThrowsExceptionIfEventHasNoProtocolTargeted() {
-        String p0 = "P_0";
-        AGENT_0.addProtocol(ProtocolTesting.class, p0, null);
-
-        AGENT_0.start();
-
-        EventTesting e = new EventTesting(AGENT_0.getAgentIdentifier(), AGENT_0.getAgentIdentifier(), null);
-
-
-            assertDoesNotThrow(() -> AGENT_0.processEvent(e));
-    }
-
-    @Test
     public void processEventWithEventWithNotAddedProtocolThrowsException() {
         AGENT_0.start();
 

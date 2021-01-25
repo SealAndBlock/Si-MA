@@ -132,8 +132,8 @@ public abstract class AbstractAgent implements EventCatcher {
     }
 
     /**
-     * Compute the hash code of the sima.core.agent. Use the hashCode generate by the {@link #getAgentIdentifier()}
-     * of the agent.
+     * Compute the hash code of the sima.core.agent. Use the hashCode generate by the {@link #getAgentIdentifier()} of
+     * the agent.
      *
      * @return the hash code of the sima.core.agent.
      */
@@ -512,45 +512,50 @@ public abstract class AbstractAgent implements EventCatcher {
      * Method called by an sima.core.environment when an event occurs and that the receiver is the sima.core.agent. This
      * method is here to allow the sima.core.agent to manage how the event must be treated.
      * <p>
-     * If the event is a <i>general event</i>, the method {@link #processNoProtocolEvent(Event)} is called.
-     * <p>
-     * If the event has a sima.core.protocol targeted, then the sima.core.agent search the associated sima.core.protocol
-     * and call the method {@link Protocol#processEvent(Event)} is the sima.core.protocol is find. In the case where the
-     * targeted sima.core.protocol is not find among all sima.core.protocol that the sima.core.agent possesses, throws
-     * {@link IllegalArgumentException}.
-     * <p>
-     * This method must be thread safe, in the implementation of {@link AbstractAgent}, the method is synchronized.
+     * This method is final and synchronized to hide the synchronisation for the user. Therefore, to manage the
+     * treatment of the event, you must override the method {@link #inProcessEvent(Event)}. However, the method {@link
+     * #inProcessEvent(Event)} is called only if the agent is started, else this methods throws {@link
+     * AgentNotStartedException}.
      *
      * @param event the event received
      * @throws AgentNotStartedException if the agent is not started
-     * @see Event#isProtocolEvent()
+     * @see #inProcessEvent(Event)
      */
     @Override
-    public synchronized void processEvent(Event event) {
-        if (isStarted) {
-            if (event.isProtocolEvent()) {
-                Protocol protocolTarget = getProtocol(event.getProtocolTargeted());
-                if (protocolTarget != null)
-                    protocolTarget.processEvent(event);
-                else
-                    throw new IllegalArgumentException("Event with not added protocol");
-            } else {
-                processNoProtocolEvent(event);
-            }
-        } else {
+    public final synchronized void processEvent(Event event) {
+        if (isStarted)
+            inProcessEvent(event);
+        else
             throw new AgentNotStartedException("The agent " + agentIdentifier + " is not started, cannot " +
                                                        "process Event.");
-        }
     }
 
     /**
-     * This method is called when the sima.core.agent received a <i>general event</i>. This method allows the
-     * sima.core.agent to treat all general event that it receives.
+     * This method is called in the method {@link #processEvent(Event)}. In that way this method is not synchronized and
+     * the user must not have to be preoccupy by synchronisation and multi threading. This method is called by
+     * processEvent only if the agent is started.
+     * <p>
+     * The default implementation is in first the verification of if the event have a protocol targeted or not. If it
+     * is not the case, throws {@link UnsupportedOperationException}. Else if the event has a protocol targeted, the
+     * method search if the agent add the protocol and if it is the case, call the method
+     * {@link Protocol#processEvent(Event)} of the protocol. If the protocol targeted is not add in the agent, throws
+     * {@link IllegalArgumentException}.
      *
-     * @param event the event received
-     * @see Event#isProtocolEvent()
+     * @param event the event to process
+     *
+     * @throws IllegalArgumentException if the event has a protocol targeted which is not added in the agent
+     * @throws UnsupportedOperationException if the event has no protocol targeted (equals to null)
      */
-    protected abstract void processNoProtocolEvent(Event event);
+    protected void inProcessEvent(Event event) {
+        if (event.isProtocolEvent()) {
+            Protocol protocolTarget = getProtocol(event.getProtocolTargeted());
+            if (protocolTarget != null)
+                protocolTarget.processEvent(event);
+            else
+                throw new IllegalArgumentException("Event with not added protocol");
+        } else
+            throw new UnsupportedOperationException("No operation for event with no protocol targeted");
+    }
 
     public AgentIdentifier getAgentIdentifier() {
         return agentIdentifier;

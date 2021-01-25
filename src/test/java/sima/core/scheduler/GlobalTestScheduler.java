@@ -10,6 +10,8 @@ import sima.core.environment.EnvironmentTesting;
 import sima.core.environment.event.EventTesting;
 import sima.core.exception.NotSchedulableTimeException;
 import sima.core.exception.SimaSimulationFailToStartRunningException;
+import sima.core.protocol.ProtocolIdentifier;
+import sima.core.protocol.ProtocolTesting;
 import sima.core.simulation.SimaSimulation;
 
 import java.util.*;
@@ -28,6 +30,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public abstract class GlobalTestScheduler extends SimaTest {
 
     // Static.
+
+    protected static final String PROTOCOL_TESTING_TAG = "P_TEST";
 
     private AgentTesting A0;
     private AgentTesting A1;
@@ -55,6 +59,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
      */
     protected static long NB_EXECUTION_TOLERANCE;
 
+    protected static ProtocolIdentifier PROTOCOL_TESTING_IDENTIFIER;
+
     // Setup.
 
     @Override
@@ -68,6 +74,14 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertNotNull(SCHEDULER, "NULL SCHEDULER -> Tests cannot be realize");
         assertTrue(TIME_EXECUTION_TOLERANCE >= 0, "TIME_EXECUTION_TOLERANCE cannot be less than 0");
         assertTrue(NB_EXECUTION_TOLERANCE >= 0, "NB_EXECUTION_TOLERANCE cannot be less than 0");
+
+        assertTrue(A0.addProtocol(ProtocolTesting.class, PROTOCOL_TESTING_TAG, null), "The A0"
+                + " must be able to add ProtocolTesting.class");
+        assertTrue(A1.addProtocol(ProtocolTesting.class, PROTOCOL_TESTING_TAG, null), "The A1"
+                + " must be able to add ProtocolTesting.class");
+
+
+        PROTOCOL_TESTING_IDENTIFIER = new ProtocolIdentifier(ProtocolTesting.class, PROTOCOL_TESTING_TAG);
     }
 
     // Tests.
@@ -795,17 +809,17 @@ public abstract class GlobalTestScheduler extends SimaTest {
     public void scheduleEventThrowsExceptionIfWaitingTimeIsLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
                      () -> SCHEDULER.scheduleEvent(new EventTesting(A0.getAgentIdentifier(), A1.getAgentIdentifier(),
-                                                                    null), 0));
+                                                                    PROTOCOL_TESTING_IDENTIFIER), 0));
         assertThrows(IllegalArgumentException.class,
                      () -> SCHEDULER.scheduleEvent(new EventTesting(A0.getAgentIdentifier(), A1.getAgentIdentifier(),
-                                                                    null), -1));
+                                                                    PROTOCOL_TESTING_IDENTIFIER), -1));
     }
 
     @Test
     public void scheduleEventThrowsExceptionIfAgentReceiverIsNull() {
         assertThrows(IllegalArgumentException.class,
                      () -> SCHEDULER.scheduleEvent(new EventTesting(A0.getAgentIdentifier(), null,
-                                                                    null), Scheduler.NOW));
+                                                                    PROTOCOL_TESTING_IDENTIFIER), Scheduler.NOW));
     }
 
     @Test
@@ -817,7 +831,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         long expectedEventExecutionTime = Scheduler.NOW;
 
-        EventTesting testing = new EventTesting(A0.getAgentIdentifier(), A1.getAgentIdentifier(), null);
+        EventTesting testing = new EventTesting(A0.getAgentIdentifier(), A1.getAgentIdentifier(), PROTOCOL_TESTING_IDENTIFIER);
         SCHEDULER.scheduleEvent(testing, expectedEventExecutionTime);
 
         // Prepare the simulation.

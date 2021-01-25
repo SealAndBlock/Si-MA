@@ -1,8 +1,10 @@
-package sima.core.agent.basic;
+package sima.basic.agent;
 
 import org.junit.jupiter.api.Test;
 import sima.basic.agent.SimpleAgent;
 import sima.core.agent.GlobalTestAbstractAgent;
+import sima.core.environment.event.EventTesting;
+import sima.core.protocol.ProtocolTesting;
 
 import java.util.HashMap;
 
@@ -61,5 +63,14 @@ public class TestSimpleAgent extends GlobalTestAbstractAgent {
     @Test
     public void constructSimpleAgentWithNotNullArgsNotFail() {
         assertDoesNotThrow(() -> new SimpleAgent("AGENT", 0, 0, new HashMap<>()));
+    }
+
+    @Test
+    public void processEventWithEventWithNoProtocolTargetedThrowsException() {
+        AGENT_0.addProtocol(ProtocolTesting.class, "P_0", null);
+        AGENT_0.start();
+
+        EventTesting e = new EventTesting(AGENT_0.getAgentIdentifier(), AGENT_0.getAgentIdentifier(), null);
+        assertThrows(UnsupportedOperationException.class, () -> AGENT_0.processEvent(e));
     }
 }
