@@ -166,7 +166,7 @@ public abstract class MultiThreadScheduler implements Scheduler {
             try {
                 executable.execute();
             } catch (Exception e) {
-                SIMA_LOG.error("Execution of the executable " + executable + " FAILED");
+                SIMA_LOG.error("Execution of the executable " + executable + " FAILED", e);
             }
         }
     }
