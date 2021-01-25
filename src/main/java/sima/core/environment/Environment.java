@@ -16,16 +16,6 @@ import static sima.core.simulation.SimaSimulation.SIMA_LOG;
  * <p>
  * For example, you can create an {@code Environment} where agent are mobil and move. Each agent has a maximum scope and
  * can communicate only with sima.core.agent which are in this scope.
- * <p>
- * With the method {@link #sendEvent(Event)}, it is possible to send {@link Event}. This method first verifies if the
- * sima.core.agent sender is evolving in the sima.core.environment and after that, the methods {@link
- * #eventCanBeSentTo(AgentIdentifier, Event)} and {@link #scheduleEventReception(AgentIdentifier, Event)} are called.
- * <p>
- * First, the method verifies if the {@code Event} can be sent to the specified sima.core.agent receiver, it is in the
- * method that the network and the connection between agents are simulated.
- * <p>
- * If the {@code Event} can be sent to the specified sima.core.agent receiver, therefore the second method is called to
- * schedule the moment when the sima.core.agent receiver will receive the {@code Event}.
  *
  * @author guilr
  */
@@ -71,7 +61,6 @@ public abstract class Environment {
      * Add the sima.core.agent in the sima.core.environment. The sima.core.agent can be not accept in the {@link
      * Environment}, in that case, the methods returns false. If the sima.core.agent has already been accepted in the
      * {@code Environment}, this method does not accept the {@code AgentIdentifier} and returns false.
-     *
      * <p>
      * In this method, only the environment has conscience that the agent is evolving in it. For that the agent be
      * notify that it is evolving in the environment, it is better to use the method {@link
@@ -162,7 +151,7 @@ public abstract class Environment {
      * the same for the receiver. If it is not the case, a {@link NotEvolvingAgentInEnvironmentException} is thrown.
      * <p>
      * After that, if the receiver is not null, then the event is destined to one sima.core.agent and the function
-     * {@link #verifyAndScheduleEvent(AgentIdentifier, Event)} is called to try to send the {@code Event} to the
+     * {@link #verifyAndSendEvent(AgentIdentifier, Event)} is called to try to send the {@code Event} to the
      * sima.core.agent receiver. If the receiver is null, throws {@link IllegalArgumentException}.
      *
      * @param event the event to send
@@ -181,7 +170,7 @@ public abstract class Environment {
                     // Event destined for one identified agent.
                     // getAgent() detects if the sima.core.agent is evolving or not in the sima.core.environment
                     if (isEvolving(event.getReceiver()))
-                        verifyAndScheduleEvent(event.getReceiver(), event);
+                        verifyAndSendEvent(event.getReceiver(), event);
                     else
                         throw new NotEvolvingAgentInEnvironmentException(
                                 "The receiver agent " + event.getReceiver() + " is "
@@ -191,15 +180,43 @@ public abstract class Environment {
                         "The sender sima.core.agent " + event.getSender() + " is not "
                                 + "evolving in the sima.core.environment " + getEnvironmentName());
         else
-            throw new NullPointerException("The sent event is null");
+            throw new NullPointerException("The event to send is null");
+    }
+
+    /**
+     * This method spray the event to all agents which are "physically" connected to the event sender.
+     * <p>
+     * This method does not take care about the event receiver. It will search all agents in the environment which are
+     * physically connected the the event sender and send the event to it.
+     *
+     * @param event the event to spray
+     * @throws NullPointerException                   if the event is null
+     * @throws NotEvolvingAgentInEnvironmentException if the sender is not evolving in the environment
+     */
+    public synchronized void sprayEvent(Event event) {
+        if (event != null) {
+            if (isEvolving(event.getSender()))
+                evolvingAgents.forEach(agentIdentifier -> verifyAndSendEvent(agentIdentifier, event));
+            else
+                throw new NotEvolvingAgentInEnvironmentException(
+                        "The sender sima.core.agent " + event.getSender() + " is not "
+                                + "evolving in the sima.core.environment " + getEnvironmentName());
+        } else
+            throw new NullPointerException("The  event to spay is null");
     }
 
     /**
      * This method verifies if it is possible to send the event to the specified {@link AbstractAgent} from the event
-     * sender. Return true if the event can be sent to the receiver from the sender, else false.
+     * sender. Return true if the event can "physically" be sent to the receiver from the sender, else false.
      * <p>
-     * It is in this method that we can simulate the network link. For example, If two agents are not connected, maybe
-     * the event cannot be sent to the sima.core.agent receiver.
+     * It is in this method that is simulate physical connection between each agent. Therefore, if this method returns
+     * false for agent receiver B and an Event with the agent sender A, it is because in the simulation, agents A and B
+     * or not physically connected.
+     * <p>
+     * By convention, we consider that an agent is always physically connected with itself, therefore this method must
+     * always returns true if the specified receiver is equal to the event sender.
+     * <p>
+     * This method must not pay attention to the event receiver.
      *
      * @param receiver the agent receiver
      * @param event    the event to send to the receiver
@@ -231,7 +248,7 @@ public abstract class Environment {
      * @see #eventCanBeSentTo(AgentIdentifier, Event)
      * @see #scheduleEventReception(AgentIdentifier, Event)
      */
-    protected void verifyAndScheduleEvent(AgentIdentifier receiver, Event event) {
+    protected void verifyAndSendEvent(AgentIdentifier receiver, Event event) {
         if (eventCanBeSentTo(receiver, event))
             scheduleEventReception(receiver, event);
     }

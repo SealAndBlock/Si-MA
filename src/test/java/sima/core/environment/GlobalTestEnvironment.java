@@ -158,10 +158,10 @@ public abstract class GlobalTestEnvironment extends SimaTest {
 
     @Test
     public void sendEventThrowsExceptionIfSenderAgentIsNotEvolvingInTheEnvironment() {
-        verifyPreConditionAndExecuteTest(() -> !ENVIRONMENT.isEvolving(ACCEPTED_AGENT_IDENTIFIER),
+        verifyPreConditionAndExecuteTest(() -> !ENVIRONMENT.isEvolving(NOT_EVOLVING_AGENT_IDENTIFIER),
                                          () -> {
-                                             Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER,
-                                                                            ACCEPTED_AGENT_IDENTIFIER, null);
+                                             Event event = new EventTesting(NOT_EVOLVING_AGENT_IDENTIFIER,
+                                                                            NOT_EVOLVING_AGENT_IDENTIFIER, null);
                                              assertThrows(NotEvolvingAgentInEnvironmentException.class,
                                                           () -> ENVIRONMENT.sendEvent(event));
                                          });
@@ -172,8 +172,7 @@ public abstract class GlobalTestEnvironment extends SimaTest {
         ENVIRONMENT.acceptAgent(ACCEPTED_AGENT_IDENTIFIER);
         verifyPreConditionAndExecuteTest(
                 () -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT_IDENTIFIER) && !ENVIRONMENT.isEvolving(
-                        NOT_EVOLVING_AGENT_IDENTIFIER),
-                () -> {
+                        NOT_EVOLVING_AGENT_IDENTIFIER), () -> {
                     Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER, NOT_EVOLVING_AGENT_IDENTIFIER, null);
                     assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> ENVIRONMENT.sendEvent(event));
                 });
@@ -188,24 +187,46 @@ public abstract class GlobalTestEnvironment extends SimaTest {
     public void sendEventForAnEventWithNoReceiverThrowsException() {
         ENVIRONMENT.acceptAgent(ACCEPTED_AGENT_IDENTIFIER);
         runSimulationWithLongExecutable();
-        verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT_IDENTIFIER),
-                                         () -> {
-                                             Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER, null, null);
-                                             assertThrows(IllegalArgumentException.class,
-                                                          () -> ENVIRONMENT.sendEvent(event));
-                                         });
+        verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT_IDENTIFIER), () -> {
+            Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER, null, null);
+            assertThrows(IllegalArgumentException.class,
+                         assertDoesNotThrow(() -> () -> ENVIRONMENT.sendEvent(event)));
+        });
     }
 
     @Test
     public void sendEventNotFailForAnEventWithAnEvolvingAgentReceiver() {
         ENVIRONMENT.acceptAgent(ACCEPTED_AGENT_IDENTIFIER);
         runSimulationWithLongExecutable();
-        verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT_IDENTIFIER),
-                                         () -> {
-                                             Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER,
-                                                                            ACCEPTED_AGENT_IDENTIFIER, null);
-                                             ENVIRONMENT.sendEvent(event);
-                                         });
+        verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT_IDENTIFIER), () -> {
+            Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER,
+                                           ACCEPTED_AGENT_IDENTIFIER, null);
+            assertDoesNotThrow(() -> ENVIRONMENT.sendEvent(event));
+        });
+    }
+
+    @Test
+    public void sprayEventWithNullEventThrowsException() {
+        assertThrows(NullPointerException.class, () -> ENVIRONMENT.sprayEvent(null));
+    }
+
+    @Test
+    public void sprayEventWithNotEvolvingSenderThrowsException() {
+        verifyPreConditionAndExecuteTest(() -> !ENVIRONMENT.isEvolving(NOT_EVOLVING_AGENT_IDENTIFIER), () -> {
+            Event event = new EventTesting(NOT_EVOLVING_AGENT_IDENTIFIER, NOT_EVOLVING_AGENT_IDENTIFIER, null);
+            assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> ENVIRONMENT.sprayEvent(event));
+        });
+    }
+
+    @Test
+    public void sprayEventWithCorrectEventNotFail() {
+        ENVIRONMENT.acceptAgent(ACCEPTED_AGENT_IDENTIFIER);
+        runSimulationWithLongExecutable();
+        verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT_IDENTIFIER), () -> {
+            Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER,
+                                           ACCEPTED_AGENT_IDENTIFIER, null);
+            assertDoesNotThrow(() -> ENVIRONMENT.sprayEvent(event));
+        });
     }
 
     @Test
