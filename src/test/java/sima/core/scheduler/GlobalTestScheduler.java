@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static sima.core.scheduler.Scheduler.NOW;
 
 /**
  * Test that all Classes which implements {@link Scheduler} must pass.
@@ -346,13 +347,13 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         ExecutableTesting e0 = new ExecutableTesting();
 
-        SCHEDULER.scheduleExecutable(e0, Scheduler.NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
+        SCHEDULER.scheduleExecutable(e0, NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
 
         assertTrue(SCHEDULER.start());
 
         waitSchedulerWatcher.waitUntilKilled();
 
-        verifyNumber(e0.executedTime, Scheduler.NOW, TIME_EXECUTION_TOLERANCE);
+        verifyNumber(e0.executedTime, NOW, TIME_EXECUTION_TOLERANCE);
     }
 
     @Test
@@ -364,17 +365,17 @@ public abstract class GlobalTestScheduler extends SimaTest {
         ExecutableTesting e1 = new ExecutableTesting();
         ExecutableTesting e2 = new ExecutableTesting();
 
-        SCHEDULER.scheduleExecutable(e0, Scheduler.NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
-        SCHEDULER.scheduleExecutable(e1, Scheduler.NOW + 1, Scheduler.ScheduleMode.ONCE, -1, -1);
-        SCHEDULER.scheduleExecutable(e2, Scheduler.NOW + 2, Scheduler.ScheduleMode.ONCE, -1, -1);
+        SCHEDULER.scheduleExecutable(e0, NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
+        SCHEDULER.scheduleExecutable(e1, NOW + 1, Scheduler.ScheduleMode.ONCE, -1, -1);
+        SCHEDULER.scheduleExecutable(e2, NOW + 2, Scheduler.ScheduleMode.ONCE, -1, -1);
 
         assertTrue(SCHEDULER.start());
 
         waitSchedulerWatcher.waitUntilKilled();
 
-        verifyNumber(e0.executedTime, Scheduler.NOW, TIME_EXECUTION_TOLERANCE);
-        verifyNumber(e1.executedTime, Scheduler.NOW + 1, TIME_EXECUTION_TOLERANCE);
-        verifyNumber(e2.executedTime, Scheduler.NOW + 2, TIME_EXECUTION_TOLERANCE);
+        verifyNumber(e0.executedTime, NOW, TIME_EXECUTION_TOLERANCE);
+        verifyNumber(e1.executedTime, NOW + 1, TIME_EXECUTION_TOLERANCE);
+        verifyNumber(e2.executedTime, NOW + 2, TIME_EXECUTION_TOLERANCE);
     }
 
     @Test
@@ -384,9 +385,9 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         List<Executable> executables = new Vector<>();
 
-        ExecutableTestingFeederV1 eF0 = new ExecutableTestingFeederV1(Scheduler.NOW, executables);
+        ExecutableTestingFeederV1 eF0 = new ExecutableTestingFeederV1(NOW, executables);
 
-        SCHEDULER.scheduleExecutable(eF0, Scheduler.NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
+        SCHEDULER.scheduleExecutable(eF0, NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
 
         assertTrue(SCHEDULER.start());
 
@@ -416,9 +417,9 @@ public abstract class GlobalTestScheduler extends SimaTest {
         // Useless.
         List<Executable> executables = new Vector<>();
 
-        ExecutableTestingFeederV1 eF0 = new ExecutableTestingFeederV1(Scheduler.NOW, executables);
+        ExecutableTestingFeederV1 eF0 = new ExecutableTestingFeederV1(NOW, executables);
 
-        SCHEDULER.scheduleExecutable(eF0, Scheduler.NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
+        SCHEDULER.scheduleExecutable(eF0, NOW, Scheduler.ScheduleMode.ONCE, -1, -1);
 
         assertTrue(SCHEDULER.start());
 
@@ -518,7 +519,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         SCHEDULER.scheduleExecutableOnce(
                 () -> SCHEDULER.scheduleExecutableAtSpecificTime(() -> executionTime.set(SCHEDULER.getCurrentTime()),
-                                                                 specificTime), Scheduler.NOW);
+                                                                 specificTime), NOW);
 
         assertTrue(SCHEDULER.start());
 
@@ -543,9 +544,9 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         List<Executable> executables = new Vector<>();
 
-        ExecutableTestingFeederV2 eF0 = new ExecutableTestingFeederV2(Scheduler.NOW, executables);
+        ExecutableTestingFeederV2 eF0 = new ExecutableTestingFeederV2(NOW, executables);
 
-        SCHEDULER.scheduleExecutableOnce(eF0, Scheduler.NOW);
+        SCHEDULER.scheduleExecutableOnce(eF0, NOW);
 
         assertTrue(SCHEDULER.start());
 
@@ -593,7 +594,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         long nbRepetitions = 5;
         long stepBetweenRepetition = 10;
-        long repetitionBegin = Scheduler.NOW;
+        long repetitionBegin = NOW;
 
         final AtomicLong nbExecutions = new AtomicLong(0);
         final Map<Long, Long> mapExecutionAndTimeExecution = new HashMap<>();
@@ -638,7 +639,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         long stepBetweenRepetition = 10;
-        long repetitionBegin = Scheduler.NOW;
+        long repetitionBegin = NOW;
         long timeBetweenBeginAndEnd = END_SIMULATION - repetitionBegin;
         long nbRepetitions = (timeBetweenBeginAndEnd / stepBetweenRepetition) + 1;
 
@@ -715,7 +716,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         long nbRepetitions = 5;
         long stepBetweenRepetition = 10;
-        long repetitionBegin = Scheduler.NOW;
+        long repetitionBegin = NOW;
 
         final AtomicLong nbExecutions = new AtomicLong(0);
         final Map<Long, Long> mapExecutionAndTimeExecution = new HashMap<>();
@@ -776,7 +777,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         long stepBetweenRepetition = 10;
-        long repetitionBegin = Scheduler.NOW;
+        long repetitionBegin = NOW;
 
         final AtomicLong nbExecutions = new AtomicLong(0);
         final Map<Long, Long> mapExecutionAndTimeExecution = new HashMap<>();
@@ -819,7 +820,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
     public void scheduleEventThrowsExceptionIfAgentReceiverIsNull() {
         assertThrows(IllegalArgumentException.class,
                      () -> SCHEDULER.scheduleEvent(new EventTesting(A0.getAgentIdentifier(), null,
-                                                                    PROTOCOL_TESTING_IDENTIFIER), Scheduler.NOW));
+                                                                    PROTOCOL_TESTING_IDENTIFIER), NOW));
     }
 
     @Test
@@ -829,10 +830,9 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         // Schedule Event.
 
-        long expectedEventExecutionTime = Scheduler.NOW;
-
-        EventTesting testing = new EventTesting(A0.getAgentIdentifier(), A1.getAgentIdentifier(), PROTOCOL_TESTING_IDENTIFIER);
-        SCHEDULER.scheduleEvent(testing, expectedEventExecutionTime);
+        EventTesting testing =
+                new EventTesting(A0.getAgentIdentifier(), A1.getAgentIdentifier(), PROTOCOL_TESTING_IDENTIFIER);
+        SCHEDULER.scheduleEvent(testing, NOW);
 
         // Prepare the simulation.
 
@@ -858,6 +858,28 @@ public abstract class GlobalTestScheduler extends SimaTest {
     }
 
     @Test
+    public void scheduleAExecutableWhichCrashDuringTheExecutionNotCrashTheSimulation() {
+        SchedulerWatcherTesting schedulerWatcherTesting = new SchedulerWatcherTesting();
+        SCHEDULER.addSchedulerWatcher(schedulerWatcherTesting);
+
+        WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
+        SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
+
+        List<Executable> executables = new ArrayList<>();
+        SCHEDULER.scheduleExecutableOnce(new ExecutableTestingFeederV2(NOW, executables), NOW);
+        SCHEDULER.scheduleExecutableOnce(() -> {
+            throw new RuntimeException();
+        }, (SCHEDULER.getEndSimulation() / 2));
+
+        SCHEDULER.start();
+
+        // Finish by not reaching time.
+        waitSchedulerWatcher.waitUntilKilled();
+
+        assertEquals(1, schedulerWatcherTesting.isPassToSimulationEndTimeReach);
+    }
+
+    @Test
     public void getTimeModeNeverReturnsNull() {
         assertNotNull(SCHEDULER.getTimeMode());
     }
@@ -876,7 +898,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
      * very sure that all tests will pass and are correct.
      */
     protected void scheduleLongTimeExecutable() {
-        SCHEDULER.scheduleExecutableOnce(new LongTimeExecutableTesting(), Scheduler.NOW);
+        SCHEDULER.scheduleExecutableOnce(new LongTimeExecutableTesting(), NOW);
     }
 
     // Inner classes.
