@@ -45,7 +45,7 @@ public abstract class GlobalTestMessage extends GlobalTestEvent {
 
     @Test
     public void constructMessageWithNullContentNotFail() {
-        AbstractAgent a = new AgentTesting("A_0", 0, null);
+        AbstractAgent a = new AgentTesting("A_0", 0, 0,null);
         assertDoesNotThrow(() -> new Message(a.getAgentIdentifier(), null, null, null) {
         });
     }

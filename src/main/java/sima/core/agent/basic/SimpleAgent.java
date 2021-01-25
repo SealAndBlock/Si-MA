@@ -9,8 +9,8 @@ public class SimpleAgent extends AbstractAgent {
 
     // Constructors.
 
-    public SimpleAgent(String agentName, int numberId, Map<String, String> args) {
-        super(agentName, numberId, args);
+    public SimpleAgent(String agentName, int sequenceId, int uniqueId, Map<String, String> args) {
+        super(agentName, sequenceId, uniqueId, args);
     }
 
     // Methods.

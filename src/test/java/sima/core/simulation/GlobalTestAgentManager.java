@@ -27,13 +27,13 @@ public abstract class GlobalTestAgentManager extends SimaTest {
 
     @Test
     public void canAddAbstractAgent() {
-        AgentTesting agent = new AgentTesting("AGENT1", 0, null);
+        AgentTesting agent = new AgentTesting("AGENT1", 0, 0, null);
         assertTrue(AGENT_MANAGER.addAgent(agent));
     }
 
     @Test
     public void cannotAddSameAbstractAgent() {
-        AgentTesting agent = new AgentTesting("AGENT1",0, null);
+        AgentTesting agent = new AgentTesting("AGENT1", 0, 0, null);
         assertTrue(AGENT_MANAGER.addAgent(agent));
         assertFalse(AGENT_MANAGER.addAgent(agent));
     }
@@ -45,11 +45,11 @@ public abstract class GlobalTestAgentManager extends SimaTest {
 
     @Test
     public void canAddSeveralDifferentAgent() {
-        AgentTesting agent0 = new AgentTesting("AGENT1",0, null);
-        AgentTesting agent1 = new AgentTesting("AGENT2",1, null);
-        AgentTesting agent2 = new AgentTesting("AGENT3",2, null);
-        AgentTesting agent3 = new AgentTesting("AGENT4",3, null);
-        AgentTesting agent4 = new AgentTesting("AGENT5",4, null);
+        AgentTesting agent0 = new AgentTesting("AGENT1", 0, 0, null);
+        AgentTesting agent1 = new AgentTesting("AGENT2", 1, 1, null);
+        AgentTesting agent2 = new AgentTesting("AGENT3", 2, 2, null);
+        AgentTesting agent3 = new AgentTesting("AGENT4", 3, 3, null);
+        AgentTesting agent4 = new AgentTesting("AGENT5", 4, 4, null);
 
         assertTrue(AGENT_MANAGER.addAgent(agent0));
         assertTrue(AGENT_MANAGER.addAgent(agent1));
@@ -60,12 +60,12 @@ public abstract class GlobalTestAgentManager extends SimaTest {
 
     @Test
     public void returnsAllAddedAgents() {
-        AgentTesting agent0 = new AgentTesting("AGENT1",0, null);
-        AgentTesting agent1 = new AgentTesting("AGENT2",1, null);
-        AgentTesting agent2 = new AgentTesting("AGENT3",2, null);
-        AgentTesting agent3 = new AgentTesting("AGENT4",3, null);
-        AgentTesting agent4 = new AgentTesting("AGENT5",4, null);
-        AgentTesting notAddedAgent = new AgentTesting("AGENT_NOT_ADDED", 5, null);
+        AgentTesting agent0 = new AgentTesting("AGENT1", 0, 0, null);
+        AgentTesting agent1 = new AgentTesting("AGENT2", 1, 1, null);
+        AgentTesting agent2 = new AgentTesting("AGENT3", 2, 2, null);
+        AgentTesting agent3 = new AgentTesting("AGENT4", 3, 3, null);
+        AgentTesting agent4 = new AgentTesting("AGENT5", 4, 4, null);
+        AgentTesting notAddedAgent = new AgentTesting("AGENT_NOT_ADDED", 5, 5, null);
 
         List<AbstractAgent> agentList = new ArrayList<>();
         assertTrue(agentList.add(agent0));

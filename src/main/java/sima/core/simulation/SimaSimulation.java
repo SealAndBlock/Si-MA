@@ -249,7 +249,7 @@ public final class SimaSimulation {
                    ConfigurationException, ClassNotFoundException {
 
         for (int i = 0; i < agentJson.getNumberToCreate(); i++) {
-            AbstractAgent agent = createAgentAndAddInSet(agents, agentJson, counter.getAndIncrement());
+            AbstractAgent agent = createAgentAndAddInSet(agents, agentJson, i, counter.getAndIncrement());
             associateAgentAndBehaviors(agent, agentJson, mapBehaviors);
             associateAgentAndProtocol(agent, agentJson, mapProtocols);
             associateAgentAndEnvironments(agent, agentJson, mapEnvironments);
@@ -316,12 +316,14 @@ public final class SimaSimulation {
         }
     }
 
-    private static @NotNull AbstractAgent createAgentAndAddInSet(Set<AbstractAgent> agents, AgentJson agentJson, int i)
+    private static @NotNull AbstractAgent createAgentAndAddInSet(Set<AbstractAgent> agents, AgentJson agentJson,
+                                                                 int agentSequenceId, int agentUniqueId)
             throws ClassNotFoundException, ConfigurationException, InvocationTargetException, NoSuchMethodException,
                    InstantiationException, IllegalAccessException {
 
         AbstractAgent agent = createAgent(extractClassForName(agentJson.getAgentClass()),
-                                          String.format(agentJson.getNamePattern(), i), i, parseArgs(agentJson));
+                                          String.format(agentJson.getNamePattern(), agentSequenceId), agentSequenceId,
+                                          agentUniqueId, parseArgs(agentJson));
         addAgentInAgentSet(agents, agent);
         return agent;
     }
@@ -334,9 +336,10 @@ public final class SimaSimulation {
     }
 
     private static @NotNull AbstractAgent createAgent(Class<? extends AbstractAgent> agentClass, String agentName,
-                                                      int agentNumberId, Map<String, String> args)
+                                                      int agentSequenceId, int agentUniqueId, Map<String, String> args)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        return instantiate(agentClass, new Class[]{String.class, int.class, Map.class}, agentName, agentNumberId, args);
+        return instantiate(agentClass, new Class[]{String.class, int.class, int.class, Map.class}, agentName,
+                           agentSequenceId, agentUniqueId, args);
     }
 
     /**

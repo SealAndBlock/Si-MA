@@ -50,7 +50,7 @@ public class SimaSimulationTest extends SimaTest {
         SCHEDULER_WATCHER = new SchedulerWatcherTesting();
         SCHEDULER.addSchedulerWatcher(SCHEDULER_WATCHER);
 
-        A_0 = new AgentTesting("A_0", 0, null);
+        A_0 = new AgentTesting("A_0", 0, 0,null);
 
         ALL_AGENTS = new HashSet<>();
         ALL_AGENTS.add(A_0);

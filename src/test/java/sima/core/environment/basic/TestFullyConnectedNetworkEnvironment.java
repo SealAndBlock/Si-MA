@@ -17,10 +17,10 @@ public class TestFullyConnectedNetworkEnvironment extends GlobalTestEnvironment 
     @Override
     protected void verifyAndSetup() {
 
-        ACCEPTED_AGENT = new AgentTesting("ACCEPT_AGENT", 0, null);
+        ACCEPTED_AGENT = new AgentTesting("ACCEPT_AGENT", 0, 0, null);
         ACCEPTED_AGENT_IDENTIFIER = ACCEPTED_AGENT.getAgentIdentifier();
         NOT_ACCEPTED_AGENT_IDENTIFIER = null;
-        NOT_EVOLVING_AGENT_IDENTIFIER = new AgentTesting("NOT_EVOLVING", 2, null).getAgentIdentifier();
+        NOT_EVOLVING_AGENT_IDENTIFIER = new AgentTesting("NOT_EVOLVING", 2, 2, null).getAgentIdentifier();
 
         ENVIRONMENT = new FullyConnectedNetworkEnvironment("ENV", null);
         ENVIRONMENT_EQUAL = new FullyConnectedNetworkEnvironment("ENV", null);

@@ -24,8 +24,9 @@ public class TestUtils extends SimaTest {
     @Test
     public void instantiateCanCorrectlyInstantiateAnAgentTesting() {
         try {
-            AgentTesting a = Utils.instantiate(AgentTesting.class, new Class<?>[]{String.class, int.class, Map.class},
-                                               "AGENT", 0, new HashMap<>());
+            AgentTesting a = Utils.instantiate(AgentTesting.class, new Class<?>[]{String.class, int.class, int.class,
+                                                       Map.class},
+                                               "AGENT", 0, 0, new HashMap<>());
             assertEquals("AGENT", a.getAgentName());
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
             fail(e);

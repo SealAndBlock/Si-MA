@@ -9,8 +9,9 @@ public class SpecificAgentNotAddProtocolTesting extends AgentTesting {
 
     // Constructors.
 
-    public SpecificAgentNotAddProtocolTesting(String agentName, int numberId, Map<String, String> args) {
-        super(agentName, numberId, args);
+    public SpecificAgentNotAddProtocolTesting(String agentName, int sequenceId, int uniqueId,
+                                              Map<String, String> args) {
+        super(agentName, sequenceId, uniqueId, args);
     }
 
     // Methods.

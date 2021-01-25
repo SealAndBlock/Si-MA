@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import sima.core.environment.event.EventTesting;
 import sima.core.protocol.ProtocolTesting;
 
+import java.util.HashMap;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestAgentTesting extends GlobalTestAbstractAgent {
@@ -12,8 +14,8 @@ public class TestAgentTesting extends GlobalTestAbstractAgent {
 
     @Override
     public void verifyAndSetup() {
-        AGENT_0 = new AgentTesting("AGENT_0", 0, null);
-        AGENT_1 = new AgentTesting("AGENT_1", 1, null);
+        AGENT_0 = new AgentTesting("AGENT_0", 0, 0, null);
+        AGENT_1 = new AgentTesting("AGENT_1", 1, 1, null);
 
         super.verifyAndSetup();
     }
@@ -21,22 +23,33 @@ public class TestAgentTesting extends GlobalTestAbstractAgent {
     // Tests.
 
     @Test
-    public void constructAgentTestingWithNegativeNumberIdThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> new AgentTesting("A_0", -1, null));
+    public void constructAgentTestingWithNegativeSequenceIdThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> new AgentTesting("A_0", -1, 0, new HashMap<>()));
+    }
+
+    @Test
+    public void constructAgentTestingWithPositiveSequenceIdNotFail() {
+        assertDoesNotThrow(() -> new AgentTesting("A_0", 0, 0, new HashMap<>()));
+    }
+
+    @Test
+    public void constructAgentTestingWithNegativeUniqueIdThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> new AgentTesting("A_0", 0, -1, new HashMap<>()));
+    }
+
+    @Test
+    public void constructAgentTestingWithPositiveUniqueIdNotFail() {
+        assertDoesNotThrow(() -> new AgentTesting("A_0", 0, 0, new HashMap<>()));
     }
 
     @Test
     public void constructAgentTestingWithNullAgentNameThrowsException() {
-        assertThrows(NullPointerException.class, () -> new AgentTesting(null, 0, null));
+        assertThrows(NullPointerException.class, () -> new AgentTesting(null, 0, 0, null));
     }
 
     @Test
     public void constructAgentWithNullArgsNotThrowsException() {
-        try {
-            new AgentTesting("A_0", 0, null);
-        } catch (Exception e) {
-            fail(e);
-        }
+        assertDoesNotThrow(() -> new AgentTesting("A_0", 0, 0, null));
 
     }
 

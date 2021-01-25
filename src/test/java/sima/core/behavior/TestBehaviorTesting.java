@@ -17,7 +17,7 @@ public class TestBehaviorTesting extends GlobalTestBehavior {
     protected void verifyAndSetup() {
         BehaviorTesting.NOT_PLAYABLE_AGENT_LIST.clear();
 
-        AgentTesting agentTesting = new AgentTesting("AGENT_BEHAVIOR_TEST_0", 0, null);
+        AgentTesting agentTesting = new AgentTesting("AGENT_BEHAVIOR_TEST_0", 0, 0, null);
         try {
             BEHAVIOR = new BehaviorTesting(agentTesting, null);
 
@@ -39,7 +39,7 @@ public class TestBehaviorTesting extends GlobalTestBehavior {
 
     @Test
     public void constructBehaviorTestingWithNullArgsNotFail() {
-        AbstractAgent agent = new AgentTesting("A_0", 0, null);
+        AbstractAgent agent = new AgentTesting("A_0", 0, 0, null);
         assertDoesNotThrow(() -> {
             try {
                 new BehaviorTesting(agent, null);
@@ -51,7 +51,7 @@ public class TestBehaviorTesting extends GlobalTestBehavior {
 
     @Test
     public void constructBehaviorTestingWithNotNullArgsNotFail() {
-        AbstractAgent agent = new AgentTesting("A_0", 0, null);
+        AbstractAgent agent = new AgentTesting("A_0", 0, 0, null);
         assertDoesNotThrow(() -> {
             try {
                 new BehaviorTesting(agent, new HashMap<>());
@@ -63,7 +63,7 @@ public class TestBehaviorTesting extends GlobalTestBehavior {
 
     @Test
     public void constructBehaviorTestingWithNotPlayableAgentThrowsException() {
-        AbstractAgent agent = new AgentTesting("A_0", 0, null);
+        AbstractAgent agent = new AgentTesting("A_0", 0, 0, null);
         BehaviorTesting.NOT_PLAYABLE_AGENT_LIST.add(agent);
 
         assertThrows(BehaviorCannotBePlayedByAgentException.class, () -> new BehaviorTesting(agent, null));
@@ -74,7 +74,7 @@ public class TestBehaviorTesting extends GlobalTestBehavior {
         BEHAVIOR.startPlaying();
 
         verifyPreConditionAndExecuteTest(BEHAVIOR::isPlaying,
-                () -> assertEquals(1, ((BehaviorTesting) BEHAVIOR).getPassToOnStartPlaying()));
+                                         () -> assertEquals(1, ((BehaviorTesting) BEHAVIOR).getPassToOnStartPlaying()));
     }
 
     @Test
@@ -82,9 +82,9 @@ public class TestBehaviorTesting extends GlobalTestBehavior {
         BEHAVIOR.startPlaying();
 
         verifyPreConditionAndExecuteTest(BEHAVIOR::isPlaying,
-                () -> {
-                    BEHAVIOR.stopPlaying();
-                    assertEquals(1, ((BehaviorTesting) BEHAVIOR).getPassToOnStopPlaying());
-                });
+                                         () -> {
+                                             BEHAVIOR.stopPlaying();
+                                             assertEquals(1, ((BehaviorTesting) BEHAVIOR).getPassToOnStopPlaying());
+                                         });
     }
 }

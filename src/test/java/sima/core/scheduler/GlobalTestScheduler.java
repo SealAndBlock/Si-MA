@@ -21,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test that all Classes which implements {@link Scheduler} must pass.
  * <p>
- * For that the tests works, you need to initialized the fields {@link #SCHEDULER}, {@link #END_SIMULATION} and
- * {@link #TIME_EXECUTION_TOLERANCE}.
+ * For that the tests works, you need to initialized the fields {@link #SCHEDULER}, {@link #END_SIMULATION} and {@link
+ * #TIME_EXECUTION_TOLERANCE}.
  */
 @Disabled
 public abstract class GlobalTestScheduler extends SimaTest {
@@ -37,8 +37,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
     /**
      * To specify and must be the same which is specify when {@link #SCHEDULER} is instantiate.
      * <p>
-     * In that way we can verify if the Scheduler returns the right value with the method
-     * {@link Scheduler#getEndSimulation()}.
+     * In that way we can verify if the Scheduler returns the right value with the method {@link
+     * Scheduler#getEndSimulation()}.
      */
     protected static long END_SIMULATION;
 
@@ -59,9 +59,9 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
     @Override
     protected void verifyAndSetup() {
-        A0 = new AgentTesting("A0", 0, null);
+        A0 = new AgentTesting("A0", 0, 0, null);
         A0.start();
-        A1 = new AgentTesting("A1", 1, null);
+        A1 = new AgentTesting("A1", 1, 1, null);
         A1.start();
 
         assertTrue(END_SIMULATION >= 100, "END_SIMULATION must be greater or equal to 100 for tests");
@@ -275,7 +275,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         SCHEDULER.kill();
 
         verifyPreConditionAndExecuteTest(() -> SCHEDULER.isKilled(),
-                () -> assertEquals(-1, SCHEDULER.getCurrentTime()));
+                                         () -> assertEquals(-1, SCHEDULER.getCurrentTime()));
     }
 
     @Test
@@ -283,11 +283,14 @@ public abstract class GlobalTestScheduler extends SimaTest {
         ExecutableTesting e0 = new ExecutableTesting();
 
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 0,
-                Scheduler.ScheduleMode.ONCE, -1, -1));
+                                                                                        Scheduler.ScheduleMode.ONCE, -1,
+                                                                                        -1));
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 0,
-                                                                                        Scheduler.ScheduleMode.REPEATED, -1, -1));
+                                                                                        Scheduler.ScheduleMode.REPEATED,
+                                                                                        -1, -1));
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 0,
-                Scheduler.ScheduleMode.INFINITE, -1, -1));
+                                                                                        Scheduler.ScheduleMode.INFINITE,
+                                                                                        -1, -1));
     }
 
     @Test
@@ -295,7 +298,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
         ExecutableTesting e0 = new ExecutableTesting();
 
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 1,
-                                                                                        Scheduler.ScheduleMode.REPEATED, 0, 1));
+                                                                                        Scheduler.ScheduleMode.REPEATED,
+                                                                                        0, 1));
     }
 
     @Test
@@ -303,9 +307,11 @@ public abstract class GlobalTestScheduler extends SimaTest {
         ExecutableTesting e0 = new ExecutableTesting();
 
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 1,
-                                                                                        Scheduler.ScheduleMode.REPEATED, 1, 0));
+                                                                                        Scheduler.ScheduleMode.REPEATED,
+                                                                                        1, 0));
         assertThrows(IllegalArgumentException.class, () -> SCHEDULER.scheduleExecutable(e0, 1,
-                Scheduler.ScheduleMode.INFINITE, -1, 0));
+                                                                                        Scheduler.ScheduleMode.INFINITE,
+                                                                                        -1, 0));
     }
 
     @Test
@@ -378,7 +384,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
             if (executableFeeder.executedTime != -1)
                 // Executable executed
                 verifyNumber(executableFeeder.executedTime, executableFeeder.timeToBeExecuted,
-                        TIME_EXECUTION_TOLERANCE);
+                             TIME_EXECUTION_TOLERANCE);
             /*else not executed executable*/
         }
     }
@@ -414,9 +420,9 @@ public abstract class GlobalTestScheduler extends SimaTest {
         ExecutableTesting e0 = new ExecutableTesting();
 
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableAtSpecificTime(e0, 0));
+                     () -> SCHEDULER.scheduleExecutableAtSpecificTime(e0, 0));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableAtSpecificTime(e0, -1));
+                     () -> SCHEDULER.scheduleExecutableAtSpecificTime(e0, -1));
     }
 
     @Test
@@ -440,11 +446,12 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
             // Try to schedule an Executable at a passed timed.
             assertThrows(NotSchedulableTimeException.class,
-                    () -> SCHEDULER.scheduleExecutableAtSpecificTime(new ExecutableTesting(),
-                            currentTime));
+                         () -> SCHEDULER.scheduleExecutableAtSpecificTime(new ExecutableTesting(),
+                                                                          currentTime));
         };
 
-        assertDoesNotThrow(() -> SCHEDULER.scheduleExecutable(e, timeToBeExecuted, Scheduler.ScheduleMode.ONCE, -1, -1));
+        assertDoesNotThrow(
+                () -> SCHEDULER.scheduleExecutable(e, timeToBeExecuted, Scheduler.ScheduleMode.ONCE, -1, -1));
 
         assertTrue(SCHEDULER.start());
 
@@ -452,11 +459,11 @@ public abstract class GlobalTestScheduler extends SimaTest {
         waitSchedulerWatcher.waitUntilKilled();
 
         verifyPreConditionAndExecuteTest(isPassed::get,
-                () -> {
-                    assertEquals(1, watcher.isPassToSchedulerKilled);
-                    assertEquals(1, watcher.isPassToNoExecutionToExecute);
-                    assertEquals(0, watcher.isPassToSimulationEndTimeReach);
-                });
+                                         () -> {
+                                             assertEquals(1, watcher.isPassToSchedulerKilled);
+                                             assertEquals(1, watcher.isPassToNoExecutionToExecute);
+                                             assertEquals(0, watcher.isPassToSimulationEndTimeReach);
+                                         });
     }
 
     @Test
@@ -496,7 +503,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
         AtomicLong executionTime = new AtomicLong(-1);
 
         SCHEDULER.scheduleExecutableOnce(
-                () -> SCHEDULER.scheduleExecutableAtSpecificTime(() -> executionTime.set(SCHEDULER.getCurrentTime()), specificTime), Scheduler.NOW);
+                () -> SCHEDULER.scheduleExecutableAtSpecificTime(() -> executionTime.set(SCHEDULER.getCurrentTime()),
+                                                                 specificTime), Scheduler.NOW);
 
         assertTrue(SCHEDULER.start());
 
@@ -509,9 +517,9 @@ public abstract class GlobalTestScheduler extends SimaTest {
     @Test
     public void scheduleOnceThrowsExceptionIfWaitingIsLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableOnce(new ExecutableTesting(), 0));
+                     () -> SCHEDULER.scheduleExecutableOnce(new ExecutableTesting(), 0));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableOnce(new ExecutableTesting(), -1));
+                     () -> SCHEDULER.scheduleExecutableOnce(new ExecutableTesting(), -1));
     }
 
     @Test
@@ -535,7 +543,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
             if (executableFeeder.executedTime != -1)
                 // Executable executed
                 verifyNumber(executableFeeder.executedTime, executableFeeder.timeToBeExecuted,
-                        TIME_EXECUTION_TOLERANCE);
+                             TIME_EXECUTION_TOLERANCE);
             /*else not executed executable*/
         }
     }
@@ -543,25 +551,25 @@ public abstract class GlobalTestScheduler extends SimaTest {
     @Test
     public void scheduleRepeatedThrowsExceptionIfWaitingTimeLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTesting(), 0, 1, 1));
+                     () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTesting(), 0, 1, 1));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTesting(), -1, 1, 1));
+                     () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTesting(), -1, 1, 1));
     }
 
     @Test
     public void scheduleRepeatedThrowsExceptionIfNbRepetitionsLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTesting(), 1, 0, 1));
+                     () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTesting(), 1, 0, 1));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTesting(), 1, -1, 1));
+                     () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTesting(), 1, -1, 1));
     }
 
     @Test
     public void scheduleRepeatedThrowsExceptionIfExecutionTimeStepLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTesting(), 1, 1, 0));
+                     () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTesting(), 1, 1, 0));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTesting(), 1, 1, -1));
+                     () -> SCHEDULER.scheduleExecutableRepeated(new ExecutableTesting(), 1, 1, -1));
     }
 
     @Test
@@ -577,7 +585,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         final Map<Long, Long> mapExecutionAndTimeExecution = new HashMap<>();
 
         final Executable executable = () -> mapExecutionAndTimeExecution.put(nbExecutions.getAndIncrement(),
-                SCHEDULER.getCurrentTime());
+                                                                             SCHEDULER.getCurrentTime());
 
         SCHEDULER.scheduleExecutableRepeated(executable, repetitionBegin, nbRepetitions, stepBetweenRepetition);
 
@@ -624,7 +632,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         final Map<Long, Long> mapExecutionAndTimeExecution = new HashMap<>();
 
         final Executable executable = () -> mapExecutionAndTimeExecution.put(nbExecutions.getAndIncrement(),
-                SCHEDULER.getCurrentTime());
+                                                                             SCHEDULER.getCurrentTime());
 
         SCHEDULER.scheduleExecutableRepeated(executable, repetitionBegin, nbRepetitions, stepBetweenRepetition);
 
@@ -659,31 +667,31 @@ public abstract class GlobalTestScheduler extends SimaTest {
     @Test
     public void scheduleWithRepeatedModeThrowsExceptionIfWaitingTimeLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutable(new ExecutableTesting(), 0, Scheduler.ScheduleMode.REPEATED,
-                        1, 1));
+                     () -> SCHEDULER.scheduleExecutable(new ExecutableTesting(), 0, Scheduler.ScheduleMode.REPEATED,
+                                                        1, 1));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutable(new ExecutableTesting(), -1, Scheduler.ScheduleMode.REPEATED,
-                        1, 1));
+                     () -> SCHEDULER.scheduleExecutable(new ExecutableTesting(), -1, Scheduler.ScheduleMode.REPEATED,
+                                                        1, 1));
     }
 
     @Test
     public void scheduleWithRepeatedModeThrowsExceptionIfNbRepetitionsLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutable(new ExecutableTesting(), 1, Scheduler.ScheduleMode.REPEATED,
-                        0, 1));
+                     () -> SCHEDULER.scheduleExecutable(new ExecutableTesting(), 1, Scheduler.ScheduleMode.REPEATED,
+                                                        0, 1));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutable(new ExecutableTesting(), 1, Scheduler.ScheduleMode.REPEATED,
-                        -1, 1));
+                     () -> SCHEDULER.scheduleExecutable(new ExecutableTesting(), 1, Scheduler.ScheduleMode.REPEATED,
+                                                        -1, 1));
     }
 
     @Test
     public void scheduleWithRepeatedModeThrowsExceptionIfExecutionTimeStepLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutable(new ExecutableTesting(), 1, Scheduler.ScheduleMode.REPEATED,
-                        1, 0));
+                     () -> SCHEDULER.scheduleExecutable(new ExecutableTesting(), 1, Scheduler.ScheduleMode.REPEATED,
+                                                        1, 0));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutable(new ExecutableTesting(), 1, Scheduler.ScheduleMode.REPEATED,
-                        1, -1));
+                     () -> SCHEDULER.scheduleExecutable(new ExecutableTesting(), 1, Scheduler.ScheduleMode.REPEATED,
+                                                        1, -1));
     }
 
     @Test
@@ -699,7 +707,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         final Map<Long, Long> mapExecutionAndTimeExecution = new HashMap<>();
 
         final Executable executable = () -> mapExecutionAndTimeExecution.put(nbExecutions.getAndIncrement(),
-                SCHEDULER.getCurrentTime());
+                                                                             SCHEDULER.getCurrentTime());
 
         SCHEDULER.scheduleExecutable(executable, repetitionBegin, Scheduler.ScheduleMode.REPEATED, nbRepetitions,
                                      stepBetweenRepetition);
@@ -735,17 +743,17 @@ public abstract class GlobalTestScheduler extends SimaTest {
     @Test
     public void scheduleInfinitelyThrowsExceptionIfWaitingTimeLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableInfinitely(new ExecutableTesting(), 0, 1));
+                     () -> SCHEDULER.scheduleExecutableInfinitely(new ExecutableTesting(), 0, 1));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableInfinitely(new ExecutableTesting(), -1, 1));
+                     () -> SCHEDULER.scheduleExecutableInfinitely(new ExecutableTesting(), -1, 1));
     }
 
     @Test
     public void scheduleInfinitelyThrowsExceptionIfExecutionTimeStepLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableInfinitely(new ExecutableTesting(), 1, 0));
+                     () -> SCHEDULER.scheduleExecutableInfinitely(new ExecutableTesting(), 1, 0));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleExecutableInfinitely(new ExecutableTesting(), 1, -1));
+                     () -> SCHEDULER.scheduleExecutableInfinitely(new ExecutableTesting(), 1, -1));
     }
 
     @Test
@@ -760,7 +768,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         final Map<Long, Long> mapExecutionAndTimeExecution = new HashMap<>();
 
         final Executable executable = () -> mapExecutionAndTimeExecution.put(nbExecutions.getAndIncrement(),
-                SCHEDULER.getCurrentTime());
+                                                                             SCHEDULER.getCurrentTime());
 
         SCHEDULER.scheduleExecutableInfinitely(executable, repetitionBegin, stepBetweenRepetition);
 
@@ -786,18 +794,18 @@ public abstract class GlobalTestScheduler extends SimaTest {
     @Test
     public void scheduleEventThrowsExceptionIfWaitingTimeIsLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleEvent(new EventTesting(A0.getAgentIdentifier(), A1.getAgentIdentifier(),
-                        null), 0));
+                     () -> SCHEDULER.scheduleEvent(new EventTesting(A0.getAgentIdentifier(), A1.getAgentIdentifier(),
+                                                                    null), 0));
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleEvent(new EventTesting(A0.getAgentIdentifier(), A1.getAgentIdentifier(),
-                        null), -1));
+                     () -> SCHEDULER.scheduleEvent(new EventTesting(A0.getAgentIdentifier(), A1.getAgentIdentifier(),
+                                                                    null), -1));
     }
 
     @Test
     public void scheduleEventThrowsExceptionIfAgentReceiverIsNull() {
         assertThrows(IllegalArgumentException.class,
-                () -> SCHEDULER.scheduleEvent(new EventTesting(A0.getAgentIdentifier(), null,
-                        null), Scheduler.NOW));
+                     () -> SCHEDULER.scheduleEvent(new EventTesting(A0.getAgentIdentifier(), null,
+                                                                    null), Scheduler.NOW));
     }
 
     @Test
@@ -822,7 +830,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         environments.add(new EnvironmentTesting(0));
 
         try {
-            SimaSimulation.runSimulation(SCHEDULER, agents, environments, null,null);
+            SimaSimulation.runSimulation(SCHEDULER, agents, environments, null, null);
         } catch (SimaSimulationFailToStartRunningException e) {
             fail(e);
         }

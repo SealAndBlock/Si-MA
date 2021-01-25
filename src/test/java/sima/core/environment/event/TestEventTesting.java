@@ -10,7 +10,7 @@ public class TestEventTesting extends GlobalTestEvent {
 
     @Override
     protected void verifyAndSetup() {
-        AgentTesting a = new AgentTesting("A_0", 0, null);
+        AgentTesting a = new AgentTesting("A_0", 0, 0,null);
 
         EVENT = new EventTesting(a.getAgentIdentifier(), null, null);
 

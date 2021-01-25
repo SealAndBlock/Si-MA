@@ -12,7 +12,7 @@ public class TestMessageTesting extends GlobalTestMessage {
     @Override
     protected void verifyAndSetup() {
 
-        AbstractAgent a = new AgentTesting("A_0", 0, null);
+        AbstractAgent a = new AgentTesting("A_0", 0, 0,null);
 
         MESSAGE_WITH_NOT_NULL_CONTENT =
                 new Message(a.getAgentIdentifier(), null, null, new TransportableString("TransportableString"));

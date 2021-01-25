@@ -36,7 +36,7 @@ public abstract class GlobalTestProtocolManipulator extends SimaTest {
 
     @Test
     public void setManipulatedProtocolWithNotNullArgumentNotFail() {
-        AbstractAgent a = new AgentTesting("A", 0, null);
+        AbstractAgent a = new AgentTesting("A", 0, 0,null);
         Protocol protocol = new ProtocolTesting("P_TAG", a, null);
         assertDoesNotThrow(() -> PROTOCOL_MANIPULATOR.setManipulatedProtocol(protocol));
     }
