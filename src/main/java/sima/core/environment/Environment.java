@@ -72,11 +72,6 @@ public abstract class Environment {
      * Environment}, in that case, the methods returns false. If the sima.core.agent has already been accepted in the
      * {@code Environment}, this method does not accept the {@code AgentIdentifier} and returns false.
      *
-     * <strong>WARNING!</strong> An agent is only identify by the couple {@link AbstractAgent#getUUID()} and
-     * {@link AbstractAgent#getAgentName()}. When the environment accept the agent, the only significant values are
-     * {@link AgentIdentifier#getAgentUUID()} and {@link AgentIdentifier#getAgentName()}, the other values of {@link
-     * AgentIdentifier} can change during the time after the acceptation. In that way, it must be ask the agent directly
-     * with the method {@link AbstractAgent#getInfo()} if we want update value.
      * <p>
      * In this method, only the environment has conscience that the agent is evolving in it. For that the agent be
      * notify that it is evolving in the environment, it is better to use the method {@link

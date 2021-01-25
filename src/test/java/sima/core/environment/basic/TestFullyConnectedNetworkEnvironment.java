@@ -1,6 +1,7 @@
 package sima.core.environment.basic;
 
 import org.junit.jupiter.api.Test;
+import sima.basic.environment.FullyConnectedNetworkEnvironment;
 import sima.core.agent.AgentTesting;
 import sima.core.environment.GlobalTestEnvironment;
 
@@ -8,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static sima.core.environment.basic.FullyConnectedNetworkEnvironment.*;
+import static sima.basic.environment.FullyConnectedNetworkEnvironment.*;
 
 public class TestFullyConnectedNetworkEnvironment extends GlobalTestEnvironment {
 
