@@ -326,7 +326,7 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
                 scheduler.incrementRunningExecutorCounter();
             }
 
-            executable.execute();
+            super.run();
             scheduler.decrementRunningExecutorCounterAndNotifyAll();
             return true;
         }
