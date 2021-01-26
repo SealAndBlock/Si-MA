@@ -196,7 +196,9 @@ public abstract class Environment {
     public synchronized void sprayEvent(Event event) {
         if (event != null) {
             if (isEvolving(event.getSender()))
-                evolvingAgents.forEach(agentIdentifier -> verifyAndSendEvent(agentIdentifier, event));
+                evolvingAgents.forEach(agentIdentifier -> verifyAndSendEvent(agentIdentifier,
+                                                                             event.cloneAndSetReceiver(
+                                                                                     agentIdentifier)));
             else
                 throw new NotEvolvingAgentInEnvironmentException(
                         "The sender sima.core.agent " + event.getSender() + " is not "

@@ -6,7 +6,10 @@ import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.Optional;
+
+import static sima.core.simulation.SimaSimulation.SIMA_LOG;
 
 /**
  * Represents an event which can occur during the simulation.
@@ -65,6 +68,25 @@ public abstract class Event implements Transportable {
     }
 
     // Methods.
+
+    /**
+     * Clone and set the specified receiver to the clone.
+     *
+     * @param receiver the receiver that the clone will have
+     * @return a clone of the event with the specified receiver as receiver.
+     */
+    public Event cloneAndSetReceiver(AgentIdentifier receiver) {
+        Event clone = clone();
+        try {
+            Field receiverField = Event.class.getDeclaredField("receiver");
+            receiverField.setAccessible(true);
+            receiverField.set(clone, receiver);
+            return clone;
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            SIMA_LOG.error("Fail to to set the new receiver to the event clone", e);
+            return null;
+        }
+    }
 
     @Override
     public Event clone() {
