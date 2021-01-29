@@ -2,6 +2,7 @@ package sima.core.simulation.configuration.json;
 
 
 import java.util.List;
+import java.util.Map;
 
 public class ProtocolJson extends ObjectIdJson implements ArgumentativeObjectJson {
 
@@ -9,6 +10,7 @@ public class ProtocolJson extends ObjectIdJson implements ArgumentativeObjectJso
 
     private String tag;
     private String protocolClass;
+    private Map<String, String> protocolDependencies;
     private List<List<String>> args;
 
     // Getters.
@@ -19,6 +21,10 @@ public class ProtocolJson extends ObjectIdJson implements ArgumentativeObjectJso
 
     public String getProtocolClass() {
         return protocolClass;
+    }
+
+    public Map<String, String> getProtocolDependencies() {
+        return protocolDependencies;
     }
 
     @Override
