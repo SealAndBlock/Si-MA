@@ -59,7 +59,7 @@ public class EnvironmentTesting extends Environment {
     }
 
     @Override
-    protected boolean eventCanBeSentTo(AgentIdentifier receiver, Event event) {
+    public boolean eventCanBeSentTo(AgentIdentifier receiver, Event event) {
         return true;
     }
 

@@ -224,7 +224,7 @@ public abstract class Environment {
      * @param event    the event to send to the receiver
      * @return true if the event can be sent to the receiver from the sender, else false.
      */
-    protected abstract boolean eventCanBeSentTo(AgentIdentifier receiver, Event event);
+    public abstract boolean eventCanBeSentTo(AgentIdentifier receiver, Event event);
 
     /**
      * Schedules the moment when the sima.core.agent receiver will receive the event. In other words, schedules the
