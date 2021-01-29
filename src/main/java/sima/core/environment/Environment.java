@@ -1,6 +1,5 @@
 package sima.core.environment;
 
-import org.jetbrains.annotations.NotNull;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
@@ -160,10 +159,11 @@ public abstract class Environment implements EventSender {
      * @param event the event to send
      * @throws NotEvolvingAgentInEnvironmentException if the sender and/or the receiver agent are not evolving in the
      *                                                {@link Environment}.
-     * @throws IllegalArgumentException               if the event has no receiver or if the event is null
+     * @throws IllegalArgumentException               if the event has no receiver
+     * @throws NullPointerException                   if the event is null
      */
     @Override
-    public synchronized void sendEvent(@NotNull Event event) {
+    public synchronized void sendEvent(Event event) {
         if (isEvolving(event.getSender()))
             if (event.getReceiver() == null)
                 // No receiver for the event -> broadcast event
@@ -191,11 +191,11 @@ public abstract class Environment implements EventSender {
      * physically connected to the event sender and send the event to it.
      *
      * @param event the event to spray
-     * @throws IllegalArgumentException               if the event is null
+     * @throws NullPointerException                   if the event is null
      * @throws NotEvolvingAgentInEnvironmentException if the sender is not evolving in the environment
      */
     @Override
-    public synchronized void broadcastEvent(@NotNull Event event) {
+    public synchronized void broadcastEvent(Event event) {
         if (isEvolving(event.getSender()))
             evolvingAgents.forEach(agentIdentifier -> verifyAndSendEvent(agentIdentifier,
                                                                          event.cloneAndSetReceiver(

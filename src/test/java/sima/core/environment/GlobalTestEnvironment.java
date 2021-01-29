@@ -166,7 +166,7 @@ public abstract class GlobalTestEnvironment extends SimaTest {
     @SuppressWarnings("ConstantConditions")
     @Test
     public void sendEventThrowsExceptionWithANullEvent() {
-        assertThrows(IllegalArgumentException.class, () -> ENVIRONMENT.sendEvent(null));
+        assertThrows(NullPointerException.class, () -> ENVIRONMENT.sendEvent(null));
     }
 
     @Test
@@ -222,8 +222,8 @@ public abstract class GlobalTestEnvironment extends SimaTest {
 
     @SuppressWarnings("ConstantConditions")
     @Test
-    public void sprayEventWithNullEventThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> ENVIRONMENT.broadcastEvent(null));
+    public void broadcastEventWithNullEventThrowsException() {
+        assertThrows(NullPointerException.class, () -> ENVIRONMENT.broadcastEvent(null));
     }
 
     @Test
@@ -236,7 +236,7 @@ public abstract class GlobalTestEnvironment extends SimaTest {
     }
 
     @Test
-    public void sprayEventWithCorrectEventNotFail() {
+    public void broadcastEventWithCorrectEventNotFail() {
         ENVIRONMENT.acceptAgent(ACCEPTED_AGENT_IDENTIFIER);
         runSimulationWithLongExecutable();
         verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT_IDENTIFIER), () -> {
