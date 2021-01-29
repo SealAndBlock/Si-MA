@@ -111,7 +111,7 @@ public class FullyConnectedNetworkEnvironment extends Environment {
      * @return always true
      */
     @Override
-    protected boolean eventCanBeSentTo(AgentIdentifier receiver, Event event) {
+    public boolean eventCanBeSentTo(AgentIdentifier receiver, Event event) {
         return true;
     }
 
