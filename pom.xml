@@ -7,11 +7,11 @@
     <distributionManagement>
         <snapshotRepository>
             <id>nexus-snapshots</id>
-            <url>http://92.170.145.217:8081/repository/Si-MA-SNAPSHOT/</url>
+            <url>http://89.80.45.123:8081/repository/Si-MA-SNAPSHOT/</url>
         </snapshotRepository>
         <repository>
             <id>nexus-releases</id>
-            <url>http://92.170.145.217:8081/repository/Si-MA/</url>
+            <url>http://89.80.45.123:8081/repository/Si-MA/</url>
         </repository>
     </distributionManagement>
 
