@@ -3,6 +3,7 @@ package sima.core.environment;
 import sima.core.agent.AbstractAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
+import sima.core.environment.event.EventSender;
 import sima.core.exception.NotEvolvingAgentInEnvironmentException;
 
 import java.util.*;
@@ -19,7 +20,7 @@ import static sima.core.simulation.SimaSimulation.SIMA_LOG;
  *
  * @author guilr
  */
-public abstract class Environment {
+public abstract class Environment implements EventSender {
 
     // Variables.
 
@@ -43,6 +44,7 @@ public abstract class Environment {
      * @param environmentName the sima.core.environment name
      * @param args            arguments map (map argument name with the argument)
      */
+    @SuppressWarnings("unused")
     protected Environment(String environmentName, Map<String, String> args) {
         this.environmentName = Optional.of(environmentName).get();
         evolvingAgents = new HashSet<>();
@@ -157,54 +159,51 @@ public abstract class Environment {
      * @param event the event to send
      * @throws NotEvolvingAgentInEnvironmentException if the sender and/or the receiver agent are not evolving in the
      *                                                {@link Environment}.
-     * @throws IllegalArgumentException               if the event has no receiver.
+     * @throws IllegalArgumentException               if the event has no receiver
+     * @throws NullPointerException                   if the event is null
      */
+    @Override
     public synchronized void sendEvent(Event event) {
-        if (event != null)
-            if (isEvolving(event.getSender()))
-                if (event.getReceiver() == null)
-                    // No receiver for the event -> broadcast event
-                    throw new IllegalArgumentException("Event receiver null -> Impossible to known where the event "
-                                                               + "must be sent");
-                else
-                    // Event destined for one identified agent.
-                    // getAgent() detects if the sima.core.agent is evolving or not in the sima.core.environment
-                    if (isEvolving(event.getReceiver()))
-                        verifyAndSendEvent(event.getReceiver(), event);
-                    else
-                        throw new NotEvolvingAgentInEnvironmentException(
-                                "The receiver agent " + event.getReceiver() + " is "
-                                        + "not evolving in the environment " + getEnvironmentName());
+        if (isEvolving(event.getSender()))
+            if (event.getReceiver() == null)
+                // No receiver for the event -> broadcast event
+                throw new IllegalArgumentException("Event receiver null -> Impossible to known where the event "
+                                                           + "must be sent");
             else
-                throw new NotEvolvingAgentInEnvironmentException(
-                        "The sender sima.core.agent " + event.getSender() + " is not "
-                                + "evolving in the sima.core.environment " + getEnvironmentName());
+                // Event destined for one identified agent.
+                // getAgent() detects if the sima.core.agent is evolving or not in the sima.core.environment
+                if (isEvolving(event.getReceiver()))
+                    verifyAndSendEvent(event.getReceiver(), event);
+                else
+                    throw new NotEvolvingAgentInEnvironmentException(
+                            "The receiver agent " + event.getReceiver() + " is "
+                                    + "not evolving in the environment " + getEnvironmentName());
         else
-            throw new NullPointerException("The event to send is null");
+            throw new NotEvolvingAgentInEnvironmentException(
+                    "The sender sima.core.agent " + event.getSender() + " is not "
+                            + "evolving in the sima.core.environment " + getEnvironmentName());
     }
 
     /**
-     * This method spray the event to all agents which are "physically" connected to the event sender.
+     * This method broadcast the event to all agents which are "physically" connected to the event sender.
      * <p>
      * This method does not take care about the event receiver. It will search all agents in the environment which are
-     * physically connected the the event sender and send the event to it.
+     * physically connected to the event sender and send the event to it.
      *
      * @param event the event to spray
      * @throws NullPointerException                   if the event is null
      * @throws NotEvolvingAgentInEnvironmentException if the sender is not evolving in the environment
      */
-    public synchronized void sprayEvent(Event event) {
-        if (event != null) {
-            if (isEvolving(event.getSender()))
-                evolvingAgents.forEach(agentIdentifier -> verifyAndSendEvent(agentIdentifier,
-                                                                             event.cloneAndSetReceiver(
-                                                                                     agentIdentifier)));
-            else
-                throw new NotEvolvingAgentInEnvironmentException(
-                        "The sender sima.core.agent " + event.getSender() + " is not "
-                                + "evolving in the sima.core.environment " + getEnvironmentName());
-        } else
-            throw new NullPointerException("The  event to spay is null");
+    @Override
+    public synchronized void broadcastEvent(Event event) {
+        if (isEvolving(event.getSender()))
+            evolvingAgents.forEach(agentIdentifier -> verifyAndSendEvent(agentIdentifier,
+                                                                         event.cloneAndSetReceiver(
+                                                                                 agentIdentifier)));
+        else
+            throw new NotEvolvingAgentInEnvironmentException(
+                    "The sender sima.core.agent " + event.getSender() + " is not "
+                            + "evolving in the sima.core.environment " + getEnvironmentName());
     }
 
     /**
