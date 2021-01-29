@@ -163,9 +163,10 @@ public abstract class GlobalTestEnvironment extends SimaTest {
                                          });
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test
     public void sendEventThrowsExceptionWithANullEvent() {
-        assertThrows(NullPointerException.class, () -> ENVIRONMENT.sendEvent(null));
+        assertThrows(IllegalArgumentException.class, () -> ENVIRONMENT.sendEvent(null));
     }
 
     @Test
@@ -219,9 +220,10 @@ public abstract class GlobalTestEnvironment extends SimaTest {
         });
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test
     public void sprayEventWithNullEventThrowsException() {
-        assertThrows(NullPointerException.class, () -> ENVIRONMENT.sprayEvent(null));
+        assertThrows(IllegalArgumentException.class, () -> ENVIRONMENT.broadcastEvent(null));
     }
 
     @Test
@@ -229,7 +231,7 @@ public abstract class GlobalTestEnvironment extends SimaTest {
         verifyPreConditionAndExecuteTest(() -> !ENVIRONMENT.isEvolving(NOT_EVOLVING_AGENT_IDENTIFIER), () -> {
             Event event = new EventTesting(NOT_EVOLVING_AGENT_IDENTIFIER, NOT_EVOLVING_AGENT_IDENTIFIER,
                                            PROTOCOL_TESTING_IDENTIFIER);
-            assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> ENVIRONMENT.sprayEvent(event));
+            assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> ENVIRONMENT.broadcastEvent(event));
         });
     }
 
@@ -240,7 +242,7 @@ public abstract class GlobalTestEnvironment extends SimaTest {
         verifyPreConditionAndExecuteTest(() -> ENVIRONMENT.isEvolving(ACCEPTED_AGENT_IDENTIFIER), () -> {
             Event event = new EventTesting(ACCEPTED_AGENT_IDENTIFIER,
                                            ACCEPTED_AGENT_IDENTIFIER, PROTOCOL_TESTING_IDENTIFIER);
-            assertDoesNotThrow(() -> ENVIRONMENT.sprayEvent(event));
+            assertDoesNotThrow(() -> ENVIRONMENT.broadcastEvent(event));
         });
     }
 
