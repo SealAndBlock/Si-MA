@@ -10,6 +10,7 @@ import sima.core.exception.ConfigurationException;
 import sima.core.exception.SimaSimulationAlreadyRunningException;
 import sima.core.exception.SimaSimulationFailToStartRunningException;
 import sima.core.exception.SimaSimulationIsNotRunningException;
+import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
 import sima.core.scheduler.Controller;
 import sima.core.scheduler.Scheduler;
@@ -19,6 +20,7 @@ import sima.core.simulation.configuration.ConfigurationParser;
 import sima.core.simulation.configuration.json.*;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -316,10 +318,27 @@ public final class SimaSimulation {
                     String attributeName = entry.getKey();
                     String dependenceId = entry.getValue();
                     Object dependenceInstance = simaSimulationJson.getInstanceFromId(dependenceId, agent);
-                    agent.getProtocol(protocolJson.extractProtocolIdentifier())
-                            .linkAttributeDependencies(attributeName, dependenceInstance);
+                    Protocol protocol = agent.getProtocol(protocolJson.extractProtocolIdentifier());
+                    linkProtocolAttributeDependencies(protocol, attributeName, dependenceInstance);
                 }
         }
+    }
+
+    /**
+     * Try to set the value to the attribute.
+     *
+     * @param protocol the protocol to set attribute value
+     * @param attributeName the protocol attribute name
+     * @param dependenceInstance the value to set to the protocol attribute
+     * @throws NoSuchFieldException if the attribute name does not correspond to a field of the class
+     * @throws IllegalAccessException if the attribute is not accessible in set operation
+     */
+    private static void linkProtocolAttributeDependencies(Protocol protocol, String attributeName,
+                                                          Object dependenceInstance)
+            throws NoSuchFieldException, IllegalAccessException {
+        Field field = protocol.getClass().getDeclaredField(attributeName);
+        field.setAccessible(true);
+        field.set(protocol, dependenceInstance);
     }
 
     private static void addProtocolToAgent(AbstractAgent agent, ProtocolJson protocolJson)

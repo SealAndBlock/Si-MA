@@ -80,24 +80,6 @@ public abstract class Protocol implements EventCatcher {
     }
 
     /**
-     * Try to set the value to the attribute.
-     * <p>
-     * This method is only use during the parse configuration. Normally the user does not need to have to use this
-     * method.
-     *
-     * @param attributeName the attribute name
-     * @param value         the value to set to the attribute
-     * @throws NoSuchFieldException   if the attribute name does not correspond to a field of the class
-     * @throws IllegalAccessException if the attribute is not accessible in set operation
-     */
-    public void linkAttributeDependencies(String attributeName, Object value)
-            throws NoSuchFieldException, IllegalAccessException {
-        Field field = this.getClass().getDeclaredField(attributeName);
-        field.setAccessible(true);
-        field.set(this, value);
-    }
-
-    /**
      * Returns the {@link ProtocolIdentifier} of the sima.core.protocol. The sima.core.protocol identifier must allow an
      * sima.core.agent to identify which sima.core.protocol is called and for two different agents which use the same
      * set of protocols, for a same instance of a {@link ProtocolIdentifier}, the method {@link
