@@ -10,6 +10,7 @@ import sima.core.exception.ConfigurationException;
 import sima.core.exception.SimaSimulationAlreadyRunningException;
 import sima.core.exception.SimaSimulationFailToStartRunningException;
 import sima.core.exception.SimaSimulationIsNotRunningException;
+import sima.core.protocol.ProtocolIdentifier;
 import sima.core.scheduler.Controller;
 import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
@@ -171,19 +172,23 @@ public final class SimaSimulation {
     }
 
     private static @NotNull Map<String, ProtocolJson> extractMapProtocols(SimaSimulationJson simaSimulationJson)
-            throws ConfigurationException {
+            throws ConfigurationException, ClassNotFoundException {
         Map<String, ProtocolJson> mapProtocols = new HashMap<>();
         fillMapProtocols(simaSimulationJson, mapProtocols);
         return mapProtocols;
     }
 
     private static void fillMapProtocols(SimaSimulationJson simaSimulationJson, Map<String, ProtocolJson> mapProtocols)
-            throws ConfigurationException {
+            throws ConfigurationException, ClassNotFoundException {
         if (simaSimulationJson.getProtocols() != null)
             for (ProtocolJson protocolJson : simaSimulationJson.getProtocols()) {
                 mapProtocols.put(Optional.ofNullable(protocolJson.getId())
                                          .orElseThrow(() -> new ConfigurationException("ProtocolId cannot be null")),
                                  protocolJson);
+                simaSimulationJson.linkIdAndObject(protocolJson.getId(),
+                                                   new ProtocolIdentifier(
+                                                           extractClassForName(protocolJson.getProtocolClass()),
+                                                           protocolJson.getTag()));
             }
     }
 
@@ -201,7 +206,7 @@ public final class SimaSimulation {
                                                                Map<String, ProtocolJson> mapProtocols,
                                                                Map<String, Environment> mapEnvironments)
             throws NoSuchMethodException, InstantiationException, ConfigurationException, IllegalAccessException,
-                   InvocationTargetException, ClassNotFoundException {
+                   InvocationTargetException, ClassNotFoundException, NoSuchFieldException {
         Set<AbstractAgent> agentSet = new HashSet<>();
         createAndAssociateAllAgents(simaSimulationJson, mapBehaviors, mapProtocols, mapEnvironments, agentSet);
         return agentSet;
@@ -212,13 +217,14 @@ public final class SimaSimulation {
                                                     Map<String, ProtocolJson> mapProtocols,
                                                     Map<String, Environment> mapEnvironments,
                                                     Set<AbstractAgent> agentSet)
-            throws ConfigurationException, NoSuchMethodException, InvocationTargetException, InstantiationException,
-                   IllegalAccessException, ClassNotFoundException {
+            throws ConfigurationException, NoSuchMethodException, InstantiationException, NoSuchFieldException,
+                   IllegalAccessException, InvocationTargetException, ClassNotFoundException {
         if (simaSimulationJson.getAgents() != null) {
             AtomicInteger counter = new AtomicInteger(0);
             for (AgentJson agentJson : simaSimulationJson.getAgents()) {
                 verifyAgentNumberToCreate(agentJson.getNumberToCreate());
-                createAgent(agentJson, agentSet, mapBehaviors, mapProtocols, mapEnvironments, counter);
+                createAgent(agentJson, agentSet, mapBehaviors, mapProtocols, mapEnvironments, counter,
+                            simaSimulationJson);
             }
         }
     }
@@ -244,14 +250,15 @@ public final class SimaSimulation {
      */
     private static void createAgent(AgentJson agentJson, Set<AbstractAgent> agents,
                                     Map<String, BehaviorJson> mapBehaviors, Map<String, ProtocolJson> mapProtocols,
-                                    Map<String, Environment> mapEnvironments, AtomicInteger counter)
+                                    Map<String, Environment> mapEnvironments, AtomicInteger counter,
+                                    SimaSimulationJson simaSimulationJson)
             throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException,
-                   ConfigurationException, ClassNotFoundException {
+                   ConfigurationException, ClassNotFoundException, NoSuchFieldException {
 
         for (int i = 0; i < agentJson.getNumberToCreate(); i++) {
             AbstractAgent agent = createAgentAndAddInSet(agents, agentJson, i, counter.getAndIncrement());
             associateAgentAndBehaviors(agent, agentJson, mapBehaviors);
-            associateAgentAndProtocol(agent, agentJson, mapProtocols);
+            associateAgentAndProtocol(agent, agentJson, mapProtocols, simaSimulationJson);
             associateAgentAndEnvironments(agent, agentJson, mapEnvironments);
         }
     }
@@ -277,15 +284,42 @@ public final class SimaSimulation {
     }
 
     private static void associateAgentAndProtocol(AbstractAgent agent, AgentJson agentJson,
-                                                  Map<String, ProtocolJson> mapProtocols)
-            throws ConfigurationException, ClassNotFoundException {
+                                                  Map<String, ProtocolJson> mapProtocols,
+                                                  SimaSimulationJson simaSimulationJson)
+            throws ConfigurationException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
 
-        if (agentJson.getProtocols() != null)
-            for (String protocolId : agentJson.getProtocols()) {
-                ProtocolJson protocolJson = Optional.ofNullable(mapProtocols.get(protocolId))
-                        .orElseThrow(() -> new ConfigurationException("ProtocolId " + protocolId + " not found"));
-                addProtocolToAgent(agent, protocolJson);
-            }
+        if (agentJson.getProtocols() != null) {
+            addAllProtocolsToAgent(agent, agentJson, mapProtocols);
+            linkProtocolDependencies(agent, agentJson, mapProtocols, simaSimulationJson);
+        }
+    }
+
+    private static void linkProtocolDependencies(AbstractAgent agent, AgentJson agentJson,
+                                                 Map<String, ProtocolJson> mapProtocols,
+                                                 SimaSimulationJson simaSimulationJson)
+            throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException {
+        for (String protocolId : agentJson.getProtocols()) {
+            ProtocolJson protocolJson = mapProtocols.get(protocolId);
+            Map<String, String> mapProtocolDependencies = protocolJson.getProtocolDependencies();
+            if (mapProtocolDependencies != null && !mapProtocolDependencies.isEmpty())
+                for (Map.Entry<String, String> entry : mapProtocolDependencies.entrySet()) {
+                    String attributeName = entry.getKey();
+                    String dependenceId = entry.getValue();
+                    Object dependenceInstance = simaSimulationJson.getInstanceFromId(dependenceId, agent);
+                    agent.getProtocol(protocolJson.extractProtocolIdentifier())
+                            .linkAttributeDependencies(attributeName, dependenceInstance);
+                }
+        }
+    }
+
+    private static void addAllProtocolsToAgent(AbstractAgent agent, AgentJson agentJson,
+                                               Map<String, ProtocolJson> mapProtocols)
+            throws ConfigurationException, ClassNotFoundException {
+        for (String protocolId : agentJson.getProtocols()) {
+            ProtocolJson protocolJson = Optional.ofNullable(mapProtocols.get(protocolId))
+                    .orElseThrow(() -> new ConfigurationException("ProtocolId " + protocolId + " not found"));
+            addProtocolToAgent(agent, protocolJson);
+        }
     }
 
     private static void addProtocolToAgent(AbstractAgent agent, ProtocolJson protocolJson)
@@ -373,6 +407,7 @@ public final class SimaSimulation {
                                             .orElseThrow(
                                                     () -> new ConfigurationException("EnvironmentId cannot be null")),
                                     environment);
+                simulationJson.linkIdAndObject(environmentJson.getId(), environment);
             }
         else
             throw new ConfigurationException("The simulation need at least one environment");
