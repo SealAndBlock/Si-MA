@@ -3,16 +3,19 @@ package sima.core.simulation;
 import org.junit.jupiter.api.Test;
 import sima.core.SimaTest;
 import sima.core.agent.AbstractAgent;
+import sima.core.agent.AgentIdentifier;
 import sima.core.agent.AgentTesting;
 import sima.core.environment.Environment;
 import sima.core.environment.EnvironmentTesting;
 import sima.core.exception.SimaSimulationFailToStartRunningException;
 import sima.core.exception.SimaSimulationIsNotRunningException;
+import sima.core.protocol.ProtocolIdentifier;
 import sima.core.scheduler.LongTimeExecutableTesting;
 import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.SchedulerWatcherTesting;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 import sima.core.simulation.specific.SpecificControllerTesting;
+import sima.core.simulation.specific.SpecificProtocolWithProtocolDependencies;
 import sima.core.simulation.specific.SpecificSimulationSetupTesting;
 
 import java.util.HashSet;
@@ -50,7 +53,7 @@ public class SimaSimulationTest extends SimaTest {
         SCHEDULER_WATCHER = new SchedulerWatcherTesting();
         SCHEDULER.addSchedulerWatcher(SCHEDULER_WATCHER);
 
-        A_0 = new AgentTesting("A_0", 0, 0,null);
+        A_0 = new AgentTesting("A_0", 0, 0, null);
 
         ALL_AGENTS = new HashSet<>();
         ALL_AGENTS.add(A_0);
@@ -511,6 +514,19 @@ public class SimaSimulationTest extends SimaTest {
         assertThrows(SimaSimulationFailToStartRunningException.class,
                      () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH + "agentWhichDoesNotAcceptToAddProtocol"
                                                                 + ".json"));
+    }
+
+    @Test
+    public void runSimulationWithProtocolWithProtocolDependenciesNotFail() {
+        assertDoesNotThrow(() -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH +
+                                                                      "configWithProtocolWithProtocolDependencies"
+                                                                      + ".json"));
+        AbstractAgent agent = SimaSimulation.getAgent(new AgentIdentifier("SpecificAgentTesting_0", 0, 0));
+        SpecificProtocolWithProtocolDependencies protocol =
+                (SpecificProtocolWithProtocolDependencies) agent.getProtocol(
+                        new ProtocolIdentifier(SpecificProtocolWithProtocolDependencies.class, "SpecificProtocolWithProtocolDependenciesTag"));
+        assertNotNull(protocol.getProtocolTesting());
+        assertNotNull(protocol.getEventSender());
     }
 
     @Test

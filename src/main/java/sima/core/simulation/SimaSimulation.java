@@ -257,9 +257,9 @@ public final class SimaSimulation {
 
         for (int i = 0; i < agentJson.getNumberToCreate(); i++) {
             AbstractAgent agent = createAgentAndAddInSet(agents, agentJson, i, counter.getAndIncrement());
+            associateAgentAndEnvironments(agent, agentJson, mapEnvironments);
             associateAgentAndBehaviors(agent, agentJson, mapBehaviors);
             associateAgentAndProtocol(agent, agentJson, mapProtocols, simaSimulationJson);
-            associateAgentAndEnvironments(agent, agentJson, mapEnvironments);
         }
     }
 
@@ -294,6 +294,16 @@ public final class SimaSimulation {
         }
     }
 
+    private static void addAllProtocolsToAgent(AbstractAgent agent, AgentJson agentJson,
+                                               Map<String, ProtocolJson> mapProtocols)
+            throws ConfigurationException, ClassNotFoundException {
+        for (String protocolId : agentJson.getProtocols()) {
+            ProtocolJson protocolJson = Optional.ofNullable(mapProtocols.get(protocolId))
+                    .orElseThrow(() -> new ConfigurationException("ProtocolId " + protocolId + " not found"));
+            addProtocolToAgent(agent, protocolJson);
+        }
+    }
+
     private static void linkProtocolDependencies(AbstractAgent agent, AgentJson agentJson,
                                                  Map<String, ProtocolJson> mapProtocols,
                                                  SimaSimulationJson simaSimulationJson)
@@ -309,16 +319,6 @@ public final class SimaSimulation {
                     agent.getProtocol(protocolJson.extractProtocolIdentifier())
                             .linkAttributeDependencies(attributeName, dependenceInstance);
                 }
-        }
-    }
-
-    private static void addAllProtocolsToAgent(AbstractAgent agent, AgentJson agentJson,
-                                               Map<String, ProtocolJson> mapProtocols)
-            throws ConfigurationException, ClassNotFoundException {
-        for (String protocolId : agentJson.getProtocols()) {
-            ProtocolJson protocolJson = Optional.ofNullable(mapProtocols.get(protocolId))
-                    .orElseThrow(() -> new ConfigurationException("ProtocolId " + protocolId + " not found"));
-            addProtocolToAgent(agent, protocolJson);
         }
     }
 

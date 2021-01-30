@@ -90,6 +90,7 @@ public abstract class Protocol implements EventCatcher {
     public void linkAttributeDependencies(String attributeName, Object value)
             throws NoSuchFieldException, IllegalAccessException {
         Field field = this.getClass().getDeclaredField(attributeName);
+        field.setAccessible(true);
         field.set(this, value);
     }
 
