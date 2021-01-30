@@ -36,13 +36,16 @@
     {
       "id": "SProT",
       "tag": "SpecificProtocolTestingTag",
-      "protocolClass": "sima.core.simulation.specific.SpecificProtocolTesting",
-      "args": [
-        [
-          "pArg1",
-          "arg1"
-        ]
-      ]
+      "protocolClass": "sima.core.simulation.specific.SpecificProtocolTesting"
+    },
+    {
+      "id": "SProWPDT",
+      "tag": "SpecificProtocolWithProtocolDependenciesTag",
+      "protocolClass": "sima.core.simulation.specific.SpecificProtocolWithProtocolDependencies",
+      "protocolDependencies": {
+        "protocolTesting": "SEnvT",
+        "eventSender": "SProT"
+      }
     }
   ],
   "behaviors": [
