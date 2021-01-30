@@ -1,6 +1,12 @@
 package sima.core.simulation.configuration.json;
 
+import sima.core.agent.AbstractAgent;
+import sima.core.environment.Environment;
+import sima.core.protocol.ProtocolIdentifier;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SimaSimulationJson {
 
@@ -18,6 +24,32 @@ public class SimaSimulationJson {
     private List<ProtocolJson> protocols;
     private List<BehaviorJson> behaviors;
     private List<AgentJson> agents;
+
+    private Map<String, Object> mapIdObject;
+
+    // Methods.
+
+    public void linkIdAndObject(String id, Object object) {
+        if (mapIdObject == null) {
+            mapIdObject = new HashMap<>();
+        }
+
+        mapIdObject.put(id, object);
+    }
+
+    public Object getInstanceFromId(String id, AbstractAgent agent) {
+        Object object = mapIdObject.get(id);
+        if (object != null) {
+            if (object instanceof ProtocolIdentifier) {
+                return agent.getProtocol((ProtocolIdentifier) object);
+            } else if (object instanceof Environment) {
+                return object;
+            } else {
+                throw new UnsupportedOperationException("Object link to the id cannot be supported");
+            }
+        } else
+            throw new IllegalArgumentException("Id not found. The id : " + id);
+    }
 
     // Getters.
 

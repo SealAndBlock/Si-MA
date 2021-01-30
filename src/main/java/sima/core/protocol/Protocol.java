@@ -4,6 +4,7 @@ import sima.core.agent.AbstractAgent;
 import sima.core.behavior.Behavior;
 import sima.core.environment.event.EventCatcher;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Optional;
 
@@ -76,6 +77,21 @@ public abstract class Protocol implements EventCatcher {
                 ", agentOwner=" + agentOwner +
                 ", protocolManipulator=" + protocolManipulator +
                 ']';
+    }
+
+    /**
+     * Try to set the value to the attribute.
+     *
+     * @param attributeName the attribute name
+     * @param value         the value to set to the attribute
+     * @throws NoSuchFieldException   if the attribute name does not correspond to a field of the class
+     * @throws IllegalAccessException if the attribute is not accessible in set operation
+     */
+    public void linkAttributeDependencies(String attributeName, Object value)
+            throws NoSuchFieldException, IllegalAccessException {
+        Field field = this.getClass().getDeclaredField(attributeName);
+        field.setAccessible(true);
+        field.set(this, value);
     }
 
     /**

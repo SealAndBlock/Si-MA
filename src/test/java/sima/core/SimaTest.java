@@ -7,7 +7,7 @@ import sima.core.exception.SimaSimulationFailToStartRunningException;
 import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
 import sima.core.simulation.SimaSimulation;
-import sima.core.simulation.SimulationSetupWithLongExecutable;
+import sima.core.simulation.specific.SpecificSimulationSetupWithLongExecutable;
 
 import java.util.Set;
 
@@ -73,7 +73,7 @@ public abstract class SimaTest {
                                                        Set<Environment> allEnvironments,
                                                        SimaSimulation.SimaWatcher simaWatcher) {
         try {
-            SimaSimulation.runSimulation(scheduler, allAgents, allEnvironments, SimulationSetupWithLongExecutable.class,
+            SimaSimulation.runSimulation(scheduler, allAgents, allEnvironments, SpecificSimulationSetupWithLongExecutable.class,
                                          simaWatcher);
         } catch (SimaSimulationFailToStartRunningException e) {
             fail(e);

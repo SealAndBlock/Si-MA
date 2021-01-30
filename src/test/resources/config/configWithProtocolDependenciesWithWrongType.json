@@ -3,7 +3,7 @@
   "nbThreads": 8,
   "timeMode": "DISCRETE_TIME",
   "schedulerType": "MULTI_THREAD",
-  "simulationSetupClass": "sima.core.simulation.specific.SpecificSimulationSetupTesting",
+  "simulationSetupClass": "sima.core.simulation.specific.SpecificSimulationSetupWithLongExecutable",
   "schedulerWatcherClass": "sima.core.simulation.specific.SpecificSchedulerWatcherTesting",
   "simaWatcherClass": "sima.core.simulation.specific.SpecificSimaWatcherTesting",
   "controllers": [
@@ -36,16 +36,16 @@
     {
       "id": "SProT",
       "tag": "SpecificProtocolTestingTag",
-      "protocolClass": "sima.core.simulation.specific.SpecificProtocolTesting",
+      "protocolClass": "sima.core.simulation.specific.SpecificProtocolTesting"
+    },
+    {
+      "id": "SProWPDT",
+      "tag": "SpecificProtocolWithProtocolDependenciesTag",
+      "protocolClass": "sima.core.simulation.specific.SpecificProtocolWithProtocolDependencies",
       "protocolDependencies": {
-        "attributeName": "ObjectID"
-      },
-      "args": [
-        [
-          "pArg1",
-          "arg1"
-        ]
-      ]
+        "protocolTesting": "SEnvT",
+        "eventSender": "SProT"
+      }
     }
   ],
   "behaviors": [
@@ -69,7 +69,8 @@
         "SBehT"
       ],
       "protocols": [
-        "SProT"
+        "SProT",
+        "SProWPDT"
       ],
       "environments": [
         "SEnvT"
