@@ -81,6 +81,9 @@ public abstract class Protocol implements EventCatcher {
 
     /**
      * Try to set the value to the attribute.
+     * <p>
+     * This method is only use during the parse configuration. Normally the user does not need to have to use this
+     * method.
      *
      * @param attributeName the attribute name
      * @param value         the value to set to the attribute
