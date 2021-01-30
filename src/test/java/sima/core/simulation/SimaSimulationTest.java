@@ -517,16 +517,37 @@ public class SimaSimulationTest extends SimaTest {
     }
 
     @Test
-    public void runSimulationWithProtocolWithProtocolDependenciesNotFail() {
+    public void runSimulationWithProtocolDependenciesNotFail() {
         assertDoesNotThrow(() -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH +
-                                                                      "configWithProtocolWithProtocolDependencies"
-                                                                      + ".json"));
+                                                                      "configWithProtocolDependencies.json"));
         AbstractAgent agent = SimaSimulation.getAgent(new AgentIdentifier("SpecificAgentTesting_0", 0, 0));
         SpecificProtocolWithProtocolDependencies protocol =
                 (SpecificProtocolWithProtocolDependencies) agent.getProtocol(
                         new ProtocolIdentifier(SpecificProtocolWithProtocolDependencies.class, "SpecificProtocolWithProtocolDependenciesTag"));
         assertNotNull(protocol.getProtocolTesting());
         assertNotNull(protocol.getEventSender());
+    }
+
+    @Test
+    public void runSimulationWithProtocolDependenciesWithUnknownIdThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH +
+                                                                "configWithProtocolDependenciesWithUnknownId.json"));
+    }
+
+    @Test
+    public void runSimulationWithProtocolDependenciesWithUnknownProtocolAttributeThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH +
+                                                                "configWithProtocolDependenciesWithUnknownProtocolAttribute"
+                                                                + ".json"));
+    }
+
+    @Test
+    public void runSimulationWithProtocolDependenciesWithWrongTypeOfTheDependenciesInstanceThrowsException() {
+        assertThrows(SimaSimulationFailToStartRunningException.class,
+                     () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH +
+                                                                "configWithProtocolDependenciesWithWrongType.json"));
     }
 
     @Test

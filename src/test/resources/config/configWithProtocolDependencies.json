@@ -3,7 +3,7 @@
   "nbThreads": 8,
   "timeMode": "DISCRETE_TIME",
   "schedulerType": "MULTI_THREAD",
-  "simulationSetupClass": "sima.core.simulation.SimulationSetupWithLongExecutable",
+  "simulationSetupClass": "sima.core.simulation.specific.SpecificSimulationSetupWithLongExecutable",
   "schedulerWatcherClass": "sima.core.simulation.specific.SpecificSchedulerWatcherTesting",
   "simaWatcherClass": "sima.core.simulation.specific.SpecificSimaWatcherTesting",
   "controllers": [

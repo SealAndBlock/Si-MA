@@ -1,15 +1,17 @@
-package sima.core.simulation;
+package sima.core.simulation.specific;
 
 import sima.core.scheduler.LongTimeExecutableTesting;
 import sima.core.scheduler.Scheduler;
+import sima.core.simulation.SimaSimulation;
+import sima.core.simulation.SimulationSetup;
 
 import java.util.Map;
 
-public class SimulationSetupWithLongExecutable extends SimulationSetup {
+public class SpecificSimulationSetupWithLongExecutable extends SimulationSetup {
 
     // Constructors.
 
-    public SimulationSetupWithLongExecutable(Map<String, String> dummy) {
+    public SpecificSimulationSetupWithLongExecutable(Map<String, String> dummy) {
         super(dummy);
     }
 
