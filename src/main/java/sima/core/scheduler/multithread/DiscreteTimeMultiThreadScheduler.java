@@ -233,23 +233,13 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     private void addInfiniteExecutable(Executable executable, long waitingTime, long executionTimeStep) {
         long time = currentTime + waitingTime;
-        while (isInSimulationTime(time)) {
-            addExecutableAtTime(executable, time);
-            time += executionTimeStep;
-        }
+        addExecutableAtTime(new InfiniteExecutable(executable, executionTimeStep), time);
     }
 
     private void addRepeatedExecutable(Executable executable, long waitingTime, long nbRepetitions,
                                        long executionTimeStep) {
         long time = currentTime + waitingTime;
-        for (int i = 0; i < nbRepetitions; i++) {
-            addExecutableAtTime(executable, time);
-            time += executionTimeStep;
-        }
-    }
-
-    private boolean isInSimulationTime(long time) {
-        return time <= getEndSimulation();
+        addExecutableAtTime(new RepeatedExecutable(executable, nbRepetitions, executionTimeStep), time);
     }
 
     @Override
@@ -270,6 +260,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      * @param executable the executable to add
      * @param time       the time where the executable must be executed
      */
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     private void addExecutableAtTime(Executable executable, long time) {
         LinkedList<Executable> executables = mapExecutable.computeIfAbsent(time, k -> new LinkedList<>());
         synchronized (executables) {

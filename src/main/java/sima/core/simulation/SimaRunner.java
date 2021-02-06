@@ -15,6 +15,8 @@ public class SimaRunner {
         } catch (SimaSimulationFailToStartRunningException e) {
             SIMA_LOG.error("Fail to run SimaSimulation.", e);
         }
+
+        SimaSimulation.waitEndSimulation();
     }
 
 }

@@ -15,6 +15,7 @@ import sima.core.protocol.ProtocolTesting;
 import sima.core.simulation.SimaSimulation;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -60,6 +61,8 @@ public abstract class GlobalTestScheduler extends SimaTest {
      */
     protected static long NB_EXECUTION_TOLERANCE;
 
+    protected static long REPETITION_STEP;
+
     protected static ProtocolIdentifier PROTOCOL_TESTING_IDENTIFIER;
 
     // Setup.
@@ -75,6 +78,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         assertNotNull(SCHEDULER, "NULL SCHEDULER -> Tests cannot be realize");
         assertTrue(TIME_EXECUTION_TOLERANCE >= 0, "TIME_EXECUTION_TOLERANCE cannot be less than 0");
         assertTrue(NB_EXECUTION_TOLERANCE >= 0, "NB_EXECUTION_TOLERANCE cannot be less than 0");
+        assertTrue(REPETITION_STEP > 0, "REPETITION_STEP must be greater or equal to 1");
 
         assertTrue(A0.addProtocol(ProtocolTesting.class, PROTOCOL_TESTING_TAG, null), "The A0"
                 + " must be able to add ProtocolTesting.class");
@@ -593,7 +597,6 @@ public abstract class GlobalTestScheduler extends SimaTest {
         SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         long nbRepetitions = 5;
-        long stepBetweenRepetition = 10;
         long repetitionBegin = NOW;
 
         final AtomicLong nbExecutions = new AtomicLong(0);
@@ -602,7 +605,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         final Executable executable = () -> mapExecutionAndTimeExecution.put(nbExecutions.getAndIncrement(),
                                                                              SCHEDULER.getCurrentTime());
 
-        SCHEDULER.scheduleExecutableRepeated(executable, repetitionBegin, nbRepetitions, stepBetweenRepetition);
+        SCHEDULER.scheduleExecutableRepeated(executable, repetitionBegin, nbRepetitions, REPETITION_STEP);
 
         assertTrue(SCHEDULER.start());
 
@@ -611,13 +614,13 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
         for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
-            long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
+            long executionTimeExpected = entry.getKey() * REPETITION_STEP + repetitionBegin;
 
             if (entry.getValue() != -1)
                 verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
         }
 
-        long timeToExecuteAllRepetitions = nbRepetitions * stepBetweenRepetition;
+        long timeToExecuteAllRepetitions = nbRepetitions * REPETITION_STEP;
 
         long endExecutionOfRepetition = repetitionBegin + timeToExecuteAllRepetitions;
         long base;
@@ -625,7 +628,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         // Supposes that repetitionBegin always less or equal to END_SIMULATION
         if (END_SIMULATION < endExecutionOfRepetition) {
             base = END_SIMULATION - repetitionBegin;
-            expectedNbExecutions = (base / stepBetweenRepetition) + 1;
+            expectedNbExecutions = (base / REPETITION_STEP) + 1;
         } else {
             expectedNbExecutions = nbRepetitions;
         }
@@ -638,32 +641,24 @@ public abstract class GlobalTestScheduler extends SimaTest {
         WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
         SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
-        long stepBetweenRepetition = 10;
         long repetitionBegin = NOW;
         long timeBetweenBeginAndEnd = END_SIMULATION - repetitionBegin;
-        long nbRepetitions = (timeBetweenBeginAndEnd / stepBetweenRepetition) + 1;
+        long nbRepetitions = (timeBetweenBeginAndEnd / REPETITION_STEP) + 1;
 
         final AtomicLong nbExecutions = new AtomicLong(0);
-        final Map<Long, Long> mapExecutionAndTimeExecution = new HashMap<>();
+        final Map<Long, Long> mapExecutionAndTimeExecution = new ConcurrentHashMap<>();
 
         final Executable executable = () -> mapExecutionAndTimeExecution.put(nbExecutions.getAndIncrement(),
-                                                                             SCHEDULER.getCurrentTime());
+                                                                     SCHEDULER.getCurrentTime());
 
-        SCHEDULER.scheduleExecutableRepeated(executable, repetitionBegin, nbRepetitions, stepBetweenRepetition);
+        SCHEDULER.scheduleExecutableRepeated(executable, repetitionBegin, nbRepetitions, REPETITION_STEP);
 
         assertTrue(SCHEDULER.start());
 
         // Finish by not reaching time.
         waitSchedulerWatcher.waitUntilKilled();
 
-        Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
-        for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
-            long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
-            if (entry.getValue() != -1)
-                verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
-        }
-
-        long timeToExecuteAllRepetitions = nbRepetitions * stepBetweenRepetition;
+        long timeToExecuteAllRepetitions = nbRepetitions * REPETITION_STEP;
 
         long endExecutionOfRepetition = repetitionBegin + timeToExecuteAllRepetitions;
         long base;
@@ -671,9 +666,17 @@ public abstract class GlobalTestScheduler extends SimaTest {
         // Supposes that repetitionBegin always less or equal to END_SIMULATION
         if (END_SIMULATION < endExecutionOfRepetition) {
             base = END_SIMULATION - repetitionBegin;
-            expectedNbExecutions = (base / stepBetweenRepetition) + 1;
+            expectedNbExecutions = (base / REPETITION_STEP) + 1;
         } else {
             expectedNbExecutions = nbRepetitions;
+        }
+
+        Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
+        for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
+            long executionTimeExpected = (entry.getKey() * REPETITION_STEP) + repetitionBegin;
+            if (entry.getValue() != -1)
+                verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE,
+                             "Execution-th = " + entry.getKey() + " ExpectedNbExecution = " + expectedNbExecutions);
         }
 
         verifyNumber(nbExecutions.get(), expectedNbExecutions, NB_EXECUTION_TOLERANCE);
@@ -715,7 +718,6 @@ public abstract class GlobalTestScheduler extends SimaTest {
         SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
         long nbRepetitions = 5;
-        long stepBetweenRepetition = 10;
         long repetitionBegin = NOW;
 
         final AtomicLong nbExecutions = new AtomicLong(0);
@@ -725,7 +727,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
                                                                              SCHEDULER.getCurrentTime());
 
         SCHEDULER.scheduleExecutable(executable, repetitionBegin, Scheduler.ScheduleMode.REPEATED, nbRepetitions,
-                                     stepBetweenRepetition);
+                                     REPETITION_STEP);
 
         assertTrue(SCHEDULER.start());
 
@@ -734,12 +736,12 @@ public abstract class GlobalTestScheduler extends SimaTest {
 
         Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
         for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
-            long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
+            long executionTimeExpected = entry.getKey() * REPETITION_STEP + repetitionBegin;
             if (entry.getValue() != -1)
                 verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
         }
 
-        long timeToExecuteAllRepetitions = nbRepetitions * stepBetweenRepetition;
+        long timeToExecuteAllRepetitions = nbRepetitions * REPETITION_STEP;
 
         long endExecutionOfRepetition = repetitionBegin + timeToExecuteAllRepetitions;
         long base;
@@ -747,7 +749,7 @@ public abstract class GlobalTestScheduler extends SimaTest {
         // Supposes that repetitionBegin always less or equal to END_SIMULATION
         if (END_SIMULATION < endExecutionOfRepetition) {
             base = END_SIMULATION - repetitionBegin;
-            expectedNbExecutions = (base / stepBetweenRepetition) + 1;
+            expectedNbExecutions = (base / REPETITION_STEP) + 1;
         } else {
             expectedNbExecutions = nbRepetitions;
         }
@@ -776,7 +778,6 @@ public abstract class GlobalTestScheduler extends SimaTest {
         WaitSchedulerWatcher waitSchedulerWatcher = new WaitSchedulerWatcher();
         SCHEDULER.addSchedulerWatcher(waitSchedulerWatcher);
 
-        long stepBetweenRepetition = 10;
         long repetitionBegin = NOW;
 
         final AtomicLong nbExecutions = new AtomicLong(0);
@@ -785,23 +786,24 @@ public abstract class GlobalTestScheduler extends SimaTest {
         final Executable executable = () -> mapExecutionAndTimeExecution.put(nbExecutions.getAndIncrement(),
                                                                              SCHEDULER.getCurrentTime());
 
-        SCHEDULER.scheduleExecutableInfinitely(executable, repetitionBegin, stepBetweenRepetition);
+        SCHEDULER.scheduleExecutableInfinitely(executable, repetitionBegin, REPETITION_STEP);
 
         assertTrue(SCHEDULER.start());
 
         // Finish by not reaching time.
         waitSchedulerWatcher.waitUntilKilled();
 
+        long timeToExecuteAllRepetitions = END_SIMULATION - repetitionBegin;
+        long expectedNbExecutions = (timeToExecuteAllRepetitions / REPETITION_STEP) + 1;
+
         Set<Map.Entry<Long, Long>> setExecutionAndTimeExecution = mapExecutionAndTimeExecution.entrySet();
         for (Map.Entry<Long, Long> entry : setExecutionAndTimeExecution) {
-            long executionTimeExpected = entry.getKey() * stepBetweenRepetition + repetitionBegin;
+            long executionTimeExpected = entry.getKey() * REPETITION_STEP + repetitionBegin;
 
             if (entry.getValue() != -1)
-                verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE);
+                verifyNumber(entry.getValue(), executionTimeExpected, TIME_EXECUTION_TOLERANCE,
+                             "Execution-th = " + entry.getKey() + " ExpectedNbExecution = " + expectedNbExecutions);
         }
-
-        long timeToExecuteAllRepetitions = END_SIMULATION - repetitionBegin;
-        long expectedNbExecutions = (timeToExecuteAllRepetitions / stepBetweenRepetition) + 1;
 
         verifyNumber(nbExecutions.get(), expectedNbExecutions, NB_EXECUTION_TOLERANCE);
     }

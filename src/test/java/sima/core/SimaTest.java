@@ -58,6 +58,12 @@ public abstract class SimaTest {
                            + (expected - delta) + " max = " + (expected + delta));
     }
 
+    public static void verifyNumber(long valToVerify, long expected, long delta, String message) {
+        assertTrue((expected - delta) <= valToVerify && valToVerify <= (expected + delta),
+                   "valToVerify = " + valToVerify + " expected = " + expected + " delta = " + delta + " min = "
+                           + (expected - delta) + " max = " + (expected + delta) + " " + message);
+    }
+
     public static void runSimulationWithLongExecutable(Set<AbstractAgent> allAgents, Set<Environment> allEnvironments,
                                                        SimaSimulation.SimaWatcher simaWatcher) {
         runSimulationWithLongExecutable(new DiscreteTimeMultiThreadScheduler(1000, 8), allAgents, allEnvironments,
@@ -73,7 +79,8 @@ public abstract class SimaTest {
                                                        Set<Environment> allEnvironments,
                                                        SimaSimulation.SimaWatcher simaWatcher) {
         try {
-            SimaSimulation.runSimulation(scheduler, allAgents, allEnvironments, SpecificSimulationSetupWithLongExecutable.class,
+            SimaSimulation.runSimulation(scheduler, allAgents, allEnvironments,
+                                         SpecificSimulationSetupWithLongExecutable.class,
                                          simaWatcher);
         } catch (SimaSimulationFailToStartRunningException e) {
             fail(e);

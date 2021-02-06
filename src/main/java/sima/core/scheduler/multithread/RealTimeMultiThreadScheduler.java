@@ -170,17 +170,19 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     private void addInfiniteExecutable(Executable executable, long waitingTime, long executionTimeStep) {
         long currentTime = getCurrentTime();
-        for (long time = getExecutor() != null ? currentTime + waitingTime : waitingTime;
-             time <= getEndSimulation(); time += executionTimeStep) {
-            addOnceExecutable(executable, time);
-        }
+        long timeFirstExecution = currentTime + waitingTime;
+        addOnceExecutable(new RealTimeInfiniteExecutable(executable, timeFirstExecution, executionTimeStep),
+                          waitingTime);
     }
 
     private void addRepeatedExecutable(Executable executable, long waitingTime, long nbRepetitions,
                                        long executionTimeStep) {
-        for (int i = 0; i < nbRepetitions; i++) {
-            if (waitingTime + (i * executionTimeStep) > getEndSimulation()) break;
-            addOnceExecutable(executable, waitingTime + (i * executionTimeStep));
+        long currentTime = getCurrentTime();
+        long timeFirstExecution = currentTime + waitingTime;
+        if (timeFirstExecution < getEndSimulation()) {
+            addOnceExecutable(
+                    new RealTimeRepeatedExecutable(executable, timeFirstExecution, nbRepetitions, executionTimeStep),
+                    timeFirstExecution);
         }
     }
 
@@ -271,7 +273,57 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     // Inner class.
 
-    public class RealTimeExecutorThread extends OneExecutableExecutorThread {
+    private class RealTimeRepeatedExecutable extends RepeatedExecutable {
+
+        // Variables.
+
+        private final long timeFirstExecution;
+
+        // Constructors.
+
+        public RealTimeRepeatedExecutable(Executable executable, long timeFirstExecution, long nbNextExecutions,
+                                          long executionTimeStep) {
+            super(executable, nbNextExecutions, executionTimeStep);
+            this.timeFirstExecution = timeFirstExecution;
+        }
+
+        // Methods.
+
+        @Override
+        protected void scheduleNextExecution() {
+            long currentTime = getCurrentTime();
+            if (nbNextExecutions > 1) {
+                nbNextExecutions -= 1;
+                long timeNextExecution = executionTimeStep - ((currentTime - timeFirstExecution) % executionTimeStep);
+                scheduler.scheduleExecutableOnce(this, timeNextExecution);
+            }
+        }
+    }
+
+    private class RealTimeInfiniteExecutable extends InfiniteExecutable {
+
+        // Variables.
+
+        private final long timeFirstExecution;
+
+        // Constructors.
+
+        public RealTimeInfiniteExecutable(Executable executable, long timeFirstExecution, long executionTimeStep) {
+            super(executable, executionTimeStep);
+            this.timeFirstExecution = timeFirstExecution;
+        }
+
+        // Methods.
+
+        @Override
+        protected void scheduleNextExecution() {
+            long currentTime = getCurrentTime();
+            long timeNextExecution = executionTimeStep - ((currentTime - timeFirstExecution) % executionTimeStep);
+            scheduler.scheduleExecutableOnce(this, timeNextExecution);
+        }
+    }
+
+    private class RealTimeExecutorThread extends OneExecutableExecutorThread {
 
         // variables.
 

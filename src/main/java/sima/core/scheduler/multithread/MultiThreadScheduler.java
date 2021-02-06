@@ -171,6 +171,90 @@ public abstract class MultiThreadScheduler implements Scheduler {
         }
     }
 
+    protected abstract class LoopExecutable implements Executable {
+
+        // Variables.
+
+        protected final Scheduler scheduler = MultiThreadScheduler.this;
+        protected final Executable executable;
+
+        // Constructors.
+
+        public LoopExecutable(Executable executable) {
+            this.executable = executable;
+        }
+
+        // Methods.
+
+        @Override
+        public void execute() {
+            executable.execute();
+            scheduleNextExecution();
+        }
+
+        protected abstract void scheduleNextExecution();
+    }
+
+    /**
+     * Executable which encapsulates an other executable which must be executed in repetitively way.
+     */
+    protected class RepeatedExecutable extends LoopExecutable {
+
+        // Variables.
+
+        protected long nbNextExecutions;
+        protected final long executionTimeStep;
+
+        // Constructors.
+
+        public RepeatedExecutable(Executable executable, long nbNextExecutions, long executionTimeStep) {
+            super(executable);
+
+            if (nbNextExecutions < 0)
+                throw new IllegalArgumentException("nbNextExecutions cannot be less than 0");
+
+            if (executionTimeStep < 1)
+                throw new IllegalArgumentException("nextExecutionStep cannot be less than 1");
+
+            this.executionTimeStep = executionTimeStep;
+            this.nbNextExecutions = nbNextExecutions;
+        }
+
+        // Methods.
+
+        @Override
+        protected void scheduleNextExecution() {
+            if (nbNextExecutions > 1) {
+                nbNextExecutions -= 1;
+                scheduler.scheduleExecutableOnce(this, executionTimeStep);
+            }
+        }
+    }
+
+    /**
+     * Executable which encapsulates an other executable which must be executed in infinite way.
+     */
+    protected class InfiniteExecutable extends LoopExecutable {
+
+        // Variables.
+
+        protected final long executionTimeStep;
+
+        // Constructors.
+
+        public InfiniteExecutable(Executable executable, long executionTimeStep) {
+            super(executable);
+            this.executionTimeStep = executionTimeStep;
+        }
+
+        // Methods.
+        
+        @Override
+        protected void scheduleNextExecution() {
+            scheduler.scheduleExecutableOnce(this, executionTimeStep);
+        }
+    }
+
     protected abstract static class ExecutorThread implements Runnable {
 
         // Variables.
