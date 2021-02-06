@@ -20,6 +20,7 @@ public class TestRealTimeMultiThreadScheduler extends GlobalTestMultiThreadSched
         MULTI_THREAD_SCHEDULER = REAL_TIME_MULTI_THREAD_SCHEDULER;
         TIME_EXECUTION_TOLERANCE = 350; // ms
         NB_EXECUTION_TOLERANCE = 30;
+        REPETITION_STEP = 100;
 
         super.verifyAndSetup();
     }
@@ -29,16 +30,16 @@ public class TestRealTimeMultiThreadScheduler extends GlobalTestMultiThreadSched
     @Test
     public void constructorThrowsExceptionIfEndSimulationIsLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> new RealTimeMultiThreadScheduler(0, NB_EXECUTOR_THREADS));
+                     () -> new RealTimeMultiThreadScheduler(0, NB_EXECUTOR_THREADS));
         assertThrows(IllegalArgumentException.class,
-                () -> new RealTimeMultiThreadScheduler(-1, NB_EXECUTOR_THREADS));
+                     () -> new RealTimeMultiThreadScheduler(-1, NB_EXECUTOR_THREADS));
     }
 
     @Test
     public void constructorThrowsExceptionIfNbExecutorThreadIsLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                () -> new RealTimeMultiThreadScheduler(END_SIMULATION, 0));
+                     () -> new RealTimeMultiThreadScheduler(END_SIMULATION, 0));
         assertThrows(IllegalArgumentException.class,
-                () -> new RealTimeMultiThreadScheduler(END_SIMULATION, -1));
+                     () -> new RealTimeMultiThreadScheduler(END_SIMULATION, -1));
     }
 }

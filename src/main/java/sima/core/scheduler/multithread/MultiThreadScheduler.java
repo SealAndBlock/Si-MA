@@ -178,10 +178,10 @@ public abstract class MultiThreadScheduler implements Scheduler {
 
         // Variables.
 
-        private final Scheduler scheduler = MultiThreadScheduler.this;
-        private final Executable executable;
-        private final long nbNextExecutions;
-        private final long executionTimeStep;
+        protected final Scheduler scheduler = MultiThreadScheduler.this;
+        protected final Executable executable;
+        protected long nbNextExecutions;
+        protected final long executionTimeStep;
 
         // Constructors.
 
@@ -202,9 +202,11 @@ public abstract class MultiThreadScheduler implements Scheduler {
         @Override
         public void execute() {
             executable.execute();
-            if (nbNextExecutions > 1)
-                scheduler.scheduleExecutableOnce(
-                        new RepeatedExecutable(executable, nbNextExecutions - 1, executionTimeStep), executionTimeStep);
+
+            if (nbNextExecutions > 1) {
+                nbNextExecutions -= 1;
+                scheduler.scheduleExecutableOnce(this, executionTimeStep);
+            }
         }
     }
 
@@ -215,9 +217,9 @@ public abstract class MultiThreadScheduler implements Scheduler {
 
         // Variables.
 
-        private final Scheduler scheduler = MultiThreadScheduler.this;
-        private final Executable executable;
-        private final long executionTimeStep;
+        protected final Scheduler scheduler = MultiThreadScheduler.this;
+        protected final Executable executable;
+        protected final long executionTimeStep;
 
         // Constructors.
 
@@ -231,7 +233,7 @@ public abstract class MultiThreadScheduler implements Scheduler {
         @Override
         public void execute() {
             executable.execute();
-            scheduler.scheduleExecutableOnce(new InfiniteExecutable(executable, executionTimeStep), executionTimeStep);
+            scheduler.scheduleExecutableOnce(this, executionTimeStep);
         }
     }
 
