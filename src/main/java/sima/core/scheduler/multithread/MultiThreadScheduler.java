@@ -171,30 +171,17 @@ public abstract class MultiThreadScheduler implements Scheduler {
         }
     }
 
-    /**
-     * Executable which encapsulates an other executable which must be executed in repetitively way.
-     */
-    protected class RepeatedExecutable implements Executable {
+    protected abstract class LoopExecutable implements Executable {
 
         // Variables.
 
         protected final Scheduler scheduler = MultiThreadScheduler.this;
         protected final Executable executable;
-        protected long nbNextExecutions;
-        protected final long executionTimeStep;
 
         // Constructors.
 
-        public RepeatedExecutable(Executable executable, long nbNextExecutions, long executionTimeStep) {
-            if (nbNextExecutions < 0)
-                throw new IllegalArgumentException("nbNextExecutions cannot be less than 0");
-
-            if (executionTimeStep < 1)
-                throw new IllegalArgumentException("nextExecutionStep cannot be less than 1");
-
+        public LoopExecutable(Executable executable) {
             this.executable = executable;
-            this.executionTimeStep = executionTimeStep;
-            this.nbNextExecutions = nbNextExecutions;
         }
 
         // Methods.
@@ -202,7 +189,41 @@ public abstract class MultiThreadScheduler implements Scheduler {
         @Override
         public void execute() {
             executable.execute();
+            scheduleNextExecution();
+        }
 
+        protected abstract void scheduleNextExecution();
+    }
+
+    /**
+     * Executable which encapsulates an other executable which must be executed in repetitively way.
+     */
+    protected class RepeatedExecutable extends LoopExecutable {
+
+        // Variables.
+
+        protected long nbNextExecutions;
+        protected final long executionTimeStep;
+
+        // Constructors.
+
+        public RepeatedExecutable(Executable executable, long nbNextExecutions, long executionTimeStep) {
+            super(executable);
+
+            if (nbNextExecutions < 0)
+                throw new IllegalArgumentException("nbNextExecutions cannot be less than 0");
+
+            if (executionTimeStep < 1)
+                throw new IllegalArgumentException("nextExecutionStep cannot be less than 1");
+
+            this.executionTimeStep = executionTimeStep;
+            this.nbNextExecutions = nbNextExecutions;
+        }
+
+        // Methods.
+
+        @Override
+        protected void scheduleNextExecution() {
             if (nbNextExecutions > 1) {
                 nbNextExecutions -= 1;
                 scheduler.scheduleExecutableOnce(this, executionTimeStep);
@@ -213,26 +234,23 @@ public abstract class MultiThreadScheduler implements Scheduler {
     /**
      * Executable which encapsulates an other executable which must be executed in infinite way.
      */
-    protected class InfiniteExecutable implements Executable {
+    protected class InfiniteExecutable extends LoopExecutable {
 
         // Variables.
 
-        protected final Scheduler scheduler = MultiThreadScheduler.this;
-        protected final Executable executable;
         protected final long executionTimeStep;
 
         // Constructors.
 
         public InfiniteExecutable(Executable executable, long executionTimeStep) {
-            this.executable = executable;
+            super(executable);
             this.executionTimeStep = executionTimeStep;
         }
 
         // Methods.
-
+        
         @Override
-        public void execute() {
-            executable.execute();
+        protected void scheduleNextExecution() {
             scheduler.scheduleExecutableOnce(this, executionTimeStep);
         }
     }

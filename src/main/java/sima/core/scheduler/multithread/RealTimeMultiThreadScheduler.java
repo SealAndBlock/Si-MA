@@ -290,10 +290,8 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         // Methods.
 
         @Override
-        public void execute() {
+        protected void scheduleNextExecution() {
             long currentTime = getCurrentTime();
-            executable.execute();
-
             if (nbNextExecutions > 1) {
                 nbNextExecutions -= 1;
                 long timeNextExecution = executionTimeStep - ((currentTime - timeFirstExecution) % executionTimeStep);
@@ -318,10 +316,8 @@ public class RealTimeMultiThreadScheduler extends MultiThreadScheduler {
         // Methods.
 
         @Override
-        public void execute() {
+        protected void scheduleNextExecution() {
             long currentTime = getCurrentTime();
-            executable.execute();
-
             long timeNextExecution = executionTimeStep - ((currentTime - timeFirstExecution) % executionTimeStep);
             scheduler.scheduleExecutableOnce(this, timeNextExecution);
         }
