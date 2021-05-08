@@ -14,7 +14,7 @@ test:
 sonar:
   stage: test
   script:
-    - mvn clean install sonar:sonar
+    - mvn -e -X clean install sonar:sonar
 
 deploy:
   stage: deploy
