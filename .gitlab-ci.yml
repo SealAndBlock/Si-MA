@@ -1,0 +1,22 @@
+default:
+  image: maven-nexus
+
+build-job:
+  stage: build
+  script:
+    - mvn install -DskipTests
+
+test:
+  stage: test
+  script:
+    - mvn test
+
+sonar:
+  stage: test
+  script:
+    - mvn clean install sonar:sonar
+
+deploy:
+  stage: deploy
+  script:
+    - mvn deploy clean -Dmaven.test.skip=true
