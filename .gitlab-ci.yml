@@ -14,11 +14,13 @@ build:
   stage: build
   script:
     - mvn install -DskipTests
+  when: always
 
 test:
   stage: test
   script:
     - mvn test
+  when: always
 
 sonarqube-check:
   stage: test
