@@ -15,12 +15,18 @@ build:
   script:
     - mvn install -DskipTests
   when: always
+  only:
+    - pushes
+    - merge_requests
 
 test:
   stage: test
   script:
     - mvn test
   when: always
+  only:
+    - pushes
+    - merge_requests
 
 sonarqube-check:
   stage: test
