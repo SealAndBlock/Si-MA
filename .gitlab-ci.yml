@@ -26,6 +26,7 @@ sonarqube-check:
     - merge_requests
     - master
     - develop
+    - pushes
 
 
 deploy:
