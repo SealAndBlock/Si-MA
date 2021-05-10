@@ -10,13 +10,6 @@ test:
   script:
     - mvn test
 
-
-deploy:
-  image: maven-nexus
-  stage: deploy
-  script:
-    - mvn deploy clean -Dmaven.test.skip=true
-
 sonarqube-check:
   image: maven-nexus
   variables:
@@ -33,3 +26,10 @@ sonarqube-check:
     - merge_requests
     - master
     - develop
+
+
+deploy:
+  image: maven-nexus
+  stage: deploy
+  script:
+    - mvn deploy clean -Dmaven.test.skip=true
