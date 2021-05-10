@@ -29,7 +29,6 @@ sonarqube-check:
     - develop
     - pushes
 
-
 deploy:
   image: maven-nexus
   stage: deploy
