@@ -1,17 +1,26 @@
-build-job:
+default:
   image: maven-nexus
+
+cache:
+  paths:
+    - .m2/repository
+  # keep cache across branch
+  key: "$CI_BUILD_REF_NAME"
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+
+build:
   stage: build
   script:
     - mvn install -DskipTests
 
 test:
-  image: maven-nexus
   stage: test
   script:
     - mvn test
 
 sonarqube-check:
-  image: maven-nexus
   stage: test
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
@@ -25,12 +34,10 @@ sonarqube-check:
   allow_failure: true
   only:
     - merge_requests
-    - master
-    - develop
-    - pushes
 
 deploy:
-  image: maven-nexus
   stage: deploy
   script:
     - mvn deploy clean -Dmaven.test.skip=true
+  only:
+    - merge_requests
