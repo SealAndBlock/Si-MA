@@ -6,6 +6,7 @@ import sima.core.environment.event.Event;
 import sima.core.simulation.SimaSimulation;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static sima.core.simulation.SimaSimulationUtils.randomLong;
 
@@ -33,7 +34,21 @@ public class FullyConnectedNetworkEnvironment extends Environment {
     }
 
     // Methods.
-
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FullyConnectedNetworkEnvironment)) return false;
+        if (!super.equals(o)) return false;
+        FullyConnectedNetworkEnvironment that = (FullyConnectedNetworkEnvironment) o;
+        return minSendDelay == that.minSendDelay && maxSendDelay == that.maxSendDelay;
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), minSendDelay, maxSendDelay);
+    }
+    
     protected void processArgument(Map<String, String> args) {
         if (args != null)
             extractSendDelays(args);

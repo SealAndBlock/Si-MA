@@ -6,15 +6,19 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public class Utils {
-
+    
+    // Constructors.
+    
+    private Utils() {
+    }
+    
     // Methods.
-
+    
     @SuppressWarnings("unchecked")
-    @NotNull
-    public static <T> Class<? extends T> extractClassForName(String className) throws ClassNotFoundException {
+    public static @NotNull <T> Class<? extends T> extractClassForName(String className) throws ClassNotFoundException {
         return (Class<? extends T>) Class.forName(className);
     }
-
+    
     @NotNull
     public static <T> T instantiate(Class<? extends T> classToInstantiate, Class<?>[] argumentClasses,
                                     Object... args)
@@ -22,11 +26,11 @@ public class Utils {
         Constructor<? extends T> constructor = classToInstantiate.getConstructor(argumentClasses);
         return constructor.newInstance(args);
     }
-
+    
     public static <T> T instantiate(Class<? extends T> classToInstantiate)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Constructor<? extends T> constructor = classToInstantiate.getConstructor();
         return constructor.newInstance();
     }
-
+    
 }

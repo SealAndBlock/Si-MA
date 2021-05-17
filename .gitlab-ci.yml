@@ -9,6 +9,7 @@ cache:
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  GIT_DEPTH: 0
 
 build:
   stage: build
@@ -38,9 +39,10 @@ sonarqube-check:
     paths:
       - .sonar/cache
   script:
-    - mvn verify sonar:sonar
+    - mvn clean install sonar:sonar
   allow_failure: true
   only:
+    - pushes
     - merge_requests
 
 deploy:
@@ -48,4 +50,5 @@ deploy:
   script:
     - mvn deploy clean -Dmaven.test.skip=true
   only:
+    - master
     - merge_requests

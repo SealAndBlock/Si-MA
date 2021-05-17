@@ -6,7 +6,7 @@ import sima.core.exception.BehaviorCannotBePlayedByAgentException;
 import java.util.Map;
 import java.util.Optional;
 
-import static sima.core.simulation.SimaSimulation.SIMA_LOG;
+import static sima.core.simulation.SimaSimulation.SimaLog;
 
 /**
  * Represents the sima.core.behavior that an {@link AbstractAgent} can have.
@@ -42,7 +42,7 @@ public abstract class Behavior {
      * @throws NullPointerException                   if the sima.core.agent is null
      * @throws BehaviorCannotBePlayedByAgentException if the sima.core.behavior cannot be played by the sima.core.agent
      */
-    public Behavior(AbstractAgent agent, Map<String, String> args) throws BehaviorCannotBePlayedByAgentException {
+    protected Behavior(AbstractAgent agent, Map<String, String> args) throws BehaviorCannotBePlayedByAgentException {
         this.agent = Optional.of(agent).get();
 
         if (!canBePlayedBy(agent))
@@ -82,7 +82,7 @@ public abstract class Behavior {
 
     private void setStartPlaying() {
         isPlaying = true;
-        SIMA_LOG.info(agent + " START PLAYING " + this);
+        SimaLog.info(agent + " START PLAYING " + this);
     }
 
     /**
@@ -102,7 +102,7 @@ public abstract class Behavior {
 
     private void setStopPlaying() {
         isPlaying = false;
-        SIMA_LOG.info(agent + " STOP PLAYING " + this);
+        SimaLog.info(agent + " STOP PLAYING " + this);
     }
 
     /**

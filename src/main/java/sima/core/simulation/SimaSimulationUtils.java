@@ -1,12 +1,17 @@
 package sima.core.simulation;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 public class SimaSimulationUtils {
 
     // Static.
 
-    private static final Random RANDOM = new Random();
+    private static final Random RANDOM = new SecureRandom();
+
+    // Constructors.
+
+    private SimaSimulationUtils() {}
 
     // Methods.
 

@@ -7,12 +7,7 @@ import java.util.Map;
  * constructor must be in the form SimulationSetup(Map(key:String, value:String)). The argument map is the map which
  * allows to pass argument to the SimulationSetup.
  */
-public abstract class SimulationSetup {
-
-    // Constructors.
-
-    protected SimulationSetup(Map<String, String> args) {
-    }
+public interface SimulationSetup {
 
     // Methods.
 
@@ -30,6 +25,6 @@ public abstract class SimulationSetup {
      * method that the configuration is done. However it is not recommended except if you know how the simulation
      * works.
      */
-    public abstract void setupSimulation();
+    void setupSimulation();
 
 }

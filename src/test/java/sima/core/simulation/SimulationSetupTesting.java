@@ -2,7 +2,7 @@ package sima.core.simulation;
 
 import java.util.Map;
 
-public class SimulationSetupTesting extends SimulationSetup {
+public class SimulationSetupTesting implements SimulationSetup {
 
     // Variables.
 
@@ -11,7 +11,6 @@ public class SimulationSetupTesting extends SimulationSetup {
     // Constructors.
 
     public SimulationSetupTesting(Map<String, String> dummy) {
-        super(dummy);
         passToSetupSimulation = 0;
     }
 

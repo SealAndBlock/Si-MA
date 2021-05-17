@@ -38,7 +38,7 @@ public class SimaSimulationJson {
     }
 
     public Object getInstanceFromId(String id, AbstractAgent agent) {
-        Object object = mapIdObject.get(id);
+        var object = mapIdObject.get(id);
         if (object != null) {
             if (object instanceof ProtocolIdentifier) {
                 return agent.getProtocol((ProtocolIdentifier) object);

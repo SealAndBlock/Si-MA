@@ -4,14 +4,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class TestDiscreteTimeMultiThreadScheduler extends GlobalTestMultiThreadScheduler {
-
+class TestDiscreteTimeMultiThreadScheduler extends GlobalTestMultiThreadScheduler {
+    
     // Static.
-
+    
     protected static DiscreteTimeMultiThreadScheduler DISCRETE_TIME_MULTI_THREAD_SCHEDULER;
-
+    
     // Setup.
-
+    
     @Override
     protected void verifyAndSetup() {
         END_SIMULATION = 1_000;
@@ -22,25 +22,25 @@ public class TestDiscreteTimeMultiThreadScheduler extends GlobalTestMultiThreadS
         TIME_EXECUTION_TOLERANCE = 0; // ms
         NB_EXECUTION_TOLERANCE = 0;
         REPETITION_STEP = 10;
-
+        
         super.verifyAndSetup();
     }
-
+    
     // Tests.
-
+    
     @Test
-    public void constructorThrowsExceptionIfEndSimulationIsLessOrEqualToZero() {
+    void constructorThrowsExceptionIfEndSimulationIsLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                     () -> new DiscreteTimeMultiThreadScheduler(0, NB_EXECUTOR_THREADS));
+                () -> new DiscreteTimeMultiThreadScheduler(0, NB_EXECUTOR_THREADS));
         assertThrows(IllegalArgumentException.class,
-                     () -> new DiscreteTimeMultiThreadScheduler(-1, NB_EXECUTOR_THREADS));
+                () -> new DiscreteTimeMultiThreadScheduler(-1, NB_EXECUTOR_THREADS));
     }
-
+    
     @Test
-    public void constructorThrowsExceptionIfNbExecutorThreadIsLessOrEqualToZero() {
+    void constructorThrowsExceptionIfNbExecutorThreadIsLessOrEqualToZero() {
         assertThrows(IllegalArgumentException.class,
-                     () -> new DiscreteTimeMultiThreadScheduler(END_SIMULATION, 0));
+                () -> new DiscreteTimeMultiThreadScheduler(END_SIMULATION, 0));
         assertThrows(IllegalArgumentException.class,
-                     () -> new DiscreteTimeMultiThreadScheduler(END_SIMULATION, -1));
+                () -> new DiscreteTimeMultiThreadScheduler(END_SIMULATION, -1));
     }
 }
