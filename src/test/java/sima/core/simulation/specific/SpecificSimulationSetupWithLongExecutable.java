@@ -7,16 +7,15 @@ import sima.core.simulation.SimulationSetup;
 
 import java.util.Map;
 
-public class SpecificSimulationSetupWithLongExecutable extends SimulationSetup {
-
+public class SpecificSimulationSetupWithLongExecutable implements SimulationSetup {
+    
     // Constructors.
-
+    
     public SpecificSimulationSetupWithLongExecutable(Map<String, String> dummy) {
-        super(dummy);
     }
-
+    
     // Methods.
-
+    
     @Override
     public void setupSimulation() {
         SimaSimulation.getScheduler().scheduleExecutableOnce(new LongTimeExecutableTesting(), Scheduler.NOW);

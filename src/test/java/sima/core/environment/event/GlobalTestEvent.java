@@ -3,6 +3,7 @@ package sima.core.environment.event;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import sima.core.SimaTest;
+import sima.core.agent.AgentIdentifier;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -48,12 +49,13 @@ public abstract class GlobalTestEvent extends SimaTest {
         verifyPreConditionAndExecuteTest(() -> PROTOCOL_EVENT.getProtocolTargeted() != null,
                                          () -> assertTrue(PROTOCOL_EVENT.isProtocolEvent()));
     }
-
     @Test
-    public void cloneNotFail() {
-        AtomicReference<Event> clone = new AtomicReference<>();
-        assertDoesNotThrow(() -> clone.set(EVENT.clone()));
-
-        assertNotSame(clone.get(), EVENT);
+    public void duplicateWithNewReceiverForMessageWithNotNullContentNotThrowException() {
+        assertDoesNotThrow(() -> PROTOCOL_EVENT.duplicateWithNewReceiver(new AgentIdentifier("Test", 0, 0)));
+    }
+    
+    @Test
+    public void duplicateWithNewReceiverForMessageWithNullContentNotThrowException() {
+        assertDoesNotThrow(() -> NO_PROTOCOL_EVENT.duplicateWithNewReceiver(new AgentIdentifier("Test", 0, 0)));
     }
 }

@@ -1,5 +1,6 @@
 package sima.core.environment.event;
 
+import org.jetbrains.annotations.NotNull;
 import sima.core.utils.Box;
 
 /**
@@ -7,28 +8,28 @@ import sima.core.utils.Box;
  * constructor {@link String#String(String)}.
  */
 public class TransportableString implements Transportable, Box<String> {
-
+    
     // Variables.
-
+    
     private final String content;
-
+    
     // Constructors.
-
+    
     public TransportableString(String content) {
         this.content = content;
     }
-
-    // Methods.
-
-    @Override
-    public TransportableString clone() {
-        try {
-            return (TransportableString) super.clone();
-        } catch (CloneNotSupportedException ignored) {
-            return null;
-        }
+    
+    private TransportableString(TransportableString transportableString) {
+        this.content = transportableString.content;
     }
-
+    
+    // Methods.
+    
+    @Override
+    public @NotNull TransportableString duplicate() {
+        return new TransportableString(this);
+    }
+    
     @Override
     public String getContent() {
         return content;

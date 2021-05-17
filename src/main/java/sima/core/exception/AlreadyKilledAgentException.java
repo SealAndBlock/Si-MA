@@ -5,5 +5,6 @@ public class AlreadyKilledAgentException extends RuntimeException {
     // Constructors.
 
     public AlreadyKilledAgentException() {
+        super();
     }
 }

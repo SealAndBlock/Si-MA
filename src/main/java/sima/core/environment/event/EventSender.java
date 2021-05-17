@@ -21,7 +21,7 @@ public interface EventSender {
      * all receivers which must receive the Event. THe best way is to use the method {@link #sendEvent(Event)} during
      * the broadcast. However {@link #sendEvent(Event)} method only accept {@code Event} with not null receiver,
      * therefore the best way to implement it its to clone the specifier event with the method {@link
-     * Event#cloneAndSetReceiver(AgentIdentifier)} for each determined receiver.
+     * Event#duplicateWithNewReceiver(AgentIdentifier)} for each determined receiver.
      * <pre>Example: {@code
      * broadcastEvent(Event e) {
      *     for (AgentIdentifier receiver : agentList) {

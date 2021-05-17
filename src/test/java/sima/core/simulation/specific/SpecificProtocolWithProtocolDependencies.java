@@ -24,8 +24,16 @@ public class SpecificProtocolWithProtocolDependencies extends SpecificProtocolTe
     public SpecificProtocolTesting getProtocolTesting() {
         return protocolTesting;
     }
-
+    
+    public void setProtocolTesting(SpecificProtocolTesting protocolTesting) {
+        this.protocolTesting = protocolTesting;
+    }
+    
     public EventSender getEventSender() {
         return eventSender;
+    }
+    
+    public void setEventSender(EventSender eventSender) {
+        this.eventSender = eventSender;
     }
 }

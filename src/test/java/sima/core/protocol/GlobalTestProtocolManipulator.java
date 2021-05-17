@@ -9,40 +9,40 @@ import sima.core.agent.AgentTesting;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled
-public abstract class GlobalTestProtocolManipulator extends SimaTest {
-
+abstract class GlobalTestProtocolManipulator extends SimaTest {
+    
     // Static.
-
+    
     protected ProtocolManipulator PROTOCOL_MANIPULATOR;
-
+    
     // Initialisation.
-
+    
     @Override
     protected void verifyAndSetup() {
         assertNotNull(PROTOCOL_MANIPULATOR, "PROTOCOL_MANIPULATOR cannot be null for tests");
     }
-
+    
     // Tests.
-
+    
     @Test
-    public void getManipulatedProtocolNeverReturnsNull() {
+    void getManipulatedProtocolNeverReturnsNull() {
         assertNotNull(PROTOCOL_MANIPULATOR.getManipulatedProtocol());
     }
-
+    
     @Test
-    public void setManipulatedProtocolWithNullArgumentThrowsException() {
+    void setManipulatedProtocolWithNullArgumentThrowsException() {
         assertThrows(NullPointerException.class, () -> PROTOCOL_MANIPULATOR.setManipulatedProtocol(null));
     }
-
+    
     @Test
-    public void setManipulatedProtocolWithNotNullArgumentNotFail() {
-        AbstractAgent a = new AgentTesting("A", 0, 0,null);
+    void setManipulatedProtocolWithNotNullArgumentNotFail() {
+        AbstractAgent a = new AgentTesting("A", 0, 0, null);
         Protocol protocol = new ProtocolTesting("P_TAG", a, null);
         assertDoesNotThrow(() -> PROTOCOL_MANIPULATOR.setManipulatedProtocol(protocol));
     }
-
+    
     @Test
-    public void resetStateNotFail() {
+    void resetStateNotFail() {
         assertDoesNotThrow(() -> PROTOCOL_MANIPULATOR.resetState());
     }
 }

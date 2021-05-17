@@ -2,7 +2,7 @@ package sima.core.scheduler;
 
 import java.util.Map;
 
-public class ControllerTesting extends Controller {
+public class ControllerTesting implements Controller {
 
     // Variables.
 
@@ -11,7 +11,6 @@ public class ControllerTesting extends Controller {
     // Constructors.
 
     public ControllerTesting(Map<String, String> args) {
-        super(args);
     }
 
     // Methods.

@@ -2,7 +2,7 @@ package sima.core.simulation;
 
 import sima.core.exception.SimaSimulationFailToStartRunningException;
 
-import static sima.core.simulation.SimaSimulation.SIMA_LOG;
+import static sima.core.simulation.SimaSimulation.SimaLog;
 
 public class SimaRunner {
 
@@ -13,7 +13,7 @@ public class SimaRunner {
 
             SimaSimulation.runSimulation(args[0]);
         } catch (SimaSimulationFailToStartRunningException e) {
-            SIMA_LOG.error("Fail to run SimaSimulation.", e);
+            SimaLog.error("Fail to run SimaSimulation.", e);
         }
 
         SimaSimulation.waitEndSimulation();
