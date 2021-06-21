@@ -1,6 +1,7 @@
 package sima.core.utils;
 
 import org.jetbrains.annotations.NotNull;
+import sima.core.exception.FailInstantiationException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -21,16 +22,24 @@ public class Utils {
     
     @NotNull
     public static <T> T instantiate(Class<? extends T> classToInstantiate, Class<?>[] argumentClasses,
-                                    Object... args)
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Constructor<? extends T> constructor = classToInstantiate.getConstructor(argumentClasses);
-        return constructor.newInstance(args);
+                                    Object... args) throws FailInstantiationException {
+        Constructor<? extends T> constructor;
+        try {
+            constructor = classToInstantiate.getConstructor(argumentClasses);
+            return constructor.newInstance(args);
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new FailInstantiationException(e);
+        }
     }
     
-    public static <T> T instantiate(Class<? extends T> classToInstantiate)
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Constructor<? extends T> constructor = classToInstantiate.getConstructor();
-        return constructor.newInstance();
+    public static <T> T instantiate(Class<? extends T> classToInstantiate) throws FailInstantiationException {
+        Constructor<? extends T> constructor;
+        try {
+            constructor = classToInstantiate.getConstructor();
+            return constructor.newInstance();
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new FailInstantiationException(e);
+        }
     }
     
 }

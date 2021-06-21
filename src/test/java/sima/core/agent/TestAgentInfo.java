@@ -1,56 +1,86 @@
 package sima.core.agent;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import sima.core.protocol.ProtocolIdentifier;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
-class TestAgentInfo extends GlobalTestAgentInfo {
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestAgentInfo {
     
-    // Static.
+    // Variables.
     
-    protected static final AgentTesting AGENT_TESTING = new AgentTesting("A_0", 0, 0, null);
-    
-    // Initialisation.
-    
-    @Override
-    protected void verifyAndSetup() {
-        AGENT_INFO = AGENT_TESTING.getInfo();
-        
-        super.verifyAndSetup();
-    }
+    // Init.
     
     // Tests.
     
-    @Test
-    void constructAgentInfoWithNullAgentIdentifierThrowsException() {
-        assertThrows(NullPointerException.class, () -> new AgentInfo(null, null, null, null));
-    }
-    
-    @Test
-    void constructAgentInfoWithNullBehaviorsNotThrowsException() {
-        try {
-            new AgentInfo(AGENT_TESTING.getAgentIdentifier(), null, null, null);
-        } catch (Exception e) {
-            fail(e);
+    @Nested
+    @Tag("AgentInfo.constructor")
+    @DisplayName("AgentInfo constructor tests")
+    class ConstructorTest {
+        
+        @Test
+        @DisplayName("Test if constructs an AgentInfo with null agentIdentifier throws a NullPointerException")
+        void testConstructorWithNullAgentIdentifier() {
+            List<String> behaviors = new ArrayList<>();
+            List<ProtocolIdentifier> protocols = new ArrayList<>();
+            List<String> environments = new ArrayList<>();
+            assertThrows(NullPointerException.class, () -> new AgentInfo(null, behaviors, protocols, environments));
         }
-    }
-    
-    @Test
-    void constructAgentInfoWithNullProtocolsNotThrowsException() {
-        try {
-            new AgentInfo(AGENT_TESTING.getAgentIdentifier(), null, null, null);
-        } catch (Exception e) {
-            fail(e);
+        
+        @Test
+        @DisplayName("Test if constructs an AgentInfo with null behaviors does not throws exception and the " +
+                             "behavior list is empty")
+        void testConstructorWithNullBehaviors() {
+            AgentIdentifier agentIdentifier = new AgentIdentifier("AGENT", 0, 0);
+            List<ProtocolIdentifier> protocols = new ArrayList<>();
+            List<String> environments = new ArrayList<>();
+            AtomicReference<AgentInfo> info = new AtomicReference<>();
+            assertDoesNotThrow(() -> info.set(new AgentInfo(agentIdentifier, null, protocols, environments)));
+            assertTrue(info.get().getBehaviors().isEmpty());
         }
-    }
-    
-    @Test
-    void constructAgentInfoWithNullEnvironmentsNotThrowsException() {
-        try {
-            new AgentInfo(AGENT_TESTING.getAgentIdentifier(), null, null, null);
-        } catch (Exception e) {
-            fail(e);
+        
+        @Test
+        @DisplayName("Test if constructs an AgentInfo with null protocols does not throws exception and the protocol " +
+                             "list is empty")
+        void testConstructorWithNullProtocols() {
+            AgentIdentifier agentIdentifier = new AgentIdentifier("AGENT", 0, 0);
+            List<String> behaviors = new ArrayList<>();
+            List<String> environments = new ArrayList<>();
+            AtomicReference<AgentInfo> info = new AtomicReference<>();
+            assertDoesNotThrow(() -> info.set(new AgentInfo(agentIdentifier, behaviors, null, environments)));
+            assertTrue(info.get().getProtocols().isEmpty());
         }
+        
+        @Test
+        @DisplayName("Test if constructs an AgentInfo with null environments does not throws exception and the " +
+                             "environments list is empty")
+        void testConstructorWithNullEnvironments() {
+            AgentIdentifier agentIdentifier = new AgentIdentifier("AGENT", 0, 0);
+            List<String> behaviors = new ArrayList<>();
+            List<ProtocolIdentifier> protocols = new ArrayList<>();
+            AtomicReference<AgentInfo> info = new AtomicReference<>();
+            assertDoesNotThrow(() -> info.set(new AgentInfo(agentIdentifier, behaviors, protocols, null)));
+            assertTrue(info.get().getEnvironments().isEmpty());
+        }
+        
+        @Test
+        @DisplayName("Test if constructs an AgentInfo with not null parameters does not throws exception")
+        void testConstructorWithNotNullParameters() {
+            AgentIdentifier agentIdentifier = new AgentIdentifier("AGENT", 0, 0);
+            List<String> behaviors = new ArrayList<>();
+            List<ProtocolIdentifier> protocols = new ArrayList<>();
+            List<String> environments = new ArrayList<>();
+            AtomicReference<AgentInfo> info = new AtomicReference<>();
+            assertDoesNotThrow(() -> info.set(new AgentInfo(agentIdentifier, behaviors, protocols, environments)));
+            assertEquals(agentIdentifier, info.get().getAgentIdentifier());
+        }
+        
     }
 }

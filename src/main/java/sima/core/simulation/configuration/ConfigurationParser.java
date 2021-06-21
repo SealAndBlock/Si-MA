@@ -33,10 +33,10 @@ public class ConfigurationParser {
     public static @NotNull SimaSimulationJson parseConfiguration(String configurationJsonPath)
             throws IOException, JsonSyntaxException {
         final var gson = createGson();
-        return getSimSimulationJSONFromFile(configurationJsonPath, gson);
+        return getSimaSimulationJSONFromFile(configurationJsonPath, gson);
     }
     
-    private static @NotNull SimaSimulationJson getSimSimulationJSONFromFile(String filePath, Gson gson)
+    private static @NotNull SimaSimulationJson getSimaSimulationJSONFromFile(String filePath, Gson gson)
             throws IOException, JsonSyntaxException {
         try (var reader = new JsonReader(new FileReader(filePath))) {
             return gson.fromJson(reader, SimaSimulationJson.class);

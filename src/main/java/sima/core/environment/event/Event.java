@@ -1,7 +1,7 @@
 package sima.core.environment.event;
 
 import org.jetbrains.annotations.NotNull;
-import sima.core.agent.AbstractAgent;
+import sima.core.agent.SimpleAgent;
 import sima.core.agent.AgentIdentifier;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * Represents an event which can occur during the simulation.
  * <p>
- * An event has a sender {@link AbstractAgent} which is the sima.core.agent which as send (trigger) the event. It also
+ * An event has a sender {@link SimpleAgent} which is the sima.core.agent which as send (trigger) the event. It also
  * has a receiver which is the sima.core.agent which will receive the event.
  * <p>
  * In plus, the event as a sima.core.protocol in attribute which is the sima.core.protocol which will process the event

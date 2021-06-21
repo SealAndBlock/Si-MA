@@ -1,7 +1,7 @@
 package sima.core.scheduler.multithread;
 
 import org.jetbrains.annotations.NotNull;
-import sima.core.exception.NotSchedulableTimeException;
+import sima.core.exception.NotScheduleTimeException;
 import sima.core.scheduler.Executable;
 import sima.core.scheduler.Scheduler;
 
@@ -32,8 +32,8 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     private final Map<Long, LinkedList<Executable>> mapExecutable;
     
     /**
-     * The runnable which for each step, wait for that all executables of the step has been executed and call the method
-     * {@link #executeNextStep()} to pass to the next step time.
+     * The runnable which for each step, wait for that all executables of the step has been executed and call the method {@link
+     * #executeNextStep()} to pass to the next step time.
      */
     private StepFinishWatcher stepFinishWatcher;
     
@@ -49,6 +49,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         super(endSimulation, nbExecutorThread);
         mapExecutable = new ConcurrentHashMap<>();
         stepLock = new Object();
+        currentTime = 0;
     }
     
     // Methods.
@@ -134,8 +135,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         }
     }
     
-    @NotNull
-    private TreeSet<Long> getSortedStepTimeSet() {
+    private @NotNull TreeSet<Long> getSortedStepTimeSet() {
         Set<Long> setStepTimeSet = mapExecutable.keySet();
         return new TreeSet<>(setStepTimeSet);
     }
@@ -150,8 +150,8 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     }
     
     /**
-     * Give to the {@link #executor} all {@link sima.core.scheduler.multithread.MultiThreadScheduler.ExecutorThread} in
-     * the list {@link #executorThreadList}.
+     * Give to the {@link #executor} all {@link sima.core.scheduler.multithread.MultiThreadScheduler.ExecutorThread} in the list {@link
+     * #executorThreadList}.
      */
     private void executeALlExecutorThreads() {
         executorThreadList.forEach(executorThread -> executor.execute(executorThread));
@@ -164,8 +164,8 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     
     
     /**
-     * Kill itself and notify all {@link sima.core.scheduler.Scheduler.SchedulerWatcher} that the {@link Scheduler} has
-     * finish by no executable to execute
+     * Kill itself and notify all {@link sima.core.scheduler.Scheduler.SchedulerWatcher} that the {@link Scheduler} has finish by no executable
+     * to execute
      */
     private void endByNoExecutableToExecution() {
         if (!isKilled()) {
@@ -175,8 +175,8 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     }
     
     /**
-     * Kill itself and notify all {@link sima.core.scheduler.Scheduler.SchedulerWatcher} that the {@link Scheduler} has
-     * finish by reaching the end time of the simulation.
+     * Kill itself and notify all {@link sima.core.scheduler.Scheduler.SchedulerWatcher} that the {@link Scheduler} has finish by reaching the
+     * end time of the simulation.
      */
     private void endByReachEndSimulationTime() {
         if (!isKilled()) {
@@ -188,6 +188,9 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     @Override
     public void scheduleExecutable(Executable executable, long waitingTime, Scheduler.ScheduleMode scheduleMode,
                                    long nbRepetitions, long executionTimeStep) {
+        if (executable == null)
+            throw new NullPointerException("Executable cannot be null");
+        
         if (waitingTime < 1)
             throw new IllegalArgumentException("Waiting time cannot be less than 1.");
         
@@ -199,15 +202,14 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      * Add the {@link Executable} in function of the {@link sima.core.scheduler.Scheduler.ScheduleMode}.
      * <p>
      * If the scheduleMode is equal to {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED} or {@link
-     * sima.core.scheduler.Scheduler.ScheduleMode#INFINITE}, the executable is add the number of times that it must be
-     * added. It is the same instance which is added at each times, there is no copy of the {@code Executable}.
+     * sima.core.scheduler.Scheduler.ScheduleMode#INFINITE}, the executable is add the number of times that it must be added. It is the same
+     * instance which is added at each times, there is no copy of the {@code Executable}.
      *
      * @param executable    the executable to add
      * @param waitingTime   the waiting time before execute the action
      * @param scheduleMode  the schedule mode
-     * @param nbRepetitions the number of times that the action must be repeated if the {@link
-     *                      sima.core.scheduler.Scheduler.ScheduleMode} is equal to {@link
-     *                      sima.core.scheduler.Scheduler.ScheduleMode#REPEATED}
+     * @param nbRepetitions the number of times that the action must be repeated if the {@link sima.core.scheduler.Scheduler.ScheduleMode} is
+     *                      equal to {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED}
      */
     private void addExecutableWithScheduleMode(Executable executable, long waitingTime,
                                                Scheduler.ScheduleMode scheduleMode,
@@ -234,11 +236,14 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     
     @Override
     public void scheduleExecutableAtSpecificTime(Executable executable, long simulationSpecificTime) {
+        if (executable == null)
+            throw new NullPointerException("Executable cannot be null");
+        
         if (simulationSpecificTime < 1)
             throw new IllegalArgumentException("SimulationSpecificTime must be greater or equal to 1");
         
         if (simulationSpecificTime <= currentTime)
-            throw new NotSchedulableTimeException("SimulationSpecificTime is already passed");
+            throw new NotScheduleTimeException("SimulationSpecificTime is already passed");
         
         if (!isKilled())
             addExecutableAtTime(executable, simulationSpecificTime);
@@ -260,9 +265,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     
     @Override
     public long getCurrentTime() {
-        if (isRunning())
-            return currentTime;
-        else if (!isKilled)
+        if (isRunning() || !isKilled)
             return currentTime;
         else
             return -1;
@@ -335,8 +338,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
                             Thread.currentThread().interrupt();
                         }
                         
-                        if (stopped)
-                            break;
+                        if (stopped) break;
                     }
                     
                     if (!stopped)
@@ -346,8 +348,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         }
         
         /**
-         * @return true if all {@link DiscreteTimeExecutorThread} in {@link #executorThreadList} have finished, else
-         * false.
+         * @return true if all {@link DiscreteTimeExecutorThread} in {@link #executorThreadList} have finished, else false.
          */
         private boolean allExecutionsFinished() {
             for (ExecutorThread discreteTimeExecutorThread : scheduler.executorThreadList)

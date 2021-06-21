@@ -1,19 +1,19 @@
 package sima.core.simulation;
 
-import sima.core.agent.AbstractAgent;
+import sima.core.agent.SimpleAgent;
 
 import java.util.List;
 
 public interface AgentManager {
 
     /**
-     * Add the {@link AbstractAgent} to the {@link AgentManager}. If the {@code AbstractAgent} is already in the {@code
+     * Add the {@link SimpleAgent} to the {@link AgentManager}. If the {@code AbstractAgent} is already in the {@code
      * AgentManager}, nothing is done.
      *
      * @param agent the agent to add
      * @return true if the {@code AbstractAgent} has been added, else false.
      */
-    boolean addAgent(AbstractAgent agent);
+    boolean addAgent(SimpleAgent agent);
 
     /**
      * Returns the list the list of all agents managed by the {@link AgentManager}. If this methods is called after the
@@ -23,5 +23,5 @@ public interface AgentManager {
      *
      * @return the list of all agents managed by the {@link AgentManager}. Never returns null.
      */
-    List<AbstractAgent> getAllAgents();
+    List<SimpleAgent> getAllAgents();
 }

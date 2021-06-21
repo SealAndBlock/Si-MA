@@ -3,14 +3,13 @@ package sima.core.scheduler;
 import sima.core.simulation.SimaSimulation;
 
 /**
- * Watcher which wait until that the {@code Scheduler} that it is watching is killed. Do nothing for {@link
+ * Watcher which waits until that the {@code Scheduler} that it is watching is killed. Do nothing for {@link #schedulerStarted()}, {@link
  * #noExecutableToExecute()} and {@link #simulationEndTimeReach()}.
  */
 public class WaitSchedulerWatcher implements Scheduler.SchedulerWatcher {
     
     // Variables.
     
-    private final Object startLock = new Object();
     private final Object killLock = new Object();
     
     private int nbKill = 0;
@@ -39,9 +38,7 @@ public class WaitSchedulerWatcher implements Scheduler.SchedulerWatcher {
     
     @Override
     public void schedulerStarted() {
-        synchronized (startLock) {
-            startLock.notifyAll();
-        }
+        // Nothing.
     }
     
     @Override

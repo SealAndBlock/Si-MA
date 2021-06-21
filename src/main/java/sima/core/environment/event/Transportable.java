@@ -14,7 +14,7 @@ import java.io.Serializable;
 public interface Transportable extends Serializable {
     
     /**
-     * Duplicate the transportable.
+     * Duplicate the transportable. A new instance must be created.
      * <p>
      * Sub classes must uses copy constructors or factory to implement this method.
      *
