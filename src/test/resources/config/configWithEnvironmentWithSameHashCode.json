@@ -1,0 +1,110 @@
+{
+  "endTime": 10000,
+  "nbThreads": 8,
+  "timeMode": "DISCRETE_TIME",
+  "schedulerType": "MULTI_THREAD",
+  "simulationSetupClass": "sima.testing.simulation.SimpleSimulationSetup",
+  "schedulerWatcherClass": "sima.testing.scheduler.SimpleSchedulerWatcher",
+  "simaWatcherClass": "sima.testing.simulation.SimpleSimaWatcher",
+  "controllers": [
+    {
+      "controllerClass": "sima.testing.scheduler.SimpleController",
+      "scheduleMode": "ONCE",
+      "beginAt": 10,
+      "args": [
+        [
+          "cArg1",
+          "arg1"
+        ]
+      ]
+    },
+    {
+      "controllerClass": "sima.testing.scheduler.SimpleController",
+      "scheduleMode": "REPEATED",
+      "beginAt": 10,
+      "nbRepetitions": 10,
+      "repetitionStep": 10,
+      "args": [
+        [
+          "cArg1",
+          "arg1"
+        ]
+      ]
+    },
+    {
+      "controllerClass": "sima.testing.scheduler.SimpleController",
+      "scheduleMode": "INFINITE",
+      "beginAt": 10,
+      "repetitionStep": 10,
+      "args": [
+        [
+          "cArg1",
+          "arg1"
+        ]
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "id": "SEnv",
+      "name": "SpecificEnvironmentTesting",
+      "environmentClass": "sima.basic.environment.FullyConnectedNetworkEnvironment"
+    },
+    {
+      "id": "SEnvSecond",
+      "name": "SpecificEnvironmentTesting",
+      "environmentClass": "sima.basic.environment.FullyConnectedNetworkEnvironment"
+    }
+  ],
+  "protocols": [
+    {
+      "id": "SPro0",
+      "tag": "SpecificProtocolTestingTag",
+      "protocolClass": "sima.testing.protocol.CorrectProtocol0"
+    },
+    {
+      "id": "SProDependent",
+      "tag": "SpecificProtocolWithProtocolDependenciesTag",
+      "protocolClass": "sima.testing.protocol.ProtocolWithDependencies",
+      "protocolDependencies": {
+        "environment": "SEnv",
+        "protocol": "SPro0"
+      }
+    }
+  ],
+  "behaviors": [
+    {
+      "id": "SBeh",
+      "behaviorClass": "sima.testing.behavior.PlayableBehavior",
+      "args": [
+        [
+          "bArg1",
+          "arg1"
+        ]
+      ]
+    }
+  ],
+  "agents": [
+    {
+      "agentClass": "sima.core.agent.SimpleAgent",
+      "namePattern": "SimpleAgent_%d",
+      "numberToCreate": 5,
+      "behaviors": [
+        "SBeh"
+      ],
+      "protocols": [
+        "SPro0",
+        "SProDependent"
+      ],
+      "environments": [
+        "SEnv"
+      ],
+      "args": [
+        [
+          "aArg1",
+          "arg1"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,42 +1,96 @@
 package sima.core.utils;
 
-import org.junit.jupiter.api.Test;
-import sima.core.SimaTest;
+import org.junit.jupiter.api.*;
+import org.slf4j.Logger;
+import sima.core.agent.SimpleAgent;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class TestSimaLogger extends SimaTest {
+public class TestSimaLogger {
     
-    // Constants.
+    // Variables.
     
-    protected SimaLogger LOGGER = new SimaLogger("TEST");
+    protected SimaLogger simaLogger;
     
-    // Initialisation.
+    // Init.
     
-    @Override
-    protected void verifyAndSetup() {
+    @BeforeEach
+    void setUp() {
+        simaLogger = new SimaLogger("SIMA_LOGGER");
     }
     
     // Tests.
     
-    @Test
-    void infoDoesNotThrowException() {
-        assertDoesNotThrow(() -> LOGGER.info("TEST INFO"));
+    @Nested
+    @Tag("SimaLogger.constructor")
+    @DisplayName("SimaLogger constructor tests")
+    class ConstructorTest {
+        
+        @Nested
+        @Tag("SimaLogger.constructor(String)")
+        @DisplayName("SimaLogger constructor(String) tests")
+        class ConstructorStringTest {
+            
+            @Test
+            @DisplayName("Test if constructor(String) create correct logger")
+            void testConstructorWithString() {
+                String simaLoggerName = "LOGGER";
+                SimaLogger simaLogger = new SimaLogger(simaLoggerName);
+                Logger logger = simaLogger.getLogger();
+                assertThat(logger.getName()).isEqualTo(simaLoggerName);
+            }
+            
+        }
+        
+        @Nested
+        @Tag("SimaLogger.constructor(Class)")
+        @DisplayName("SimaLogger constructor(Class) tests")
+        class ConstructorClassTest {
+            
+            @Test
+            @DisplayName("Test if constructor(Class) create correct logger")
+            void testConstructorWithString() {
+                SimaLogger simaLogger = new SimaLogger(SimpleAgent.class);
+                Logger logger = simaLogger.getLogger();
+                assertThat(logger.getName()).isEqualTo(SimpleAgent.class.getName());
+            }
+            
+        }
+        
     }
     
-    @Test
-    void errorWithoutThrowableDoesNotThrowException() {
-        assertDoesNotThrow(() -> LOGGER.error("TEST ERROR"));
+    @Nested
+    @Tag("SimaLogger.info")
+    @DisplayName("SimaLogger info tests")
+    class InfoTest {
+        
+        @Test
+        @DisplayName("Test if info does not throw exception")
+        void testInfo() {
+            assertDoesNotThrow(() -> simaLogger.info("info"));
+        }
+        
     }
     
-    @Test
-    void errorWithThrowableDoesNotThrowException() {
-        assertDoesNotThrow(() -> LOGGER.error("TEST ERROR", new Exception("EXCEPTION TEST")));
+    @Nested
+    @Tag("SimaLogger.error")
+    @DisplayName("SimaLogger error tests")
+    class ErrorTest {
+        
+        @Test
+        @DisplayName("Test if error without throwable does not throw exception")
+        void testErrorWithoutThrowable() {
+            assertDoesNotThrow(() -> simaLogger.error("error"));
+        }
+        
+        @Test
+        @DisplayName("Test if error with throwable does not throw exception")
+        void testErrorWithThrowable() {
+            assertDoesNotThrow(() -> simaLogger.error("error", new Exception()));
+        }
+        
     }
     
-    @Test
-    void getLoggerDoesNotThrowException() {
-        assertDoesNotThrow(() -> assertNotNull(LOGGER.getLogger()));
-    }
+    
 }

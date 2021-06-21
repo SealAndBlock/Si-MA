@@ -86,6 +86,7 @@ public abstract class MultiThreadScheduler implements Scheduler {
     }
     
     protected void notifyOnSchedulerKilled() {
+        SimaLog.info(this + " SCHEDULER KILLED");
         schedulerWatchers.forEach(SchedulerWatcher::schedulerKilled);
     }
     
@@ -169,8 +170,8 @@ public abstract class MultiThreadScheduler implements Scheduler {
     public @NotNull SchedulerType getSchedulerType() {
         return SchedulerType.MULTI_THREAD;
     }
-
-// Inner classes.
+    
+    // Inner classes.
     
     protected static class OneExecutableExecutorThread extends ExecutorThread {
         
@@ -234,13 +235,6 @@ public abstract class MultiThreadScheduler implements Scheduler {
         
         public RepeatedExecutable(Executable executable, long nbNextExecutions, long executionTimeStep) {
             super(executable);
-            
-            if (nbNextExecutions < 0)
-                throw new IllegalArgumentException("nbNextExecutions cannot be less than 0");
-            
-            if (executionTimeStep < 1)
-                throw new IllegalArgumentException("nextExecutionStep cannot be less than 1");
-            
             this.executionTimeStep = executionTimeStep;
             this.nbNextExecutions = nbNextExecutions;
         }

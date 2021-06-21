@@ -1,6 +1,6 @@
 package sima.core.simulation.configuration.json;
 
-import sima.core.agent.AbstractAgent;
+import sima.core.agent.SimpleAgent;
 import sima.core.environment.Environment;
 import sima.core.protocol.ProtocolIdentifier;
 
@@ -37,7 +37,7 @@ public class SimaSimulationJson {
         mapIdObject.put(id, object);
     }
 
-    public Object getInstanceFromId(String id, AbstractAgent agent) {
+    public Object getInstanceFromId(String id, SimpleAgent agent) {
         var object = mapIdObject.get(id);
         if (object != null) {
             if (object instanceof ProtocolIdentifier) {

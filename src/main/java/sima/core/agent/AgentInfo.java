@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * All infos of an {@link AbstractAgent}. This class is {@link Serializable}.
+ * All infos of an {@link SimpleAgent}. This class is {@link Serializable}.
  */
 public class AgentInfo implements Serializable {
 
