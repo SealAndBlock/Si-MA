@@ -16,8 +16,8 @@
     </distributionManagement>
 
     <groupId>sima.core</groupId>
-    <artifactId>sima.core</artifactId>
-    <version>1.3.309</version>
+    <artifactId>core</artifactId>
+    <version>1.3.309-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
