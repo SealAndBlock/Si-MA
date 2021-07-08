@@ -15,7 +15,7 @@
         </repository>
     </distributionManagement>
 
-    <groupId>sima.core</groupId>
+    <groupId>sima</groupId>
     <artifactId>core</artifactId>
     <version>1.3.309-SNAPSHOT</version>
 
