@@ -177,7 +177,7 @@ public abstract class Environment implements EventSender {
             if (event.getReceiver() == null) {
                 // No receiver for the event -> broadcast event
                 throw new IllegalArgumentException("Event receiver null -> Impossible to known where the event "
-                        + "must be sent");
+                        + "must be sent. If it is a broadcast event, use the method broadcastEvent(Event).");
             } else {
                 // Event destined for one identified agent.
                 // getAgent() detects if the sima.core.agent is evolving or not in the sima.core.environment
