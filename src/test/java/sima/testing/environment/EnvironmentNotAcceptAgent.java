@@ -27,7 +27,7 @@ public class EnvironmentNotAcceptAgent extends Environment {
     }
     
     @Override
-    protected boolean eventCanBeSentTo(AgentIdentifier receiver, Event event) {
+    protected boolean arePhysicallyConnected(AgentIdentifier agent1, AgentIdentifier agent2) {
         return false;
     }
     

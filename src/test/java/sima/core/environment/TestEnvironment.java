@@ -225,6 +225,8 @@ public abstract class TestEnvironment {
         void testBroadcastEventWithEvolvingEventSender() {
             // GIVEN
             when(mockEvent.getSender()).thenReturn(agentIdentifier0);
+            when(mockEvent.duplicateWithNewReceiver(any(AgentIdentifier.class))).thenReturn(mockEvent);
+            when(mockEvent.getReceiver()).thenReturn(agentIdentifier1);
             
             // WHEN
             try (MockedStatic<SimaSimulation> simaSimulationMockedStatic = mockSimaSimulation()) {
