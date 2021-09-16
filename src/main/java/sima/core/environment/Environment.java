@@ -161,9 +161,9 @@ public abstract class Environment implements EventSender {
      * This method verifies in first if the {@link Event#getSender()} is evolving in the sima.core.environment and do the same for the receiver.
      * If it is not the case, a {@link NotEvolvingAgentInEnvironmentException} is thrown.
      * <p>
-     * After that, if the receiver is not null, then the event is destined to one sima.core.agent and the function {@link
-     * #verifyAndSendEvent(AgentIdentifier, Event)} is called to try to send the {@code Event} to the sima.core.agent receiver. If the receiver
-     * is null, throws {@link IllegalArgumentException}.
+     * After that, if the receiver is not null, then the event is destined to one sima.core.agent and the method {@link
+     * #verifyAndSendEvent(Event)} is called to try to send the {@code Event} to the sima.core.agent receiver. If the receiver is null, throws
+     * {@link IllegalArgumentException}.
      *
      * @param event the event to send
      *
@@ -182,7 +182,7 @@ public abstract class Environment implements EventSender {
                 // Event destined for one identified agent.
                 // getAgent() detects if the sima.core.agent is evolving or not in the sima.core.environment
                 if (isEvolving(event.getReceiver())) {
-                    verifyAndSendEvent(event.getReceiver(), event);
+                    verifyAndSendEvent(event);
                 } else {
                     throw new NotEvolvingAgentInEnvironmentException(
                             "The receiver agent " + event.getReceiver() + " is "
@@ -210,9 +210,10 @@ public abstract class Environment implements EventSender {
     @Override
     public synchronized void broadcastEvent(Event event) {
         if (isEvolving(event.getSender()))
-            evolvingAgents.forEach(agentIdentifier -> verifyAndSendEvent(agentIdentifier,
-                    event.duplicateWithNewReceiver(
-                            agentIdentifier)));
+            evolvingAgents.forEach(agentReceiver -> {
+                Event sendingEvent = event.duplicateWithNewReceiver(agentReceiver);
+                verifyAndSendEvent(sendingEvent);
+            });
         else
             throw new NotEvolvingAgentInEnvironmentException(
                     "The sender sima.core.agent " + event.getSender() + " is not "
@@ -220,23 +221,23 @@ public abstract class Environment implements EventSender {
     }
     
     /**
-     * This method verifies if it is possible to send the event to the specified {@link SimpleAgent} from the event sender. Return true if the
-     * event can "physically" be sent to the receiver from the sender, else false.
+     * This method verifies if it is possible to send the agent2 to the specified {@link SimpleAgent} from the agent2 sender. Return true if the
+     * agent2 can "physically" be sent to the agent1 from the sender, else false.
      * <p>
-     * It is in this method that is simulate physical connection between each agent. Therefore, if this method returns false for agent receiver B
+     * It is in this method that is simulated physical connection between each agent. Therefore, if this method returns false for agent agent1 B
      * and an Event with the agent sender A, it is because in the simulation, agents A and B or not physically connected.
      * <p>
      * By convention, we consider that an agent is always physically connected with itself, therefore this method must always returns true if the
-     * specified receiver is equal to the event sender.
+     * specified agent1 is equal to the agent2 sender.
      * <p>
-     * This method must not pay attention to the event receiver.
+     * This method must not pay attention to the agent2 agent1.
      *
-     * @param receiver the agent receiver
-     * @param event    the event to send to the receiver
+     * @param agent1 the agent agent1
+     * @param agent2 the agent2 to send to the agent1
      *
-     * @return true if the event can be sent to the receiver from the sender, else false.
+     * @return true if the agent2 can be sent to the agent1 from the sender, else false.
      */
-    protected abstract boolean eventCanBeSentTo(AgentIdentifier receiver, Event event);
+    protected abstract boolean arePhysicallyConnected(AgentIdentifier agent1, AgentIdentifier agent2);
     
     /**
      * Schedules the moment when the sima.core.agent receiver will receive the event. In other words, schedules the moment when the
@@ -248,23 +249,22 @@ public abstract class Environment implements EventSender {
     protected abstract void scheduleEventReception(AgentIdentifier receiver, Event event);
     
     /**
-     * First verifies if the event can be sent to the sima.core.agent receiver with the function {@link #eventCanBeSentTo(AgentIdentifier,
-     * Event)}. If it is the case, calls the function {@link #scheduleEventReception(AgentIdentifier, Event)} to schedule the moment when the
-     * sima.core.agent receiver will receive the {@code Event}.
+     * First verifies if the event can be sent with the function {@link #arePhysicallyConnected(AgentIdentifier, AgentIdentifier)} by verifying
+     * if the event sender is physically connected to the receiver. If it is the case, calls the method {@link
+     * #scheduleEventReception(AgentIdentifier, Event)} to schedule the moment when the sima.core.agent receiver will receive the {@code Event}.
      * <p>
      * This method is called in the method {@link #sendEvent(Event)} when the sender has been correctly identified and that the receiver of the
      * {@code Event} is not null.
      *
-     * @param receiver the sima.core.agent receiver
-     * @param event    the event to receiver
+     * @param event the event to receiver
      *
      * @see #sendEvent(Event)
-     * @see #eventCanBeSentTo(AgentIdentifier, Event)
+     * @see #arePhysicallyConnected(AgentIdentifier, AgentIdentifier)
      * @see #scheduleEventReception(AgentIdentifier, Event)
      */
-    protected void verifyAndSendEvent(AgentIdentifier receiver, Event event) {
-        if (eventCanBeSentTo(receiver, event))
-            scheduleEventReception(receiver, event);
+    protected void verifyAndSendEvent(Event event) {
+        if (arePhysicallyConnected(event.getSender(), event.getReceiver()))
+            scheduleEventReception(event.getReceiver(), event);
     }
     
     // Getters ans Setters.

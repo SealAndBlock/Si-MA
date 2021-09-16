@@ -128,13 +128,13 @@ public class FullyConnectedNetworkEnvironment extends Environment {
     /**
      * All agents are connected, therefore all event can be sent to any agent.
      *
-     * @param receiver the agent receiver
-     * @param event    the event to send to the receiver
+     * @param agent1 the agent receiver
+     * @param agent2 the event to send to the receiver
      *
      * @return always true
      */
     @Override
-    protected boolean eventCanBeSentTo(AgentIdentifier receiver, Event event) {
+    protected boolean arePhysicallyConnected(AgentIdentifier agent1, AgentIdentifier agent2) {
         return true;
     }
     
