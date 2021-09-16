@@ -1,5 +1,6 @@
 package sima.core.environment;
 
+import org.jetbrains.annotations.NotNull;
 import sima.core.agent.AgentIdentifier;
 import sima.core.agent.SimpleAgent;
 import sima.core.environment.event.Event;
@@ -36,7 +37,7 @@ public abstract class Environment implements EventSender {
     // Constructors.
     
     /**
-     * Constructs an {@link Environment} with an unique name and an map of arguments.
+     * Constructs an {@link Environment} with a unique name and a map of arguments.
      * <p>
      * All inherited classes must have this constructor to allow the use of the java reflexivity.
      *
@@ -75,8 +76,8 @@ public abstract class Environment implements EventSender {
      * methods returns false. If the sima.core.agent has already been accepted in the {@code Environment}, this method does not accept the {@code
      * AgentIdentifier} and returns false.
      * <p>
-     * In this method, only the environment has conscience that the agent is evolving in it. For that the agent be notify that it is evolving in
-     * the environment, it is better to use the method {@link SimpleAgent#joinEnvironment(Environment)}. In this method, the agent and the
+     * In this method, only the environment has conscience that the agent is evolving in it. For that the agent be notified that it is evolving
+     * in the environment, it is better to use the method {@link SimpleAgent#joinEnvironment(Environment)}. In this method, the agent and the
      * environment are both conscience that the agent is evolving in the environment.
      *
      * @param agentIdentifier the {@link AgentIdentifier} of the agent which will evolve in the environment
@@ -102,7 +103,7 @@ public abstract class Environment implements EventSender {
      *
      * @param abstractAgentIdentifier the {@link AgentIdentifier} of the agent to verify
      *
-     * @return true if the  can be accepted in the sima.core.environment, else false.
+     * @return true if the agent can be accepted in the sima.core.environment, else false.
      *
      * @see #acceptAgent(AgentIdentifier)
      */
@@ -134,8 +135,8 @@ public abstract class Environment implements EventSender {
     
     /**
      * Verifies if the agent is evolving in the {@link Environment}. An agent is evolving in the {@code Environment} if it is in the list of
-     * evolving sima.core.agent, therefore it possible to verify if an agent is evolving in the {@code Environment} by calling the method {@link
-     * #getEvolvingAgentIdentifiers()} and see if the agent is contained is the returned list.
+     * evolving sima.core.agent, therefore it is possible to verify if an agent is evolving in the {@code Environment} by calling the method
+     * {@link #getEvolvingAgentIdentifiers()} and see if the agent is contained is the returned list.
      *
      * @param agent the agent to verify
      *
@@ -221,13 +222,41 @@ public abstract class Environment implements EventSender {
     }
     
     /**
+     * Search all agents in the environment which is physically connected to the given agent.
+     * <p>
+     * The method uses to know which agent is physically connected to the agent is {@link Environment#arePhysicallyConnected(AgentIdentifier,
+     * AgentIdentifier)}.
+     * <p>
+     * This method never returns null. The array returned always contains at least the given agent (an agent is always physically connected to
+     * itself).
+     *
+     * @param agentToVerify the agent identifier to verify connection
+     *
+     * @return an array which contains all physically connected agents to the given agentToVerify.
+     *
+     * @throws NotEvolvingAgentInEnvironmentException if the agent is not evolving in the environment
+     */
+    public synchronized @NotNull AgentIdentifier[] getPhysicalAgentConnection(AgentIdentifier agentToVerify) {
+        if (!isEvolving(agentToVerify))
+            throw new NotEvolvingAgentInEnvironmentException("The agent " + agentToVerify + " is not evolving in the environment " + this);
+        
+        List<AgentIdentifier> physicallyConnectedAgent = new ArrayList<>();
+        for (AgentIdentifier agent : evolvingAgents) {
+            if (arePhysicallyConnected(agentToVerify, agent))
+                physicallyConnectedAgent.add(agent);
+        }
+        
+        return physicallyConnectedAgent.toArray(new AgentIdentifier[0]);
+    }
+    
+    /**
      * This method verifies if it is possible to send the agent2 to the specified {@link SimpleAgent} from the agent2 sender. Return true if the
      * agent2 can "physically" be sent to the agent1 from the sender, else false.
      * <p>
      * It is in this method that is simulated physical connection between each agent. Therefore, if this method returns false for agent agent1 B
      * and an Event with the agent sender A, it is because in the simulation, agents A and B or not physically connected.
      * <p>
-     * By convention, we consider that an agent is always physically connected with itself, therefore this method must always returns true if the
+     * By convention, we consider that an agent is always physically connected with itself, therefore this method must always return true if the
      * specified agent1 is equal to the agent2 sender.
      * <p>
      * This method must not pay attention to the agent2 agent1.

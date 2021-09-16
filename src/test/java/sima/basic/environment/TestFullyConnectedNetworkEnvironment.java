@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -288,7 +289,7 @@ public class TestFullyConnectedNetworkEnvironment extends TestEnvironment {
         
         @Test
         @DisplayName("Test if acceptAgent returns true for an agentIdentifier not already accepted and it is considered has evolving in the " +
-                             "environment")
+                "environment")
         void testAcceptAgentWithNotAlreadyAcceptedAgent() {
             boolean accepted = fullyConnectedNetworkEnvironment.acceptAgent(agentIdentifier0);
             boolean isEvolving = fullyConnectedNetworkEnvironment.isEvolving(agentIdentifier0);
@@ -306,5 +307,21 @@ public class TestFullyConnectedNetworkEnvironment extends TestEnvironment {
         }
         
     }
+    
+    @Nested
+    @Tag("FullyConnectedNetworkEnvironment.getPhysicalAgentConnection")
+    @DisplayName("FullyConnectedNetworkEnvironment getPhysicalAgentConnection tests")
+    class GetPhysicalAgentConnectionTest extends TestEnvironment.GetPhysicalAgentConnectionTest {
+        
+        @Test
+        @DisplayName("Test if getPhysicalAgentConnection always returns an array which contains all evolving agent")
+        void testGetPhysicalAgentConnectionAlwaysReturnsAllEvolvingAgent() {
+            environment.acceptAgent(agentIdentifier0);
+            environment.acceptAgent(agentIdentifier1);
+            AgentIdentifier[] connections = environment.getPhysicalAgentConnection(agentIdentifier0);
+            assertThat(connections).containsAll(environment.getEvolvingAgentIdentifiers());
+        }
+    }
+    
     
 }

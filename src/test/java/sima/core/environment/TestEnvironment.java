@@ -243,4 +243,31 @@ public abstract class TestEnvironment {
         
     }
     
+    @Nested
+    @Tag("Environment.getPhysicalAgentConnection")
+    @DisplayName("Environment getPhysicalAgentConnection tests")
+    public class GetPhysicalAgentConnectionTest {
+        
+        @Test
+        @DisplayName("Test if getPhysicalAgentConnection throw a NotEvolvingAgentInEnvironmentException if the agent is null")
+        void testGetPhysicalAgentConnectionWithNullAgent() {
+            assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> environment.getPhysicalAgentConnection(null));
+        }
+        
+        @Test
+        @DisplayName("Test if getPhysicalAgentConnection throw a NotEvolvingAgentInEnvironmentException if the agent is not evolving in the " +
+                "environment")
+        void testGetPhysicalAgentConnectionWithNotEvolvingAgent() {
+            assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> environment.getPhysicalAgentConnection(agentIdentifier0));
+        }
+        
+        @Test
+        @DisplayName("Test if getPhysicalAgentConnection always returns an array which contains the given agent")
+        void testGetPhysicalAgentConnectionAlwaysReturnsAtLeastTheGivenAgent() {
+            environment.acceptAgent(agentIdentifier0);
+            AgentIdentifier[] connections = environment.getPhysicalAgentConnection(agentIdentifier0);
+            assertThat(connections).contains(agentIdentifier0);
+        }
+    }
+    
 }
