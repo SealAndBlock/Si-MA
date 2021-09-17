@@ -7,23 +7,16 @@ stages:
   - sonarscan
   - deploy
 
+cache:
+  - key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - m2/repository
+      - $CI_PROJECT_DIR
+
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
   GIT_DEPTH: 0
   GIT_CLONE_PATH: $CI_BUILDS_DIR/Si-MA
-
-cache:
-  - key: "$CI_COMMIT_REF_SLUG"
-    paths:
-      - .m2/repository
-      - src/*
-      - bin/*
-  - key: "$CI_BUILD_REF_NAME"
-    paths:
-      - .m2/repository
-      - src/*
-      - bin/*
-    # keep cache across branch
 
 build:
   stage: build
@@ -61,6 +54,9 @@ sonarqube-check:
 
 deploy:
   stage: deploy
+  artifacts:
+    paths:
+      - "target/*.jar"
   script:
     - mvn deploy clean -Dmaven.test.skip=true
   only:
