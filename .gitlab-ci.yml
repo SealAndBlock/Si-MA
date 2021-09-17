@@ -53,8 +53,8 @@ sonarqube-check:
     - mvn clean install verify sonar:sonar
   allow_failure: true
   only:
-    - pushes
     - merge_requests
+    - master
 
 deploy:
   stage: deploy
