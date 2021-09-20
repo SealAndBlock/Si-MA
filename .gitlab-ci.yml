@@ -34,6 +34,7 @@ build:
 
 test:
   stage: test-and-scan
+  needs: ["build"]
   artifacts:
     paths:
       - "target"
@@ -46,6 +47,7 @@ test:
 
 sonarqube-check:
   stage: test-and-scan
+  needs: ["build"]
   artifacts:
     paths:
       - "target"
@@ -58,11 +60,17 @@ sonarqube-check:
 
 deploy:
   stage: deploy
+  needs: ["build", "test"]
   artifacts:
     paths:
       - "target/*.jar"
   script:
     - mvn $MAVEN_CLI_OPTS -Dmaven.test.skip=true deploy clean
   only:
-    - master
-    - tags
+    refs:
+      - master
+      - tags
+    changes:
+      - pom.xml
+  when:
+    - manual
