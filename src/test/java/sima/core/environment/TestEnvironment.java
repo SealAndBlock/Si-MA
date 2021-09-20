@@ -17,7 +17,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static sima.core.SimaTest.mockSimaSimulation;
+import static sima.core.TestSima.mockSimaSimulation;
 
 public abstract class TestEnvironment {
     

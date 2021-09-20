@@ -5,7 +5,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import sima.core.simulation.SimaSimulation;
 
-public abstract class SimaTest {
+public abstract class TestSima {
     
     // Setup.
     

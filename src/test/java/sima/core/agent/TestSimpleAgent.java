@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static sima.core.SimaTest.mockSimaSimulation;
+import static sima.core.TestSima.mockSimaSimulation;
 
 @ExtendWith(MockitoExtension.class)
 public class TestSimpleAgent {
