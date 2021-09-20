@@ -3,6 +3,7 @@ package sima.core.protocol;
 import sima.core.agent.SimpleAgent;
 import sima.core.behavior.Behavior;
 import sima.core.environment.event.EventCatcher;
+import sima.core.environment.event.TransportableCatcher;
 
 import java.util.Map;
 import java.util.Optional;
@@ -15,7 +16,7 @@ import java.util.Optional;
  * All inherited class of {@link Protocol} must have this constructor <strong>Protocol(String protocolTag, String[] args)</strong>. In that way,
  * it allows to use the java reflexivity.
  */
-public abstract class Protocol implements EventCatcher {
+public abstract class Protocol implements EventCatcher, TransportableCatcher {
     
     // Singletons.
     
@@ -46,7 +47,7 @@ public abstract class Protocol implements EventCatcher {
      */
     private ProtocolManipulator protocolManipulator;
     
-    // Constructors.
+    // Constructors.²
     
     /**
      * Create a sima.core.protocol with a unique tag, an agent owner and an map of arguments.

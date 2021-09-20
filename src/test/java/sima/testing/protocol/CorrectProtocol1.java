@@ -2,6 +2,7 @@ package sima.testing.protocol;
 
 import sima.core.agent.SimpleAgent;
 import sima.core.environment.event.Event;
+import sima.core.environment.event.Transportable;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolManipulator;
 
@@ -26,4 +27,7 @@ public class CorrectProtocol1 extends Protocol {
         return new ProtocolManipulator.DefaultProtocolManipulator(this);
     }
     
+    @Override
+    public void processTransportable(Transportable transportable) {
+    }
 }

@@ -2,6 +2,7 @@ package sima.basic.transport;
 
 import sima.core.agent.SimpleAgent;
 import sima.core.environment.Environment;
+import sima.core.environment.event.Transportable;
 import sima.core.protocol.Protocol;
 
 import java.util.Map;
@@ -10,12 +11,24 @@ public abstract class TransportProtocol extends Protocol {
     
     // Variables.
     
-    private Environment environment;
+    protected Environment environment;
     
     // Constructors.
     
     protected TransportProtocol(String protocolTag, SimpleAgent agentOwner, Map<String, String> args) {
         super(protocolTag, agentOwner, args);
+    }
+    
+    // Methods.
+    
+    /**
+     * @param transportable to process
+     *
+     * @throws UnsupportedOperationException TransportProtocol does not process transportable
+     */
+    @Override
+    public void processTransportable(Transportable transportable) {
+        throw new UnsupportedOperationException("By default a TransportProtocol does not process Transportable");
     }
     
     // Getters and Setters.

@@ -11,7 +11,7 @@ import sima.core.protocol.ProtocolIdentifier;
 import sima.core.simulation.SimaSimulation;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static sima.core.simulation.SimaSimulation.SimaLog;
 import static sima.core.utils.Utils.instantiate;
@@ -26,14 +26,13 @@ public class SimpleAgent implements EventCatcher {
     private final String agentName;
     
     /**
-     * A number greater or equal to 0. The id of the agent in function of the sequence construction where it was
-     * create.
+     * A number greater or equal to 0. The id of the agent in function of the sequence construction where it was created.
      */
     private final int sequenceId;
     
     /**
-     * A number greater or equal to 0. This number must be the only ide define for an agent, For example if one agent as
-     * the id 1, only this agent can have the id 1.
+     * A number greater or equal to 0. This number must be the only ide define for an agent, For example if one agent as the id 1, only this
+     * agent can have the id 1.
      */
     private final int uniqueId;
     
@@ -62,8 +61,8 @@ public class SimpleAgent implements EventCatcher {
     private boolean isStarted = false;
     
     /**
-     * True if the sima.core.agent is killed, else false. If an sima.core.agent is killed, it stops to be started and
-     * cannot become started again.
+     * True if the sima.core.agent is killed, else false. If an sima.core.agent is killed, it stops to be started and cannot become started
+     * again.
      */
     private boolean isKilled = false;
     
@@ -120,14 +119,12 @@ public class SimpleAgent implements EventCatcher {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SimpleAgent)) return false;
-        SimpleAgent that = (SimpleAgent) o;
+        if (!(o instanceof SimpleAgent that)) return false;
         return agentName.equals(that.agentName) && sequenceId == that.sequenceId && uniqueId == that.uniqueId;
     }
     
     /**
-     * Compute the hash code of the sima.core.agent. Use the hashCode generate by the {@link #getAgentIdentifier()} of
-     * the agent.
+     * Compute the hash code of the sima.core.agent. Use the hashCode generate by the {@link #getAgentIdentifier()} of the agent.
      *
      * @return the hash code of the sima.core.agent.
      */
@@ -172,8 +169,8 @@ public class SimpleAgent implements EventCatcher {
     /**
      * Kill the sima.core.agent. When an sima.core.agent is killed, it cannot be restarted.
      * <p>
-     * When an sima.core.agent is killed, it stops to play all its behaviors, leaves all the environments where it was
-     * evolving and call the method {@link #onKill()}.
+     * When an sima.core.agent is killed, it stops to play all its behaviors, leaves all the environments where it was evolving and call the
+     * method {@link #onKill()}.
      *
      * @throws AlreadyKilledAgentException if the sima.core.agent have already been killed
      */
@@ -251,13 +248,12 @@ public class SimpleAgent implements EventCatcher {
     }
     
     /**
-     * Add the sima.core.behavior to the sima.core.agent. If the sima.core.agent already have this sima.core.behavior,
-     * nothing is done and returns false.
+     * Add the sima.core.behavior to the sima.core.agent. If the sima.core.agent already have this sima.core.behavior, nothing is done and
+     * returns false.
      * <p>
-     * In the case where the sima.core.agent has not already the sima.core.behavior, this method creates a new instance
-     * of the sima.core.behavior class. If the creation of the instance is a success, the sima.core.behavior is added to
-     * the sima.core.agent and returns true, else the sima.core.behavior is not added in the sima.core.agent and returns
-     * false.
+     * In the case where the sima.core.agent has not already the sima.core.behavior, this method creates a new instance of the sima.core.behavior
+     * class. If the creation of the instance is a success, the sima.core.behavior is added to the sima.core.agent and returns true, else the
+     * sima.core.behavior is not added in the sima.core.agent and returns false.
      *
      * @param behaviorClass the sima.core.behavior class
      * @param behaviorArgs  the argument to transfer to the sima.core.behavior
@@ -293,8 +289,8 @@ public class SimpleAgent implements EventCatcher {
     }
     
     /**
-     * Create a new instance of the behavior class specified with the method {@link #constructBehavior(Class, Map)} and
-     * add the new instance in {@link #mapBehaviors}.
+     * Create a new instance of the behavior class specified with the method {@link #constructBehavior(Class, Map)} and add the new instance in
+     * {@link #mapBehaviors}.
      *
      * @param behaviorClass the sima.core.behavior class
      * @param behaviorArgs  the argument to transfer to the sima.core.behavior
@@ -310,8 +306,8 @@ public class SimpleAgent implements EventCatcher {
     }
     
     /**
-     * Search if the sima.core.behavior is a sima.core.behavior of the sima.core.agent, if it is the case, call the
-     * method {@link Behavior#startPlaying()}.
+     * Search if the sima.core.behavior is a sima.core.behavior of the sima.core.agent, if it is the case, call the method {@link
+     * Behavior#startPlaying()}.
      *
      * @param behaviorClass the class of the sima.core.behavior that we want starting to play
      *
@@ -328,8 +324,8 @@ public class SimpleAgent implements EventCatcher {
     }
     
     /**
-     * Search if the sima.core.behavior is a sima.core.behavior of the sima.core.agent, if it is the case, call the
-     * method {@link Behavior#stopPlaying()}.
+     * Search if the sima.core.behavior is a sima.core.behavior of the sima.core.agent, if it is the case, call the method {@link
+     * Behavior#stopPlaying()}.
      *
      * @param behaviorClass the class of the sima.core.behavior that we want stopping to play
      *
@@ -357,8 +353,7 @@ public class SimpleAgent implements EventCatcher {
     }
     
     /**
-     * Look if the sima.core.behavior is playing by the sima.core.agent by calling the function {@link
-     * Behavior#isPlaying()}
+     * Look if the sima.core.behavior is playing by the sima.core.agent by calling the function {@link Behavior#isPlaying()}
      *
      * @param behaviorClass the class of the sima.core.behavior
      *
@@ -382,9 +377,9 @@ public class SimpleAgent implements EventCatcher {
     }
     
     /**
-     * Creates a new instance of the specified protocol class. After that, verifies if the agent has already not an
-     * instance of protocol with the same {@link ProtocolIdentifier}. If it not the case, the protocol is add to the
-     * agent, else the protocol is not add to the agent and returns false.
+     * Creates a new instance of the specified protocol class. After that, verifies if the agent has already not an instance of protocol with the
+     * same {@link ProtocolIdentifier}. If it not the case, the protocol is add to the agent, else the protocol is not add to the agent and
+     * returns false.
      *
      * @param protocolClass the class of the protocol
      * @param protocolTag   the tag of the protocol
@@ -439,21 +434,20 @@ public class SimpleAgent implements EventCatcher {
     /**
      * @param protocolIdentifier the string which identify the sima.core.protocol
      *
-     * @return the sima.core.protocol associate to the sima.core.protocol class, if no sima.core.protocol is associated
-     * to this class, return null.
+     * @return the sima.core.protocol associate to the sima.core.protocol class, if no sima.core.protocol is associated to this class, return
+     * null.
      */
     public synchronized Protocol getProtocol(ProtocolIdentifier protocolIdentifier) {
         return mapProtocol.get(protocolIdentifier);
     }
     
     /**
-     * Method called by an sima.core.environment when an event occurs and that the receiver is the sima.core.agent. This
-     * method is here to allow the sima.core.agent to manage how the event must be treated.
+     * Method called by an sima.core.environment when an event occurs and that the receiver is the sima.core.agent. This method is here to allow
+     * the sima.core.agent to manage how the event must be treated.
      * <p>
-     * This method is final and synchronized to hide the synchronisation for the user. Therefore, to manage the
-     * treatment of the event, you must override the method {@link #inProcessEvent(Event)}. However, the method {@link
-     * #inProcessEvent(Event)} is called only if the agent is started, else this methods throws {@link
-     * AgentNotStartedException}.
+     * This method is final and synchronized to hide the synchronisation for the user. Therefore, to manage the treatment of the event, you must
+     * override the method {@link #inProcessEvent(Event)}. However, the method {@link #inProcessEvent(Event)} is called only if the agent is
+     * started, else this methods throws {@link AgentNotStartedException}.
      *
      * @param event the event received
      *
@@ -470,14 +464,13 @@ public class SimpleAgent implements EventCatcher {
     }
     
     /**
-     * This method is called in the method {@link #processEvent(Event)}. In that way this method is not synchronized and
-     * the user must not have to be preoccupy by synchronisation and multi threading. This method is called by
-     * processEvent only if the agent is started.
+     * This method is called in the method {@link #processEvent(Event)}. In that way this method is not synchronized and the user must not have
+     * to be preoccupy by synchronisation and multi threading. This method is called by processEvent only if the agent is started.
      * <p>
-     * The default implementation is in first the verification of if the event have a protocol targeted or not. If it is
-     * not the case, throws {@link UnsupportedOperationException}. Else if the event has a protocol targeted, the method
-     * search if the agent add the protocol and if it is the case, call the method {@link Protocol#processEvent(Event)}
-     * of the protocol. If the protocol targeted is not add in the agent, throws {@link IllegalArgumentException}.
+     * The default implementation is in first the verification of if the event have a protocol targeted or not. If it is not the case, throws
+     * {@link UnsupportedOperationException}. Else if the event has a protocol targeted, the method search if the agent add the protocol and if
+     * it is the case, call the method {@link Protocol#processEvent(Event)} of the protocol. If the protocol targeted is not add in the agent,
+     * throws {@link IllegalArgumentException}.
      *
      * @param event the event to process
      *
@@ -485,14 +478,14 @@ public class SimpleAgent implements EventCatcher {
      * @throws UnsupportedOperationException if the event has no protocol targeted (equals to null)
      */
     protected void inProcessEvent(Event event) {
-        if (event.isProtocolEvent()) {
-            var protocolTarget = getProtocol(event.getProtocolTargeted());
+        if (event.hasIntendedProtocol()) {
+            var protocolTarget = getProtocol(event.getProtocolIntended());
             if (protocolTarget != null)
                 protocolTarget.processEvent(event);
             else
                 throw new IllegalArgumentException("Event with not added protocol");
         } else
-            throw new UnsupportedOperationException("No operation for event with no protocol targeted");
+            throw new UnsupportedOperationException("No operation for event with no intended protocol");
     }
     
     public AgentIdentifier getAgentIdentifier() {
@@ -503,8 +496,9 @@ public class SimpleAgent implements EventCatcher {
      * @return a new instance of {@link AgentInfo} which contains all information about the sima.core.agent.
      */
     public AgentInfo getInfo() {
-        List<String> environmentNameList = SimaSimulation.getAgentEnvironment(getAgentIdentifier()).stream()
-                .map(Environment::getEnvironmentName).collect(Collectors.toList());
+        List<Environment> environments = SimaSimulation.getAgentEnvironment(getAgentIdentifier());
+        Stream<String> streamEnvironmentName = environments.stream().map(Environment::getEnvironmentName);
+        List<String> environmentNameList = streamEnvironmentName.toList();
         return new AgentInfo(getAgentIdentifier(), new ArrayList<>(mapBehaviors.keySet()),
                 new ArrayList<>(mapProtocol.keySet()), environmentNameList);
     }

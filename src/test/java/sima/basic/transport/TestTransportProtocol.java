@@ -22,7 +22,7 @@ public abstract class TestTransportProtocol extends TestProtocol {
     // Inits.
     
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         protocol = transportProtocol;
     }
     

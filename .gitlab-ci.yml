@@ -1,5 +1,5 @@
 default:
-  image: maven:latest
+  image: maven:3.8.2-openjdk-16
 
 stages:
   - build
@@ -20,7 +20,7 @@ variables:
   GIT_CLONE_PATH: $CI_BUILDS_DIR/Si-MA
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
 
-build:
+compile-job:
   stage: build
   artifacts:
     paths:
@@ -32,9 +32,9 @@ build:
     - pushes
     - merge_requests
 
-test:
+test-job:
   stage: test-and-scan
-  needs: ["build"]
+  needs: ["compile-job"]
   artifacts:
     paths:
       - "target"
@@ -47,7 +47,7 @@ test:
 
 sonarqube-check:
   stage: test-and-scan
-  needs: ["build"]
+  needs: ["compile-job"]
   artifacts:
     paths:
       - "target"
@@ -58,9 +58,9 @@ sonarqube-check:
     - merge_requests
     - master
 
-deploy:
+deploy-job:
   stage: deploy
-  needs: ["build", "test"]
+  needs: ["compile-job", "test-job"]
   artifacts:
     paths:
       - "target/*.jar"
@@ -69,6 +69,5 @@ deploy:
   only:
     refs:
       - master
-      - tags
   when:
     - manual

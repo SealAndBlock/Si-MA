@@ -1,14 +1,15 @@
-package sima.basic.environment.event;
+package sima.basic.environment.transport;
 
 import org.jetbrains.annotations.NotNull;
 import sima.core.environment.event.Transportable;
+import sima.core.protocol.ProtocolIdentifier;
 import sima.core.utils.Box;
 
 import java.util.Objects;
 
 /**
- * {@link Transportable} for {@link String}. Because a String is immutable, the clone does not call the String copy
- * constructor {@link String#String(String)}.
+ * {@link Transportable} for {@link String}. Because a String is immutable, the clone does not call the String copy constructor {@link
+ * String#String(String)}.
  */
 public class TransportableString implements Transportable, Box<String> {
     
@@ -16,14 +17,22 @@ public class TransportableString implements Transportable, Box<String> {
     
     private final String content;
     
+    private final ProtocolIdentifier protocolTargeted;
+    
     // Constructors.
     
     public TransportableString(String content) {
+        this(content, null);
+    }
+    
+    public TransportableString(String content, ProtocolIdentifier protocolTargeted) {
         this.content = content;
+        this.protocolTargeted = protocolTargeted;
     }
     
     private TransportableString(TransportableString transportableString) {
         this.content = transportableString.content;
+        this.protocolTargeted = transportableString.protocolTargeted;
     }
     
     // Methods.
@@ -31,9 +40,8 @@ public class TransportableString implements Transportable, Box<String> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TransportableString)) return false;
-        TransportableString that = (TransportableString) o;
-        return Objects.equals(getContent(), that.getContent());
+        if (!(o instanceof TransportableString that)) return false;
+        return Objects.equals(getContent(), that.getContent()) && Objects.equals(getProtocolIntended(), that.getProtocolIntended());
     }
     
     @Override
@@ -49,5 +57,10 @@ public class TransportableString implements Transportable, Box<String> {
     @Override
     public String getContent() {
         return content;
+    }
+    
+    @Override
+    public ProtocolIdentifier getProtocolIntended() {
+        return protocolTargeted;
     }
 }

@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sima.core.agent.SimpleAgent;
 import sima.core.environment.event.Event;
+import sima.core.environment.event.Transportable;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolManipulator;
 import sima.core.protocol.TestProtocol;
@@ -54,7 +55,7 @@ public class TestProtocolCoverage extends TestProtocol {
         
         @Test
         @DisplayName("Test if constructor does not throw exception with null args map and set the protocolManipulator to the default protocol " +
-                             "manipulator")
+                "manipulator")
         void testConstructorWithNullArgsMap() {
             final AtomicReference<Protocol> protocol = new AtomicReference<>();
             assertDoesNotThrow(() -> protocol.set(new ProtocolCoverage("TAG", mockSimpleAgent, null)));
@@ -81,7 +82,12 @@ public class TestProtocolCoverage extends TestProtocol {
         
         @Override
         public void processEvent(Event event) {
-            // NOTHING
+            // Nothing
+        }
+        
+        @Override
+        public void processTransportable(Transportable transportable) {
+            // Nothing
         }
         
         @Override

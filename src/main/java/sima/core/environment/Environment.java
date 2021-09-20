@@ -61,8 +61,7 @@ public abstract class Environment implements EventSender {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Environment)) return false;
-        Environment that = (Environment) o;
+        if (!(o instanceof Environment that)) return false;
         return getEnvironmentName().equals(that.getEnvironmentName());
     }
     
@@ -212,7 +211,7 @@ public abstract class Environment implements EventSender {
     public synchronized void broadcastEvent(Event event) {
         if (isEvolving(event.getSender()))
             evolvingAgents.forEach(agentReceiver -> {
-                Event sendingEvent = event.duplicateWithNewReceiver(agentReceiver);
+                var sendingEvent = event.duplicateWithNewReceiver(agentReceiver);
                 verifyAndSendEvent(sendingEvent);
             });
         else
