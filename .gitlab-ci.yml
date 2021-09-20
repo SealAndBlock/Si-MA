@@ -70,7 +70,5 @@ deploy:
     refs:
       - master
       - tags
-    changes:
-      - pom.xml
   when:
     - manual
