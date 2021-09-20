@@ -1,10 +1,9 @@
 default:
-  image: maven-nexus
+  image: maven:latest
 
 stages:
   - build
-  - test
-  - sonarscan
+  - test-and-scan
   - deploy
 
 cache:
@@ -16,6 +15,7 @@ cache:
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
   GIT_DEPTH: 0
   GIT_CLONE_PATH: $CI_BUILDS_DIR/Si-MA
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
@@ -26,31 +26,31 @@ build:
     paths:
       - "target"
   script:
-    - mvn install -DskipTests
+    - mvn $MAVEN_CLI_OPTS -Dmaven.test.skip=true install
   when: always
   only:
     - pushes
     - merge_requests
 
 test:
-  stage: test
+  stage: test-and-scan
   artifacts:
     paths:
       - "target"
   script:
-    - mvn test
+    - mvn $MAVEN_CLI_OPTS test
   when: always
   only:
     - pushes
     - merge_requests
 
 sonarqube-check:
-  stage: sonarscan
+  stage: test-and-scan
   artifacts:
     paths:
       - "target"
   script:
-    - mvn clean install verify sonar:sonar
+    - mvn $MAVEN_CLI_OPTS clean install verify sonar:sonar
   allow_failure: true
   only:
     - merge_requests
@@ -62,7 +62,7 @@ deploy:
     paths:
       - "target/*.jar"
   script:
-    - mvn deploy clean -Dmaven.test.skip=true
+    - mvn $MAVEN_CLI_OPTS -Dmaven.test.skip=true deploy clean
   only:
     - master
     - tags
