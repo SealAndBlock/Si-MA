@@ -1,6 +1,7 @@
 package sima.basic.environment.event;
 
 import org.junit.jupiter.api.*;
+import sima.basic.environment.transport.TransportableString;
 
 import java.util.Objects;
 

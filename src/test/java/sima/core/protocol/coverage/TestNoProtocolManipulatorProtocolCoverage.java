@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sima.core.agent.SimpleAgent;
 import sima.core.environment.event.Event;
+import sima.core.environment.event.Transportable;
 import sima.core.protocol.NoProtocolManipulatorProtocol;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.TestNoProtocolManipulatorProtocol;
@@ -78,6 +79,11 @@ public class TestNoProtocolManipulatorProtocolCoverage extends TestNoProtocolMan
         
         @Override
         public void processEvent(Event event) {
+            // Nothing
+        }
+    
+        @Override
+        public void processTransportable(Transportable transportable) {
             // Nothing
         }
     }

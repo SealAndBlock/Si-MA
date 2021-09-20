@@ -43,7 +43,7 @@ public class TestFullyConnectedNetworkEnvironment extends TestEnvironment {
     class ConstructorTest {
         
         @Test
-        @DisplayName("Test if constructor throws an NullPointerException with null name")
+        @DisplayName("Test if constructor throws a NullPointerException with null name")
         void testConstructorWithNullName() {
             Map<String, String> args = new HashMap<>();
             assertThrows(NullPointerException.class, () -> new FullyConnectedNetworkEnvironment(null, args));

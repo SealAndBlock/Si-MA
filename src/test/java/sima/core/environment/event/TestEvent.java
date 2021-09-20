@@ -52,21 +52,21 @@ public abstract class TestEvent {
             assertSame(duplicatedEvent.getSender(), event.getSender());
             assertNotSame(duplicatedEvent.getReceiver(), event.getReceiver());
             assertEquals(mockReceiver, duplicatedEvent.getReceiver());
-            assertSame(duplicatedEvent.getProtocolTargeted(), event.getProtocolTargeted());
+            assertSame(duplicatedEvent.getProtocolIntended(), event.getProtocolIntended());
         }
         
     }
     
     @Nested
-    @Tag("Event.isProtocolEvent")
-    @DisplayName("Event isProtocolEvent tests")
-    public class IsProtocolEventTest {
+    @Tag("Event.hasIntendedProtocol")
+    @DisplayName("Event hasIntendedProtocol tests")
+    public class HasIntendedProtocol {
         
         @Test
-        @DisplayName("Test if isProtocolEvent methods returns the correct value in function of if the protocolTargeted is null or not")
-        void testIsProtocolEvent() {
-            boolean expectedIsProtocolEvent = event.getProtocolTargeted() != null;
-            boolean isProtocolEvent = event.isProtocolEvent();
+        @DisplayName("Test if hasIntendedProtocol methods returns the correct value in function of if the protocolTargeted is null or not")
+        void testHasIntendedProtocol() {
+            boolean expectedIsProtocolEvent = event.getProtocolIntended() != null;
+            boolean isProtocolEvent = event.hasIntendedProtocol();
             assertEquals(expectedIsProtocolEvent, isProtocolEvent);
         }
         

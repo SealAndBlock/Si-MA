@@ -808,48 +808,48 @@ public class TestSimpleAgent {
         @Test
         @DisplayName("Test if processEvent throws an UnsupportedOperationException if the event does not have " +
                              "protocolTargeted")
-        void testProcessEventWithNoProtocolTargetedEvent() {
+        void testProcessEventWithNoIntendedProtocolEvent() {
             // GIVEN
-            when(mockEvent.isProtocolEvent()).thenReturn(false);
+            when(mockEvent.hasIntendedProtocol()).thenReturn(false);
             
             // WHEN
             simpleAgent.start();
             assertThrows(UnsupportedOperationException.class, () -> simpleAgent.processEvent(mockEvent));
             
             // THEN
-            verify(mockEvent, times(1)).isProtocolEvent();
+            verify(mockEvent, times(1)).hasIntendedProtocol();
         }
         
         @Test
-        @DisplayName("Test if processEvent throws an IllegalArgumentException if the event has as protocolTargeted a " +
+        @DisplayName("Test if processEvent throws an IllegalArgumentException if the event has as Intended protocol a " +
                              "protocol not added in the agent")
-        void testProcessEventWithEventWithNotAddedProtocolTargetedInTheAgent() {
+        void testProcessEventWithEventWithNotAddedIntendedProtocolInTheAgent() {
             String protocolTag = "TAG";
             var protocolIdentifier = new ProtocolIdentifier(CorrectProtocol0.class, protocolTag);
             
             // GIVEN
-            when(mockEvent.isProtocolEvent()).thenReturn(true);
-            when(mockEvent.getProtocolTargeted()).thenReturn(protocolIdentifier);
+            when(mockEvent.hasIntendedProtocol()).thenReturn(true);
+            when(mockEvent.getProtocolIntended()).thenReturn(protocolIdentifier);
             
             // WHEN
             simpleAgent.start();
             assertThrows(IllegalArgumentException.class, () -> simpleAgent.processEvent(mockEvent));
             
             // THEN
-            verify(mockEvent, times(1)).isProtocolEvent();
-            verify(mockEvent, times(1)).getProtocolTargeted();
+            verify(mockEvent, times(1)).hasIntendedProtocol();
+            verify(mockEvent, times(1)).getProtocolIntended();
         }
         
         @Test
         @DisplayName("Test if processEvent does not throw an exception if the event has a protocolTargeted added in " +
                              "the agent")
-        void testProcessEventWithEventWithProtocolTargetedAddedInTheAgent() {
+        void testProcessEventWithEventWithIntendedProtocolAddedInTheAgent() {
             String protocolTag = "TAG";
             var protocolIdentifier = new ProtocolIdentifier(CorrectProtocol0.class, protocolTag);
             
             // GIVEN
-            when(mockEvent.isProtocolEvent()).thenReturn(true);
-            when(mockEvent.getProtocolTargeted()).thenReturn(protocolIdentifier);
+            when(mockEvent.hasIntendedProtocol()).thenReturn(true);
+            when(mockEvent.getProtocolIntended()).thenReturn(protocolIdentifier);
             
             // WHEN
             simpleAgent.start();
@@ -857,8 +857,8 @@ public class TestSimpleAgent {
             assertDoesNotThrow(() -> simpleAgent.processEvent(mockEvent));
             
             // THEN
-            verify(mockEvent, times(1)).isProtocolEvent();
-            verify(mockEvent, times(1)).getProtocolTargeted();
+            verify(mockEvent, times(1)).hasIntendedProtocol();
+            verify(mockEvent, times(1)).getProtocolIntended();
         }
         
     }
