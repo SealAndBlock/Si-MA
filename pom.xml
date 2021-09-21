@@ -31,6 +31,7 @@
         <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../target/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
         <sonar.language>java</sonar.language>
+        <sonar.java.source>16</sonar.java.source>
         <sonar.projectKey>SealAndBlockGitLabAdmin_Si-MA_AXlWd_hMk-Dzw_D89uip</sonar.projectKey>
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
     </properties>
