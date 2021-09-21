@@ -15,7 +15,7 @@ cache:
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
-  MAVEN_CLI_OPTS: "-s .m2/settings.xml -e -X"
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml"
   GIT_DEPTH: 0
   GIT_CLONE_PATH: $CI_BUILDS_DIR/Si-MA
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
@@ -26,7 +26,6 @@ compile-job:
     paths:
       - "target"
   script:
-    - java -version
     - mvn $MAVEN_CLI_OPTS -Dmaven.test.skip=true install
   when: always
   only:
@@ -40,7 +39,6 @@ test-job:
     paths:
       - "target"
   script:
-    - java -version
     - mvn $MAVEN_CLI_OPTS test
   when: on_success
   only:
@@ -54,7 +52,6 @@ sonarqube-check:
     paths:
       - "target"
   script:
-    - java -version
     - mvn $MAVEN_CLI_OPTS clean install verify sonar:sonar
   allow_failure: true
   when: on_success
@@ -69,7 +66,6 @@ deploy-job:
     paths:
       - "target/*.jar"
   script:
-    - java -version
     - mvn $MAVEN_CLI_OPTS -Dmaven.test.skip=true deploy clean
   only:
     refs:
