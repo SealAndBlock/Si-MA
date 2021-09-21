@@ -1,7 +1,7 @@
 package sima.basic.environment.transport;
 
 import org.jetbrains.annotations.NotNull;
-import sima.core.environment.event.Transportable;
+import sima.core.environment.exchange.transport.Transportable;
 import sima.core.protocol.ProtocolIdentifier;
 import sima.core.utils.Box;
 

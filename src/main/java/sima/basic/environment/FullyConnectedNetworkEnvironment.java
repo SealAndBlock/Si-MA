@@ -2,7 +2,7 @@ package sima.basic.environment;
 
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.Environment;
-import sima.core.environment.event.Event;
+import sima.core.environment.exchange.event.Event;
 import sima.core.simulation.SimaSimulation;
 
 import java.util.Map;
@@ -44,9 +44,8 @@ public class FullyConnectedNetworkEnvironment extends Environment {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof FullyConnectedNetworkEnvironment)) return false;
+        if (!(o instanceof FullyConnectedNetworkEnvironment that)) return false;
         if (!super.equals(o)) return false;
-        FullyConnectedNetworkEnvironment that = (FullyConnectedNetworkEnvironment) o;
         return getMinSendDelay() == that.getMinSendDelay() && getMaxSendDelay() == that.getMaxSendDelay();
     }
     

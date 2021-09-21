@@ -2,7 +2,7 @@ package sima.basic.transport;
 
 import sima.core.agent.SimpleAgent;
 import sima.core.environment.Environment;
-import sima.core.environment.event.Transportable;
+import sima.core.environment.exchange.transport.Transportable;
 import sima.core.protocol.Protocol;
 
 import java.util.Map;

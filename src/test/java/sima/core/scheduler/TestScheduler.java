@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sima.core.agent.AgentIdentifier;
 import sima.core.agent.SimpleAgent;
-import sima.core.environment.event.Event;
+import sima.core.environment.exchange.event.Event;
 import sima.core.exception.NotScheduleTimeException;
 
 import java.util.ArrayList;

@@ -2,8 +2,8 @@ package sima.basic.environment.message;
 
 import org.jetbrains.annotations.NotNull;
 import sima.core.agent.AgentIdentifier;
-import sima.core.environment.event.Event;
-import sima.core.environment.event.Transportable;
+import sima.core.environment.exchange.event.Event;
+import sima.core.environment.exchange.transport.Transportable;
 import sima.core.protocol.ProtocolIdentifier;
 import sima.core.utils.Box;
 

@@ -2,8 +2,8 @@ package sima.core.protocol;
 
 import sima.core.agent.SimpleAgent;
 import sima.core.behavior.Behavior;
-import sima.core.environment.event.EventCatcher;
-import sima.core.environment.event.TransportableCatcher;
+import sima.core.environment.exchange.event.EventCatcher;
+import sima.core.environment.exchange.transport.TransportableCatcher;
 
 import java.util.Map;
 import java.util.Optional;

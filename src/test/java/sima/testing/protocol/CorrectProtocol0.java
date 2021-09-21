@@ -1,8 +1,8 @@
 package sima.testing.protocol;
 
 import sima.core.agent.SimpleAgent;
-import sima.core.environment.event.Event;
-import sima.core.environment.event.Transportable;
+import sima.core.environment.exchange.event.Event;
+import sima.core.environment.exchange.transport.Transportable;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolManipulator;
 

@@ -2,7 +2,7 @@ package sima.core.scheduler;
 
 import org.jetbrains.annotations.NotNull;
 import sima.core.agent.SimpleAgent;
-import sima.core.environment.event.Event;
+import sima.core.environment.exchange.event.Event;
 import sima.core.exception.NotScheduleTimeException;
 import sima.core.simulation.SimaSimulation;
 
