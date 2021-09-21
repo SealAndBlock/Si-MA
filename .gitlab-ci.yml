@@ -34,33 +34,34 @@ compile-job:
 
 test-job:
   stage: test-and-scan
-  needs: ["compile-job"]
+  needs: [ "compile-job" ]
   artifacts:
     paths:
       - "target"
   script:
     - mvn $MAVEN_CLI_OPTS test
-  when: always
+  when: on_success
   only:
     - pushes
     - merge_requests
 
 sonarqube-check:
   stage: test-and-scan
-  needs: ["compile-job"]
+  needs: [ "compile-job" ]
   artifacts:
     paths:
       - "target"
   script:
     - mvn $MAVEN_CLI_OPTS clean install verify sonar:sonar
   allow_failure: true
+  when: on_success
   only:
     - merge_requests
     - master
 
 deploy-job:
   stage: deploy
-  needs: ["compile-job", "test-job"]
+  needs: [ "compile-job", "test-job" ]
   artifacts:
     paths:
       - "target/*.jar"
@@ -69,5 +70,6 @@ deploy-job:
   only:
     refs:
       - master
-  when:
-    - manual
+    changes:
+      - pom.xml
+  when: manual
