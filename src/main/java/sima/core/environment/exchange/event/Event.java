@@ -1,9 +1,9 @@
-package sima.core.environment.event;
+package sima.core.environment.exchange.event;
 
 import org.jetbrains.annotations.NotNull;
 import sima.core.agent.AgentIdentifier;
 import sima.core.agent.SimpleAgent;
-import sima.core.protocol.Protocol;
+import sima.core.environment.exchange.ExchangeableObject;
 import sima.core.protocol.ProtocolIdentifier;
 
 import java.io.Serializable;
@@ -16,12 +16,12 @@ import java.util.Optional;
  * sima.core.agent which will receive the event.
  * <p>
  * In plus, the event as a sima.core.protocol in attribute which is the sima.core.protocol which will process the event with the method {@link
- * Protocol#processEvent(Event)}.
+ * EventCatcher#processEvent(Event)}.
  * <p>
- * An Event is {@link Serializable}. Therefore all sub classes must have attribute {@link Serializable} attributes or using the key word
+ * An Event is {@link Serializable}. Therefore, all subclasses must have attribute {@link Serializable} attributes or using the key word
  * <i>transient</i>.
  */
-public abstract class Event implements Transportable {
+public abstract class Event implements ExchangeableObject<Event> {
     
     // Variables.
     
@@ -58,7 +58,7 @@ public abstract class Event implements Transportable {
      * @param protocolTargeted the sima.core.protocol targeted
      *
      * @throws NullPointerException if the sender is null
-     * @see Protocol#processEvent(Event)
+     * @see EventCatcher#processEvent(Event)
      */
     protected Event(AgentIdentifier sender, AgentIdentifier receiver, ProtocolIdentifier protocolTargeted) {
         this.sender = Optional.of(sender).get();
@@ -67,9 +67,6 @@ public abstract class Event implements Transportable {
     }
     
     // Methods.
-    
-    @Override
-    public abstract @NotNull Event duplicate();
     
     /**
      * Duplicate the {@link Event} but change the receiver of the {@code Event}.

@@ -1,4 +1,4 @@
-package sima.core.environment.event;
+package sima.core.environment.exchange.event;
 
 /**
  * The interface that a class which want catch event must implement.

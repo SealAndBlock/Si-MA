@@ -7,7 +7,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sima.core.behavior.Behavior;
 import sima.core.environment.Environment;
-import sima.core.environment.event.Event;
+import sima.core.environment.exchange.event.Event;
 import sima.core.exception.AgentNotStartedException;
 import sima.core.exception.AlreadyKilledAgentException;
 import sima.core.exception.AlreadyStartedAgentException;

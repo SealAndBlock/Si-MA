@@ -2,7 +2,7 @@ package sima.testing.environment;
 
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.Environment;
-import sima.core.environment.event.Event;
+import sima.core.environment.exchange.event.Event;
 
 import java.util.Map;
 

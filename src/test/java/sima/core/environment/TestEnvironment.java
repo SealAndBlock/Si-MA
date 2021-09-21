@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import sima.core.agent.AgentIdentifier;
-import sima.core.environment.event.Event;
+import sima.core.environment.exchange.event.Event;
 import sima.core.exception.NotEvolvingAgentInEnvironmentException;
 import sima.core.scheduler.Scheduler;
 import sima.core.simulation.SimaSimulation;

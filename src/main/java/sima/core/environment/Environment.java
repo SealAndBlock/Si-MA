@@ -3,8 +3,8 @@ package sima.core.environment;
 import org.jetbrains.annotations.NotNull;
 import sima.core.agent.AgentIdentifier;
 import sima.core.agent.SimpleAgent;
-import sima.core.environment.event.Event;
-import sima.core.environment.event.EventSender;
+import sima.core.environment.exchange.event.Event;
+import sima.core.environment.exchange.event.EventSender;
 import sima.core.exception.NotEvolvingAgentInEnvironmentException;
 
 import java.util.*;

@@ -1,10 +1,12 @@
-package sima.core.environment.event;
+package sima.core.environment.exchange.event;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sima.core.agent.AgentIdentifier;
+import sima.core.environment.exchange.event.Event;
+import sima.core.environment.exchange.transport.Transportable;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -3,15 +3,14 @@ package sima.core.agent;
 import org.jetbrains.annotations.NotNull;
 import sima.core.behavior.Behavior;
 import sima.core.environment.Environment;
-import sima.core.environment.event.Event;
-import sima.core.environment.event.EventCatcher;
+import sima.core.environment.exchange.event.Event;
+import sima.core.environment.exchange.event.EventCatcher;
 import sima.core.exception.*;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
 import sima.core.simulation.SimaSimulation;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 import static sima.core.simulation.SimaSimulation.SimaLog;
 import static sima.core.utils.Utils.instantiate;
@@ -497,10 +496,17 @@ public class SimpleAgent implements EventCatcher {
      */
     public AgentInfo getInfo() {
         List<Environment> environments = SimaSimulation.getAgentEnvironment(getAgentIdentifier());
-        Stream<String> streamEnvironmentName = environments.stream().map(Environment::getEnvironmentName);
-        List<String> environmentNameList = streamEnvironmentName.toList();
         return new AgentInfo(getAgentIdentifier(), new ArrayList<>(mapBehaviors.keySet()),
-                new ArrayList<>(mapProtocol.keySet()), environmentNameList);
+                new ArrayList<>(mapProtocol.keySet()), getEnvironmentNameList(environments));
+    }
+    
+    @NotNull
+    private List<String> getEnvironmentNameList(List<Environment> environments) {
+        List<String> environmentNameList = new ArrayList<>();
+        for (Environment environment : environments) {
+            environmentNameList.add(environment.getEnvironmentName());
+        }
+        return environmentNameList;
     }
     
     // Getters and Setters.

@@ -1,4 +1,4 @@
-package sima.core.environment.event;
+package sima.core.environment.exchange.event;
 
 import sima.core.agent.AgentIdentifier;
 

@@ -3,8 +3,8 @@ package sima.basic.broadcast;
 import sima.basic.broadcast.message.BroadcastMessage;
 import sima.basic.transport.TransportProtocol;
 import sima.core.agent.SimpleAgent;
-import sima.core.environment.event.Event;
-import sima.core.environment.event.Transportable;
+import sima.core.environment.exchange.event.Event;
+import sima.core.environment.exchange.transport.Transportable;
 import sima.core.exception.UnknownProtocolForAgentException;
 import sima.core.protocol.ProtocolManipulator;
 
