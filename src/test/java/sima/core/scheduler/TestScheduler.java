@@ -6,8 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sima.core.agent.AgentIdentifier;
-import sima.core.agent.SimpleAgent;
-import sima.core.environment.exchange.event.Event;
+import sima.core.agent.SimaAgent;
+import sima.core.environment.event.Event;
 import sima.core.exception.NotScheduleTimeException;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public abstract class TestScheduler {
     private AgentIdentifier mockAgentIdentifier;
     
     @Mock
-    private SimpleAgent mockSimpleAgent;
+    private SimaAgent mockSimaAgent;
     
     // Init.
     
@@ -220,7 +220,7 @@ public abstract class TestScheduler {
         
         @Test
         @DisplayName("Test if start returns true if the scheduler is not started and not killed. Also verify if isRunning returns true after " +
-                             "the start")
+                "the start")
         void testStartWithNotStartedAndNotKilledScheduler() {
             boolean started = scheduler.start();
             assertThat(started).isTrue();
@@ -246,7 +246,7 @@ public abstract class TestScheduler {
         
         @Test
         @DisplayName("Test if start a scheduler with no executable make it directly killed and notify watcher that the scheduler kill by no " +
-                             "executable to execute")
+                "executable to execute")
         void testStartWithNoExecutableToExecute() {
             scheduler.addSchedulerWatcher(mockSchedulerWatcher);
             scheduler.start();
@@ -346,7 +346,7 @@ public abstract class TestScheduler {
             
             @Test
             @DisplayName("Test if scheduleExecutable does not throws exception with schedule mode equal to ONCE and nbRepetition and " +
-                                 "executionTimeStep less than 1")
+                    "executionTimeStep less than 1")
             void testScheduleExecutableIgnoreNbRepetitionAndExecutionTimeStepInScheduleModeOnce() {
                 assertDoesNotThrow(() -> scheduler.scheduleExecutable(mockExecutable, Scheduler.NOW, Scheduler.ScheduleMode.ONCE,
                         -1, -1));
@@ -354,7 +354,7 @@ public abstract class TestScheduler {
             
             @Test
             @DisplayName("Test if scheduleExecutable throws an IllegalArgumentException if nbRepetition is less than 1 in scheduleMode is " +
-                                 "equal to REPEATED")
+                    "equal to REPEATED")
             void testScheduleExecutableThrowsExceptionWithNbRepetitionLessThanOneWitheScheduleModeDifferentThanOnce() {
                 assertThrows(IllegalArgumentException.class, () -> scheduler.scheduleExecutable(mockExecutable, Scheduler.NOW,
                         Scheduler.ScheduleMode.REPEATED, -1, 1));
@@ -369,7 +369,7 @@ public abstract class TestScheduler {
             
             @Test
             @DisplayName("Test if scheduleExecutable throws an IllegalArgumentException if executionTimeStep is less than 1 for different than" +
-                                 " ONCE scheduleMode")
+                    " ONCE scheduleMode")
             void testScheduleExecutableThrowsExceptionWithExecutionTimeStepLessThanOne() {
                 assertThrows(IllegalArgumentException.class, () -> scheduler.scheduleExecutable(mockExecutable, Scheduler.NOW,
                         Scheduler.ScheduleMode.REPEATED, 1, -1));
@@ -418,7 +418,7 @@ public abstract class TestScheduler {
             
             @Test
             @DisplayName("Test if scheduleExecutable in infinite schedule mode executes correctly the executable and verifies that watcher are" +
-                                 " notified by the end simulation has been reach")
+                    " notified by the end simulation has been reach")
             void testScheduleExecutableInInfiniteScheduleModeExecuteCorrectlyExecutable() {
                 // GIVEN
                 final List<Long> executionTimes = new ArrayList<>();
@@ -440,7 +440,7 @@ public abstract class TestScheduler {
             
             @Test
             @DisplayName("Test ScheduleExecutable with an Executable which throws an exception during its execution does not " +
-                                 "block the scheduler")
+                    "block the scheduler")
             void testScheduleExecutableWithExecutableWhichThrowsAnException() {
                 // GIVEN
                 configureMockExecutableToThrowAnExceptionDuringItsExecution();
@@ -494,7 +494,7 @@ public abstract class TestScheduler {
             
             @Test
             @DisplayName("Test if an Executable has been scheduled with the method scheduleExecutableAtSpecificTime with a simulation time " +
-                                 "greater than the endSimulation, therefore the Executable is not execute")
+                    "greater than the endSimulation, therefore the Executable is not execute")
             void testScheduleExecutableAtSpecificTimeWithGreaterExecutionTimeThanEndSimulation() {
                 // GIVEN
                 // Nothing to do with mockExecutable
@@ -511,7 +511,7 @@ public abstract class TestScheduler {
             
             @Test
             @DisplayName("Test scheduleExecutableAtSpecificTime throws an NotScheduleTimeException if the simulationTime specified is already " +
-                                 "pass in the simulation")
+                    "pass in the simulation")
             void testScheduleExecutableAtSpecificTimeWithAlreadyPassedSimulationTime() {
                 // GIVEN
                 configureMockExecutableToTryToScheduleExecutableAtAlreadyPassedSimulationTime();
@@ -529,7 +529,7 @@ public abstract class TestScheduler {
             
             @Test
             @DisplayName("Test scheduleExecutableAtSpecificTime with an Executable which throws an exception during its execution does not " +
-                                 "block the scheduler")
+                    "block the scheduler")
             void testScheduleExecutableAtSpecificTimeWithExecutableWhichThrowsAnException() {
                 // GIVEN
                 configureMockExecutableToThrowAnExceptionDuringItsExecution();
@@ -579,7 +579,7 @@ public abstract class TestScheduler {
             
             @Test
             @DisplayName("Test if scheduleExecutableRepeated throws an IllegalArgumentException with less than 1 waitingTime or nbRepetition " +
-                                 "or executionTimeStep")
+                    "or executionTimeStep")
             void testScheduleExecutableRepeatedWithIllegalArgument() {
                 assertThrows(IllegalArgumentException.class, () -> scheduler.scheduleExecutableRepeated(mockExecutable, -1, 1, 1));
                 assertThrows(IllegalArgumentException.class, () -> scheduler.scheduleExecutableRepeated(mockExecutable, Scheduler.NOW, -1, 1));
@@ -607,7 +607,7 @@ public abstract class TestScheduler {
             
             @Test
             @DisplayName("Test if scheduleExecutableInfinitely throws an IllegalArgumentException with less than one waitingTime or " +
-                                 "executionTimeStep")
+                    "executionTimeStep")
             void testScheduleExecutableInfinitelyWithIllegalArgument() {
                 assertThrows(IllegalArgumentException.class, () -> scheduler.scheduleExecutableInfinitely(mockExecutable, -1, 1));
                 assertThrows(IllegalArgumentException.class, () -> scheduler.scheduleExecutableInfinitely(mockExecutable, Scheduler.NOW, -1));
@@ -626,33 +626,27 @@ public abstract class TestScheduler {
         class SchedulerEventTest {
             
             @Test
+            @DisplayName("Test if scheduleEvent throws a NullPointerException with null agent Target")
+            void testScheduleEventWithNullTarget() {
+                assertThrows(NullPointerException.class, () -> scheduler.scheduleEvent(null, mockEvent, Scheduler.NOW));
+            }
+            
+            @Test
             @DisplayName("Test if scheduleEvent throws a NullPointerException with null Event")
             void testScheduleEventWithNullEvent() {
-                assertThrows(NullPointerException.class, () -> scheduler.scheduleEvent(null, Scheduler.NOW));
+                assertThrows(NullPointerException.class, () -> scheduler.scheduleEvent(mockAgentIdentifier, null, Scheduler.NOW));
             }
             
             @Test
             @DisplayName("Test if scheduleEvent throws an IllegalArgumentException with less than one waitingTime")
             void testScheduleEventWithLessThanOneWaitingTime() {
-                when(mockEvent.getReceiver()).thenReturn(mockAgentIdentifier);
-                assertThrows(IllegalArgumentException.class, () -> scheduler.scheduleEvent(mockEvent, -1));
-                verify(mockEvent, times(1)).getReceiver();
+                assertThrows(IllegalArgumentException.class, () -> scheduler.scheduleEvent(mockAgentIdentifier, mockEvent, -1));
             }
             
             @Test
             @DisplayName("Test if scheduleEvent does not throw exception with correct arguments")
             void testScheduleEventWithCorrectArguments() {
-                when(mockEvent.getReceiver()).thenReturn(mockAgentIdentifier);
-                assertDoesNotThrow(() -> scheduler.scheduleEvent(mockEvent, Scheduler.NOW));
-                verify(mockEvent, times(1)).getReceiver();
-            }
-            
-            @Test
-            @DisplayName("Test if scheduleEvent throws a NullPointerException if the Event has a null receiver")
-            void testScheduleEventWithNullReceiver() {
-                when(mockEvent.getReceiver()).thenReturn(null);
-                assertThrows(NullPointerException.class, () -> scheduler.scheduleEvent(mockEvent, Scheduler.NOW));
-                verify(mockEvent, times(1)).getReceiver();
+                assertDoesNotThrow(() -> scheduler.scheduleEvent(mockAgentIdentifier, mockEvent, Scheduler.NOW));
             }
             
         }

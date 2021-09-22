@@ -1,52 +1,51 @@
 package sima.basic.environment.message;
 
 import org.jetbrains.annotations.NotNull;
-import sima.core.agent.AgentIdentifier;
-import sima.core.environment.exchange.event.Event;
-import sima.core.environment.exchange.transport.Transportable;
+import sima.core.environment.event.Event;
+import sima.core.environment.event.transport.EventTransportable;
 import sima.core.protocol.ProtocolIdentifier;
 import sima.core.utils.Box;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 /**
- * A message is a particular event which has a content.
+ * A message is a particular event which has a content and which is intended to a specific protocol
  */
-public class Message extends Event implements Box<Transportable> {
+public class Message implements EventTransportable, Box<EventTransportable> {
     
     // Variables.
     
     /**
      * The content of the message.
      * <p>
-     * Because a {@link Message} is an {@link Event} and that an {@link Event} is {@link Transportable}, the content of the message must be
+     * Because a {@link Message} is an {@link Event} and that an {@link Event} is {@link EventTransportable}, the content of the message must be
      * {@link Serializable}.
      */
-    private final Transportable content;
+    private final EventTransportable content;
+    
+    /**
+     * The intended protocol.
+     * <p>
+     * It is the protocol which must treat the message.
+     */
+    private final ProtocolIdentifier intendedProtocol;
     
     // Constructors.
     
     /**
-     * Constructs a {@link Message} with a sender sima.core.agent, a receiver sima.core.agent, a sima.core.protocol targeted and a content.
+     * @param content          the content
+     * @param intendedProtocol the intended protocol
      *
-     * @param sender           the sima.core.agent sender (cannot be null)
-     * @param receiver         the sima.core.agent receiver (can be null)
-     * @param protocolTargeted the sima.core.protocol targeted
-     *
-     * @throws NullPointerException if the sender is null
+     * @throws NullPointerException if intendedProtocol is null
      */
-    public Message(AgentIdentifier sender, AgentIdentifier receiver, Transportable content, ProtocolIdentifier protocolTargeted) {
-        super(sender, receiver, protocolTargeted);
+    public Message(EventTransportable content, ProtocolIdentifier intendedProtocol) {
         this.content = content;
+        this.intendedProtocol = Optional.of(intendedProtocol).get();
     }
     
     private Message(Message message) {
-        this(message.getSender(), message.getReceiver(), message.content != null ? message.content.duplicate() : null,
-                message.getProtocolIntended());
-    }
-    
-    private Message(Message message, AgentIdentifier newReceiver) {
-        this(message.getSender(), newReceiver, message.content != null ? message.content.duplicate() : null, message.getProtocolIntended());
+        this(message.content.duplicate(), message.getIntendedProtocol());
     }
     
     // Methods.
@@ -56,15 +55,14 @@ public class Message extends Event implements Box<Transportable> {
         return new Message(this);
     }
     
-    @Override
-    public @NotNull Message duplicateWithNewReceiver(AgentIdentifier newReceiver) {
-        return new Message(this, newReceiver);
-    }
-    
     // Getters and Setters.
     
     @Override
-    public Transportable getContent() {
+    public EventTransportable getContent() {
         return content;
+    }
+    
+    public ProtocolIdentifier getIntendedProtocol() {
+        return intendedProtocol;
     }
 }

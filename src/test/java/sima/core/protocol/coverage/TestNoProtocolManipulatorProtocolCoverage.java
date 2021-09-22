@@ -4,9 +4,9 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sima.core.agent.SimpleAgent;
-import sima.core.environment.exchange.event.Event;
-import sima.core.environment.exchange.transport.Transportable;
+import sima.core.agent.SimaAgent;
+import sima.core.environment.event.Event;
+import sima.core.environment.event.transport.EventTransportable;
 import sima.core.protocol.NoProtocolManipulatorProtocol;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.TestNoProtocolManipulatorProtocol;
@@ -23,14 +23,14 @@ public class TestNoProtocolManipulatorProtocolCoverage extends TestNoProtocolMan
     // Variables.
     
     @Mock
-    private SimpleAgent mockSimpleAgent;
+    private SimaAgent mockSimaAgent;
     
     // Init.
     
     @BeforeEach
     @Override
     protected void setUp() {
-        noProtocolManipulatorProtocol = new NoProtocolManipulatorProtocolCoverage("TAG", mockSimpleAgent, null);
+        noProtocolManipulatorProtocol = new NoProtocolManipulatorProtocolCoverage("TAG", mockSimaAgent, null);
         super.setUp();
     }
     
@@ -45,7 +45,7 @@ public class TestNoProtocolManipulatorProtocolCoverage extends TestNoProtocolMan
         @DisplayName("Test if constructor throw an NullPointerException with null protocolTag")
         void testConstructorWithNullProtocolTag() {
             Map<String, String> args = new HashMap<>();
-            assertThrows(NullPointerException.class, () -> new NoProtocolManipulatorProtocolCoverage(null, mockSimpleAgent, args));
+            assertThrows(NullPointerException.class, () -> new NoProtocolManipulatorProtocolCoverage(null, mockSimaAgent, args));
         }
         
         @Test
@@ -57,10 +57,10 @@ public class TestNoProtocolManipulatorProtocolCoverage extends TestNoProtocolMan
         
         @Test
         @DisplayName("Test if constructor does not throw exception with null args map and set the protocolManipulator to the default protocol " +
-                             "manipulator")
+                "manipulator")
         void testConstructorWithNullArgsMap() {
             final AtomicReference<Protocol> protocol = new AtomicReference<>();
-            assertDoesNotThrow(() -> protocol.set(new NoProtocolManipulatorProtocolCoverage("TAG", mockSimpleAgent, null)));
+            assertDoesNotThrow(() -> protocol.set(new NoProtocolManipulatorProtocolCoverage("TAG", mockSimaAgent, null)));
             var defaultProtocolManipulator = protocol.get().getDefaultProtocolManipulator();
             var protocolManipulator = protocol.get().getProtocolManipulator();
             assertSame(defaultProtocolManipulator, protocolManipulator);
@@ -71,7 +71,7 @@ public class TestNoProtocolManipulatorProtocolCoverage extends TestNoProtocolMan
     
     static class NoProtocolManipulatorProtocolCoverage extends NoProtocolManipulatorProtocol {
         
-        NoProtocolManipulatorProtocolCoverage(String protocolTag, SimpleAgent agentOwner, Map<String, String> args) {
+        NoProtocolManipulatorProtocolCoverage(String protocolTag, SimaAgent agentOwner, Map<String, String> args) {
             super(protocolTag, agentOwner, args);
         }
         
@@ -81,9 +81,9 @@ public class TestNoProtocolManipulatorProtocolCoverage extends TestNoProtocolMan
         public void processEvent(Event event) {
             // Nothing
         }
-    
+        
         @Override
-        public void processTransportable(Transportable transportable) {
+        public void processEventTransportable(EventTransportable eventTransportable) {
             // Nothing
         }
     }

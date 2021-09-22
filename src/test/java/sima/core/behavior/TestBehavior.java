@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sima.basic.behavior.PlayableByAllAgentsBehavior;
-import sima.core.agent.SimpleAgent;
+import sima.core.agent.SimaAgent;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,7 +20,7 @@ public abstract class TestBehavior {
     protected Behavior behavior;
     
     @Mock
-    protected SimpleAgent mockAgent;
+    protected SimaAgent mockAgent;
     
     // Tests.
     

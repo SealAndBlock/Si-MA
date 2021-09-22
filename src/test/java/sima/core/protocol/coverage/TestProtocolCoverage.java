@@ -4,9 +4,9 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sima.core.agent.SimpleAgent;
-import sima.core.environment.exchange.event.Event;
-import sima.core.environment.exchange.transport.Transportable;
+import sima.core.agent.SimaAgent;
+import sima.core.environment.event.Event;
+import sima.core.environment.event.transport.EventTransportable;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolManipulator;
 import sima.core.protocol.TestProtocol;
@@ -23,13 +23,13 @@ public class TestProtocolCoverage extends TestProtocol {
     // Variables.
     
     @Mock
-    private SimpleAgent mockSimpleAgent;
+    private SimaAgent mockSimaAgent;
     
     // Init.
     
     @BeforeEach
     void setUp() {
-        protocol = new ProtocolCoverage("TAG", mockSimpleAgent, null);
+        protocol = new ProtocolCoverage("TAG", mockSimaAgent, null);
     }
     
     // Tests.
@@ -43,7 +43,7 @@ public class TestProtocolCoverage extends TestProtocol {
         @DisplayName("Test if constructor throw an NullPointerException with null protocolTag")
         void testConstructorWithNullProtocolTag() {
             Map<String, String> args = new HashMap<>();
-            assertThrows(NullPointerException.class, () -> new ProtocolCoverage(null, mockSimpleAgent, args));
+            assertThrows(NullPointerException.class, () -> new ProtocolCoverage(null, mockSimaAgent, args));
         }
         
         @Test
@@ -58,7 +58,7 @@ public class TestProtocolCoverage extends TestProtocol {
                 "manipulator")
         void testConstructorWithNullArgsMap() {
             final AtomicReference<Protocol> protocol = new AtomicReference<>();
-            assertDoesNotThrow(() -> protocol.set(new ProtocolCoverage("TAG", mockSimpleAgent, null)));
+            assertDoesNotThrow(() -> protocol.set(new ProtocolCoverage("TAG", mockSimaAgent, null)));
             var defaultProtocolManipulator = protocol.get().getDefaultProtocolManipulator();
             var protocolManipulator = protocol.get().getProtocolManipulator();
             assertSame(defaultProtocolManipulator, protocolManipulator);
@@ -74,7 +74,7 @@ public class TestProtocolCoverage extends TestProtocol {
         
         // Constructors.
         
-        ProtocolCoverage(String protocolTag, SimpleAgent agentOwner, Map<String, String> args) {
+        ProtocolCoverage(String protocolTag, SimaAgent agentOwner, Map<String, String> args) {
             super(protocolTag, agentOwner, args);
         }
         
@@ -84,12 +84,12 @@ public class TestProtocolCoverage extends TestProtocol {
         public void processEvent(Event event) {
             // Nothing
         }
-        
+    
         @Override
-        public void processTransportable(Transportable transportable) {
+        public void processEventTransportable(EventTransportable eventTransportable) {
             // Nothing
         }
-        
+    
         @Override
         protected ProtocolManipulator createDefaultProtocolManipulator() {
             return new ProtocolManipulator.DefaultProtocolManipulator(this);

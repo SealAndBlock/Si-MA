@@ -3,11 +3,12 @@ package sima.core.agent;
 import org.jetbrains.annotations.NotNull;
 import sima.core.behavior.Behavior;
 import sima.core.environment.Environment;
-import sima.core.environment.exchange.event.Event;
-import sima.core.environment.exchange.event.EventCatcher;
+import sima.core.environment.event.Event;
+import sima.core.environment.event.EventProcessor;
 import sima.core.exception.*;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
+import sima.core.protocol.event.ProtocolEvent;
 import sima.core.simulation.SimaSimulation;
 
 import java.util.*;
@@ -15,7 +16,7 @@ import java.util.*;
 import static sima.core.simulation.SimaSimulation.SimaLog;
 import static sima.core.utils.Utils.instantiate;
 
-public class SimpleAgent implements EventCatcher {
+public class SimaAgent implements EventProcessor {
     
     // Variables.
     
@@ -78,7 +79,7 @@ public class SimpleAgent implements EventCatcher {
      * @throws IllegalArgumentException if the numberId is less than 0.
      * @throws NullPointerException     if agentName is null.
      */
-    public SimpleAgent(String agentName, int sequenceId, int uniqueId, Map<String, String> args) {
+    public SimaAgent(String agentName, int sequenceId, int uniqueId, Map<String, String> args) {
         this.sequenceId = sequenceId;
         if (sequenceId < 0)
             throw new IllegalArgumentException("The sequenceId must be greater or equal to 0, the current sequenceId "
@@ -118,7 +119,7 @@ public class SimpleAgent implements EventCatcher {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SimpleAgent that)) return false;
+        if (!(o instanceof SimaAgent that)) return false;
         return agentName.equals(that.agentName) && sequenceId == that.sequenceId && uniqueId == that.uniqueId;
     }
     
@@ -284,7 +285,7 @@ public class SimpleAgent implements EventCatcher {
     @NotNull
     private Behavior constructBehavior(Class<? extends Behavior> behaviorClass, Map<String, String> behaviorArgs)
             throws FailInstantiationException {
-        return instantiate(behaviorClass, new Class[]{SimpleAgent.class, Map.class}, this, behaviorArgs);
+        return instantiate(behaviorClass, new Class[]{SimaAgent.class, Map.class}, this, behaviorArgs);
     }
     
     /**
@@ -426,7 +427,7 @@ public class SimpleAgent implements EventCatcher {
     private Protocol constructProtocol(Class<? extends Protocol> protocolClass, String protocolTag,
                                        Map<String, String> protocolArgs)
             throws FailInstantiationException {
-        return instantiate(protocolClass, new Class[]{String.class, SimpleAgent.class, Map.class}, protocolTag,
+        return instantiate(protocolClass, new Class[]{String.class, SimaAgent.class, Map.class}, protocolTag,
                 this, protocolArgs);
     }
     
@@ -441,12 +442,12 @@ public class SimpleAgent implements EventCatcher {
     }
     
     /**
-     * Method called by an sima.core.environment when an event occurs and that the receiver is the sima.core.agent. This method is here to allow
+     * Method called by an {@link Environment} when an event occurs and that the receiver is the sima.core.agent. This method is here to allow
      * the sima.core.agent to manage how the event must be treated.
      * <p>
      * This method is final and synchronized to hide the synchronisation for the user. Therefore, to manage the treatment of the event, you must
      * override the method {@link #inProcessEvent(Event)}. However, the method {@link #inProcessEvent(Event)} is called only if the agent is
-     * started, else this methods throws {@link AgentNotStartedException}.
+     * started, else these methods throws {@link AgentNotStartedException}.
      *
      * @param event the event received
      *
@@ -464,27 +465,26 @@ public class SimpleAgent implements EventCatcher {
     
     /**
      * This method is called in the method {@link #processEvent(Event)}. In that way this method is not synchronized and the user must not have
-     * to be preoccupy by synchronisation and multi threading. This method is called by processEvent only if the agent is started.
+     * to be preoccupied by synchronisation and multi threading. This method is called by {@link #processEvent(Event)} only if the agent is
+     * started.
      * <p>
-     * The default implementation is in first the verification of if the event have a protocol targeted or not. If it is not the case, throws
-     * {@link UnsupportedOperationException}. Else if the event has a protocol targeted, the method search if the agent add the protocol and if
-     * it is the case, call the method {@link Protocol#processEvent(Event)} of the protocol. If the protocol targeted is not add in the agent,
-     * throws {@link IllegalArgumentException}.
+     * This method take all {@link Protocol} added in the agent and call the method {@link Protocol#processEvent(Event)}. Each protocol which
+     * think that the {@link Event} must be treated by him treats the {@link Event}.
      *
      * @param event the event to process
      *
-     * @throws IllegalArgumentException      if the event has a protocol targeted which is not added in the agent
-     * @throws UnsupportedOperationException if the event has no protocol targeted (equals to null)
+     * @throws IllegalArgumentException if the event has a protocol targeted which is not added in the agent
      */
     protected void inProcessEvent(Event event) {
-        if (event.hasIntendedProtocol()) {
-            var protocolTarget = getProtocol(event.getProtocolIntended());
-            if (protocolTarget != null)
-                protocolTarget.processEvent(event);
-            else
-                throw new IllegalArgumentException("Event with not added protocol");
+        if (event instanceof ProtocolEvent protocolEvent) {
+            var intendedProtocol = getProtocol(protocolEvent.getIntendedProtocol());
+            if (intendedProtocol != null) {
+                intendedProtocol.processEvent(event);
+            } else {
+                throw new IllegalArgumentException(protocolEvent.getIntendedProtocol() + " is not added in the agent");
+            }
         } else
-            throw new UnsupportedOperationException("No operation for event with no intended protocol");
+            throw new UnsupportedOperationException("The agent " + this + " cannot process event like " + event.getClass());
     }
     
     public AgentIdentifier getAgentIdentifier() {

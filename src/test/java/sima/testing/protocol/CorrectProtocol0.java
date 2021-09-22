@@ -1,8 +1,8 @@
 package sima.testing.protocol;
 
-import sima.core.agent.SimpleAgent;
-import sima.core.environment.exchange.event.Event;
-import sima.core.environment.exchange.transport.Transportable;
+import sima.core.agent.SimaAgent;
+import sima.core.environment.event.Event;
+import sima.core.environment.event.transport.EventTransportable;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolManipulator;
 
@@ -12,7 +12,7 @@ public class CorrectProtocol0 extends Protocol {
     
     // Constructors.
     
-    public CorrectProtocol0(String protocolTag, SimpleAgent agentOwner, Map<String, String> args) {
+    public CorrectProtocol0(String protocolTag, SimaAgent agentOwner, Map<String, String> args) {
         super(protocolTag, agentOwner, args);
     }
     
@@ -28,6 +28,6 @@ public class CorrectProtocol0 extends Protocol {
     }
     
     @Override
-    public void processTransportable(Transportable transportable) {
+    public void processEventTransportable(EventTransportable eventTransportable) {
     }
 }

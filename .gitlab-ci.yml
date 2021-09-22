@@ -4,7 +4,7 @@ default:
 stages:
   - build
   - test-and-scan
-  - deploy
+  - deploy-artifact
 
 cache:
   - key: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
@@ -59,8 +59,8 @@ sonarqube-check:
     - merge_requests
     - master
 
-deploy-job:
-  stage: deploy
+deploy-artifact-job:
+  stage: deploy-artifact
   needs: [ "compile-job", "test-job" ]
   artifacts:
     paths:
@@ -69,7 +69,7 @@ deploy-job:
     - mvn $MAVEN_CLI_OPTS -Dmaven.test.skip=true deploy clean
   only:
     refs:
-      - master
+      - merge_requests
     changes:
       - pom.xml
   when: manual
