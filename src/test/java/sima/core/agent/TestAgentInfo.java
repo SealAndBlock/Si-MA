@@ -36,38 +36,38 @@ public class TestAgentInfo {
         
         @Test
         @DisplayName("Test if constructs an AgentInfo with null behaviors does not throws exception and the " +
-                             "behavior list is empty")
+                "behavior list is empty")
         void testConstructorWithNullBehaviors() {
             AgentIdentifier agentIdentifier = new AgentIdentifier("AGENT", 0, 0);
             List<ProtocolIdentifier> protocols = new ArrayList<>();
             List<String> environments = new ArrayList<>();
             AtomicReference<AgentInfo> info = new AtomicReference<>();
             assertDoesNotThrow(() -> info.set(new AgentInfo(agentIdentifier, null, protocols, environments)));
-            assertTrue(info.get().getBehaviors().isEmpty());
+            assertTrue(info.get().behaviors().isEmpty());
         }
         
         @Test
         @DisplayName("Test if constructs an AgentInfo with null protocols does not throws exception and the protocol " +
-                             "list is empty")
+                "list is empty")
         void testConstructorWithNullProtocols() {
             AgentIdentifier agentIdentifier = new AgentIdentifier("AGENT", 0, 0);
             List<String> behaviors = new ArrayList<>();
             List<String> environments = new ArrayList<>();
             AtomicReference<AgentInfo> info = new AtomicReference<>();
             assertDoesNotThrow(() -> info.set(new AgentInfo(agentIdentifier, behaviors, null, environments)));
-            assertTrue(info.get().getProtocols().isEmpty());
+            assertTrue(info.get().protocols().isEmpty());
         }
         
         @Test
         @DisplayName("Test if constructs an AgentInfo with null environments does not throws exception and the " +
-                             "environments list is empty")
+                "environments list is empty")
         void testConstructorWithNullEnvironments() {
             AgentIdentifier agentIdentifier = new AgentIdentifier("AGENT", 0, 0);
             List<String> behaviors = new ArrayList<>();
             List<ProtocolIdentifier> protocols = new ArrayList<>();
             AtomicReference<AgentInfo> info = new AtomicReference<>();
             assertDoesNotThrow(() -> info.set(new AgentInfo(agentIdentifier, behaviors, protocols, null)));
-            assertTrue(info.get().getEnvironments().isEmpty());
+            assertTrue(info.get().environments().isEmpty());
         }
         
         @Test
@@ -79,7 +79,7 @@ public class TestAgentInfo {
             List<String> environments = new ArrayList<>();
             AtomicReference<AgentInfo> info = new AtomicReference<>();
             assertDoesNotThrow(() -> info.set(new AgentInfo(agentIdentifier, behaviors, protocols, environments)));
-            assertEquals(agentIdentifier, info.get().getAgentIdentifier());
+            assertEquals(agentIdentifier, info.get().agentIdentifier());
         }
         
     }

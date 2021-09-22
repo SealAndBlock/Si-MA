@@ -1,9 +1,9 @@
 package sima.testing.protocol;
 
-import sima.core.agent.SimpleAgent;
+import sima.core.agent.SimaAgent;
 import sima.core.environment.Environment;
-import sima.core.environment.exchange.event.Event;
-import sima.core.environment.exchange.transport.Transportable;
+import sima.core.environment.event.Event;
+import sima.core.environment.event.transport.EventTransportable;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolManipulator;
 
@@ -17,7 +17,7 @@ public class ProtocolDependWithoutSetter extends Protocol {
     
     // Constructors.
     
-    public ProtocolDependWithoutSetter(String protocolTag, SimpleAgent agentOwner, Map<String, String> args) {
+    public ProtocolDependWithoutSetter(String protocolTag, SimaAgent agentOwner, Map<String, String> args) {
         super(protocolTag, agentOwner, args);
     }
     
@@ -33,6 +33,6 @@ public class ProtocolDependWithoutSetter extends Protocol {
     }
     
     @Override
-    public void processTransportable(Transportable transportable) {
+    public void processEventTransportable(EventTransportable eventTransportable) {
     }
 }

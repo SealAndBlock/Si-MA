@@ -5,23 +5,16 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Allows the identification of an {@link SimpleAgent}.
+ * Allows the identification of an {@link SimaAgent}.
  * <p>
  * This class is as a primary key of a {@code AbstractAgent}. With an {@code AgentIdentifier} we can identify in the simulation a particular
  * agent.
  * <p>
- * This class contains only {@link SimpleAgent#getAgentName()}, {@link SimpleAgent#getSequenceId()} and {@link SimpleAgent#getUniqueId()}
- * fields.
+ * This class contains only {@link SimaAgent#getAgentName()}, {@link SimaAgent#getSequenceId()} and {@link SimaAgent#getUniqueId()} fields.
  */
-public class AgentIdentifier implements Serializable {
+public record AgentIdentifier(String agentName, int agentSequenceId, int agentUniqueId) implements Serializable {
     
     // Variables.
-    
-    private final String agentName;
-    
-    private final int agentSequenceId;
-    
-    private final int agentUniqueId;
     
     // Constructors.
     
@@ -60,27 +53,12 @@ public class AgentIdentifier implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof AgentIdentifier)) return false;
-        AgentIdentifier that = (AgentIdentifier) o;
+        if (!(o instanceof AgentIdentifier that)) return false;
         return agentName.equals(that.agentName) && agentUniqueId == that.agentUniqueId && agentSequenceId == that.agentSequenceId;
     }
     
     @Override
     public int hashCode() {
         return Objects.hash(agentName, agentSequenceId, agentUniqueId);
-    }
-    
-    // Getters and Setters.
-    
-    public String getAgentName() {
-        return agentName;
-    }
-    
-    public int getAgentSequenceId() {
-        return agentSequenceId;
-    }
-    
-    public int getAgentUniqueId() {
-        return agentUniqueId;
     }
 }

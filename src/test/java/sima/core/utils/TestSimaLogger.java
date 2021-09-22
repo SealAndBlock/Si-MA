@@ -2,7 +2,7 @@ package sima.core.utils;
 
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
-import sima.core.agent.SimpleAgent;
+import sima.core.agent.SimaAgent;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -51,9 +51,9 @@ public class TestSimaLogger {
             @Test
             @DisplayName("Test if constructor(Class) create correct logger")
             void testConstructorWithString() {
-                SimaLogger simaLogger = new SimaLogger(SimpleAgent.class);
+                SimaLogger simaLogger = new SimaLogger(SimaAgent.class);
                 Logger logger = simaLogger.getLogger();
-                assertThat(logger.getName()).isEqualTo(SimpleAgent.class.getName());
+                assertThat(logger.getName()).isEqualTo(SimaAgent.class.getName());
             }
             
         }

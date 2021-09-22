@@ -2,7 +2,7 @@ package sima.testing.environment;
 
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.Environment;
-import sima.core.environment.exchange.event.Event;
+import sima.core.environment.event.Event;
 
 import java.util.Map;
 
@@ -23,16 +23,9 @@ public class EnvironmentNotAcceptAgent extends Environment {
     
     @Override
     protected void agentIsLeaving(AgentIdentifier leavingAgentIdentifier) {
-    
     }
     
     @Override
-    protected boolean arePhysicallyConnected(AgentIdentifier agent1, AgentIdentifier agent2) {
-        return false;
-    }
-    
-    @Override
-    protected void scheduleEventReception(AgentIdentifier receiver, Event event) {
-    
+    protected void scheduleEventReception(AgentIdentifier receiver, Event event, long delay) {
     }
 }

@@ -7,7 +7,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sima.core.agent.AgentIdentifier;
-import sima.core.agent.SimpleAgent;
+import sima.core.agent.SimaAgent;
 import sima.core.environment.Environment;
 import sima.core.exception.SimaSimulationFailToStartRunningException;
 import sima.core.exception.SimaSimulationIsNotRunningException;
@@ -39,13 +39,13 @@ public class TestSimaSimulation {
     @Mock
     private static Environment mockEnvironment;
     
-    private static SimpleAgent simpleAgent;
+    private static SimaAgent simaAgent;
     
     // Setup.
     
     @BeforeEach
     void setUp() {
-        simpleAgent = new SimpleAgent("SimpleAgentTest", 0, 0, null);
+        simaAgent = new SimaAgent("SimpleAgentTest", 0, 0, null);
     }
     
     // Tests.
@@ -192,7 +192,7 @@ public class TestSimaSimulation {
         @Test
         @DisplayName("Test runSimulation with empty set of Environments")
         void testRunSimulationWithEmptySetOfEnvironments() {
-            Set<SimpleAgent> agents = new HashSet<>();
+            Set<SimaAgent> agents = new HashSet<>();
             assertThrows(SimaSimulationFailToStartRunningException.class, () -> SimaSimulation.runSimulation(mockScheduler, agents, null, null
                     , null));
             waitEndSimulation();
@@ -201,7 +201,7 @@ public class TestSimaSimulation {
         @Test
         @DisplayName("Test runSimulation with not correctly implemented SimulationSetup")
         void testRunSimulationWithNotCorrectlyImplementedSimulationSetup() {
-            Set<SimpleAgent> agents = new HashSet<>();
+            Set<SimaAgent> agents = new HashSet<>();
             Set<Environment> environments = new HashSet<>();
             environments.add(mockEnvironment);
             assertThrows(SimaSimulationFailToStartRunningException.class,
@@ -276,28 +276,28 @@ public class TestSimaSimulation {
         @Test
         @DisplayName("Test if getAgent throws a SimaSimulationIsNotRunningException if the simulation is not running")
         void testGetAgentInNotRunningSimulation() {
-            AgentIdentifier agentIdentifier = simpleAgent.getAgentIdentifier();
+            AgentIdentifier agentIdentifier = simaAgent.getAgentIdentifier();
             assertThrows(SimaSimulationIsNotRunningException.class, () -> SimaSimulation.getAgent(agentIdentifier));
         }
         
         @Test
         @DisplayName("Test if getAgent returns the correct agent in running simulation")
         void testGetAgentInRunningSimulation() {
-            Set<SimpleAgent> agents = new HashSet<>();
-            agents.add(simpleAgent);
+            Set<SimaAgent> agents = new HashSet<>();
+            agents.add(simaAgent);
             createScheduledSimulationTest(agents, () -> {
-                SimpleAgent agent = SimaSimulation.getAgent(simpleAgent.getAgentIdentifier());
-                assertThat(agent).isSameAs(simpleAgent);
+                SimaAgent agent = SimaSimulation.getAgent(simaAgent.getAgentIdentifier());
+                assertThat(agent).isSameAs(simaAgent);
             });
         }
         
         @Test
         @DisplayName("Test if getAgent returns null if the agentIdentifier is null in running simulation")
         void testGetAgentWithNullAgentIdentifierInRunningSimulation() {
-            Set<SimpleAgent> agents = new HashSet<>();
-            agents.add(simpleAgent);
+            Set<SimaAgent> agents = new HashSet<>();
+            agents.add(simaAgent);
             createScheduledSimulationTest(agents, () -> {
-                SimpleAgent agent = SimaSimulation.getAgent(null);
+                SimaAgent agent = SimaSimulation.getAgent(null);
                 assertThat(agent).isNull();
             });
         }
@@ -370,14 +370,14 @@ public class TestSimaSimulation {
         @Test
         @DisplayName("Test if getAgentEnvironment throws a SimaSimulationIsNotRunningException if the simulation is not running")
         void testGetAgentEnvironmentInNotRunningSimulation() {
-            AgentIdentifier agentIdentifier = simpleAgent.getAgentIdentifier();
+            AgentIdentifier agentIdentifier = simaAgent.getAgentIdentifier();
             assertThrows(SimaSimulationIsNotRunningException.class, () -> SimaSimulation.getAgentEnvironment(agentIdentifier));
         }
         
         @Test
         @DisplayName("Test if getAgentEnvironment returns correct environment list in running simulation")
         void testGetAgentEnvironmentInRunningSimulation() {
-            AgentIdentifier agentIdentifier = simpleAgent.getAgentIdentifier();
+            AgentIdentifier agentIdentifier = simaAgent.getAgentIdentifier();
             when(mockEnvironment.isEvolving(agentIdentifier)).thenReturn(true);
             
             createScheduledSimulationTest(() -> {
@@ -453,11 +453,11 @@ public class TestSimaSimulation {
         createScheduledSimulationTest(null, executable);
     }
     
-    private static void createScheduledSimulationTest(Set<SimpleAgent> agentToAdd, Executable executable) {
+    private static void createScheduledSimulationTest(Set<SimaAgent> agentToAdd, Executable executable) {
         Scheduler scheduler = new DiscreteTimeMultiThreadScheduler(1000L, 2);
         scheduler.scheduleExecutableOnce(executable, Scheduler.NOW);
         
-        Set<SimpleAgent> agents = null;
+        Set<SimaAgent> agents = null;
         if (agentToAdd != null)
             agents = new HashSet<>(agentToAdd);
         

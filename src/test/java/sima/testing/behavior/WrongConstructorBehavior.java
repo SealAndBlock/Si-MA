@@ -1,6 +1,6 @@
 package sima.testing.behavior;
 
-import sima.core.agent.SimpleAgent;
+import sima.core.agent.SimaAgent;
 import sima.core.behavior.Behavior;
 import sima.core.exception.BehaviorCannotBePlayedByAgentException;
 
@@ -8,7 +8,7 @@ public class WrongConstructorBehavior extends Behavior {
     
     // Constructors.
     
-    public WrongConstructorBehavior(SimpleAgent agent)
+    public WrongConstructorBehavior(SimaAgent agent)
             throws BehaviorCannotBePlayedByAgentException {
         super(agent, null);
     }
@@ -16,7 +16,7 @@ public class WrongConstructorBehavior extends Behavior {
     
     // Methods.
     @Override
-    public boolean canBePlayedBy(SimpleAgent agent) {
+    public boolean canBePlayedBy(SimaAgent agent) {
         return true;
     }
     

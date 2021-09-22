@@ -64,8 +64,8 @@ public class TestProtocolIdentifier {
         @DisplayName("Test if toString method returns correct String")
         void testToString() {
             String expectedToString = "ProtocolIdentifier [" +
-                    "protocolClass=" + protocolIdentifier.getProtocolClass() +
-                    ", protocolTag=" + protocolIdentifier.getProtocolTag() + "]";
+                    "protocolClass=" + protocolIdentifier.protocolClass() +
+                    ", protocolTag=" + protocolIdentifier.protocolTag() + "]";
             String toString = protocolIdentifier.toString();
             assertEquals(expectedToString, toString);
         }
@@ -98,21 +98,21 @@ public class TestProtocolIdentifier {
         @Test
         @DisplayName("Test if equals returns false with same class but not same protocol class")
         void testEqualsWithSameClassButNotSameProtocolClass() {
-            var other = new ProtocolIdentifier(Protocol.class, protocolIdentifier.getProtocolTag());
+            var other = new ProtocolIdentifier(Protocol.class, protocolIdentifier.protocolTag());
             assertNotEquals(protocolIdentifier, other);
         }
         
         @Test
         @DisplayName("Test if equals return false with same class and protocol class but not same tag")
         void testEqualsWithSameClassAndProtocolClassButNotSameTage() {
-            var other = new ProtocolIdentifier(protocolIdentifier.getProtocolClass(), "OTHER");
+            var other = new ProtocolIdentifier(protocolIdentifier.protocolClass(), "OTHER");
             assertNotEquals(protocolIdentifier, other);
         }
         
         @Test
         @DisplayName("Test if equals  returns true with all sames")
         void testEqualsWithAllSames() {
-            var other = new ProtocolIdentifier(protocolIdentifier.getProtocolClass(), protocolIdentifier.getProtocolTag());
+            var other = new ProtocolIdentifier(protocolIdentifier.protocolClass(), protocolIdentifier.protocolTag());
             assertEquals(protocolIdentifier, other);
         }
         
@@ -126,7 +126,7 @@ public class TestProtocolIdentifier {
         @Test
         @DisplayName("Test if hashCode returns a correct value")
         void testHashCode() {
-            int expectedHashCode = Objects.hash(protocolIdentifier.getProtocolClass(), protocolIdentifier.getProtocolTag());
+            int expectedHashCode = Objects.hash(protocolIdentifier.protocolClass(), protocolIdentifier.protocolTag());
             int hashCode = protocolIdentifier.hashCode();
             assertEquals(expectedHashCode, hashCode);
         }

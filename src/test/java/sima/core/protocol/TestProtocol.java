@@ -55,8 +55,8 @@ public abstract class TestProtocol {
             var p1 = protocol.getIdentifier();
             assertSame(p0, p1);
             
-            assertEquals(protocol.getClass(), p0.getProtocolClass());
-            assertEquals(protocol.getProtocolTag(), p0.getProtocolTag());
+            assertEquals(protocol.getClass(), p0.protocolClass());
+            assertEquals(protocol.getProtocolTag(), p0.protocolTag());
         }
         
     }

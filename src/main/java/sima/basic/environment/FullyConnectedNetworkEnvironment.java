@@ -1,8 +1,9 @@
 package sima.basic.environment;
 
 import sima.core.agent.AgentIdentifier;
+import sima.core.agent.SimaAgent;
 import sima.core.environment.Environment;
-import sima.core.environment.exchange.event.Event;
+import sima.core.environment.event.Event;
 import sima.core.simulation.SimaSimulation;
 
 import java.util.Map;
@@ -11,7 +12,7 @@ import java.util.Objects;
 import static sima.core.simulation.SimaSimulationUtils.randomLong;
 
 /**
- * Simulate an {@link Environment} where all {@link sima.core.agent.SimpleAgent} are directly connected together.
+ * Simulate an {@link Environment} where all {@link SimaAgent} are directly connected together.
  * <p>
  * This {@code Environment} accept all type of agent, the method {@link #agentCanBeAccepted(AgentIdentifier)} always return true.
  */
@@ -124,22 +125,12 @@ public class FullyConnectedNetworkEnvironment extends Environment {
         // Nothing.
     }
     
-    /**
-     * All agents are connected, therefore all event can be sent to any agent.
-     *
-     * @param agent1 the agent receiver
-     * @param agent2 the event to send to the receiver
-     *
-     * @return always true
-     */
     @Override
-    protected boolean arePhysicallyConnected(AgentIdentifier agent1, AgentIdentifier agent2) {
-        return true;
-    }
-    
-    @Override
-    protected void scheduleEventReception(AgentIdentifier receiver, Event event) {
-        SimaSimulation.getScheduler().scheduleEvent(event, randomLong(minSendDelay, maxSendDelay));
+    protected void scheduleEventReception(AgentIdentifier target, Event event, long delay) {
+        if (delay < minSendDelay && delay > maxSendDelay)
+            delay = randomLong(minSendDelay, maxSendDelay);
+        
+        SimaSimulation.getScheduler().scheduleEvent(target, event, delay);
     }
     
     // Getters.

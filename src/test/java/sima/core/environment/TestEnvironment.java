@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import sima.core.agent.AgentIdentifier;
-import sima.core.environment.exchange.event.Event;
+import sima.core.environment.event.Event;
 import sima.core.exception.NotEvolvingAgentInEnvironmentException;
 import sima.core.scheduler.Scheduler;
 import sima.core.simulation.SimaSimulation;
@@ -16,7 +16,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 import static sima.core.TestSima.mockSimaSimulation;
 
 public abstract class TestEnvironment {
@@ -28,6 +27,8 @@ public abstract class TestEnvironment {
     protected AgentIdentifier agentIdentifier0;
     
     protected AgentIdentifier agentIdentifier1;
+    
+    private final long arbitraryDelay = 10L;
     
     @Mock
     private Event mockEvent;
@@ -131,142 +132,35 @@ public abstract class TestEnvironment {
     }
     
     @Nested
-    @Tag("Environment.sendEvent")
-    @DisplayName("Environment sendEvent tests")
-    class SendEventTest {
+    @Tag("Environment.processEventOn")
+    @DisplayName("Environment processEventOn tests")
+    class ProcessEventOnTest {
         
         @Test
-        @DisplayName("Test if sendEvent throws a NotEvolvingAgentInEnvironmentException if the event sender is not an evolving agent")
-        void testSendEventWithNotEvolvingEventSender() {
-            // GIVEN
-            when(mockEvent.getSender()).thenReturn(agentIdentifier0);
-            
-            // WHEN
-            assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> environment.sendEvent(mockEvent));
-            
-            // THEN
-            verify(mockEvent, atLeast(1)).getSender();
+        @DisplayName("Test if processEventOn throws a NotEvolvingAgentInEnvironmentException if the event sender is not an evolving agent")
+        void testProcessEventOnWithNotEvolvingEventSender() {
+            assertThrows(NotEvolvingAgentInEnvironmentException.class,
+                    () -> environment.processEventOn(agentIdentifier0, mockEvent, arbitraryDelay));
         }
         
         @Test
-        @DisplayName("Test if sendEvent throws an IllegalArgumentException if the event receiver is not an evolving agent")
-        void testSendEventWithNullEventReceiver() {
-            // GIVEN
-            when(mockEvent.getSender()).thenReturn(agentIdentifier0);
-            when(mockEvent.getReceiver()).thenReturn(null);
-            
-            // WHEN
+        @DisplayName("Test if sendEvent throws an NotEvolvingAgentInEnvironmentException if the target agent is not an evolving agent")
+        void testProcessEventOnWithNullEventReceiver() {
             environment.acceptAgent(agentIdentifier0);
-            assertThrows(IllegalArgumentException.class, () -> environment.sendEvent(mockEvent));
-            
-            // THEN
-            verify(mockEvent, atLeast(1)).getSender();
-            verify(mockEvent, atLeast(1)).getReceiver();
-        }
-        
-        @Test
-        @DisplayName("Test if sendEvent throws an NotEvolvingAgentInEnvironmentException if the event receiver is not in the environment")
-        void testSendEventWithNotEvolvingEventReceiver() {
-            // GIVEN
-            when(mockEvent.getSender()).thenReturn(agentIdentifier0);
-            when(mockEvent.getReceiver()).thenReturn(agentIdentifier1);
-            
-            // WHEN
-            environment.acceptAgent(agentIdentifier0);
-            assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> environment.sendEvent(mockEvent));
-            
-            // THEN
-            verify(mockEvent, atLeast(1)).getSender();
-            verify(mockEvent, atLeast(1)).getReceiver();
+            assertThrows(NotEvolvingAgentInEnvironmentException.class,
+                    () -> environment.processEventOn(agentIdentifier1, mockEvent, arbitraryDelay));
         }
         
         @Test
         @DisplayName("Test if sendEvent does not throw exception with sender and receiver evolving agent")
-        void testSendEventWithSenderAndReceiverEvolvingAgent() {
-            // GIVEN
-            when(mockEvent.getSender()).thenReturn(agentIdentifier0);
-            when(mockEvent.getReceiver()).thenReturn(agentIdentifier1);
-            
+        void testProcessEventOnWithSenderAndReceiverEvolvingAgent() {
             // WHEN
             try (MockedStatic<SimaSimulation> simaSimulationMockedStatic = mockSimaSimulation()) {
                 simulateSimaSimulationGetSchedulerReturnsMockScheduler(simaSimulationMockedStatic);
                 
                 environment.acceptAgent(agentIdentifier0);
-                environment.acceptAgent(agentIdentifier1);
-                assertDoesNotThrow(() -> environment.sendEvent(mockEvent));
+                assertDoesNotThrow(() -> environment.processEventOn(agentIdentifier0, mockEvent, arbitraryDelay));
             }
-            
-            // THEN
-            verify(mockEvent, atLeast(1)).getSender();
-            verify(mockEvent, atLeast(1)).getReceiver();
-        }
-    }
-    
-    @Nested
-    @Tag("Environment.broadcastEvent")
-    @DisplayName("Environment broadcastEvent tests")
-    class BroadcastEventTest {
-        
-        @Test
-        @DisplayName("Test if broadcastEvent throws a NotEvolvingAgentInEnvironmentException if the event sender is not evolving")
-        void testBroadcastEventWithNotEvolvingEventSender() {
-            // GIVEN
-            when(mockEvent.getSender()).thenReturn(agentIdentifier0);
-            
-            // WHEN
-            assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> environment.broadcastEvent(mockEvent));
-            
-            // THEN
-            verify(mockEvent, atLeast(1)).getSender();
-        }
-        
-        @Test
-        @DisplayName("Test if broadcastEvent does not throw exception if the event sender is evolving")
-        void testBroadcastEventWithEvolvingEventSender() {
-            // GIVEN
-            when(mockEvent.getSender()).thenReturn(agentIdentifier0);
-            when(mockEvent.duplicateWithNewReceiver(any(AgentIdentifier.class))).thenReturn(mockEvent);
-            when(mockEvent.getReceiver()).thenReturn(agentIdentifier1);
-            
-            // WHEN
-            try (MockedStatic<SimaSimulation> simaSimulationMockedStatic = mockSimaSimulation()) {
-                simulateSimaSimulationGetSchedulerReturnsMockScheduler(simaSimulationMockedStatic);
-                
-                environment.acceptAgent(agentIdentifier0);
-                environment.acceptAgent(agentIdentifier1);
-                assertDoesNotThrow(() -> environment.broadcastEvent(mockEvent));
-            }
-            
-            // THEN
-            verify(mockEvent, atLeast(1)).getSender();
-        }
-        
-    }
-    
-    @Nested
-    @Tag("Environment.getPhysicalAgentConnection")
-    @DisplayName("Environment getPhysicalAgentConnection tests")
-    public class GetPhysicalAgentConnectionTest {
-        
-        @Test
-        @DisplayName("Test if getPhysicalAgentConnection throw a NotEvolvingAgentInEnvironmentException if the agent is null")
-        void testGetPhysicalAgentConnectionWithNullAgent() {
-            assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> environment.getPhysicalAgentConnection(null));
-        }
-        
-        @Test
-        @DisplayName("Test if getPhysicalAgentConnection throw a NotEvolvingAgentInEnvironmentException if the agent is not evolving in the " +
-                "environment")
-        void testGetPhysicalAgentConnectionWithNotEvolvingAgent() {
-            assertThrows(NotEvolvingAgentInEnvironmentException.class, () -> environment.getPhysicalAgentConnection(agentIdentifier0));
-        }
-        
-        @Test
-        @DisplayName("Test if getPhysicalAgentConnection always returns an array which contains the given agent")
-        void testGetPhysicalAgentConnectionAlwaysReturnsAtLeastTheGivenAgent() {
-            environment.acceptAgent(agentIdentifier0);
-            AgentIdentifier[] connections = environment.getPhysicalAgentConnection(agentIdentifier0);
-            assertThat(connections).contains(agentIdentifier0);
         }
     }
     

@@ -76,9 +76,9 @@ public class TestAgentIdentifier {
         @DisplayName("Test if the method toString returns the correct format with the correct values")
         void testToString() {
             var expectedToString =
-                    "[AgentIdentifier - " + "agentName=" + agentIdentifier.getAgentName() + ", agentSequenceId=" +
-                            agentIdentifier.getAgentSequenceId() + ", agentUniqueId=" +
-                            agentIdentifier.getAgentUniqueId() +
+                    "[AgentIdentifier - " + "agentName=" + agentIdentifier.agentName() + ", agentSequenceId=" +
+                            agentIdentifier.agentSequenceId() + ", agentUniqueId=" +
+                            agentIdentifier.agentUniqueId() +
                             "]";
             var toString = agentIdentifier.toString();
             assertEquals(expectedToString, toString);
@@ -111,17 +111,17 @@ public class TestAgentIdentifier {
         
         @Test
         @DisplayName("Test if the methods equals returns false with an other instance of AgentIdentifier with " +
-                             "different values")
+                "different values")
         void testEqualsWithOtherInstanceOfAgentIdentifierWithDifferentValues() {
             assertNotEquals(mockAgentIdentifier, agentIdentifier);
         }
         
         @Test
         @DisplayName("Test if the methods equals returns true with an other instance of AgentIdentifier with same " +
-                             "values")
+                "values")
         void testEqualsWithOtherInstanceOfAgentIdentifierWithSameValues() {
-            var other = new AgentIdentifier(agentIdentifier.getAgentName(), agentIdentifier.getAgentSequenceId(),
-                    agentIdentifier.getAgentUniqueId());
+            var other = new AgentIdentifier(agentIdentifier.agentName(), agentIdentifier.agentSequenceId(),
+                    agentIdentifier.agentUniqueId());
             assertEquals(other, agentIdentifier);
         }
     }
@@ -134,8 +134,8 @@ public class TestAgentIdentifier {
         @Test
         @DisplayName("Test if the methods hashCode returns a correct value")
         void testHashCode() {
-            int exceptedHashCode = Objects.hash(agentIdentifier.getAgentName(), agentIdentifier.getAgentSequenceId(),
-                    agentIdentifier.getAgentUniqueId());
+            int exceptedHashCode = Objects.hash(agentIdentifier.agentName(), agentIdentifier.agentSequenceId(),
+                    agentIdentifier.agentUniqueId());
             int hashCode = agentIdentifier.hashCode();
             assertEquals(exceptedHashCode, hashCode);
         }

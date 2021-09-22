@@ -87,8 +87,8 @@
   ],
   "agents": [
     {
-      "agentClass": "sima.core.agent.SimpleAgent",
-      "namePattern": "SimpleAgent",
+      "agentClass": "sima.core.agent.SimaAgent",
+      "namePattern": "SimaAgent",
       "numberToCreate": 5,
       "behaviors": [
         "SBeh"

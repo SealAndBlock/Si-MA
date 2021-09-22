@@ -1,6 +1,6 @@
 package sima.core.behavior;
 
-import sima.core.agent.SimpleAgent;
+import sima.core.agent.SimaAgent;
 import sima.core.exception.BehaviorCannotBePlayedByAgentException;
 
 import java.util.Map;
@@ -9,9 +9,9 @@ import java.util.Optional;
 import static sima.core.simulation.SimaSimulation.SimaLog;
 
 /**
- * Represents the sima.core.behavior that an {@link SimpleAgent} can have.
+ * Represents the sima.core.behavior that an {@link SimaAgent} can have.
  * <p>
- * All inherited classes of {@link Behavior} must have the same constructor {@link #Behavior(SimpleAgent, Map)}. In
+ * All inherited classes of {@link Behavior} must have the same constructor {@link #Behavior(SimaAgent, Map)}. In
  * that way, it allow the use of java reflexivity.
  */
 public abstract class Behavior {
@@ -21,7 +21,7 @@ public abstract class Behavior {
     /**
      * The sima.core.agent which has the sima.core.behavior.
      */
-    private final SimpleAgent agent;
+    private final SimaAgent agent;
 
     /**
      * True if the {@link #agent} is playing the sima.core.behavior, else false.
@@ -42,7 +42,7 @@ public abstract class Behavior {
      * @throws NullPointerException                   if the sima.core.agent is null
      * @throws BehaviorCannotBePlayedByAgentException if the sima.core.behavior cannot be played by the sima.core.agent
      */
-    protected Behavior(SimpleAgent agent, Map<String, String> args) throws BehaviorCannotBePlayedByAgentException {
+    protected Behavior(SimaAgent agent, Map<String, String> args) throws BehaviorCannotBePlayedByAgentException {
         this.agent = Optional.of(agent).get();
 
         if (!canBePlayedBy(agent))
@@ -65,7 +65,7 @@ public abstract class Behavior {
      * @param agent the sima.core.agent to verify
      * @return true if the sima.core.agent can play the sima.core.behavior, else false.
      */
-    public abstract boolean canBePlayedBy(SimpleAgent agent);
+    public abstract boolean canBePlayedBy(SimaAgent agent);
 
     /**
      * Call when the sima.core.agent must start to play the sima.core.behavior. Can be call only one time (no effect
@@ -112,7 +112,7 @@ public abstract class Behavior {
 
     // Getters and Setters.
 
-    public SimpleAgent getAgent() {
+    public SimaAgent getAgent() {
         return agent;
     }
 

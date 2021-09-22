@@ -5,15 +5,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sima.basic.broadcast.message.BroadcastMessage;
 import sima.core.behavior.Behavior;
 import sima.core.environment.Environment;
-import sima.core.environment.exchange.event.Event;
+import sima.core.environment.event.Event;
 import sima.core.exception.AgentNotStartedException;
 import sima.core.exception.AlreadyKilledAgentException;
 import sima.core.exception.AlreadyStartedAgentException;
 import sima.core.exception.KilledAgentException;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
+import sima.core.protocol.event.ProtocolEvent;
 import sima.core.simulation.SimaSimulation;
 import sima.testing.behavior.NotPlayableBehavior;
 import sima.testing.behavior.PlayableBehavior;
@@ -35,17 +37,17 @@ import static org.mockito.Mockito.*;
 import static sima.core.TestSima.mockSimaSimulation;
 
 @ExtendWith(MockitoExtension.class)
-public class TestSimpleAgent {
+public class TestSimaAgent {
     
     // Variables.
     
-    protected SimpleAgent simpleAgent;
+    protected SimaAgent simaAgent;
     
     @Mock
-    private SimpleAgent mockSimpleAgent;
+    private SimaAgent mockSimaAgent;
     
     @Mock
-    private SimpleAgent mockAgent;
+    private SimaAgent mockAgent;
     
     @Mock
     private Environment mockEnvironment;
@@ -56,11 +58,17 @@ public class TestSimpleAgent {
     @Mock
     private Event mockEvent;
     
+    @Mock
+    private ProtocolEvent mockProtocolEvent;
+    
+    @Mock
+    private BroadcastMessage mockBroadcastMessage;
+    
     // Init.
     
     @BeforeEach
     void setUp() {
-        simpleAgent = new SimpleAgent("SimpleAgent", 0, 0, null);
+        simaAgent = new SimaAgent("SimpleAgent", 0, 0, null);
     }
     
     // Tests.
@@ -78,7 +86,7 @@ public class TestSimpleAgent {
     }
     
     /**
-     * Simulate that when the method {@link SimaSimulation#getAgentEnvironment(AgentIdentifier)} is called, then an list which contains {@link
+     * Simulate that when the method {@link SimaSimulation#getAgentEnvironment(AgentIdentifier)} is called, then a list which contains {@link
      * #mockEnvironment} is returns.
      *
      * @param simaSimulationMockedStatic the mock static to simulate SimaSimulation static method.
@@ -104,35 +112,35 @@ public class TestSimpleAgent {
         @DisplayName("Test if the constructor throws an NullPointerException if the AgentName is null")
         void testWithNullAgentName() {
             Map<String, String> args = new HashMap<>();
-            assertThrows(NullPointerException.class, () -> new SimpleAgent(null, 0, 0, args));
+            assertThrows(NullPointerException.class, () -> new SimaAgent(null, 0, 0, args));
         }
         
         @Test
         @DisplayName("Test if the constructor throws an IllegalArgumentException if the sequenceId is less than 0")
         void testWithNegativeSequenceId() {
             Map<String, String> args = new HashMap<>();
-            assertThrows(IllegalArgumentException.class, () -> new SimpleAgent("TEST_AGENT", -1, 0, args));
+            assertThrows(IllegalArgumentException.class, () -> new SimaAgent("TEST_AGENT", -1, 0, args));
         }
         
         @Test
         @DisplayName("Test if the constructor throws an IllegalArgumentException if the uniqueId is less than 0")
         void testWithNegativeUniqueId() {
             Map<String, String> args = new HashMap<>();
-            assertThrows(IllegalArgumentException.class, () -> new SimpleAgent("TEST_AGENT", 0, -1, args));
+            assertThrows(IllegalArgumentException.class, () -> new SimaAgent("TEST_AGENT", 0, -1, args));
         }
         
         @Test
         @DisplayName("Test if the constructor does not throw exception with acceptable arguments and not null args " +
-                             "map")
+                "map")
         void testWithAllCorrectArguments() {
             Map<String, String> args = new HashMap<>();
-            assertDoesNotThrow(() -> new SimpleAgent("TEST_AGENT", 0, 0, args));
+            assertDoesNotThrow(() -> new SimaAgent("TEST_AGENT", 0, 0, args));
         }
         
         @Test
         @DisplayName("Test if the constructors does not throw exception with acceptable arguments and null args map")
         void testWithAllCorrectArgumentsAndNullArgsMap() {
-            assertDoesNotThrow(() -> new SimpleAgent("TEST_AGENT", 0, 0, null));
+            assertDoesNotThrow(() -> new SimaAgent("TEST_AGENT", 0, 0, null));
         }
         
     }
@@ -146,12 +154,12 @@ public class TestSimpleAgent {
         @DisplayName("Test if the toString method returns the correct format with the correct values")
         void testToStringReturnsFormatAndResult() {
             String expectedString = "[AGENT - " +
-                    "class=" + simpleAgent.getClass().getName() +
-                    ", name=" + simpleAgent.getAgentName() +
-                    ", sequenceId=" + simpleAgent.getSequenceId() +
-                    ", uniqueId=" + simpleAgent.getUniqueId() + "]";
+                    "class=" + simaAgent.getClass().getName() +
+                    ", name=" + simaAgent.getAgentName() +
+                    ", sequenceId=" + simaAgent.getSequenceId() +
+                    ", uniqueId=" + simaAgent.getUniqueId() + "]";
             
-            assertEquals(expectedString, simpleAgent.toString());
+            assertEquals(expectedString, simaAgent.toString());
         }
         
     }
@@ -164,31 +172,31 @@ public class TestSimpleAgent {
         @Test
         @DisplayName("Test if the methods equals returns true if the argument is the agent itself")
         void testEqualsWithAgentItSelf() {
-            assertEquals(simpleAgent, simpleAgent);
+            assertEquals(simaAgent, simaAgent);
         }
         
         @Test
         @DisplayName("Test if the methods equals returns false if the argument is null")
         void testEqualsWithNull() {
-            assertNotEquals(null, simpleAgent);
+            assertNotEquals(null, simaAgent);
         }
         
         @Test
         @DisplayName("Test if the methods equals returns false if the argument is an another agent")
         void testEqualsWithNotEqualAgent() {
-            assertNotEquals(mockAgent, simpleAgent);
+            assertNotEquals(mockAgent, simaAgent);
         }
         
         @Test
         @DisplayName("Test if the method equals returns false if the argument is a different agent")
         void testEqualsWithDifferentAgent() {
-            assertNotEquals(simpleAgent, mockSimpleAgent);
+            assertNotEquals(simaAgent, mockSimaAgent);
         }
         
         @Test
         @DisplayName("Test if the method equals returns false if the argument is not an agent")
         void testEqualsWithNotAbstractAgentObject() {
-            assertNotEquals(simpleAgent, new Object());
+            assertNotEquals(simaAgent, new Object());
         }
         
     }
@@ -201,8 +209,8 @@ public class TestSimpleAgent {
         @Test
         @DisplayName("Test if the method hashCode returns the value of the AgentIdentifier hashCode")
         void testHashCodeResult() {
-            int hashCodeExcepted = simpleAgent.getAgentIdentifier().hashCode();
-            int hashCode = simpleAgent.hashCode();
+            int hashCodeExcepted = simaAgent.getAgentIdentifier().hashCode();
+            int hashCode = simaAgent.hashCode();
             assertEquals(hashCodeExcepted, hashCode);
         }
         
@@ -216,8 +224,8 @@ public class TestSimpleAgent {
         @Test
         @DisplayName("Test if after have been started, the agent is started")
         void testStartCorrectly() {
-            simpleAgent.start();
-            boolean isStarted = simpleAgent.isStarted();
+            simaAgent.start();
+            boolean isStarted = simaAgent.isStarted();
             assertTrue(isStarted);
         }
         
@@ -227,22 +235,22 @@ public class TestSimpleAgent {
             try (MockedStatic<SimaSimulation> simaSimulationMockedStatic = mockSimaSimulation()) {
                 // GIVEN
                 simulateSimaSimulationGetAgentEnvironmentReturnsEmptyList(simaSimulationMockedStatic,
-                        simpleAgent.getAgentIdentifier());
+                        simaAgent.getAgentIdentifier());
                 
                 // WHEN
-                simpleAgent.kill();
+                simaAgent.kill();
                 
                 // THEN
-                assertThrows(KilledAgentException.class, () -> simpleAgent.start());
+                assertThrows(KilledAgentException.class, () -> simaAgent.start());
             }
         }
         
         @Test
         @DisplayName("test if the method start throws an AlreadyStartedAgentException if the SimpleAgent is already " +
-                             "started")
+                "started")
         void testStartAfterAlreadyStarted() {
-            simpleAgent.start();
-            assertThrows(AlreadyStartedAgentException.class, () -> simpleAgent.start());
+            simaAgent.start();
+            assertThrows(AlreadyStartedAgentException.class, () -> simaAgent.start());
         }
         
     }
@@ -258,12 +266,12 @@ public class TestSimpleAgent {
             try (MockedStatic<SimaSimulation> simaSimulationMockedStatic = mockSimaSimulation()) {
                 // GIVEN
                 simulateSimaSimulationGetAgentEnvironmentReturnsEmptyList(simaSimulationMockedStatic,
-                        simpleAgent.getAgentIdentifier());
+                        simaAgent.getAgentIdentifier());
                 
                 // WHEN
-                simpleAgent.kill();
-                boolean isStarted = simpleAgent.isStarted();
-                boolean isKilled = simpleAgent.isKilled();
+                simaAgent.kill();
+                boolean isStarted = simaAgent.isStarted();
+                boolean isKilled = simaAgent.isKilled();
                 
                 // THEN
                 assertFalse(isStarted);
@@ -277,13 +285,13 @@ public class TestSimpleAgent {
             try (MockedStatic<SimaSimulation> simaSimulationMockedStatic = mockSimaSimulation()) {
                 // GIVEN
                 simulateSimaSimulationGetAgentEnvironmentReturnsEmptyList(simaSimulationMockedStatic,
-                        simpleAgent.getAgentIdentifier());
+                        simaAgent.getAgentIdentifier());
                 
                 // WHEN
-                simpleAgent.start();
-                simpleAgent.kill();
-                boolean isStarted = simpleAgent.isStarted();
-                boolean isKilled = simpleAgent.isKilled();
+                simaAgent.start();
+                simaAgent.kill();
+                boolean isStarted = simaAgent.isStarted();
+                boolean isKilled = simaAgent.isKilled();
                 
                 // THEN
                 assertFalse(isStarted);
@@ -293,18 +301,18 @@ public class TestSimpleAgent {
         
         @Test
         @DisplayName("Test if the method kill throws and AlreadyKilledAgentException if the SimpleAgent is already " +
-                             "killed")
+                "killed")
         void testKillAfterAlreadyKill() {
             try (MockedStatic<SimaSimulation> simaSimulationMockedStatic = mockSimaSimulation()) {
                 // GIVEN
                 simulateSimaSimulationGetAgentEnvironmentReturnsEmptyList(simaSimulationMockedStatic,
-                        simpleAgent.getAgentIdentifier());
+                        simaAgent.getAgentIdentifier());
                 
                 // WHEN
-                simpleAgent.kill();
+                simaAgent.kill();
                 
                 // THEN
-                assertThrows(AlreadyKilledAgentException.class, () -> simpleAgent.kill());
+                assertThrows(AlreadyKilledAgentException.class, () -> simaAgent.kill());
             }
         }
         
@@ -314,16 +322,16 @@ public class TestSimpleAgent {
             try (MockedStatic<SimaSimulation> simaSimulationMockedStatic = mockSimaSimulation()) {
                 // GIVEN
                 simulateSimaSimulationGetAgentEnvironmentReturnsEmptyList(simaSimulationMockedStatic,
-                        simpleAgent.getAgentIdentifier());
-                simpleAgent.addBehavior(PlayableBehavior.class, null);
-                simpleAgent.start();
-                simpleAgent.startPlayingBehavior(PlayableBehavior.class);
+                        simaAgent.getAgentIdentifier());
+                simaAgent.addBehavior(PlayableBehavior.class, null);
+                simaAgent.start();
+                simaAgent.startPlayingBehavior(PlayableBehavior.class);
                 
                 // WHEN
-                simpleAgent.kill();
+                simaAgent.kill();
                 
                 // THEN
-                boolean isPlayingBehavior = simpleAgent.isPlayingBehavior(PlayableBehavior.class);
+                boolean isPlayingBehavior = simaAgent.isPlayingBehavior(PlayableBehavior.class);
                 assertFalse(isPlayingBehavior);
             }
         }
@@ -334,10 +342,10 @@ public class TestSimpleAgent {
             try (MockedStatic<SimaSimulation> simaSimulationMockedStatic = mockSimaSimulation()) {
                 // GIVEN
                 simulateSimaSimulationGetAgentEnvironmentReturnsListWithMockEnvironment(simaSimulationMockedStatic,
-                        simpleAgent.getAgentIdentifier());
+                        simaAgent.getAgentIdentifier());
                 
                 // WHEN
-                assertDoesNotThrow(() -> simpleAgent.kill());
+                assertDoesNotThrow(() -> simaAgent.kill());
             }
         }
     }
@@ -357,35 +365,35 @@ public class TestSimpleAgent {
                     "Test if isEvolvingInEnvironment method returns false when the agent is not evolving in the environment")
             void testIsEvolvingInEnvironmentWithNotEvolvingAgent() {
                 // GIVEN
-                when(mockEnvironment.isEvolving(simpleAgent.getAgentIdentifier())).thenReturn(false);
+                when(mockEnvironment.isEvolving(simaAgent.getAgentIdentifier())).thenReturn(false);
                 
                 // WHEN
-                boolean isEvolving = simpleAgent.isEvolvingInEnvironment(mockEnvironment);
+                boolean isEvolving = simaAgent.isEvolvingInEnvironment(mockEnvironment);
                 
                 // THEN
-                verify(mockEnvironment, times(1)).isEvolving(simpleAgent.getAgentIdentifier());
+                verify(mockEnvironment, times(1)).isEvolving(simaAgent.getAgentIdentifier());
                 assertFalse(isEvolving);
             }
             
             @Test
             @DisplayName("Test if isEvolvingInEnvironment method returns true when the agent is evolving in the " +
-                                 "environment")
+                    "environment")
             void testIsEvolvingInEnvironmentWithEvolvingAgent() {
                 // GIVEN
-                when(mockEnvironment.isEvolving(simpleAgent.getAgentIdentifier())).thenReturn(true);
+                when(mockEnvironment.isEvolving(simaAgent.getAgentIdentifier())).thenReturn(true);
                 
                 // WHEN
-                boolean isEvolving = simpleAgent.isEvolvingInEnvironment(mockEnvironment);
+                boolean isEvolving = simaAgent.isEvolvingInEnvironment(mockEnvironment);
                 
                 // THEN
-                verify(mockEnvironment, times(1)).isEvolving(simpleAgent.getAgentIdentifier());
+                verify(mockEnvironment, times(1)).isEvolving(simaAgent.getAgentIdentifier());
                 assertTrue(isEvolving);
             }
             
             @Test
             @DisplayName("Test if isEvolvingInEnvironment method returns false when the environment parameter is null")
             void testIsEvolvingInEnvironmentWithNullEnvironment() {
-                boolean isEvolving = simpleAgent.isEvolvingInEnvironment(null);
+                boolean isEvolving = simaAgent.isEvolvingInEnvironment(null);
                 assertFalse(isEvolving);
             }
             
@@ -400,13 +408,13 @@ public class TestSimpleAgent {
             @DisplayName("Test if joinEnvironment returns true for an agent which join the environment where it is not evolving")
             void testJoinEnvironmentWithAcceptedAgent() {
                 // GIVEN
-                when(mockEnvironment.acceptAgent(simpleAgent.getAgentIdentifier())).thenReturn(true);
+                when(mockEnvironment.acceptAgent(simaAgent.getAgentIdentifier())).thenReturn(true);
                 
                 // WHEN
-                boolean join = simpleAgent.joinEnvironment(mockEnvironment);
+                boolean join = simaAgent.joinEnvironment(mockEnvironment);
                 
                 // THEN
-                verify(mockEnvironment, times(1)).acceptAgent(simpleAgent.getAgentIdentifier());
+                verify(mockEnvironment, times(1)).acceptAgent(simaAgent.getAgentIdentifier());
                 assertTrue(join);
             }
             
@@ -414,13 +422,13 @@ public class TestSimpleAgent {
             @DisplayName("Test if joinEnvironment returns false for an agent which join the environment where it is already evolving")
             void testJoinEnvironmentWithNonAcceptedAgent() {
                 // GIVEN
-                when(mockEnvironment.acceptAgent(simpleAgent.getAgentIdentifier())).thenReturn(false);
+                when(mockEnvironment.acceptAgent(simaAgent.getAgentIdentifier())).thenReturn(false);
                 
                 // WHEN
-                boolean join = simpleAgent.joinEnvironment(mockEnvironment);
+                boolean join = simaAgent.joinEnvironment(mockEnvironment);
                 
                 // THEN
-                verify(mockEnvironment, times(1)).acceptAgent(simpleAgent.getAgentIdentifier());
+                verify(mockEnvironment, times(1)).acceptAgent(simaAgent.getAgentIdentifier());
                 assertFalse(join);
             }
         }
@@ -433,7 +441,7 @@ public class TestSimpleAgent {
             @Test
             @DisplayName("Test if leaveEnvironment does not throws exception")
             void testLeaveEnvironmentDoesNotThrowsException() {
-                assertDoesNotThrow(() -> simpleAgent.leaveEnvironment(mockEnvironment));
+                assertDoesNotThrow(() -> simaAgent.leaveEnvironment(mockEnvironment));
             }
             
         }
@@ -454,7 +462,7 @@ public class TestSimpleAgent {
             @DisplayName("Test if addBehavior returns false if the behavior class does not have a correct constructor")
             void testAddBehaviorWithBehaviorClassWithWrongConstructor() {
                 Map<String, String> args = new HashMap<>();
-                boolean behaviorAdded = simpleAgent.addBehavior(WrongConstructorBehavior.class, args);
+                boolean behaviorAdded = simaAgent.addBehavior(WrongConstructorBehavior.class, args);
                 assertFalse(behaviorAdded);
             }
             
@@ -462,14 +470,14 @@ public class TestSimpleAgent {
             @DisplayName("Test if addBehavior returns true if the behavior class has a correct constructor")
             void testAddBehaviorWithBehaviorClassWithCorrectConstructor() {
                 Map<String, String> args = new HashMap<>();
-                boolean behaviorAdded = simpleAgent.addBehavior(PlayableBehavior.class, args);
+                boolean behaviorAdded = simaAgent.addBehavior(PlayableBehavior.class, args);
                 assertTrue(behaviorAdded);
             }
             
             @Test
             @DisplayName("Test if addBehavior returns ture if the behavior class is correct and the map args is null")
             void testAddBehaviorWithNullArgs() {
-                boolean behaviorAdded = simpleAgent.addBehavior(PlayableBehavior.class, null);
+                boolean behaviorAdded = simaAgent.addBehavior(PlayableBehavior.class, null);
                 assertTrue(behaviorAdded);
             }
             
@@ -477,8 +485,8 @@ public class TestSimpleAgent {
             @DisplayName("Test if addBehavior returns false if the behavior class has already been added")
             void testAddBehaviorWithAlreadyAddBehaviorClass() {
                 Map<String, String> args = new HashMap<>();
-                boolean firstAdd = simpleAgent.addBehavior(PlayableBehavior.class, args);
-                boolean secondAdd = simpleAgent.addBehavior(PlayableBehavior.class, args);
+                boolean firstAdd = simaAgent.addBehavior(PlayableBehavior.class, args);
+                boolean secondAdd = simaAgent.addBehavior(PlayableBehavior.class, args);
                 assertTrue(firstAdd);
                 assertFalse(secondAdd);
             }
@@ -487,7 +495,7 @@ public class TestSimpleAgent {
             @DisplayName("Test if addBehavior returns false if the behavior is not playable by the agent")
             void testAddBehaviorWithNotPlayableBehaviorByTheAgent() {
                 Map<String, String> args = new HashMap<>();
-                boolean behaviorAdded = simpleAgent.addBehavior(NotPlayableBehavior.class, args);
+                boolean behaviorAdded = simaAgent.addBehavior(NotPlayableBehavior.class, args);
                 assertFalse(behaviorAdded);
             }
             
@@ -501,27 +509,27 @@ public class TestSimpleAgent {
             @Test
             @DisplayName("Test if startPlayingBehavior throws an NullPointerException if the behaviorClass is null")
             void testStartPlayingBehaviorWithNullBehaviorClass() {
-                assertThrows(NullPointerException.class, () -> simpleAgent.startPlayingBehavior(null));
+                assertThrows(NullPointerException.class, () -> simaAgent.startPlayingBehavior(null));
             }
             
             @Test
             @DisplayName(
                     "Test if for a started agent and an added behavior to the agent, after call the method startPlayingBehavior, the agent is not playing the behavior")
             void testStartPlayingBehaviorWithNotStartedAgentAndAddedBehavior() {
-                simpleAgent.addBehavior(PlayableBehavior.class, null);
-                simpleAgent.startPlayingBehavior(PlayableBehavior.class);
-                boolean isPlayingBehavior = simpleAgent.isPlayingBehavior(PlayableBehavior.class);
+                simaAgent.addBehavior(PlayableBehavior.class, null);
+                simaAgent.startPlayingBehavior(PlayableBehavior.class);
+                boolean isPlayingBehavior = simaAgent.isPlayingBehavior(PlayableBehavior.class);
                 assertFalse(isPlayingBehavior);
             }
             
             @Test
             @DisplayName("Test if for a started agent and an added behavior to the agent, after call the method " +
-                                 "startPlayingBehavior, the agent is playing the behavior")
+                    "startPlayingBehavior, the agent is playing the behavior")
             void testStartPlayingBehaviorWithStartedAgentAndAddedBehavior() {
-                simpleAgent.start();
-                simpleAgent.addBehavior(PlayableBehavior.class, null);
-                simpleAgent.startPlayingBehavior(PlayableBehavior.class);
-                boolean isPlayingBehavior = simpleAgent.isPlayingBehavior(PlayableBehavior.class);
+                simaAgent.start();
+                simaAgent.addBehavior(PlayableBehavior.class, null);
+                simaAgent.startPlayingBehavior(PlayableBehavior.class);
+                boolean isPlayingBehavior = simaAgent.isPlayingBehavior(PlayableBehavior.class);
                 assertTrue(isPlayingBehavior);
             }
             
@@ -529,9 +537,9 @@ public class TestSimpleAgent {
             @DisplayName(
                     "Test if for a started agent and a non added behavior to the agent, after call the method startPlayingBehavior, the agent is not playing the behavior")
             void testStartPlayingBehaviorWithStartedAgentAndNotAddedBehavior() {
-                simpleAgent.start();
-                simpleAgent.startPlayingBehavior(PlayableBehavior.class);
-                boolean isPlayingBehavior = simpleAgent.isPlayingBehavior(PlayableBehavior.class);
+                simaAgent.start();
+                simaAgent.startPlayingBehavior(PlayableBehavior.class);
+                boolean isPlayingBehavior = simaAgent.isPlayingBehavior(PlayableBehavior.class);
                 assertFalse(isPlayingBehavior);
             }
         }
@@ -544,24 +552,24 @@ public class TestSimpleAgent {
             @Test
             @DisplayName("Test if for a added but non playing behavior, the method stopPlayingBehavior do nothing")
             void testStopPlayingBehaviorWithNotPlayingBehavior() {
-                simpleAgent.start();
-                simpleAgent.addBehavior(PlayableBehavior.class, null);
-                boolean isPlayingBehaviorBeforeStop = simpleAgent.isPlayingBehavior(PlayableBehavior.class);
-                simpleAgent.stopPlayingBehavior(PlayableBehavior.class);
-                boolean isPlayingBehaviorAfterStop = simpleAgent.isPlayingBehavior(PlayableBehavior.class);
+                simaAgent.start();
+                simaAgent.addBehavior(PlayableBehavior.class, null);
+                boolean isPlayingBehaviorBeforeStop = simaAgent.isPlayingBehavior(PlayableBehavior.class);
+                simaAgent.stopPlayingBehavior(PlayableBehavior.class);
+                boolean isPlayingBehaviorAfterStop = simaAgent.isPlayingBehavior(PlayableBehavior.class);
                 assertFalse(isPlayingBehaviorBeforeStop);
                 assertFalse(isPlayingBehaviorAfterStop);
             }
             
             @Test
             @DisplayName("Test if for added and playing behavior, the after the call of the method " +
-                                 "stopPlayingBehavior, the agent does not play anymore the behavior")
+                    "stopPlayingBehavior, the agent does not play anymore the behavior")
             void testStopPlayingBehaviorWithPlayingBehavior() {
-                simpleAgent.start();
-                simpleAgent.addBehavior(PlayableBehavior.class, null);
-                simpleAgent.startPlayingBehavior(PlayableBehavior.class);
-                simpleAgent.stopPlayingBehavior(PlayableBehavior.class);
-                boolean isPlayingBehavior = simpleAgent.isPlayingBehavior(PlayableBehavior.class);
+                simaAgent.start();
+                simaAgent.addBehavior(PlayableBehavior.class, null);
+                simaAgent.startPlayingBehavior(PlayableBehavior.class);
+                simaAgent.stopPlayingBehavior(PlayableBehavior.class);
+                boolean isPlayingBehavior = simaAgent.isPlayingBehavior(PlayableBehavior.class);
                 assertFalse(isPlayingBehavior);
             }
             
@@ -575,14 +583,14 @@ public class TestSimpleAgent {
             @Test
             @DisplayName("Test if canPlayBehavior returns true if the behavior is playable by the agent")
             void testCanPlayBehaviorWithPlayableBehavior() {
-                boolean isPlayableBehavior = simpleAgent.canPlayBehavior(PlayableBehavior.class);
+                boolean isPlayableBehavior = simaAgent.canPlayBehavior(PlayableBehavior.class);
                 assertTrue(isPlayableBehavior);
             }
             
             @Test
             @DisplayName("Test if canPlayBehavior returns false if the behavior is not playable by the agent")
             void testCanPlayBehaviorWithNotPlayableBehavior() {
-                boolean isPlayableBehavior = simpleAgent.canPlayBehavior(NotPlayableBehavior.class);
+                boolean isPlayableBehavior = simaAgent.canPlayBehavior(NotPlayableBehavior.class);
                 assertFalse(isPlayableBehavior);
             }
             
@@ -596,27 +604,27 @@ public class TestSimpleAgent {
             @Test
             @DisplayName("Test if isPlayingBehavior returns false if the behaviors is not added in the agent")
             void testIsPlayingBehaviorWithNotAddedBehavior() {
-                simpleAgent.start();
-                boolean isPlayingBehavior = simpleAgent.isPlayingBehavior(PlayableBehavior.class);
+                simaAgent.start();
+                boolean isPlayingBehavior = simaAgent.isPlayingBehavior(PlayableBehavior.class);
                 assertFalse(isPlayingBehavior);
             }
             
             @Test
             @DisplayName("Test if isPlayingBehavior returns false if the behavior is added but not played")
             void testIsPlayingBehaviorWithAddedButNotPlayedBehavior() {
-                simpleAgent.start();
-                simpleAgent.addBehavior(PlayableBehavior.class, null);
-                boolean isPlayingBehavior = simpleAgent.isPlayingBehavior(PlayableBehavior.class);
+                simaAgent.start();
+                simaAgent.addBehavior(PlayableBehavior.class, null);
+                boolean isPlayingBehavior = simaAgent.isPlayingBehavior(PlayableBehavior.class);
                 assertFalse(isPlayingBehavior);
             }
             
             @Test
             @DisplayName("Test if isPlayingBehavior returns true if the behavior is added and played by the agent")
             void testIsPlayingBehaviorWithAddedAndPlayedBehavior() {
-                simpleAgent.start();
-                simpleAgent.addBehavior(PlayableBehavior.class, null);
-                simpleAgent.startPlayingBehavior(PlayableBehavior.class);
-                boolean isPlayingBehavior = simpleAgent.isPlayingBehavior(PlayableBehavior.class);
+                simaAgent.start();
+                simaAgent.addBehavior(PlayableBehavior.class, null);
+                simaAgent.startPlayingBehavior(PlayableBehavior.class);
+                boolean isPlayingBehavior = simaAgent.isPlayingBehavior(PlayableBehavior.class);
                 assertTrue(isPlayingBehavior);
             }
             
@@ -630,15 +638,15 @@ public class TestSimpleAgent {
             @Test
             @DisplayName("Test if getBehavior returns null if the behavior is not added")
             void testGetBehaviorWithNotAddedBehavior() {
-                var behavior = simpleAgent.getBehavior(PlayableBehavior.class);
+                var behavior = simaAgent.getBehavior(PlayableBehavior.class);
                 assertNull(behavior);
             }
             
             @Test
             @DisplayName("Test if getBehavior returns a instance of behavior if the behavior has been added")
             void testGetBehaviorWithAddedBehavior() {
-                simpleAgent.addBehavior(PlayableBehavior.class, null);
-                var behavior = simpleAgent.getBehavior(PlayableBehavior.class);
+                simaAgent.addBehavior(PlayableBehavior.class, null);
+                var behavior = simaAgent.getBehavior(PlayableBehavior.class);
                 assertNotNull(behavior);
             }
             
@@ -661,7 +669,7 @@ public class TestSimpleAgent {
             void testAddProtocolWithProtocolClassWithNotCorrectConstructor() {
                 Map<String, String> args = new HashMap<>();
                 String protocolTag = "TAG";
-                boolean protocolAdded = simpleAgent.addProtocol(WrongConstructorProtocol.class, protocolTag, args);
+                boolean protocolAdded = simaAgent.addProtocol(WrongConstructorProtocol.class, protocolTag, args);
                 assertFalse(protocolAdded);
             }
             
@@ -670,7 +678,7 @@ public class TestSimpleAgent {
             void testAddProtocolWithProtocolClassWithCorrectConstructor() {
                 Map<String, String> args = new HashMap<>();
                 String protocolTag = "TAG";
-                boolean protocolAdded = simpleAgent.addProtocol(CorrectProtocol0.class, protocolTag, args);
+                boolean protocolAdded = simaAgent.addProtocol(CorrectProtocol0.class, protocolTag, args);
                 assertTrue(protocolAdded);
             }
             
@@ -679,7 +687,7 @@ public class TestSimpleAgent {
             void testAddProtocolWithProtocolClassWithNoDefaultProtocolManipulator() {
                 Map<String, String> args = new HashMap<>();
                 String protocolTag = "TAG";
-                boolean protocolAdded = simpleAgent
+                boolean protocolAdded = simaAgent
                         .addProtocol(NoDefaultProtocolManipulatorProtocol.class, protocolTag, args);
                 assertFalse(protocolAdded);
             }
@@ -688,7 +696,7 @@ public class TestSimpleAgent {
             @DisplayName("Test if addProtocol returns false if the method is called with null protocolTag")
             void testAddProtocolWithNullProtocolTag() {
                 Map<String, String> args = new HashMap<>();
-                boolean protocolAdded = simpleAgent.addProtocol(CorrectProtocol0.class, null, args);
+                boolean protocolAdded = simaAgent.addProtocol(CorrectProtocol0.class, null, args);
                 assertFalse(protocolAdded);
             }
             
@@ -696,40 +704,40 @@ public class TestSimpleAgent {
             @DisplayName("Test if addProtocol returns true if the methods is called with null args map")
             void testAddProtocolWithNullArgsMap() {
                 String protocolTag = "TAG";
-                boolean protocolAdded = simpleAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
+                boolean protocolAdded = simaAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
                 assertTrue(protocolAdded);
             }
             
             @Test
             @DisplayName("Test if addProtocol returns true if the protocol class added is the same than an already " +
-                                 "added protocol class but the tag is different")
+                    "added protocol class but the tag is different")
             void testAddProtocolWithSameProtocolClassButDifferentTag() {
                 String protocolTag0 = "TAG_0";
                 String protocolTag1 = "TAG_1";
-                boolean firstProtocolAdded = simpleAgent.addProtocol(CorrectProtocol0.class, protocolTag0, null);
-                boolean secondProtocolAdded = simpleAgent.addProtocol(CorrectProtocol0.class, protocolTag1, null);
+                boolean firstProtocolAdded = simaAgent.addProtocol(CorrectProtocol0.class, protocolTag0, null);
+                boolean secondProtocolAdded = simaAgent.addProtocol(CorrectProtocol0.class, protocolTag1, null);
                 assertTrue(firstProtocolAdded);
                 assertTrue(secondProtocolAdded);
             }
             
             @Test
             @DisplayName("Test if addProtocol returns false if the protocol tag is the same than an already added " +
-                                 "protocol")
+                    "protocol")
             void testAddProtocolWithSameProtocolTag() {
                 String protocolTag = "TAG_0";
-                boolean firstProtocolAdded = simpleAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
-                boolean secondProtocolAdded = simpleAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
+                boolean firstProtocolAdded = simaAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
+                boolean secondProtocolAdded = simaAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
                 assertTrue(firstProtocolAdded);
                 assertFalse(secondProtocolAdded);
             }
             
             @Test
             @DisplayName("Test if addProtocol returns true if the protocol tag is the same than an already added " +
-                                 "protocol but the class is different")
+                    "protocol but the class is different")
             void testAddProtocolWithDifferentProtocolClassButSameTag() {
                 String protocolTag = "TAG_0";
-                boolean firstProtocolAdded = simpleAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
-                boolean secondProtocolAdded = simpleAgent.addProtocol(CorrectProtocol1.class, protocolTag, null);
+                boolean firstProtocolAdded = simaAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
+                boolean secondProtocolAdded = simaAgent.addProtocol(CorrectProtocol1.class, protocolTag, null);
                 assertTrue(firstProtocolAdded);
                 assertTrue(secondProtocolAdded);
             }
@@ -746,7 +754,7 @@ public class TestSimpleAgent {
             void testGetProtocolWithNotAddedProtocol() {
                 String protocolTag = "TAG";
                 var p0 = new ProtocolIdentifier(CorrectProtocol0.class, protocolTag);
-                var protocol = simpleAgent.getProtocol(p0);
+                var protocol = simaAgent.getProtocol(p0);
                 assertNull(protocol);
             }
             
@@ -754,9 +762,9 @@ public class TestSimpleAgent {
             @DisplayName("Test if getProtocol returns an instance of protocol if the protocol is added")
             void testGetProtocolWithAddedProtocol() {
                 String protocolTag = "TAG";
-                simpleAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
+                simaAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
                 var p0 = new ProtocolIdentifier(CorrectProtocol0.class, protocolTag);
-                var protocol = simpleAgent.getProtocol(p0);
+                var protocol = simaAgent.getProtocol(p0);
                 assertNotNull(protocol);
             }
             
@@ -767,26 +775,26 @@ public class TestSimpleAgent {
             void testGetProtocolWithSameProtocolClassButDifferentTag() {
                 String protocolTag0 = "TAG_0";
                 String protocolTag1 = "TAG_1";
-                simpleAgent.addProtocol(CorrectProtocol0.class, protocolTag0, null);
-                simpleAgent.addProtocol(CorrectProtocol0.class, protocolTag1, null);
+                simaAgent.addProtocol(CorrectProtocol0.class, protocolTag0, null);
+                simaAgent.addProtocol(CorrectProtocol0.class, protocolTag1, null);
                 var p0 = new ProtocolIdentifier(CorrectProtocol0.class, protocolTag0);
                 var p1 = new ProtocolIdentifier(CorrectProtocol0.class, protocolTag1);
-                var protocol0 = simpleAgent.getProtocol(p0);
-                var protocol1 = simpleAgent.getProtocol(p1);
+                var protocol0 = simaAgent.getProtocol(p0);
+                var protocol1 = simaAgent.getProtocol(p1);
                 assertNotSame(protocol0, protocol1);
             }
             
             @Test
             @DisplayName("Test if getProtocol returns two different instances of protocol if protocols added have " +
-                                 "different class but same tag")
+                    "different class but same tag")
             void testGetProtocolWithDifferentProtocolClassButSameTag() {
                 String protocolTag = "TAG";
-                simpleAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
-                simpleAgent.addProtocol(CorrectProtocol1.class, protocolTag, null);
+                simaAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
+                simaAgent.addProtocol(CorrectProtocol1.class, protocolTag, null);
                 var p0 = new ProtocolIdentifier(CorrectProtocol0.class, protocolTag);
                 var p1 = new ProtocolIdentifier(CorrectProtocol1.class, protocolTag);
-                var protocol0 = simpleAgent.getProtocol(p0);
-                var protocol1 = simpleAgent.getProtocol(p1);
+                var protocol0 = simaAgent.getProtocol(p0);
+                var protocol1 = simaAgent.getProtocol(p1);
                 assertNotSame(protocol0, protocol1);
             }
         }
@@ -802,63 +810,51 @@ public class TestSimpleAgent {
         @Test
         @DisplayName("Test if processEvent throws an AgentNotStartedException if the agent is not started")
         void testProcessEventWithNotStartedAgent() {
-            assertThrows(AgentNotStartedException.class, () -> simpleAgent.processEvent(mockEvent));
+            assertThrows(AgentNotStartedException.class, () -> simaAgent.processEvent(mockEvent));
         }
         
         @Test
-        @DisplayName("Test if processEvent throws an UnsupportedOperationException if the event does not have " +
-                             "protocolTargeted")
+        @DisplayName("Test if processEvent throws an UnsupportedOperationException if the event is not an ProtocolEvent")
         void testProcessEventWithNoIntendedProtocolEvent() {
-            // GIVEN
-            when(mockEvent.hasIntendedProtocol()).thenReturn(false);
-            
-            // WHEN
-            simpleAgent.start();
-            assertThrows(UnsupportedOperationException.class, () -> simpleAgent.processEvent(mockEvent));
-            
-            // THEN
-            verify(mockEvent, times(1)).hasIntendedProtocol();
+            simaAgent.start();
+            assertThrows(UnsupportedOperationException.class, () -> simaAgent.processEvent(mockEvent));
         }
         
         @Test
-        @DisplayName("Test if processEvent throws an IllegalArgumentException if the event has as Intended protocol a " +
-                             "protocol not added in the agent")
+        @DisplayName("Test if processEvent throws an IllegalArgumentException if the event has as intended protocol a " +
+                "protocol not added in the agent")
         void testProcessEventWithEventWithNotAddedIntendedProtocolInTheAgent() {
             String protocolTag = "TAG";
             var protocolIdentifier = new ProtocolIdentifier(CorrectProtocol0.class, protocolTag);
             
             // GIVEN
-            when(mockEvent.hasIntendedProtocol()).thenReturn(true);
-            when(mockEvent.getProtocolIntended()).thenReturn(protocolIdentifier);
+            when(mockProtocolEvent.getIntendedProtocol()).thenReturn(protocolIdentifier);
             
             // WHEN
-            simpleAgent.start();
-            assertThrows(IllegalArgumentException.class, () -> simpleAgent.processEvent(mockEvent));
+            simaAgent.start();
+            assertThrows(IllegalArgumentException.class, () -> simaAgent.processEvent(mockProtocolEvent));
             
             // THEN
-            verify(mockEvent, times(1)).hasIntendedProtocol();
-            verify(mockEvent, times(1)).getProtocolIntended();
+            verify(mockProtocolEvent, atLeast(1)).getIntendedProtocol();
         }
         
         @Test
         @DisplayName("Test if processEvent does not throw an exception if the event has a protocolTargeted added in " +
-                             "the agent")
+                "the agent")
         void testProcessEventWithEventWithIntendedProtocolAddedInTheAgent() {
             String protocolTag = "TAG";
             var protocolIdentifier = new ProtocolIdentifier(CorrectProtocol0.class, protocolTag);
             
             // GIVEN
-            when(mockEvent.hasIntendedProtocol()).thenReturn(true);
-            when(mockEvent.getProtocolIntended()).thenReturn(protocolIdentifier);
+            when(mockProtocolEvent.getIntendedProtocol()).thenReturn(protocolIdentifier);
             
             // WHEN
-            simpleAgent.start();
-            simpleAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
-            assertDoesNotThrow(() -> simpleAgent.processEvent(mockEvent));
+            simaAgent.start();
+            simaAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
+            assertDoesNotThrow(() -> simaAgent.processEvent(mockProtocolEvent));
             
             // THEN
-            verify(mockEvent, times(1)).hasIntendedProtocol();
-            verify(mockEvent, times(1)).getProtocolIntended();
+            verify(mockProtocolEvent, times(1)).getIntendedProtocol();
         }
         
     }
@@ -871,9 +867,9 @@ public class TestSimpleAgent {
         @Test
         @DisplayName("Test if getAgentIdentifier returns a correct AgentIdentifier")
         void testGetAgentIdentifier() {
-            var expectedAgentIdentifier = new AgentIdentifier(simpleAgent.getAgentName(), simpleAgent.getSequenceId()
-                    , simpleAgent.getUniqueId());
-            var agentIdentifier = simpleAgent.getAgentIdentifier();
+            var expectedAgentIdentifier = new AgentIdentifier(simaAgent.getAgentName(), simaAgent.getSequenceId()
+                    , simaAgent.getUniqueId());
+            var agentIdentifier = simaAgent.getAgentIdentifier();
             assertEquals(expectedAgentIdentifier, agentIdentifier);
         }
         
@@ -890,34 +886,34 @@ public class TestSimpleAgent {
             try (MockedStatic<SimaSimulation> simaSimulationMockedStatic = mockSimaSimulation()) {
                 // GIVEN
                 simulateSimaSimulationGetAgentEnvironmentReturnsEmptyList(simaSimulationMockedStatic,
-                        simpleAgent.getAgentIdentifier());
+                        simaAgent.getAgentIdentifier());
                 
                 // WHEN
                 String protocolTag = "TAG";
-                simpleAgent.addBehavior(PlayableBehavior.class, null);
-                simpleAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
-                simpleAgent.addProtocol(CorrectProtocol1.class, protocolTag, null);
+                simaAgent.addBehavior(PlayableBehavior.class, null);
+                simaAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
+                simaAgent.addProtocol(CorrectProtocol1.class, protocolTag, null);
                 
-                List<String> behaviorNames = simpleAgent.getBehaviorList().stream().map(b -> b.getClass().getName())
+                List<String> behaviorNames = simaAgent.getBehaviorList().stream().map(b -> b.getClass().getName())
                         .collect(Collectors.toList());
                 List<ProtocolIdentifier> protocolIdentifiers =
-                        simpleAgent.getProtocolList().stream().map(Protocol::getIdentifier)
+                        simaAgent.getProtocolList().stream().map(Protocol::getIdentifier)
                                 .collect(Collectors.toList());
                 List<String> environmentNames =
-                        simpleAgent.getEnvironmentList().stream().map(Environment::getEnvironmentName)
+                        simaAgent.getEnvironmentList().stream().map(Environment::getEnvironmentName)
                                 .collect(Collectors.toList());
-                var expectedAgentInfo = new AgentInfo(simpleAgent.getAgentIdentifier(), behaviorNames,
+                var expectedAgentInfo = new AgentInfo(simaAgent.getAgentIdentifier(), behaviorNames,
                         protocolIdentifiers, environmentNames);
-                var agentInfo = simpleAgent.getInfo();
+                var agentInfo = simaAgent.getInfo();
                 
                 // THEN
-                assertEquals(expectedAgentInfo.getAgentIdentifier(), agentInfo.getAgentIdentifier());
-                assertThat(expectedAgentInfo.getBehaviors())
-                        .containsExactly(agentInfo.getBehaviors().toArray(new String[0]));
-                assertThat(expectedAgentInfo.getProtocols())
-                        .containsExactly(agentInfo.getProtocols().toArray(new ProtocolIdentifier[0]));
-                assertThat(expectedAgentInfo.getEnvironments())
-                        .containsExactly(agentInfo.getEnvironments().toArray(new String[0]));
+                assertEquals(expectedAgentInfo.agentIdentifier(), agentInfo.agentIdentifier());
+                assertThat(expectedAgentInfo.behaviors())
+                        .containsExactly(agentInfo.behaviors().toArray(new String[0]));
+                assertThat(expectedAgentInfo.protocols())
+                        .containsExactly(agentInfo.protocols().toArray(new ProtocolIdentifier[0]));
+                assertThat(expectedAgentInfo.environments())
+                        .containsExactly(agentInfo.environments().toArray(new String[0]));
             }
         }
         

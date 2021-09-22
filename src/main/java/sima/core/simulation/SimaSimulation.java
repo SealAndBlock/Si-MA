@@ -2,7 +2,7 @@ package sima.core.simulation;
 
 import org.jetbrains.annotations.NotNull;
 import sima.core.agent.AgentIdentifier;
-import sima.core.agent.SimpleAgent;
+import sima.core.agent.SimaAgent;
 import sima.core.environment.Environment;
 import sima.core.exception.*;
 import sima.core.protocol.Protocol;
@@ -56,7 +56,7 @@ public final class SimaSimulation {
     public static void runSimulation(String configurationJsonPath) throws SimaSimulationFailToStartRunningException {
         SimaSimulationJson simaSimulationJson;
         Set<Environment> allEnvironments;
-        Set<SimpleAgent> allAgents;
+        Set<SimaAgent> allAgents;
         Map<String, BehaviorJson> mapBehaviors;
         Map<String, ProtocolJson> mapProtocols;
         Map<String, Environment> mapEnvironments = new HashMap<>();
@@ -223,12 +223,12 @@ public final class SimaSimulation {
      *
      * @return a set which contains all instances of agents created from the configuration file.
      */
-    private static @NotNull Set<SimpleAgent> createAllAgents(SimaSimulationJson simaSimulationJson,
-                                                             Map<String, BehaviorJson> mapBehaviors,
-                                                             Map<String, ProtocolJson> mapProtocols,
-                                                             Map<String, Environment> mapEnvironments)
+    private static @NotNull Set<SimaAgent> createAllAgents(SimaSimulationJson simaSimulationJson,
+                                                           Map<String, BehaviorJson> mapBehaviors,
+                                                           Map<String, ProtocolJson> mapProtocols,
+                                                           Map<String, Environment> mapEnvironments)
             throws NoSuchMethodException, ClassNotFoundException, ConfigurationException, FailInstantiationException {
-        Set<SimpleAgent> agentSet = new HashSet<>();
+        Set<SimaAgent> agentSet = new HashSet<>();
         createAndAssociateAllAgents(simaSimulationJson, mapBehaviors, mapProtocols, mapEnvironments, agentSet);
         return agentSet;
     }
@@ -237,7 +237,7 @@ public final class SimaSimulation {
                                                     Map<String, BehaviorJson> mapBehaviors,
                                                     Map<String, ProtocolJson> mapProtocols,
                                                     Map<String, Environment> mapEnvironments,
-                                                    Set<SimpleAgent> agentSet)
+                                                    Set<SimaAgent> agentSet)
             throws ConfigurationException, NoSuchMethodException, ClassNotFoundException, FailInstantiationException {
         if (simaSimulationJson.getAgents() != null) {
             var counter = new AtomicInteger(0);
@@ -269,21 +269,21 @@ public final class SimaSimulation {
      * @param mapProtocols    the protocolJson map
      * @param mapEnvironments the environment map
      */
-    private static void createAgent(AgentJson agentJson, Set<SimpleAgent> agents,
+    private static void createAgent(AgentJson agentJson, Set<SimaAgent> agents,
                                     Map<String, BehaviorJson> mapBehaviors, Map<String, ProtocolJson> mapProtocols,
                                     Map<String, Environment> mapEnvironments, AtomicInteger counter,
                                     SimaSimulationJson simaSimulationJson)
             throws NoSuchMethodException, ConfigurationException, ClassNotFoundException, FailInstantiationException {
         
         for (var i = 0; i < agentJson.getNumberToCreate(); i++) {
-            SimpleAgent agent = createAgentAndAddInSet(agents, agentJson, i, counter.getAndIncrement());
+            SimaAgent agent = createAgentAndAddInSet(agents, agentJson, i, counter.getAndIncrement());
             associateAgentAndEnvironments(agent, agentJson, mapEnvironments);
             associateAgentAndBehaviors(agent, agentJson, mapBehaviors);
             associateAgentAndProtocol(agent, agentJson, mapProtocols, simaSimulationJson);
         }
     }
     
-    private static void associateAgentAndBehaviors(SimpleAgent agent, AgentJson agentJson,
+    private static void associateAgentAndBehaviors(SimaAgent agent, AgentJson agentJson,
                                                    Map<String, BehaviorJson> mapBehaviors)
             throws ConfigurationException, ClassNotFoundException {
         
@@ -295,7 +295,7 @@ public final class SimaSimulation {
             }
     }
     
-    private static void addBehaviorToAgent(SimpleAgent agent, BehaviorJson behaviorJson)
+    private static void addBehaviorToAgent(SimaAgent agent, BehaviorJson behaviorJson)
             throws ClassNotFoundException, ConfigurationException {
         
         if (!agent.addBehavior(extractClassForName(behaviorJson.getBehaviorClass()), parseArgs(behaviorJson)))
@@ -303,7 +303,7 @@ public final class SimaSimulation {
                     "Unable to add behavior " + behaviorJson.getBehaviorClass() + " to agent " + agent);
     }
     
-    private static void associateAgentAndProtocol(SimpleAgent agent, AgentJson agentJson,
+    private static void associateAgentAndProtocol(SimaAgent agent, AgentJson agentJson,
                                                   Map<String, ProtocolJson> mapProtocols,
                                                   SimaSimulationJson simaSimulationJson)
             throws ConfigurationException, ClassNotFoundException, NoSuchMethodException {
@@ -314,7 +314,7 @@ public final class SimaSimulation {
         }
     }
     
-    private static void addAllProtocolsToAgent(SimpleAgent agent, AgentJson agentJson,
+    private static void addAllProtocolsToAgent(SimaAgent agent, AgentJson agentJson,
                                                Map<String, ProtocolJson> mapProtocols)
             throws ConfigurationException, ClassNotFoundException {
         for (String protocolId : agentJson.getProtocols()) {
@@ -324,7 +324,7 @@ public final class SimaSimulation {
         }
     }
     
-    private static void linkProtocolDependencies(SimpleAgent agent, AgentJson agentJson,
+    private static void linkProtocolDependencies(SimaAgent agent, AgentJson agentJson,
                                                  Map<String, ProtocolJson> mapProtocols,
                                                  SimaSimulationJson simaSimulationJson)
             throws ClassNotFoundException, NoSuchMethodException {
@@ -369,7 +369,7 @@ public final class SimaSimulation {
         return "set" + formattedFieldName;
     }
     
-    private static void addProtocolToAgent(SimpleAgent agent, ProtocolJson protocolJson)
+    private static void addProtocolToAgent(SimaAgent agent, ProtocolJson protocolJson)
             throws ConfigurationException, ClassNotFoundException {
         
         if (!agent.addProtocol(extractClassForName(protocolJson.getProtocolClass()), protocolJson.getTag(),
@@ -378,7 +378,7 @@ public final class SimaSimulation {
                     "Unable to add protocol " + protocolJson.getProtocolClass() + " to agent " + agent);
     }
     
-    private static void associateAgentAndEnvironments(SimpleAgent agent, AgentJson agentJson,
+    private static void associateAgentAndEnvironments(SimaAgent agent, AgentJson agentJson,
                                                       Map<String, Environment> mapEnvironments)
             throws ConfigurationException {
         
@@ -390,33 +390,33 @@ public final class SimaSimulation {
             }
     }
     
-    private static void agentJoinEnvironment(SimpleAgent agent, Environment environment)
+    private static void agentJoinEnvironment(SimaAgent agent, Environment environment)
             throws ConfigurationException {
         if (!agent.joinEnvironment(environment)) {
             throw new ConfigurationException("Agent " + agent + " unable to join the Environment " + environment);
         }
     }
     
-    private static @NotNull SimpleAgent createAgentAndAddInSet(Set<SimpleAgent> agents, AgentJson agentJson,
-                                                               int agentSequenceId, int agentUniqueId)
+    private static @NotNull SimaAgent createAgentAndAddInSet(Set<SimaAgent> agents, AgentJson agentJson,
+                                                             int agentSequenceId, int agentUniqueId)
             throws ClassNotFoundException, ConfigurationException, FailInstantiationException {
         
-        SimpleAgent agent = createAgent(extractClassForName(agentJson.getAgentClass()),
+        SimaAgent agent = createAgent(extractClassForName(agentJson.getAgentClass()),
                 String.format(agentJson.getNamePattern(), agentSequenceId), agentSequenceId,
                 agentUniqueId, parseArgs(agentJson));
         addAgentInAgentSet(agents, agent);
         return agent;
     }
     
-    private static void addAgentInAgentSet(Set<SimpleAgent> agents, SimpleAgent agent)
+    private static void addAgentInAgentSet(Set<SimaAgent> agents, SimaAgent agent)
             throws ConfigurationException {
         if (!agents.add(agent))
             throw new ConfigurationException(
                     "Fail to add agent is agent set -> Two agent with same hashCode. Agent not added = " + agent);
     }
     
-    private static @NotNull SimpleAgent createAgent(Class<? extends SimpleAgent> agentClass, String agentName,
-                                                    int agentSequenceId, int agentUniqueId, Map<String, String> args)
+    private static @NotNull SimaAgent createAgent(Class<? extends SimaAgent> agentClass, String agentName,
+                                                  int agentSequenceId, int agentUniqueId, Map<String, String> args)
             throws FailInstantiationException {
         return instantiate(agentClass, new Class[]{String.class, int.class, int.class, Map.class}, agentName,
                 agentSequenceId, agentUniqueId, args);
@@ -526,7 +526,7 @@ public final class SimaSimulation {
      *
      * @throws SimaSimulationFailToStartRunningException if exception is thrown during the start of the simulation
      */
-    public static void runSimulation(Scheduler scheduler, Set<SimpleAgent> allAgents,
+    public static void runSimulation(Scheduler scheduler, Set<SimaAgent> allAgents,
                                      Set<Environment> allEnvironments,
                                      Class<? extends SimulationSetup> simulationSetupClass, SimaWatcher simaWatcher)
             throws SimaSimulationFailToStartRunningException {
@@ -594,7 +594,7 @@ public final class SimaSimulation {
      *
      * @throws NullPointerException if one agent is null.
      */
-    private static void simaSimulationAddAllAgents(Set<SimpleAgent> allAgents) {
+    private static void simaSimulationAddAllAgents(Set<SimaAgent> allAgents) {
         createNewAgentManager();
         if (allAgents != null && !allAgents.isEmpty())
             addAllAgents(allAgents);
@@ -605,8 +605,8 @@ public final class SimaSimulation {
             simaSimulation.agentManager = new LocalAgentManager();
     }
     
-    private static void addAllAgents(Set<SimpleAgent> allAgents) {
-        for (SimpleAgent agent : allAgents) {
+    private static void addAllAgents(Set<SimaAgent> allAgents) {
+        for (SimaAgent agent : allAgents) {
             addAgent(Optional.of(agent).get());
         }
     }
@@ -684,7 +684,7 @@ public final class SimaSimulation {
      * Start all agents in managed by {@link #agentManager}.
      */
     private static void simaSimulationStartAllAgents() {
-        for (SimpleAgent agent : simaSimulation.agentManager.getAllAgents()) {
+        for (SimaAgent agent : simaSimulation.agentManager.getAllAgents()) {
             if (!agent.isStarted())
                 agent.start();
         }
@@ -810,7 +810,7 @@ public final class SimaSimulation {
     /**
      * @param agent - the agent to add
      */
-    public static void addAgent(SimpleAgent agent) {
+    public static void addAgent(SimaAgent agent) {
         verifySimaSimulationIsRunning();
         if (simaSimulation.agentManager.addAgent(agent))
             SimaLog.info(agent + " ADDED in SimaSimulation");
@@ -825,7 +825,7 @@ public final class SimaSimulation {
      *
      * @throws NullPointerException if the agentIdentifier is null.
      */
-    public static SimpleAgent getAgent(AgentIdentifier agentIdentifier) {
+    public static SimaAgent getAgent(AgentIdentifier agentIdentifier) {
         verifySimaSimulationIsRunning();
         return simaSimulation.findAgent(agentIdentifier);
     }
@@ -928,13 +928,13 @@ public final class SimaSimulation {
      *
      * @throws NullPointerException if the agentIdentifier is null.
      */
-    private SimpleAgent findAgent(AgentIdentifier agentIdentifier) {
+    private SimaAgent findAgent(AgentIdentifier agentIdentifier) {
         if (agentIdentifier == null)
             return null;
         
-        List<SimpleAgent> agents = this.agentManager.getAllAgents();
-        SimpleAgent res = null;
-        for (SimpleAgent agent : agents)
+        List<SimaAgent> agents = this.agentManager.getAllAgents();
+        SimaAgent res = null;
+        for (SimaAgent agent : agents)
             if (agent.getAgentIdentifier().equals(agentIdentifier)) {
                 res = agent;
                 break;

@@ -1,26 +1,26 @@
 package sima.basic.behavior;
 
-import sima.core.agent.SimpleAgent;
+import sima.core.agent.SimaAgent;
 import sima.core.behavior.Behavior;
 import sima.core.exception.BehaviorCannotBePlayedByAgentException;
 
 import java.util.Map;
 
 /**
- * A {@link Behavior} which is playable by all agents. Its method {@link Behavior#canBePlayedBy(SimpleAgent)} always returns true.
+ * A {@link Behavior} which is playable by all agents. Its method {@link Behavior#canBePlayedBy(SimaAgent)} always returns true.
  */
 public class PlayableByAllAgentsBehavior extends Behavior {
     
     // Constructors.
     
-    public PlayableByAllAgentsBehavior(SimpleAgent agent, Map<String, String> args) throws BehaviorCannotBePlayedByAgentException {
+    public PlayableByAllAgentsBehavior(SimaAgent agent, Map<String, String> args) throws BehaviorCannotBePlayedByAgentException {
         super(agent, args);
     }
     
     // Methods.
     
     @Override
-    public final boolean canBePlayedBy(SimpleAgent agent) {
+    public final boolean canBePlayedBy(SimaAgent agent) {
         return true;
     }
     

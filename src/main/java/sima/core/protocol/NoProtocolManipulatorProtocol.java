@@ -1,6 +1,6 @@
 package sima.core.protocol;
 
-import sima.core.agent.SimpleAgent;
+import sima.core.agent.SimaAgent;
 
 import java.util.Map;
 
@@ -8,7 +8,7 @@ public abstract class NoProtocolManipulatorProtocol extends Protocol {
     
     // Constructors.
     
-    protected NoProtocolManipulatorProtocol(String protocolTag, SimpleAgent agentOwner, Map<String, String> args) {
+    protected NoProtocolManipulatorProtocol(String protocolTag, SimaAgent agentOwner, Map<String, String> args) {
         super(protocolTag, agentOwner, args);
     }
     
