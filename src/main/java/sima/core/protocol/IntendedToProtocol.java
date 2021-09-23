@@ -2,7 +2,7 @@ package sima.core.protocol;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface IntendedForProtocol {
+public interface IntendedToProtocol {
     
     @NotNull ProtocolIdentifier getIntendedProtocol();
     

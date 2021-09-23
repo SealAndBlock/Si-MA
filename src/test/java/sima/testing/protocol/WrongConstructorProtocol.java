@@ -2,7 +2,7 @@ package sima.testing.protocol;
 
 import sima.core.agent.SimaAgent;
 import sima.core.environment.event.Event;
-import sima.core.environment.event.transport.EventTransportable;
+import sima.core.environment.event.transport.TransportableInEvent;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolManipulator;
 
@@ -26,6 +26,6 @@ public class WrongConstructorProtocol extends Protocol {
     }
     
     @Override
-    public void processEventTransportable(EventTransportable eventTransportable) {
+    public void processEventTransportable(TransportableInEvent transportableInEvent) {
     }
 }

@@ -3,12 +3,12 @@ package sima.basic.environment.message.event;
 import org.jetbrains.annotations.NotNull;
 import sima.basic.environment.message.Message;
 import sima.core.environment.event.Event;
-import sima.core.protocol.IntendedForProtocol;
+import sima.core.protocol.IntendedToProtocol;
 import sima.core.protocol.ProtocolIdentifier;
 
 import java.util.Optional;
 
-public class MessageReceptionEvent extends Event implements IntendedForProtocol {
+public class MessageReceptionEvent extends Event implements IntendedToProtocol {
     
     // Variables.
     

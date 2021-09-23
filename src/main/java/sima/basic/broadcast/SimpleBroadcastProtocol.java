@@ -1,66 +1,45 @@
 package sima.basic.broadcast;
 
 import sima.basic.broadcast.message.BroadcastMessage;
-import sima.basic.environment.message.event.physical.PhysicalMessageReceptionEvent;
-import sima.basic.transport.TransportProtocol;
+import sima.basic.environment.message.Message;
+import sima.basic.transport.MessageTransportProtocol;
 import sima.core.agent.AgentIdentifier;
 import sima.core.agent.SimaAgent;
-import sima.core.environment.event.Event;
-import sima.core.environment.event.transport.EventTransportable;
+import sima.core.environment.event.transport.TransportableInEvent;
 import sima.core.exception.UnknownProtocolForAgentException;
 import sima.core.protocol.ProtocolManipulator;
+import sima.core.protocol.TransportableIntendedToProtocol;
 
 import java.util.Map;
 
-public class SimpleBroadcastProtocol extends TransportProtocol implements Broadcaster {
-    
-    // Static.
-    
-    public static final String ARG_PHYSICAL_CONNECTION_LAYER_NAME = "physicalConnectionLayerName";
-    
-    // Variables.
-    
-    private String physicalConnectionLayerName;
+public class SimpleBroadcastProtocol extends MessageTransportProtocol implements Broadcaster {
     
     // Constructors.
     
     public SimpleBroadcastProtocol(String protocolTag, SimaAgent agentOwner, Map<String, String> args) {
         super(protocolTag, agentOwner, args);
-        parseArgs(args);
     }
     
     // Methods.
     
-    private void parseArgs(Map<String, String> args) {
-        if (args == null)
-            throw new IllegalArgumentException(
-                    SimpleBroadcastProtocol.class + " lust have one argument call " + ARG_PHYSICAL_CONNECTION_LAYER_NAME);
-        
-        physicalConnectionLayerName = args.get(ARG_PHYSICAL_CONNECTION_LAYER_NAME);
-        if (physicalConnectionLayerName == null)
-            throw new IllegalArgumentException("No " + ARG_PHYSICAL_CONNECTION_LAYER_NAME + " argument");
-    }
-    
-    private BroadcastMessage createBroadcastMessage(EventTransportable content) {
+    private BroadcastMessage createBroadcastMessage(TransportableIntendedToProtocol content) {
         return new BroadcastMessage(getAgentOwner().getAgentIdentifier(), content, getIdentifier());
     }
     
-    private PhysicalMessageReceptionEvent createBroadcastMessageReception(BroadcastMessage broadcastMessage) {
-        return new PhysicalMessageReceptionEvent(broadcastMessage, broadcastMessage.getIntendedProtocol());
-    }
-    
     @Override
-    public void broadcast(EventTransportable content) {
+    public void broadcast(TransportableIntendedToProtocol content) {
         for (AgentIdentifier agent : getEnvironment().getEvolvingAgentIdentifiers()) {
-            getEnvironment()
-                    .getPhysicalConnectionLayer(physicalConnectionLayerName)
-                    .send(getAgentOwner().getAgentIdentifier(), agent, createBroadcastMessageReception(createBroadcastMessage(content)));
+            transport(agent, createBroadcastMessage(content));
         }
     }
     
     @Override
-    public void receive(BroadcastMessage broadcastMessage) {
-        deliver(broadcastMessage);
+    public void receive(Message message) {
+        if (message instanceof BroadcastMessage broadcastMessage)
+            deliver(broadcastMessage);
+        else
+            throw new UnsupportedOperationException(
+                    getClass() + " does not support the reception of other type of " + Message.class + " than " + BroadcastMessage.class);
     }
     
     /**
@@ -68,49 +47,39 @@ public class SimpleBroadcastProtocol extends TransportProtocol implements Broadc
      * <p>
      * If the owner agent does not know the intended agent, throws an {@link UnknownProtocolForAgentException}.
      *
-     * @param broadcastMessage to deliver
+     * @param message to deliver
      *
      * @throws UnknownProtocolForAgentException if the intended protocol is not known by the owner agent
      */
     @Override
-    public void deliver(BroadcastMessage broadcastMessage) {
-        EventTransportable content = broadcastMessage.getContent();
-        var intendedProtocolIdentifier = broadcastMessage.getIntendedProtocol();
-        if (getAgentOwner().getProtocol(intendedProtocolIdentifier) != null)
-            getAgentOwner().getProtocol(intendedProtocolIdentifier).processEventTransportable(content);
-        else
-            throw new UnknownProtocolForAgentException(
-                    "The agent " + getAgentOwner() + " does know the protocol identify by " + intendedProtocolIdentifier);
-        
-    }
-    
-    @Override
-    public void processEvent(Event event) {
-        if (event.getContent() instanceof BroadcastMessage broadcastMessage)
-            receive(broadcastMessage);
-        else
+    public void deliver(Message message) {
+        if (message instanceof BroadcastMessage broadcastMessage) {
+            TransportableIntendedToProtocol content = broadcastMessage.getContent();
+            var intendedProtocolIdentifier = content.getIntendedProtocol();
+            if (getAgentOwner().getProtocol(intendedProtocolIdentifier) != null)
+                getAgentOwner().getProtocol(intendedProtocolIdentifier).processEventTransportable(content);
+            else
+                throw new UnknownProtocolForAgentException(
+                        "The agent " + getAgentOwner() + " does know the protocol identify by " + intendedProtocolIdentifier);
+        } else
             throw new UnsupportedOperationException(
-                    "A" + this.getClass() + " only treats " + Event.class + " which contains " + BroadcastMessage.class);
+                    getClass() + " does not support the delivery of other type of " + Message.class + " than " + BroadcastMessage.class);
     }
     
     /**
-     * Does not treat any sort of {@link EventTransportable}. Throws an {@link UnsupportedOperationException}.
+     * Does not treat any sort of {@link TransportableInEvent}. Throws an {@link UnsupportedOperationException}.
      *
-     * @param eventTransportable to process
+     * @param transportableInEvent to process
      *
      * @throws UnsupportedOperationException always
      */
     @Override
-    public void processEventTransportable(EventTransportable eventTransportable) {
-        throw new UnsupportedOperationException(SimpleBroadcastProtocol.class + " does not treat " + EventTransportable.class);
+    public void processEventTransportable(TransportableInEvent transportableInEvent) {
+        throw new UnsupportedOperationException(SimpleBroadcastProtocol.class + " does not treat " + TransportableInEvent.class);
     }
     
     @Override
     protected ProtocolManipulator createDefaultProtocolManipulator() {
         return new ProtocolManipulator.DefaultProtocolManipulator(this);
-    }
-    
-    public String getPhysicalConnectionLayerName() {
-        return physicalConnectionLayerName;
     }
 }

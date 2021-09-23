@@ -9,5 +9,5 @@ import java.io.Serializable;
  * <p>
  * This object is {@link Serializable} for the next multi machine simulation features.
  */
-public interface EventTransportable extends Duplicable<EventTransportable>, Serializable {
+public interface TransportableInEvent extends Duplicable<TransportableInEvent>, Serializable {
 }
