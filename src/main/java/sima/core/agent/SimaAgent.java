@@ -6,9 +6,9 @@ import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
 import sima.core.environment.event.EventProcessor;
 import sima.core.exception.*;
+import sima.core.protocol.IntendedForProtocol;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
-import sima.core.protocol.event.ProtocolEvent;
 import sima.core.simulation.SimaSimulation;
 
 import java.util.*;
@@ -476,12 +476,12 @@ public class SimaAgent implements EventProcessor {
      * @throws IllegalArgumentException if the event has a protocol targeted which is not added in the agent
      */
     protected void inProcessEvent(Event event) {
-        if (event instanceof ProtocolEvent protocolEvent) {
-            var intendedProtocol = getProtocol(protocolEvent.getIntendedProtocol());
+        if (event instanceof IntendedForProtocol intendedForProtocol) {
+            var intendedProtocol = getProtocol(intendedForProtocol.getIntendedProtocol());
             if (intendedProtocol != null) {
                 intendedProtocol.processEvent(event);
             } else {
-                throw new IllegalArgumentException(protocolEvent.getIntendedProtocol() + " is not added in the agent");
+                throw new IllegalArgumentException(intendedForProtocol.getIntendedProtocol() + " is not added in the agent");
             }
         } else
             throw new UnsupportedOperationException("The agent " + this + " cannot process event like " + event.getClass());

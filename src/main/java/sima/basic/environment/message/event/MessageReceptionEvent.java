@@ -2,20 +2,33 @@ package sima.basic.environment.message.event;
 
 import org.jetbrains.annotations.NotNull;
 import sima.basic.environment.message.Message;
+import sima.core.environment.event.Event;
+import sima.core.protocol.IntendedForProtocol;
 import sima.core.protocol.ProtocolIdentifier;
-import sima.core.protocol.event.ProtocolEvent;
 
-public class MessageReceptionEvent extends ProtocolEvent {
+import java.util.Optional;
+
+public class MessageReceptionEvent extends Event implements IntendedForProtocol {
+    
+    // Variables.
+    
+    private ProtocolIdentifier intendedProtocol;
     
     // Constructors.
     
     /**
-     * Constructs an {@link ProtocolEvent} which can only contains Message and which represents the reception of a {@link Message}.
+     * Constructs an {@link Event} which can only contains Message and which represents the reception of a {@link Message}.
+     * <p>
+     * Associate an {@link sima.core.protocol.Protocol} which is the protocol which must treat the {@link Event}. It cannot be null.
      *
-     * @param message the content
+     * @param message          the content
+     * @param intendedProtocol the intended protocol
+     *
+     * @throws NullPointerException if intendedProtocol is null
      */
     public MessageReceptionEvent(Message message, ProtocolIdentifier intendedProtocol) {
-        super(message, intendedProtocol);
+        super(message);
+        this.intendedProtocol = Optional.of(intendedProtocol).get();
     }
     
     private MessageReceptionEvent(MessageReceptionEvent other) {
@@ -27,6 +40,11 @@ public class MessageReceptionEvent extends ProtocolEvent {
     @Override
     public @NotNull MessageReceptionEvent duplicate() {
         return new MessageReceptionEvent(this);
+    }
+    
+    @Override
+    public @NotNull ProtocolIdentifier getIntendedProtocol() {
+        return intendedProtocol;
     }
     
     /**

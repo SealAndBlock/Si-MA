@@ -5,8 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sima.basic.broadcast.message.BroadcastMessage;
-import sima.core.behavior.Behavior;
+import sima.basic.environment.message.event.MessageReceptionEvent;
 import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
 import sima.core.exception.AgentNotStartedException;
@@ -15,7 +14,6 @@ import sima.core.exception.AlreadyStartedAgentException;
 import sima.core.exception.KilledAgentException;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
-import sima.core.protocol.event.ProtocolEvent;
 import sima.core.simulation.SimaSimulation;
 import sima.testing.behavior.NotPlayableBehavior;
 import sima.testing.behavior.PlayableBehavior;
@@ -53,16 +51,10 @@ public class TestSimaAgent {
     private Environment mockEnvironment;
     
     @Mock
-    private Behavior mockBehavior;
-    
-    @Mock
     private Event mockEvent;
     
     @Mock
-    private ProtocolEvent mockProtocolEvent;
-    
-    @Mock
-    private BroadcastMessage mockBroadcastMessage;
+    private MessageReceptionEvent mockIntendedForProtocol;
     
     // Init.
     
@@ -828,14 +820,14 @@ public class TestSimaAgent {
             var protocolIdentifier = new ProtocolIdentifier(CorrectProtocol0.class, protocolTag);
             
             // GIVEN
-            when(mockProtocolEvent.getIntendedProtocol()).thenReturn(protocolIdentifier);
+            when(mockIntendedForProtocol.getIntendedProtocol()).thenReturn(protocolIdentifier);
             
             // WHEN
             simaAgent.start();
-            assertThrows(IllegalArgumentException.class, () -> simaAgent.processEvent(mockProtocolEvent));
+            assertThrows(IllegalArgumentException.class, () -> simaAgent.processEvent(mockIntendedForProtocol));
             
             // THEN
-            verify(mockProtocolEvent, atLeast(1)).getIntendedProtocol();
+            verify(mockIntendedForProtocol, atLeast(1)).getIntendedProtocol();
         }
         
         @Test
@@ -846,15 +838,15 @@ public class TestSimaAgent {
             var protocolIdentifier = new ProtocolIdentifier(CorrectProtocol0.class, protocolTag);
             
             // GIVEN
-            when(mockProtocolEvent.getIntendedProtocol()).thenReturn(protocolIdentifier);
+            when(mockIntendedForProtocol.getIntendedProtocol()).thenReturn(protocolIdentifier);
             
             // WHEN
             simaAgent.start();
             simaAgent.addProtocol(CorrectProtocol0.class, protocolTag, null);
-            assertDoesNotThrow(() -> simaAgent.processEvent(mockProtocolEvent));
+            assertDoesNotThrow(() -> simaAgent.processEvent(mockIntendedForProtocol));
             
             // THEN
-            verify(mockProtocolEvent, times(1)).getIntendedProtocol();
+            verify(mockIntendedForProtocol, times(1)).getIntendedProtocol();
         }
         
     }
