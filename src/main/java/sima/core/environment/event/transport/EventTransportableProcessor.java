@@ -1,15 +1,15 @@
 package sima.core.environment.event.transport;
 
 /**
- * Interface which all processing of {@link EventTransportable}.
+ * Interface which all processing of {@link TransportableInEvent}.
  */
 public interface EventTransportableProcessor {
     
     /**
-     * Method called when an {@link EventTransportable} must be treated.
+     * Method called when an {@link TransportableInEvent} must be treated.
      *
-     * @param eventTransportable to process
+     * @param transportableInEvent to process
      */
-    void processEventTransportable(EventTransportable eventTransportable);
+    void processEventTransportable(TransportableInEvent transportableInEvent);
     
 }

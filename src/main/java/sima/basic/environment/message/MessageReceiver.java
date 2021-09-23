@@ -1,18 +1,18 @@
 package sima.basic.environment.message;
 
-public interface MessageReceiver<T extends Message> {
+public interface MessageReceiver {
     
     /**
      * Treats the reception of the message
      *
      * @param message to receive
      */
-    void receive(T message);
+    void receive(Message message);
     
     /**
      * Treats the delivery of the message
      *
      * @param message to deliver
      */
-    void deliver(T message);
+    void deliver(Message message);
 }

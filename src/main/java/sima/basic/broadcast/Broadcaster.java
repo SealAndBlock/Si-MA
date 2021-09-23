@@ -1,11 +1,9 @@
 package sima.basic.broadcast;
 
-import sima.basic.broadcast.message.BroadcastMessage;
-import sima.basic.environment.message.MessageReceiver;
-import sima.core.environment.event.transport.EventTransportable;
+import sima.core.protocol.TransportableIntendedToProtocol;
 
-public interface Broadcaster extends MessageReceiver<BroadcastMessage> {
+public interface Broadcaster {
     
-    void broadcast(EventTransportable content);
+    void broadcast(TransportableIntendedToProtocol content);
     
 }

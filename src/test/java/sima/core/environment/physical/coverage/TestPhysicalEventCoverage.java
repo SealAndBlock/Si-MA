@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sima.core.environment.event.Event;
-import sima.core.environment.event.transport.EventTransportable;
+import sima.core.environment.event.transport.TransportableInEvent;
 import sima.core.environment.physical.PhysicalEvent;
 import sima.core.environment.physical.TestPhysicalEvent;
 
@@ -18,7 +18,7 @@ public class TestPhysicalEventCoverage extends TestPhysicalEvent {
     // Variables.
     
     @Mock
-    private EventTransportable mockEvenTransportable;
+    private TransportableInEvent mockEvenTransportable;
     
     // Init.
     
@@ -39,7 +39,7 @@ public class TestPhysicalEventCoverage extends TestPhysicalEvent {
         @Test
         @DisplayName("Test constructor does not throw exception with null args")
         void testConstructorWithNullArgs() {
-            assertDoesNotThrow(() -> new PhysicalEventCoverage((EventTransportable) null));
+            assertDoesNotThrow(() -> new PhysicalEventCoverage((TransportableInEvent) null));
         }
         
         @Test
@@ -56,7 +56,7 @@ public class TestPhysicalEventCoverage extends TestPhysicalEvent {
         
         // Constructors.
         
-        public PhysicalEventCoverage(EventTransportable content) {
+        public PhysicalEventCoverage(TransportableInEvent content) {
             super(content);
         }
         

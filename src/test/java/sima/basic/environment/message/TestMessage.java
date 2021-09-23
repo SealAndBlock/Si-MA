@@ -4,9 +4,8 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sima.basic.environment.message.Message;
-import sima.core.environment.event.transport.EventTransportable;
 import sima.core.protocol.ProtocolIdentifier;
+import sima.core.protocol.TransportableIntendedToProtocol;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -22,16 +21,16 @@ public class TestMessage {
     private ProtocolIdentifier mockProtocolIdentifier;
     
     @Mock
-    protected EventTransportable mockEventTransportable;
+    protected TransportableIntendedToProtocol mockTransportableIntendedForProtocol;
     
     @Mock
-    private EventTransportable mockEventTransportableOther;
+    private TransportableIntendedToProtocol mockTransportableIntendedForProtocolOther;
     
     // Init.
     
     @BeforeEach
     protected void setUp() {
-        message = new Message(mockEventTransportable, mockProtocolIdentifier);
+        message = new Message(mockTransportableIntendedForProtocol, mockProtocolIdentifier);
     }
     
     // Test.
@@ -50,13 +49,13 @@ public class TestMessage {
         @Test
         @DisplayName("Test if constructor throws NullPointerException with null intended protocol")
         void testConstructorWithNullIntendedProtocol() {
-            assertThrows(NullPointerException.class, () -> new Message(mockEventTransportable, null));
+            assertThrows(NullPointerException.class, () -> new Message(mockTransportableIntendedForProtocol, null));
         }
         
         @Test
         @DisplayName("Test if constructor does not throw exception with not null args")
         void testConstructorWithNotNullArgs() {
-            assertDoesNotThrow(() -> new Message(mockEventTransportable, mockProtocolIdentifier));
+            assertDoesNotThrow(() -> new Message(mockTransportableIntendedForProtocol, mockProtocolIdentifier));
         }
     }
     
@@ -70,13 +69,13 @@ public class TestMessage {
                 "which must also be duplicate")
         void testDuplicate() {
             // GIVEN
-            when(mockEventTransportable.duplicate()).thenReturn(mockEventTransportableOther);
+            when(mockTransportableIntendedForProtocol.duplicate()).thenReturn(mockTransportableIntendedForProtocolOther);
             
             // WHEN
             Message duplicateMessage = message.duplicate();
             
             // THEN
-            verify(mockEventTransportable, times(1)).duplicate();
+            verify(mockTransportableIntendedForProtocol, times(1)).duplicate();
             assertSame(duplicateMessage.getIntendedProtocol(), message.getIntendedProtocol());
             assertNotSame(duplicateMessage.getContent(), message.getContent());
         }

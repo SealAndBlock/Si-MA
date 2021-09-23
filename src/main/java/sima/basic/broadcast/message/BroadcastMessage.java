@@ -3,8 +3,8 @@ package sima.basic.broadcast.message;
 import org.jetbrains.annotations.NotNull;
 import sima.basic.environment.message.Message;
 import sima.core.agent.AgentIdentifier;
-import sima.core.environment.event.transport.EventTransportable;
 import sima.core.protocol.ProtocolIdentifier;
+import sima.core.protocol.TransportableIntendedToProtocol;
 
 import java.util.Optional;
 
@@ -23,7 +23,7 @@ public class BroadcastMessage extends Message {
      *
      * @throws NullPointerException if the sender or the intended protocol is null
      */
-    public BroadcastMessage(AgentIdentifier sender, EventTransportable content, ProtocolIdentifier intendedProtocol) {
+    public BroadcastMessage(AgentIdentifier sender, TransportableIntendedToProtocol content, ProtocolIdentifier intendedProtocol) {
         super(content, intendedProtocol);
         this.sender = Optional.of(sender).get();
     }
@@ -37,6 +37,11 @@ public class BroadcastMessage extends Message {
     @Override
     public @NotNull BroadcastMessage duplicate() {
         return new BroadcastMessage(this);
+    }
+    
+    @Override
+    public TransportableIntendedToProtocol getContent() {
+        return (TransportableIntendedToProtocol) super.getContent();
     }
     
     // Getters.

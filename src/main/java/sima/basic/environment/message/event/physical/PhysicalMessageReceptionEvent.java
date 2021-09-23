@@ -4,12 +4,12 @@ import org.jetbrains.annotations.NotNull;
 import sima.basic.environment.message.Message;
 import sima.core.environment.event.Event;
 import sima.core.environment.physical.PhysicalEvent;
-import sima.core.protocol.IntendedForProtocol;
+import sima.core.protocol.IntendedToProtocol;
 import sima.core.protocol.ProtocolIdentifier;
 
 import java.util.Optional;
 
-public class PhysicalMessageReceptionEvent extends PhysicalEvent implements IntendedForProtocol {
+public class PhysicalMessageReceptionEvent extends PhysicalEvent implements IntendedToProtocol {
     
     // Variables.
     
