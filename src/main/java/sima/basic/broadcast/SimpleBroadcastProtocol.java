@@ -1,7 +1,7 @@
 package sima.basic.broadcast;
 
 import sima.basic.broadcast.message.BroadcastMessage;
-import sima.basic.environment.message.event.MessageReceptionEvent;
+import sima.basic.environment.message.event.physical.PhysicalMessageReceptionEvent;
 import sima.basic.transport.TransportProtocol;
 import sima.core.agent.AgentIdentifier;
 import sima.core.agent.SimaAgent;
@@ -16,29 +16,45 @@ public class SimpleBroadcastProtocol extends TransportProtocol implements Broadc
     
     // Static.
     
-    public static final long WRONG_DELAY = 10L;
+    public static final String ARG_PHYSICAL_CONNECTION_LAYER_NAME = "physicalConnectionLayerName";
+    
+    // Variables.
+    
+    private String physicalConnectionLayerName;
     
     // Constructors.
     
     public SimpleBroadcastProtocol(String protocolTag, SimaAgent agentOwner, Map<String, String> args) {
         super(protocolTag, agentOwner, args);
+        parseArgs(args);
     }
     
     // Methods.
+    
+    private void parseArgs(Map<String, String> args) {
+        if (args == null)
+            throw new IllegalArgumentException(
+                    SimpleBroadcastProtocol.class + " lust have one argument call " + ARG_PHYSICAL_CONNECTION_LAYER_NAME);
+        
+        physicalConnectionLayerName = args.get(ARG_PHYSICAL_CONNECTION_LAYER_NAME);
+        if (physicalConnectionLayerName == null)
+            throw new IllegalArgumentException("No " + ARG_PHYSICAL_CONNECTION_LAYER_NAME + " argument");
+    }
     
     private BroadcastMessage createBroadcastMessage(EventTransportable content) {
         return new BroadcastMessage(getAgentOwner().getAgentIdentifier(), content, getIdentifier());
     }
     
-    private MessageReceptionEvent createBroadcastMessageReception(BroadcastMessage broadcastMessage) {
-        return new MessageReceptionEvent(broadcastMessage, broadcastMessage.getIntendedProtocol());
+    private PhysicalMessageReceptionEvent createBroadcastMessageReception(BroadcastMessage broadcastMessage) {
+        return new PhysicalMessageReceptionEvent(broadcastMessage, broadcastMessage.getIntendedProtocol());
     }
     
     @Override
     public void broadcast(EventTransportable content) {
-        for (AgentIdentifier agent : environment.getEvolvingAgentIdentifiers()) {
-            // Must use the physical layer
-            environment.processEventOn(agent, createBroadcastMessageReception(createBroadcastMessage(content)), WRONG_DELAY);
+        for (AgentIdentifier agent : getEnvironment().getEvolvingAgentIdentifiers()) {
+            getEnvironment()
+                    .getPhysicalConnectionLayer(physicalConnectionLayerName)
+                    .send(getAgentOwner().getAgentIdentifier(), agent, createBroadcastMessageReception(createBroadcastMessage(content)));
         }
     }
     
@@ -92,5 +108,9 @@ public class SimpleBroadcastProtocol extends TransportProtocol implements Broadc
     @Override
     protected ProtocolManipulator createDefaultProtocolManipulator() {
         return new ProtocolManipulator.DefaultProtocolManipulator(this);
+    }
+    
+    public String getPhysicalConnectionLayerName() {
+        return physicalConnectionLayerName;
     }
 }

@@ -1,11 +1,12 @@
-package sima.basic.environment.message.event;
+package sima.basic.environment.message.event.physical;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sima.basic.environment.message.Message;
-import sima.core.environment.event.TestEvent;
+import sima.basic.environment.message.event.MessageReceptionEvent;
+import sima.core.environment.physical.TestPhysicalEvent;
 import sima.core.protocol.ProtocolIdentifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,11 +14,11 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-public class TestMessageReceptionEvent extends TestEvent {
+public class TestPhysicalMessageReceptionEvent extends TestPhysicalEvent {
     
     // Variables.
     
-    private MessageReceptionEvent messageReceptionEvent;
+    protected PhysicalMessageReceptionEvent physicalMessageReceptionEvent;
     
     @Mock
     private Message mockMessage;
@@ -28,28 +29,30 @@ public class TestMessageReceptionEvent extends TestEvent {
     // Init.
     
     @BeforeEach
-    void setUp() {
-        messageReceptionEvent = new MessageReceptionEvent(mockMessage, mockProtocolIdentifier);
-        event = messageReceptionEvent;
+    @Override
+    public void setUp() {
+        physicalMessageReceptionEvent = new PhysicalMessageReceptionEvent(mockMessage, mockProtocolIdentifier);
+        physicalEvent = physicalMessageReceptionEvent;
+        super.setUp();
     }
     
     // Tests.
     
     @Nested
-    @Tag("MessageReceptionEvent.constructor")
-    @DisplayName("MessageReceptionEvent constructor tests")
+    @Tag("PhysicalMessageReceptionEvent.constructor")
+    @DisplayName("PhysicalMessageReceptionEvent constructor tests")
     class ConstructorTest {
         
         @Test
         @DisplayName("Test if constructor does not throw exception with null message")
         void testConstructorWithNullMessage() {
-            assertDoesNotThrow(() -> new MessageReceptionEvent(null, mockProtocolIdentifier));
+            assertDoesNotThrow(() -> new PhysicalMessageReceptionEvent(null, mockProtocolIdentifier));
         }
         
         @Test
-        @DisplayName("Test if constructor throws a NullPointerException with null intended protocol")
+        @DisplayName("Test if constructor throws NullPointerException with null intended protocol")
         void testConstructorWithNullIntendedProtocol() {
-            assertThrows(NullPointerException.class, () -> new MessageReceptionEvent(mockMessage, null));
+            assertThrows(NullPointerException.class, () -> new PhysicalMessageReceptionEvent(mockMessage, null));
         }
         
         @Test
@@ -57,7 +60,6 @@ public class TestMessageReceptionEvent extends TestEvent {
         void testConstructorWithNotNullArgs() {
             assertDoesNotThrow(() -> new MessageReceptionEvent(mockMessage, mockProtocolIdentifier));
         }
-        
     }
     
     @Nested
@@ -68,8 +70,9 @@ public class TestMessageReceptionEvent extends TestEvent {
         @Test
         @DisplayName("Test if getIntendedProtocol never returns null")
         void testGetIntendedProtocolNeverReturnsNull() {
-            assertThat(messageReceptionEvent.getIntendedProtocol()).isNotNull();
+            assertThat(physicalMessageReceptionEvent.getIntendedProtocol()).isNotNull();
         }
         
     }
+    
 }

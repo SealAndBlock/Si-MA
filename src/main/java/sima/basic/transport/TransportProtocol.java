@@ -10,7 +10,7 @@ public abstract class TransportProtocol extends Protocol {
     
     // Variables.
     
-    protected Environment environment;
+    private Environment environment;
     
     // Constructors.
     

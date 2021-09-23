@@ -12,6 +12,7 @@ import sima.core.agent.SimaAgent;
 import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
 import sima.core.environment.event.transport.EventTransportable;
+import sima.core.environment.physical.PhysicalConnectionLayer;
 import sima.core.exception.UnknownProtocolForAgentException;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
@@ -33,6 +34,8 @@ public class TestSimpleBroadcastProtocol extends TestTransportProtocol {
     
     protected SimpleBroadcastProtocol simpleBroadcastProtocol;
     
+    private Map<String, String> correctArgs;
+    
     @Mock
     private SimaAgent mockAgent;
     
@@ -43,6 +46,9 @@ public class TestSimpleBroadcastProtocol extends TestTransportProtocol {
     
     @Mock
     private Environment mockEnvironment;
+    
+    @Mock
+    private PhysicalConnectionLayer mockPhysicalConnectionLayer;
     
     @Mock
     private Protocol mockProtocol;
@@ -58,7 +64,10 @@ public class TestSimpleBroadcastProtocol extends TestTransportProtocol {
     @BeforeEach
     @Override
     public void setUp() {
-        simpleBroadcastProtocol = new SimpleBroadcastProtocol("BD_P", mockAgent, null);
+        correctArgs = new HashMap<>();
+        correctArgs.put(SimpleBroadcastProtocol.ARG_PHYSICAL_CONNECTION_LAYER_NAME, "PCL");
+        
+        simpleBroadcastProtocol = new SimpleBroadcastProtocol("BD_P", mockAgent, correctArgs);
         transportProtocol = simpleBroadcastProtocol;
         super.setUp();
     }
@@ -85,9 +94,17 @@ public class TestSimpleBroadcastProtocol extends TestTransportProtocol {
         }
         
         @Test
-        @DisplayName("Test if constructor does not throw an Exception with null args")
+        @DisplayName("Test if constructor throws IllegalArgumentException with null args")
         void testConstructorWithNullArgs() {
-            assertDoesNotThrow(() -> new SimpleBroadcastProtocol("BD_P", mockAgent, null));
+            assertThrows(IllegalArgumentException.class, () -> new SimpleBroadcastProtocol("BD_P", mockAgent, null));
+        }
+        
+        @Test
+        @DisplayName("Test if constructor throws IllegalArgumentException with args which has not physicalConnectionLayerName value")
+        void testConstructorWithNoCorrectMapArgs() {
+            Map<String, String> incorrectArgs = new HashMap<>();
+            incorrectArgs.put("TROLL", "WRONG");
+            assertThrows(IllegalArgumentException.class, () -> new SimpleBroadcastProtocol("BD_P", mockAgent, incorrectArgs));
         }
     }
     
@@ -104,6 +121,8 @@ public class TestSimpleBroadcastProtocol extends TestTransportProtocol {
             evolvingAgent.add(agentIdentifier);
             when(mockEnvironment.getEvolvingAgentIdentifiers()).thenReturn(evolvingAgent);
             when(mockAgent.getAgentIdentifier()).thenReturn(agentIdentifier);
+            when(mockEnvironment.getPhysicalConnectionLayer(simpleBroadcastProtocol.getPhysicalConnectionLayerName())).thenReturn(
+                    mockPhysicalConnectionLayer);
             
             // GIVEN
             simpleBroadcastProtocol.setEnvironment(mockEnvironment);
