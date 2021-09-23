@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.event.Event;
+import sima.core.environment.physical.PhysicalConnectionLayer;
 import sima.core.exception.NotEvolvingAgentInEnvironmentException;
 import sima.core.scheduler.Scheduler;
 import sima.core.simulation.SimaSimulation;
@@ -35,6 +36,9 @@ public abstract class TestEnvironment {
     
     @Mock
     private Scheduler mockScheduler;
+    
+    @Mock
+    private PhysicalConnectionLayer mockPhysicalConnectionLayer;
     
     // Tests.
     
@@ -162,6 +166,52 @@ public abstract class TestEnvironment {
                 assertDoesNotThrow(() -> environment.processEventOn(agentIdentifier0, mockEvent, arbitraryDelay));
             }
         }
+    }
+    
+    @Nested
+    @Tag("Environment.addPhysicalConnectionLayer")
+    @DisplayName("Environment addPhysicalConnectionLayer tests")
+    class AddPhysicalConnectionLayerTest {
+        
+        @Test
+        @DisplayName("Test if addPhysicalConnectionLayer throws IllegalArgumentException if the name or physicalConnectionLayer is null")
+        void testAddPhysicalConnectionLayerWithNullArgs() {
+            assertThrows(NullPointerException.class, () -> environment.addPhysicalConnectionLayer(null, mockPhysicalConnectionLayer));
+            assertThrows(NullPointerException.class, () -> environment.addPhysicalConnectionLayer("REAL_NAME", null));
+        }
+        
+        @Test
+        @DisplayName("Test if addPhysicalConnectionLayer returns true and map the physicalConnectionLayer if there is no already name key")
+        void testAddPhysicalConnectionLayerWithNewKey() {
+            String name = "PCL_NAME";
+            boolean added = environment.addPhysicalConnectionLayer(name, mockPhysicalConnectionLayer);
+            PhysicalConnectionLayer physicalConnectionLayer = environment.getPhysicalConnectionLayer(name);
+            
+            assertThat(added).isTrue();
+            assertThat(physicalConnectionLayer).isSameAs(mockPhysicalConnectionLayer);
+        }
+        
+    }
+    
+    @Nested
+    @Tag("Environment.getPhysicalConnectionLayer")
+    @DisplayName("Environment getPhysicalConnectionLayer tests")
+    class GetPhysicalConnectionLayerTest {
+        
+        @Test
+        @DisplayName("Test if getPhysicalConnectionLayer returns null if there is no mapped PhysicalConnectionLayer with the name")
+        void testGetPhysicalConnectionLayerWithNotMappedName() {
+            assertThat(environment.getPhysicalConnectionLayer("NOT_MAPPED")).isNull();
+        }
+        
+        @Test
+        @DisplayName("Test if getPhysicalConnectionLayer returns the correct mapped PhysicalConnectionLayer if the name is mapped")
+        void testGetPhysicalConnectionLayerWithMappedName() {
+            String name = "MAPPED_NAME";
+            environment.addPhysicalConnectionLayer(name, mockPhysicalConnectionLayer);
+            assertThat(environment.getPhysicalConnectionLayer(name)).isSameAs(mockPhysicalConnectionLayer);
+        }
+        
     }
     
 }
