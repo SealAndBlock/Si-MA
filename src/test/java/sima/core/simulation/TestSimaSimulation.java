@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import sima.core.agent.AgentIdentifier;
 import sima.core.agent.SimaAgent;
 import sima.core.environment.Environment;
+import sima.core.exception.ConfigurationException;
 import sima.core.exception.SimaSimulationFailToStartRunningException;
 import sima.core.exception.SimaSimulationIsNotRunningException;
 import sima.core.scheduler.Executable;
@@ -442,6 +443,21 @@ public class TestSimaSimulation {
         }
         
     }
+    
+    @Nested
+    @Tag("SimaSimulation.physicalConnectionLayerConfig")
+    @DisplayName("SimaSimulation physicalConnectionLayerConfig tests")
+    class PhysicalConnectionLayerConfigTest {
+        
+        @Test
+        @DisplayName("Test if runSimulation throws a ConfigurationException if two chain in an Environment have the same name")
+        void testRunSimulationWithTwoEnvironmentPhysicalConnectionLayerChainHaveTheSameName() {
+            assertThrows(SimaSimulationFailToStartRunningException.class, () -> SimaSimulation.runSimulation(PREFIX_CONFIG_PATH +
+                    "configSamePhysicalConnectionLayerChainName.json"));
+        }
+        
+    }
+    
     
     // Methods.
     

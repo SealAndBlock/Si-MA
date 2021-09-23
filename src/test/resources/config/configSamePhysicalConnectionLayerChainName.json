@@ -56,6 +56,12 @@
             "PCL_1",
             "PCL_2"
           ]
+        },
+        {
+          "name": "fully_connected_cable_connection",
+          "chain": [
+            "PCL_1"
+          ]
         }
       ],
       "args": [

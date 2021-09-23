@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import sima.core.agent.AgentIdentifier;
 import sima.core.agent.SimaAgent;
 import sima.core.environment.Environment;
+import sima.core.environment.physical.PhysicalConnectionLayer;
 import sima.core.exception.*;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
@@ -57,6 +58,7 @@ public final class SimaSimulation {
         SimaSimulationJson simaSimulationJson;
         Set<Environment> allEnvironments;
         Set<SimaAgent> allAgents;
+        Map<String, PhysicalConnectionLayerJson> mapPhysicalConnectionLayers;
         Map<String, BehaviorJson> mapBehaviors;
         Map<String, ProtocolJson> mapProtocols;
         Map<String, Environment> mapEnvironments = new HashMap<>();
@@ -66,7 +68,8 @@ public final class SimaSimulation {
         
         try {
             simaSimulationJson = parseConfiguration(configurationJsonPath);
-            allEnvironments = createAllEnvironments(simaSimulationJson, mapEnvironments);
+            mapPhysicalConnectionLayers = extractMapPhysicalConnectionLayers(simaSimulationJson);
+            allEnvironments = createAllEnvironments(simaSimulationJson, mapEnvironments, mapPhysicalConnectionLayers);
             mapBehaviors = extractMapBehaviors(simaSimulationJson);
             mapProtocols = extractMapProtocols(simaSimulationJson);
             allAgents = createAllAgents(simaSimulationJson, mapBehaviors, mapProtocols, mapEnvironments);
@@ -173,6 +176,24 @@ public final class SimaSimulation {
         }
         
         return scheduler;
+    }
+    
+    private static @NotNull Map<String, PhysicalConnectionLayerJson> extractMapPhysicalConnectionLayers(SimaSimulationJson simaSimulationJson)
+            throws ConfigurationException {
+        Map<String, PhysicalConnectionLayerJson> mapPhysicalConnectionLayers = new HashMap<>();
+        fillMapPhysicalConnectionLayer(simaSimulationJson, mapPhysicalConnectionLayers);
+        return mapPhysicalConnectionLayers;
+    }
+    
+    private static void fillMapPhysicalConnectionLayer(SimaSimulationJson simaSimulationJson,
+                                                       Map<String, PhysicalConnectionLayerJson> mapPhysicalConnectionLayers)
+            throws ConfigurationException {
+        if (simaSimulationJson.getPhysicalConnectionLayers() != null) {
+            for (PhysicalConnectionLayerJson physicalConnectionLayerJson : simaSimulationJson.getPhysicalConnectionLayers()) {
+                mapPhysicalConnectionLayers.put(Optional.ofNullable(physicalConnectionLayerJson.getId())
+                        .orElseThrow(() -> new ConfigurationException("BehaviorId cannot be null")), physicalConnectionLayerJson);
+            }
+        }
     }
     
     private static @NotNull Map<String, BehaviorJson> extractMapBehaviors(SimaSimulationJson simaSimulationJson)
@@ -290,7 +311,7 @@ public final class SimaSimulation {
         if (agentJson.getBehaviors() != null)
             for (String behaviorId : agentJson.getBehaviors()) {
                 var behaviorJson = Optional.ofNullable(mapBehaviors.get(behaviorId))
-                        .orElseThrow(() -> new ConfigurationException("BehaviorId " + behaviorId + " not found"));
+                        .orElseThrow(() -> new ConfigurationException("BehaviorId " + behaviorId + " not exists"));
                 addBehaviorToAgent(agent, behaviorJson);
             }
     }
@@ -432,22 +453,23 @@ public final class SimaSimulation {
      * @return a set which contains all instances of {@link Environment}.
      */
     private static @NotNull Set<Environment> createAllEnvironments(SimaSimulationJson simulationJson,
-                                                                   Map<String, Environment> mapEnvironments)
+                                                                   Map<String, Environment> mapEnvironments,
+                                                                   Map<String, PhysicalConnectionLayerJson> mapPhysicalConnectionLayers)
             throws ConfigurationException, ClassNotFoundException, FailInstantiationException {
         
         Set<Environment> environments = new HashSet<>();
-        createAndAddInSetAndMapEnvironment(simulationJson, mapEnvironments, environments);
+        createAndAddInSet(simulationJson, mapEnvironments, environments, mapPhysicalConnectionLayers);
         return environments;
     }
     
-    private static void createAndAddInSetAndMapEnvironment(SimaSimulationJson simulationJson,
-                                                           Map<String, Environment> mapEnvironments,
-                                                           Set<Environment> environments)
+    private static void createAndAddInSet(SimaSimulationJson simulationJson,
+                                          Map<String, Environment> mapEnvironments,
+                                          Set<Environment> environments, Map<String, PhysicalConnectionLayerJson> mapPhysicalConnectionLayers)
             throws ClassNotFoundException, ConfigurationException, FailInstantiationException {
         if (simulationJson.getEnvironments() != null && !simulationJson.getEnvironments().isEmpty())
             for (EnvironmentJson environmentJson : simulationJson.getEnvironments()) {
                 var environment =
-                        createEnvironmentAndAddInSet(environments, environmentJson, parseArgs(environmentJson));
+                        createEnvironmentAndAddInSet(environments, environmentJson, parseArgs(environmentJson), mapPhysicalConnectionLayers);
                 mapEnvironments.put(Optional.ofNullable(environmentJson.getId())
                                 .orElseThrow(
                                         () -> new ConfigurationException("EnvironmentId cannot be null")),
@@ -460,22 +482,29 @@ public final class SimaSimulation {
     
     private static @NotNull Environment createEnvironmentAndAddInSet(Set<Environment> environments,
                                                                      EnvironmentJson environmentJson,
-                                                                     Map<String, String> args)
+                                                                     Map<String, String> environmentArgs,
+                                                                     Map<String, PhysicalConnectionLayerJson> mapPhysicalConnectionLayers)
             throws ClassNotFoundException, ConfigurationException, FailInstantiationException {
         
         Environment environment;
-        if (args != null) {
-            if (args.isEmpty())
-                environment = createEnvironment(extractClassForName(environmentJson.getEnvironmentClass()),
-                        environmentJson.getName(), null);
-            else
-                environment = createEnvironment(extractClassForName(environmentJson.getEnvironmentClass()),
-                        environmentJson.getName(), args);
-            
+        
+        if (environmentArgs != null && !environmentArgs.isEmpty()) {
+            environment = createEnvironment(extractClassForName(environmentJson.getEnvironmentClass()),
+                    environmentJson.getName(), environmentArgs);
         } else {
             environment = createEnvironment(extractClassForName(environmentJson.getEnvironmentClass()),
                     environmentJson.getName(), null);
         }
+        
+        if (mapPhysicalConnectionLayers != null && !mapPhysicalConnectionLayers.isEmpty() &&
+                environmentJson.getPhysicalConnectionLayerChains() != null && !environmentJson.getPhysicalConnectionLayerChains().isEmpty())
+            for (PhysicalLayerChainJson physicalLayerChainJson : environmentJson.getPhysicalConnectionLayerChains()) {
+                List<PhysicalConnectionLayer> physicalConnectionLayerChain = new ArrayList<>();
+                fillPhysicalConnectionLayerChain(mapPhysicalConnectionLayers, environment, physicalLayerChainJson,
+                        physicalConnectionLayerChain);
+                linkPhysicalConnectionLayerChain(environment, physicalLayerChainJson, physicalConnectionLayerChain);
+            }
+        
         
         if (environments.add(environment))
             return environment;
@@ -483,6 +512,37 @@ public final class SimaSimulation {
             throw new ConfigurationException("Two environments with the same hashCode (Probably due to the fact that "
                     + "they have the same name). Problematic Environment = "
                     + environment);
+    }
+    
+    private static void fillPhysicalConnectionLayerChain(Map<String, PhysicalConnectionLayerJson> mapPhysicalConnectionLayers,
+                                                         Environment environment,
+                                                         PhysicalLayerChainJson physicalLayerChainJson, List<PhysicalConnectionLayer> chain)
+            throws FailInstantiationException, ClassNotFoundException, ConfigurationException {
+        for (String physicalConnectionLayerId : physicalLayerChainJson.getChain()) {
+            var physicalConnectionLayerJson = mapPhysicalConnectionLayers.get(physicalConnectionLayerId);
+            var physicalConnectionLayer = createPhysicalConnectionLayer(
+                    extractClassForName(physicalConnectionLayerJson.getPhysicalConnectionLayerClass()), environment,
+                    parseArgs(physicalConnectionLayerJson));
+            
+            chain.add(physicalConnectionLayer);
+        }
+    }
+    
+    private static void linkPhysicalConnectionLayerChain(Environment environment, PhysicalLayerChainJson physicalLayerChainJson,
+                                                         List<PhysicalConnectionLayer> physicalConnectionLayerChain)
+            throws ConfigurationException {
+        for (int i = physicalConnectionLayerChain.size() - 1; i >= 0; i--) {
+            var current = physicalConnectionLayerChain.get(i);
+            if (i != 0)
+                current.setNext(physicalConnectionLayerChain.get(i - 1));
+            if (i == 0) {
+                // Link the head of the PhysicalConnectionLayer physicalConnectionLayerChain
+                boolean added = environment.addPhysicalConnectionLayer(physicalLayerChainJson.getName(), current);
+                if (!added)
+                    throw new ConfigurationException(
+                            "PhysicalConnectionLayerChain name not unique. Wrong name = " + physicalLayerChainJson.getName());
+            }
+        }
     }
     
     private static @NotNull SimaSimulationJson parseConfiguration(String configurationJsonPath) throws IOException {
@@ -507,14 +567,14 @@ public final class SimaSimulation {
     }
     
     /**
-     * Try to run a Simulation. All instances of needed to run a simulation must be create and pass in argument. In that way, this method only
+     * Try to run a Simulation. All instances of needed to run a simulation must be created and pass in argument. In that way, this method only
      * make the start of the simulation.
      * <p>
-     * The set {@code allAgents} contains all the agents of the simulation. However all this agents are not adding in any environment. To bind
+     * The set {@code allAgents} contains all the agents of the simulation. However, all these agents are not adding in any environment. To bind
      * agent and environments, you must make it in the {@link SimulationSetup}.
      * <p>
      * The {@link SimulationSetup} is called at the end of the method, after all agents and environments has been added in the simulation. In
-     * that way it possible to create and add new instances of agents and environment in the {@code SimulationSetup}.
+     * that way is possible to create and add new instances of agents and environment in the {@code SimulationSetup}.
      * <p>
      * This method is thread safe.
      *
@@ -697,6 +757,12 @@ public final class SimaSimulation {
     
     private static void simaSimulationStartScheduler() {
         simaSimulation.scheduler.start();
+    }
+    
+    private static @NotNull PhysicalConnectionLayer createPhysicalConnectionLayer(
+            Class<? extends PhysicalConnectionLayer> physicalConnectionLayerClass, Environment environment, Map<String, String> args)
+            throws FailInstantiationException {
+        return instantiate(physicalConnectionLayerClass, new Class[]{Environment.class, Map.class}, environment, args);
     }
     
     /**

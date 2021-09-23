@@ -4,6 +4,7 @@ import sima.core.agent.AgentIdentifier;
 import sima.core.agent.SimaAgent;
 import sima.core.environment.event.Event;
 import sima.core.environment.event.EventGenerator;
+import sima.core.environment.physical.PhysicalConnectionLayer;
 import sima.core.exception.NotEvolvingAgentInEnvironmentException;
 
 import java.util.*;
@@ -24,14 +25,19 @@ public abstract class Environment implements EventGenerator {
     // Variables.
     
     /**
-     * The unique name of the sima.core.environment.
+     * The unique name of the {@link Environment}.
      */
     private final String environmentName;
     
     /**
-     * The set of evolving agents.
+     * The set of evolving {@link SimaAgent}.
      */
     private final Set<AgentIdentifier> evolvingAgents;
+    
+    /**
+     * The map of {@link PhysicalConnectionLayer}.
+     */
+    private final Map<String, PhysicalConnectionLayer> physicalConnectionLayers;
     
     // Constructors.
     
@@ -46,6 +52,7 @@ public abstract class Environment implements EventGenerator {
     protected Environment(String environmentName, Map<String, String> args) {
         this.environmentName = Optional.of(environmentName).get();
         evolvingAgents = new HashSet<>();
+        physicalConnectionLayers = new HashMap<>();
     }
     
     // Methods.
@@ -185,6 +192,34 @@ public abstract class Environment implements EventGenerator {
      * @throws IllegalArgumentException if the delay is less than {@link sima.core.scheduler.Scheduler#NOW}
      */
     protected abstract void scheduleEventReception(AgentIdentifier receiver, Event event, long delay);
+    
+    /**
+     * Try to map the specified {@link PhysicalConnectionLayer} with the specified name. If there is already a {@link PhysicalConnectionLayer}
+     * mapped with the specified name, do nothing and returns false.
+     *
+     * @param name                    the name of the {@link PhysicalConnectionLayer}
+     * @param physicalConnectionLayer the {@link PhysicalConnectionLayer}
+     *
+     * @return true if the {@link PhysicalConnectionLayer} has been mapped with the name, else false.
+     *
+     * @throws NullPointerException if name or physicalConnectionLayer is null
+     */
+    public boolean addPhysicalConnectionLayer(String name, PhysicalConnectionLayer physicalConnectionLayer) {
+        return physicalConnectionLayers.putIfAbsent(
+                Optional.of(name).get(),
+                Optional.of(physicalConnectionLayer).get())
+                == null;
+    }
+    
+    /**
+     * @param name the {@link PhysicalConnectionLayer} name
+     *
+     * @return the {@link PhysicalConnectionLayer} mapped with the specified name. If there is no {@link PhysicalConnectionLayer} mapped to the
+     * specified name, returns null.
+     */
+    public PhysicalConnectionLayer getPhysicalConnectionLayer(String name) {
+        return physicalConnectionLayers.get(name);
+    }
     
     // Getters ans Setters.
     
