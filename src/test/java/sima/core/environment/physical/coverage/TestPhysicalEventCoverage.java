@@ -5,8 +5,8 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sima.basic.environment.message.Message;
 import sima.core.environment.event.Event;
-import sima.core.environment.event.transport.TransportableInEvent;
 import sima.core.environment.physical.PhysicalEvent;
 import sima.core.environment.physical.TestPhysicalEvent;
 
@@ -18,14 +18,14 @@ public class TestPhysicalEventCoverage extends TestPhysicalEvent {
     // Variables.
     
     @Mock
-    private TransportableInEvent mockEvenTransportable;
+    private Message mockMessage;
     
     // Init.
     
     @BeforeEach
     @Override
     public void setUp() {
-        physicalEvent = new PhysicalEventCoverage(mockEvenTransportable);
+        physicalEvent = new PhysicalEventCoverage(mockMessage);
         super.setUp();
     }
     
@@ -39,13 +39,13 @@ public class TestPhysicalEventCoverage extends TestPhysicalEvent {
         @Test
         @DisplayName("Test constructor does not throw exception with null args")
         void testConstructorWithNullArgs() {
-            assertDoesNotThrow(() -> new PhysicalEventCoverage((TransportableInEvent) null));
+            assertDoesNotThrow(() -> new PhysicalEventCoverage((Message) null));
         }
         
         @Test
         @DisplayName("Test constructor does not throw exception with null args")
         void testConstructorWithNotNullArgs() {
-            assertDoesNotThrow(() -> new PhysicalEventCoverage(mockEvenTransportable));
+            assertDoesNotThrow(() -> new PhysicalEventCoverage(mockMessage));
         }
         
     }
@@ -56,7 +56,7 @@ public class TestPhysicalEventCoverage extends TestPhysicalEvent {
         
         // Constructors.
         
-        public PhysicalEventCoverage(TransportableInEvent content) {
+        public PhysicalEventCoverage(Message content) {
             super(content);
         }
         
@@ -65,6 +65,11 @@ public class TestPhysicalEventCoverage extends TestPhysicalEvent {
         }
         
         // Methods.
+        
+        @Override
+        public Message getContent() {
+            return (Message) super.getContent();
+        }
         
         @Override
         public @NotNull Event duplicate() {

@@ -5,8 +5,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sima.core.protocol.ProtocolIdentifier;
-import sima.core.protocol.TransportableIntendedToProtocol;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -21,16 +21,16 @@ public class TestMessage {
     private ProtocolIdentifier mockProtocolIdentifier;
     
     @Mock
-    protected TransportableIntendedToProtocol mockTransportableIntendedForProtocol;
+    protected Message mockContentMessage;
     
     @Mock
-    private TransportableIntendedToProtocol mockTransportableIntendedForProtocolOther;
+    private Message mockContentMessageOther;
     
     // Init.
     
     @BeforeEach
     protected void setUp() {
-        message = new Message(mockTransportableIntendedForProtocol, mockProtocolIdentifier);
+        message = new Message(mockContentMessage, mockProtocolIdentifier);
     }
     
     // Test.
@@ -49,13 +49,13 @@ public class TestMessage {
         @Test
         @DisplayName("Test if constructor throws NullPointerException with null intended protocol")
         void testConstructorWithNullIntendedProtocol() {
-            assertThrows(NullPointerException.class, () -> new Message(mockTransportableIntendedForProtocol, null));
+            assertThrows(NullPointerException.class, () -> new Message(mockContentMessage, null));
         }
         
         @Test
         @DisplayName("Test if constructor does not throw exception with not null args")
         void testConstructorWithNotNullArgs() {
-            assertDoesNotThrow(() -> new Message(mockTransportableIntendedForProtocol, mockProtocolIdentifier));
+            assertDoesNotThrow(() -> new Message(mockContentMessage, mockProtocolIdentifier));
         }
     }
     
@@ -69,15 +69,30 @@ public class TestMessage {
                 "which must also be duplicate")
         void testDuplicate() {
             // GIVEN
-            when(mockTransportableIntendedForProtocol.duplicate()).thenReturn(mockTransportableIntendedForProtocolOther);
+            when(mockContentMessage.duplicate()).thenReturn(mockContentMessageOther);
             
             // WHEN
             Message duplicateMessage = message.duplicate();
             
             // THEN
-            verify(mockTransportableIntendedForProtocol, times(1)).duplicate();
+            verify(mockContentMessage, times(1)).duplicate();
             assertSame(duplicateMessage.getIntendedProtocol(), message.getIntendedProtocol());
             assertNotSame(duplicateMessage.getContent(), message.getContent());
+        }
+        
+    }
+    
+    @Nested
+    @Tag("Message.getMessage")
+    @DisplayName("Message getMessage tests")
+    class getMessageTest {
+        
+        @Test
+        @DisplayName("Test if getMessage returns the same instance of getContent")
+        void testGetMessageReturnsSameInstanceOfGetContent() {
+            var content = message.getContent();
+            var contentMessage = message.getMessage();
+            assertThat(contentMessage).isSameAs(content);
         }
         
     }

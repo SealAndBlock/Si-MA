@@ -12,6 +12,7 @@ import sima.core.exception.NoPhysicalConnectionLayerFoundException;
 import sima.core.protocol.Protocol;
 
 import java.util.Map;
+import java.util.Optional;
 
 public abstract class MessageTransportProtocol extends Protocol implements MessageReceiver {
     
@@ -71,10 +72,12 @@ public abstract class MessageTransportProtocol extends Protocol implements Messa
      *
      * @param target  the target to transport message
      * @param message the message to transport
+     *
+     * @throws IllegalArgumentException if target is null
      */
-    protected void transport(AgentIdentifier target, Message message) {
-        var physicalConnectionLayer = getEnvironment()
-                .getPhysicalConnectionLayer(physicalConnectionLayerName);
+    public void send(AgentIdentifier target, Message message) {
+        target = Optional.ofNullable(target).orElseThrow(() -> new IllegalArgumentException("The target cannot be null"));
+        var physicalConnectionLayer = getEnvironment().getPhysicalConnectionLayer(physicalConnectionLayerName);
         if (physicalConnectionLayer != null)
             physicalConnectionLayer.send(getAgentOwner().getAgentIdentifier(), target, createMessageReception(message));
         else
@@ -105,9 +108,5 @@ public abstract class MessageTransportProtocol extends Protocol implements Messa
     public void setEnvironment(Environment environment) {
         if (this.environment == null && environment != null)
             this.environment = environment;
-    }
-    
-    public String getPhysicalConnectionLayerName() {
-        return physicalConnectionLayerName;
     }
 }

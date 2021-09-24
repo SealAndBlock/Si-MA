@@ -4,12 +4,13 @@ import sima.core.agent.AgentIdentifier;
 import sima.core.agent.SimaAgent;
 
 /**
- * Use to manipulated and send event.
+ * Used to assign an {@link Event} to a target {@link SimaAgent}.
  */
-public interface EventGenerator {
+public interface EventAssignor {
     
     /**
-     * Schedule the call of the method {@link SimaAgent#processEvent(Event)} to the {@link SimaAgent} targeted after the specified delay.
+     * Assign the {@link Event} to a target {@link SimaAgent} to call the method {@link SimaAgent#processEvent(Event)} after the specified
+     * delay.
      *
      * @param target the agent targeted
      * @param event  the event to process
@@ -17,5 +18,5 @@ public interface EventGenerator {
      *
      * @throws IllegalArgumentException if the delay is less than {@link sima.core.scheduler.Scheduler#NOW}
      */
-    void processEventOn(AgentIdentifier target, Event event, long delay);
+    void assignEventOn(AgentIdentifier target, Event event, long delay);
 }

@@ -49,7 +49,7 @@ public abstract class PhysicalConnectionLayer {
      * be sent to the target. If it is the case then verify if the {@link PhysicalConnectionLayer} has a nextb in the {@link
      * PhysicalConnectionLayer} chain. Call this method send to the next if there is a next, else call the method {@link
      * #scheduleInEnvironment(AgentIdentifier, PhysicalEvent)} to schedule the {@link PhysicalEvent} via the {@link Environment} methods to send
-     * {@link sima.core.environment.event.Event} like {@link Environment#processEventOn(AgentIdentifier, Event, long)}.
+     * {@link sima.core.environment.event.Event} like {@link Environment#assignEventOn(AgentIdentifier, Event, long)}.
      *
      * <pre>{@code
      * public void send(initiator, target, physicalEvent) {
@@ -121,7 +121,7 @@ public abstract class PhysicalConnectionLayer {
     
     /**
      * Schedule the {@link PhysicalEvent} by using {@link Environment} methods which takes care of schedule {@link Event} like the method {@link
-     * Environment#processEventOn(AgentIdentifier, Event, long)}
+     * Environment#assignEventOn(AgentIdentifier, Event, long)}
      *
      * @param target        the agent which must receive the {@link PhysicalEvent}
      * @param physicalEvent the {@link PhysicalEvent}

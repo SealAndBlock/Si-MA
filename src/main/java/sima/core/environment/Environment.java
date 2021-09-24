@@ -3,7 +3,7 @@ package sima.core.environment;
 import sima.core.agent.AgentIdentifier;
 import sima.core.agent.SimaAgent;
 import sima.core.environment.event.Event;
-import sima.core.environment.event.EventGenerator;
+import sima.core.environment.event.EventAssignor;
 import sima.core.environment.physical.PhysicalConnectionLayer;
 import sima.core.exception.NotEvolvingAgentInEnvironmentException;
 
@@ -20,7 +20,7 @@ import static sima.core.simulation.SimaSimulation.SimaLog;
  *
  * @author guilr
  */
-public abstract class Environment implements EventGenerator {
+public abstract class Environment implements EventAssignor {
     
     // Variables.
     
@@ -172,7 +172,7 @@ public abstract class Environment implements EventGenerator {
      * @throws NullPointerException                   if the event is null
      */
     @Override
-    public synchronized void processEventOn(AgentIdentifier target, Event event, long delay) {
+    public synchronized void assignEventOn(AgentIdentifier target, Event event, long delay) {
         if (isEvolving(Optional.of(target).get())) {
             scheduleEventReception(target, event, delay);
         } else {

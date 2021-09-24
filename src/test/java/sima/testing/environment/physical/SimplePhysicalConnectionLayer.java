@@ -40,6 +40,6 @@ public class SimplePhysicalConnectionLayer extends PhysicalConnectionLayer {
     
     @Override
     protected void scheduleInEnvironment(AgentIdentifier target, PhysicalEvent physicalEvent) {
-        getEnvironment().processEventOn(target, physicalEvent, 10L);
+        getEnvironment().assignEventOn(target, physicalEvent, 10L);
     }
 }
