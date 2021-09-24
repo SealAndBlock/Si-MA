@@ -12,7 +12,7 @@ public class MessageReceptionEvent extends Event implements IntendedToProtocol {
     
     // Variables.
     
-    private ProtocolIdentifier intendedProtocol;
+    private final ProtocolIdentifier intendedProtocol;
     
     // Constructors.
     

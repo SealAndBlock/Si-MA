@@ -13,7 +13,7 @@ public class PhysicalMessageReceptionEvent extends PhysicalEvent implements Inte
     
     // Variables.
     
-    private ProtocolIdentifier intendedProtocol;
+    private final ProtocolIdentifier intendedProtocol;
     
     // Constructors.
     

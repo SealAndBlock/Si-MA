@@ -2,13 +2,19 @@ package sima.basic.transport;
 
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
+import sima.basic.environment.message.Message;
 import sima.core.agent.AgentIdentifier;
 import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
+import sima.core.environment.physical.PhysicalConnectionLayer;
+import sima.core.exception.NoPhysicalConnectionLayerFoundException;
 import sima.core.protocol.TestProtocol;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public abstract class TestMessageTransportProtocol extends TestProtocol {
     
@@ -26,7 +32,13 @@ public abstract class TestMessageTransportProtocol extends TestProtocol {
     private Event mockEvent;
     
     @Mock
-    private AgentIdentifier mockAgent;
+    private AgentIdentifier mockTarget;
+    
+    @Mock
+    private Message mockMessage;
+    
+    @Mock
+    private PhysicalConnectionLayer mockPhysicalLayer;
     
     // Inits.
     
@@ -38,6 +50,53 @@ public abstract class TestMessageTransportProtocol extends TestProtocol {
     // Tests.
     
     @Nested
+    @Tag("MessageTransportProtocol.send")
+    @DisplayName("MessageTransportProtocol send tests")
+    class SendTest {
+        
+        @Test
+        @DisplayName("Test if send throws IllegalArgumentException if the target is null")
+        void testSendWithNullTarget() {
+            assertThrows(IllegalArgumentException.class, () -> messageTransportProtocol.send(null, mockMessage));
+        }
+        
+        @Test
+        @DisplayName("Test if send does not throw Exception with null message")
+        void testSendWithNullMessage() {
+            // WHEN
+            sendMockConfig(mockPhysicalLayer);
+    
+            // GIVEN
+            assertDoesNotThrow(() -> messageTransportProtocol.send(mockTarget, null));
+        }
+        
+        @Test
+        @DisplayName("Test if send throws NoPhysicalConnectionLayerFoundException if the Environment does not have the physicalLayer")
+        void testSendWithPhysicalLayerNotFound() {
+            // WHEN
+            sendMockConfig(null);
+    
+            // GIVEN
+            assertThrows(NoPhysicalConnectionLayerFoundException.class, () -> messageTransportProtocol.send(mockTarget, mockMessage));
+        }
+        
+        @Test
+        @DisplayName("Test if send does not throw Exception if the Environment have the physicalLayer")
+        void testSendWithPhysicalLayerFound() {
+            // WHEN
+            sendMockConfig(mockPhysicalLayer);
+    
+            // GIVEN
+            assertDoesNotThrow(() -> messageTransportProtocol.send(mockTarget, mockMessage));
+        }
+    
+        private void sendMockConfig(PhysicalConnectionLayer mockPhysicalLayer) {
+            messageTransportProtocol.setEnvironment(mockEnvironment);
+            when(mockEnvironment.getPhysicalConnectionLayer(any(String.class))).thenReturn(mockPhysicalLayer);
+        }
+    }
+    
+    @Nested
     @Tag("MessageTransportProtocol.processEvent")
     @DisplayName("MessageTransportProtocol processEvent tests")
     public class ProcessEventTest {
@@ -47,6 +106,7 @@ public abstract class TestMessageTransportProtocol extends TestProtocol {
         void testProcessEventWithOtherEvent() {
             assertThrows(UnsupportedOperationException.class, () -> messageTransportProtocol.processEvent(mockEvent));
         }
+        
     }
     
     @Nested
@@ -67,6 +127,7 @@ public abstract class TestMessageTransportProtocol extends TestProtocol {
             messageTransportProtocol.setEnvironment(mockEnvironment);
             assertThat(messageTransportProtocol.getEnvironment()).isNotNull();
         }
+        
     }
     
     @Nested
@@ -90,7 +151,7 @@ public abstract class TestMessageTransportProtocol extends TestProtocol {
         }
         
         @Test
-        @DisplayName("Test if the method setEnvironment does not set an other value after that the environment has alreay been set")
+        @DisplayName("Test if the method setEnvironment does not set an other value after that the environment has already been set")
         void testSetEnvironmentWithSecondSet() {
             messageTransportProtocol.setEnvironment(mockEnvironment);
             messageTransportProtocol.setEnvironment(mockEnvironmentOther);

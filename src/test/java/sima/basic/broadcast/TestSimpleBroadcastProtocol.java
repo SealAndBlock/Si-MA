@@ -6,17 +6,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sima.basic.broadcast.message.BroadcastMessage;
 import sima.basic.environment.message.Message;
-import sima.basic.environment.message.event.physical.PhysicalMessageReceptionEvent;
-import sima.basic.transport.TestMessageTransportProtocol;
+import sima.basic.transport.MessageTransportProtocol;
 import sima.core.agent.AgentIdentifier;
 import sima.core.agent.SimaAgent;
 import sima.core.environment.Environment;
-import sima.core.environment.physical.PhysicalConnectionLayer;
-import sima.core.exception.NoPhysicalConnectionLayerFoundException;
+import sima.core.environment.event.Event;
 import sima.core.exception.UnknownProtocolForAgentException;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
-import sima.core.protocol.TransportableIntendedToProtocol;
+import sima.core.protocol.TestProtocol;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,31 +23,26 @@ import java.util.Map;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class TestSimpleBroadcastProtocol extends TestMessageTransportProtocol {
+public class TestSimpleBroadcastProtocol extends TestProtocol {
     
     // Variables.
     
     protected SimpleBroadcastProtocol simpleBroadcastProtocol;
     
-    private Map<String, String> correctArgs;
-    
     @Mock
     private SimaAgent mockAgent;
     
-    private final AgentIdentifier agentIdentifier = new AgentIdentifier("A", 0, 0);
+    @Mock
+    private AgentIdentifier mockAgentIdentifier;
     
     @Mock
-    private TransportableIntendedToProtocol mockTransportableIntendedForProtocol;
+    private MessageTransportProtocol mockMessageTransport;
     
     @Mock
     private Environment mockEnvironment;
-    
-    @Mock
-    private PhysicalConnectionLayer mockPhysicalConnectionLayer;
     
     @Mock
     private Protocol mockProtocol;
@@ -58,7 +51,7 @@ public class TestSimpleBroadcastProtocol extends TestMessageTransportProtocol {
     private ProtocolIdentifier mockProtocolIdentifier;
     
     @Mock
-    private PhysicalMessageReceptionEvent mockPhysicalMessageReceptionEvent;
+    private Event mockEvent;
     
     @Mock
     private Message mockMessage;
@@ -66,14 +59,11 @@ public class TestSimpleBroadcastProtocol extends TestMessageTransportProtocol {
     // Init.
     
     @BeforeEach
-    @Override
-    public void setUp() {
-        correctArgs = new HashMap<>();
-        correctArgs.put(SimpleBroadcastProtocol.ARG_PHYSICAL_CONNECTION_LAYER_NAME, "PCL");
-        
+    void setUp() {
+        Map<String, String> correctArgs = new HashMap<>();
         simpleBroadcastProtocol = new SimpleBroadcastProtocol("BD_P", mockAgent, correctArgs);
-        messageTransportProtocol = simpleBroadcastProtocol;
-        super.setUp();
+        
+        protocol = simpleBroadcastProtocol;
     }
     
     // Tests.
@@ -87,28 +77,27 @@ public class TestSimpleBroadcastProtocol extends TestMessageTransportProtocol {
         @DisplayName("Test if constructor throws a NullPointerException with null name")
         void testConstructorWithNullName() {
             Map<String, String> args = new HashMap<>();
-            assertThrows(NullPointerException.class, () -> new SimpleBroadcastProtocol(null, mockAgent, args));
+            assertThrows(IllegalArgumentException.class, () -> new SimpleBroadcastProtocol(null, mockAgent, args));
         }
         
         @Test
         @DisplayName("Test if constructor throws a NullPointerException with null agent")
         void testConstructorWithNullAgent() {
             Map<String, String> args = new HashMap<>();
-            assertThrows(NullPointerException.class, () -> new SimpleBroadcastProtocol("BD_P", null, args));
+            assertThrows(IllegalArgumentException.class, () -> new SimpleBroadcastProtocol("BD_P", null, args));
         }
         
         @Test
-        @DisplayName("Test if constructor throws IllegalArgumentException with null args")
+        @DisplayName("Test if constructor does not throw Exception with null args")
         void testConstructorWithNullArgs() {
-            assertThrows(IllegalArgumentException.class, () -> new SimpleBroadcastProtocol("BD_P", mockAgent, null));
+            assertDoesNotThrow(() -> new SimpleBroadcastProtocol("BD_P", mockAgent, null));
         }
         
         @Test
-        @DisplayName("Test if constructor throws IllegalArgumentException with args which has not physicalConnectionLayerName value")
-        void testConstructorWithNoCorrectMapArgs() {
-            Map<String, String> incorrectArgs = new HashMap<>();
-            incorrectArgs.put("TROLL", "WRONG");
-            assertThrows(IllegalArgumentException.class, () -> new SimpleBroadcastProtocol("BD_P", mockAgent, incorrectArgs));
+        @DisplayName("Test if constructor does not throw Exception with not null args")
+        void testConstructorWithNotNullArgs() {
+            Map<String, String> args = new HashMap<>();
+            assertDoesNotThrow(() -> new SimpleBroadcastProtocol("BD_P", mockAgent, args));
         }
     }
     
@@ -118,36 +107,26 @@ public class TestSimpleBroadcastProtocol extends TestMessageTransportProtocol {
     class BroadcastTest {
         
         @Test
-        @DisplayName("Test if broadcast does not throw an Exception with correct TransportableIntendedForProtocol")
-        void testBroadcastWithCorrectTransportableIntendedForProtocol() {
+        @DisplayName("Test if broadcast does not throw an Exception with not null Message")
+        void testBroadcastWithNotNullMessage() {
             // WHEN
+            simpleBroadcastProtocol.setEnvironment(mockEnvironment);
+            simpleBroadcastProtocol.setMessageTransport(mockMessageTransport);
+            
             List<AgentIdentifier> evolvingAgent = new ArrayList<>();
-            evolvingAgent.add(agentIdentifier);
+            evolvingAgent.add(mockAgentIdentifier);
+            
             when(mockEnvironment.getEvolvingAgentIdentifiers()).thenReturn(evolvingAgent);
-            when(mockAgent.getAgentIdentifier()).thenReturn(agentIdentifier);
-            when(mockEnvironment.getPhysicalConnectionLayer(simpleBroadcastProtocol.getPhysicalConnectionLayerName())).thenReturn(
-                    mockPhysicalConnectionLayer);
+            when(mockAgent.getAgentIdentifier()).thenReturn(mockAgentIdentifier);
             
             // GIVEN
-            simpleBroadcastProtocol.setEnvironment(mockEnvironment);
-            assertDoesNotThrow(() -> simpleBroadcastProtocol.broadcast(mockTransportableIntendedForProtocol));
+            assertDoesNotThrow(() -> simpleBroadcastProtocol.broadcast(mockMessage));
         }
         
         @Test
-        @DisplayName("Test if broadcast throws an NoPhysicalConnectionLayerFoundException if there is no PhysicalConnectionLayer associate to " +
-                "the getPhysicalConnectionLayerName")
-        void testBroadcastWithNoPhysicalConnectionLayerFound() {
-            // WHEN
-            List<AgentIdentifier> evolvingAgent = new ArrayList<>();
-            evolvingAgent.add(agentIdentifier);
-            when(mockEnvironment.getEvolvingAgentIdentifiers()).thenReturn(evolvingAgent);
-            when(mockAgent.getAgentIdentifier()).thenReturn(agentIdentifier);
-            when(mockEnvironment.getPhysicalConnectionLayer(simpleBroadcastProtocol.getPhysicalConnectionLayerName())).thenReturn(null);
-            
-            // GIVEN
-            simpleBroadcastProtocol.setEnvironment(mockEnvironment);
-            assertThrows(NoPhysicalConnectionLayerFoundException.class,
-                    () -> simpleBroadcastProtocol.broadcast(mockTransportableIntendedForProtocol));
+        @DisplayName("Test if broadcast throws IllegalArgumentException if the message is null")
+        void testBroadcastWithNullMessage() {
+            assertThrows(IllegalArgumentException.class, () -> simpleBroadcastProtocol.broadcast(null));
         }
         
     }
@@ -166,12 +145,13 @@ public class TestSimpleBroadcastProtocol extends TestMessageTransportProtocol {
         @Test
         @DisplayName("Test if receive does not throw Exception with a correct BroadcastMessage")
         void testReceiveWithCorrectBroadcastMessage() {
-            // GIVEN
-            when(mockAgent.getProtocol(any(ProtocolIdentifier.class))).thenReturn(mockProtocol);
-            when(mockTransportableIntendedForProtocol.getIntendedProtocol()).thenReturn(mockProtocolIdentifier);
+            // WHEN
+            when(mockMessage.getIntendedProtocol()).thenReturn(mockProtocolIdentifier);
+            when(mockAgent.getProtocol(mockProtocolIdentifier)).thenReturn(mockProtocol);
             
+            // GIVEN
             simpleBroadcastProtocol.setEnvironment(mockEnvironment);
-            assertDoesNotThrow(() -> simpleBroadcastProtocol.receive(new BroadcastMessage(agentIdentifier, mockTransportableIntendedForProtocol,
+            assertDoesNotThrow(() -> simpleBroadcastProtocol.receive(new BroadcastMessage(mockAgentIdentifier, mockMessage,
                     simpleBroadcastProtocol.getIdentifier())));
         }
         
@@ -183,26 +163,29 @@ public class TestSimpleBroadcastProtocol extends TestMessageTransportProtocol {
     class DeliverTest {
         
         @Test
-        @DisplayName("Test if deliver does not throw an Exception if the owner has the intended protocol of the message content")
+        @DisplayName("Test if deliver does not throw Exception if the owner has the intended protocol of the message content")
         void testDeliverWithKnownIntendedProtocol() {
-            // GIVEN
-            BroadcastMessage broadcastMessage = new BroadcastMessage(agentIdentifier, mockTransportableIntendedForProtocol,
+            // WHEN
+            BroadcastMessage broadcastMessage = new BroadcastMessage(mockAgentIdentifier, mockMessage,
                     mockProtocolIdentifier);
-            when(mockTransportableIntendedForProtocol.getIntendedProtocol()).thenReturn(mockProtocolIdentifier);
+            when(mockMessage.getIntendedProtocol()).thenReturn(mockProtocolIdentifier);
             when(mockAgent.getProtocol(mockProtocolIdentifier)).thenReturn(mockProtocol);
             
+            // GIVEN
             assertDoesNotThrow(() -> simpleBroadcastProtocol.deliver(broadcastMessage));
         }
         
         @Test
-        @DisplayName("Test if deliver throws an Exception if the owner has not the intended protocol of the message content")
+        @DisplayName("Test if deliver throws UnknownProtocolForAgentException if the owner does not know the intended protocol of the message " +
+                "content")
         void testDeliverWithUnKnownIntendedProtocol() {
-            // GIVEN
-            BroadcastMessage broadcastMessage = new BroadcastMessage(agentIdentifier, mockTransportableIntendedForProtocol,
+            // WHEN
+            BroadcastMessage broadcastMessage = new BroadcastMessage(mockAgentIdentifier, mockMessage,
                     mockProtocolIdentifier);
-            when(mockTransportableIntendedForProtocol.getIntendedProtocol()).thenReturn(mockProtocolIdentifier);
+            when(mockMessage.getIntendedProtocol()).thenReturn(mockProtocolIdentifier);
             when(mockAgent.getProtocol(mockProtocolIdentifier)).thenReturn(null);
             
+            // GIVEN
             assertThrows(UnknownProtocolForAgentException.class, () -> simpleBroadcastProtocol.deliver(broadcastMessage));
         }
         
@@ -217,42 +200,25 @@ public class TestSimpleBroadcastProtocol extends TestMessageTransportProtocol {
     @Nested
     @Tag("SimpleBroadcastProtocol.processEvent")
     @DisplayName("SimpleBroadcastProtocol processEvent tests")
-    class ProcessEventTest extends TestMessageTransportProtocol.ProcessEventTest {
+    class ProcessEventTest {
         
         @Test
         @DisplayName("Test if processEvent does not throw an Exception if the event contains a BroadcastMessage")
         void testProcessEventWithBroadcastMessage() {
-            // GIVEN
-            BroadcastMessage broadcastMessage = new BroadcastMessage(agentIdentifier, mockTransportableIntendedForProtocol,
+            // WHEN
+            BroadcastMessage broadcastMessage = new BroadcastMessage(mockAgentIdentifier, mockMessage,
                     mockProtocolIdentifier);
-            when(mockPhysicalMessageReceptionEvent.getContent()).thenReturn(broadcastMessage);
-            when(mockTransportableIntendedForProtocol.getIntendedProtocol()).thenReturn(mockProtocolIdentifier);
-            when(mockAgent.getProtocol(any(ProtocolIdentifier.class))).thenReturn(mockProtocol);
+            when(mockMessage.getIntendedProtocol()).thenReturn(mockProtocolIdentifier);
+            when(mockAgent.getProtocol(mockProtocolIdentifier)).thenReturn(mockProtocol);
             
-            
-            assertDoesNotThrow(() -> simpleBroadcastProtocol.processEvent(mockPhysicalMessageReceptionEvent));
+            // GIVEN
+            assertDoesNotThrow(() -> simpleBroadcastProtocol.processEvent(broadcastMessage));
         }
         
         @Test
         @DisplayName("Test if processEvent throw an UnsupportedOperationException if the event does not contains a BroadcastMessage")
         void testProcessEventWithOtherEvent() {
-            when(mockPhysicalMessageReceptionEvent.getContent()).thenReturn(mockMessage);
-            
-            assertThrows(UnsupportedOperationException.class, () -> simpleBroadcastProtocol.processEvent(mockPhysicalMessageReceptionEvent));
+            assertThrows(UnsupportedOperationException.class, () -> simpleBroadcastProtocol.processEvent(mockEvent));
         }
-    }
-    
-    @Nested
-    @Tag("SimpleBroadcastProtocol.processTransportable")
-    @DisplayName("SimpleBroadcastProtocol processTransportable tests")
-    class ProcessTransportableInEventTest {
-        
-        @Test
-        @DisplayName("Test if processTransportable throws an UnsupportedOperationException")
-        void testProcessTransportable() {
-            assertThrows(UnsupportedOperationException.class, () -> simpleBroadcastProtocol.processEventTransportable(
-                    mockTransportableIntendedForProtocol));
-        }
-        
     }
 }

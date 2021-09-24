@@ -30,7 +30,7 @@ public class TestBroadcastMessage extends TestMessage {
     @BeforeEach
     @Override
     protected void setUp() {
-        broadcastMessage = new BroadcastMessage(mockAgentIdentifier, mockTransportableIntendedForProtocol, mockProtocolIdentifier);
+        broadcastMessage = new BroadcastMessage(mockAgentIdentifier, mockContentMessage, mockProtocolIdentifier);
         message = broadcastMessage;
     }
     
@@ -44,7 +44,7 @@ public class TestBroadcastMessage extends TestMessage {
         @Test
         @DisplayName("Test if constructor throws NullPointerException with null sender")
         void testConstructorWithNullSender() {
-            assertThrows(NullPointerException.class, () -> new BroadcastMessage(null, mockTransportableIntendedForProtocol, mockProtocolIdentifier));
+            assertThrows(NullPointerException.class, () -> new BroadcastMessage(null, mockContentMessage, mockProtocolIdentifier));
         }
         
         @Test
@@ -56,14 +56,14 @@ public class TestBroadcastMessage extends TestMessage {
         @Test
         @DisplayName("Test if constructor throws NullPointerException with null intended protocol")
         void testConstructorWithNullIntendedProtocol() {
-            assertThrows(NullPointerException.class, () -> new BroadcastMessage(mockAgentIdentifier, mockTransportableIntendedForProtocol,
+            assertThrows(NullPointerException.class, () -> new BroadcastMessage(mockAgentIdentifier, mockContentMessage,
                     null));
         }
         
         @Test
         @DisplayName("Test if constructor does not throw exception with not null args")
         void testConstructorWithNotNullArgs() {
-            assertDoesNotThrow(() -> new BroadcastMessage(mockAgentIdentifier, mockTransportableIntendedForProtocol, mockProtocolIdentifier));
+            assertDoesNotThrow(() -> new BroadcastMessage(mockAgentIdentifier, mockContentMessage, mockProtocolIdentifier));
         }
     }
     

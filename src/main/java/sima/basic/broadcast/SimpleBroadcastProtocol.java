@@ -2,17 +2,26 @@ package sima.basic.broadcast;
 
 import sima.basic.broadcast.message.BroadcastMessage;
 import sima.basic.environment.message.Message;
+import sima.basic.environment.message.MessageReceiver;
 import sima.basic.transport.MessageTransportProtocol;
 import sima.core.agent.AgentIdentifier;
 import sima.core.agent.SimaAgent;
-import sima.core.environment.event.transport.TransportableInEvent;
+import sima.core.environment.Environment;
+import sima.core.environment.event.Event;
 import sima.core.exception.UnknownProtocolForAgentException;
+import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolManipulator;
-import sima.core.protocol.TransportableIntendedToProtocol;
 
 import java.util.Map;
+import java.util.Optional;
 
-public class SimpleBroadcastProtocol extends MessageTransportProtocol implements Broadcaster {
+public class SimpleBroadcastProtocol extends Protocol implements MessageBroadcaster, MessageReceiver {
+    
+    // Variables.
+    
+    private MessageTransportProtocol messageTransport;
+    
+    private Environment environment;
     
     // Constructors.
     
@@ -22,14 +31,21 @@ public class SimpleBroadcastProtocol extends MessageTransportProtocol implements
     
     // Methods.
     
-    private BroadcastMessage createBroadcastMessage(TransportableIntendedToProtocol content) {
-        return new BroadcastMessage(getAgentOwner().getAgentIdentifier(), content, getIdentifier());
+    private BroadcastMessage createBroadcastMessage(Message message) {
+        return new BroadcastMessage(getAgentOwner().getAgentIdentifier(), message, getIdentifier());
     }
     
+    /**
+     * @param message the message to broadcast
+     *
+     * @throws IllegalArgumentException if the message to broadcast is null
+     */
     @Override
-    public void broadcast(TransportableIntendedToProtocol content) {
-        for (AgentIdentifier agent : getEnvironment().getEvolvingAgentIdentifiers()) {
-            transport(agent, createBroadcastMessage(content));
+    public void broadcast(Message message) {
+        Message toSend = Optional.ofNullable(message).orElseThrow(() -> new IllegalArgumentException(Message.class + " to broadcast must be " +
+                "not null"));
+        for (AgentIdentifier agent : environment.getEvolvingAgentIdentifiers()) {
+            messageTransport.send(agent, createBroadcastMessage(toSend));
         }
     }
     
@@ -54,32 +70,40 @@ public class SimpleBroadcastProtocol extends MessageTransportProtocol implements
     @Override
     public void deliver(Message message) {
         if (message instanceof BroadcastMessage broadcastMessage) {
-            TransportableIntendedToProtocol content = broadcastMessage.getContent();
+            var content = broadcastMessage.getContent();
             var intendedProtocolIdentifier = content.getIntendedProtocol();
-            if (getAgentOwner().getProtocol(intendedProtocolIdentifier) != null)
-                getAgentOwner().getProtocol(intendedProtocolIdentifier).processEventTransportable(content);
+            var intendedProtocol = getAgentOwner().getProtocol(intendedProtocolIdentifier);
+            if (intendedProtocol != null)
+                intendedProtocol.processEvent(content);
             else
                 throw new UnknownProtocolForAgentException(
-                        "The agent " + getAgentOwner() + " does know the protocol identify by " + intendedProtocolIdentifier);
+                        "The agent " + getAgentOwner() + " does not know the protocol identify by " + intendedProtocolIdentifier);
         } else
             throw new UnsupportedOperationException(
-                    getClass() + " does not support the delivery of other type of " + Message.class + " than " + BroadcastMessage.class);
+                    getClass() + " does not support the delivery of other type of " + Message.class + " than a" + BroadcastMessage.class);
     }
     
-    /**
-     * Does not treat any sort of {@link TransportableInEvent}. Throws an {@link UnsupportedOperationException}.
-     *
-     * @param transportableInEvent to process
-     *
-     * @throws UnsupportedOperationException always
-     */
     @Override
-    public void processEventTransportable(TransportableInEvent transportableInEvent) {
-        throw new UnsupportedOperationException(SimpleBroadcastProtocol.class + " does not treat " + TransportableInEvent.class);
+    public void processEvent(Event event) {
+        if (event instanceof BroadcastMessage broadcastMessage) {
+            receive(broadcastMessage);
+        } else
+            throw new UnsupportedOperationException(
+                    getClass() + " does not support the delivery of other type of " + Event.class + " than " + BroadcastMessage.class);
     }
     
     @Override
     protected ProtocolManipulator createDefaultProtocolManipulator() {
         return new ProtocolManipulator.DefaultProtocolManipulator(this);
+    }
+    
+    // Getters and setters.
+    
+    public void setMessageTransport(MessageTransportProtocol messageTransport) {
+        this.messageTransport = messageTransport;
+    }
+    
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 }

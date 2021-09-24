@@ -144,7 +144,7 @@ public abstract class TestEnvironment {
         @DisplayName("Test if processEventOn throws a NotEvolvingAgentInEnvironmentException if the event sender is not an evolving agent")
         void testProcessEventOnWithNotEvolvingEventSender() {
             assertThrows(NotEvolvingAgentInEnvironmentException.class,
-                    () -> environment.processEventOn(agentIdentifier0, mockEvent, arbitraryDelay));
+                    () -> environment.assignEventOn(agentIdentifier0, mockEvent, arbitraryDelay));
         }
         
         @Test
@@ -152,7 +152,7 @@ public abstract class TestEnvironment {
         void testProcessEventOnWithNullEventReceiver() {
             environment.acceptAgent(agentIdentifier0);
             assertThrows(NotEvolvingAgentInEnvironmentException.class,
-                    () -> environment.processEventOn(agentIdentifier1, mockEvent, arbitraryDelay));
+                    () -> environment.assignEventOn(agentIdentifier1, mockEvent, arbitraryDelay));
         }
         
         @Test
@@ -163,7 +163,7 @@ public abstract class TestEnvironment {
                 simulateSimaSimulationGetSchedulerReturnsMockScheduler(simaSimulationMockedStatic);
                 
                 environment.acceptAgent(agentIdentifier0);
-                assertDoesNotThrow(() -> environment.processEventOn(agentIdentifier0, mockEvent, arbitraryDelay));
+                assertDoesNotThrow(() -> environment.assignEventOn(agentIdentifier0, mockEvent, arbitraryDelay));
             }
         }
     }

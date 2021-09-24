@@ -2,7 +2,6 @@ package sima.testing.protocol;
 
 import sima.core.agent.SimaAgent;
 import sima.core.environment.event.Event;
-import sima.core.environment.event.transport.TransportableInEvent;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolManipulator;
 
@@ -26,9 +25,5 @@ public class NoDefaultProtocolManipulatorProtocol extends Protocol {
     @Override
     protected ProtocolManipulator createDefaultProtocolManipulator() {
         return null;
-    }
-    
-    @Override
-    public void processEventTransportable(TransportableInEvent transportableInEvent) {
     }
 }

@@ -2,28 +2,17 @@ package sima.basic.environment.message;
 
 import org.jetbrains.annotations.NotNull;
 import sima.core.environment.event.Event;
-import sima.core.environment.event.transport.TransportableInEvent;
+import sima.core.protocol.IntendedToProtocol;
 import sima.core.protocol.ProtocolIdentifier;
-import sima.core.protocol.TransportableIntendedToProtocol;
-import sima.core.utils.Box;
 
-import java.io.Serializable;
 import java.util.Optional;
 
 /**
  * A message is a particular event which has a content and which is intended to a specific protocol
  */
-public class Message implements TransportableIntendedToProtocol, Box<TransportableInEvent> {
+public class Message extends Event implements IntendedToProtocol {
     
     // Variables.
-    
-    /**
-     * The content of the message.
-     * <p>
-     * Because a {@link Message} is an {@link Event} and that an {@link Event} is {@link TransportableInEvent}, the content of the message must
-     * be {@link Serializable}.
-     */
-    private final TransportableInEvent content;
     
     /**
      * The intended protocol.
@@ -40,13 +29,13 @@ public class Message implements TransportableIntendedToProtocol, Box<Transportab
      *
      * @throws NullPointerException if intendedProtocol is null
      */
-    public Message(TransportableInEvent content, ProtocolIdentifier intendedProtocol) {
-        this.content = content;
+    public Message(Message content, ProtocolIdentifier intendedProtocol) {
+        super(content);
         this.intendedProtocol = Optional.of(intendedProtocol).get();
     }
     
     private Message(Message message) {
-        this(message.content.duplicate(), message.getIntendedProtocol());
+        this(message.getContent().duplicate(), message.getIntendedProtocol());
     }
     
     // Methods.
@@ -58,9 +47,18 @@ public class Message implements TransportableIntendedToProtocol, Box<Transportab
     
     // Getters and Setters.
     
+    /**
+     * Same that {@link #getContent()}. Just here to be more clear that a {@link Message} contains other {@link Message}.
+     *
+     * @return the {@link #getContent()} cast in {@link Message}.
+     */
+    public Message getMessage() {
+        return getContent();
+    }
+    
     @Override
-    public TransportableInEvent getContent() {
-        return content;
+    public Message getContent() {
+        return (Message) super.getContent();
     }
     
     @Override

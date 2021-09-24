@@ -6,7 +6,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sima.core.agent.SimaAgent;
 import sima.core.environment.event.Event;
-import sima.core.environment.event.transport.TransportableInEvent;
 import sima.core.protocol.NoProtocolManipulatorProtocol;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.TestNoProtocolManipulatorProtocol;
@@ -45,14 +44,14 @@ public class TestNoProtocolManipulatorProtocolCoverage extends TestNoProtocolMan
         @DisplayName("Test if constructor throw an NullPointerException with null protocolTag")
         void testConstructorWithNullProtocolTag() {
             Map<String, String> args = new HashMap<>();
-            assertThrows(NullPointerException.class, () -> new NoProtocolManipulatorProtocolCoverage(null, mockSimaAgent, args));
+            assertThrows(IllegalArgumentException.class, () -> new NoProtocolManipulatorProtocolCoverage(null, mockSimaAgent, args));
         }
         
         @Test
         @DisplayName("Test if constructor throw an NullPointerException with null agentOwner")
         void testConstructorWithNullAgentOwner() {
             Map<String, String> args = new HashMap<>();
-            assertThrows(NullPointerException.class, () -> new NoProtocolManipulatorProtocolCoverage("TAG", null, args));
+            assertThrows(IllegalArgumentException.class, () -> new NoProtocolManipulatorProtocolCoverage("TAG", null, args));
         }
         
         @Test
@@ -79,11 +78,6 @@ public class TestNoProtocolManipulatorProtocolCoverage extends TestNoProtocolMan
         
         @Override
         public void processEvent(Event event) {
-            // Nothing
-        }
-        
-        @Override
-        public void processEventTransportable(TransportableInEvent transportableInEvent) {
             // Nothing
         }
     }
