@@ -12,8 +12,7 @@ import java.util.Optional;
  * Represent the physical connection layer in an {@link Environment}. An {@link Environment} can have several {@link PhysicalConnectionLayer} to
  * simulate different ways that how {@link sima.core.agent.SimaAgent} are physically connected. Thanks to this layer, we can for example simulate
  * the radio connection between {@link sima.core.agent.SimaAgent} and physically block the possibility to send of {@link PhysicalEvent} if two
- * {@link
- * sima.core.agent.SimaAgent} are not physically connected.
+ * {@link sima.core.agent.SimaAgent} are not physically connected.
  */
 public abstract class PhysicalConnectionLayer {
     
@@ -33,10 +32,10 @@ public abstract class PhysicalConnectionLayer {
      * @param environment the environment
      * @param args        arguments
      *
-     * @throws NullPointerException if the environment is null.
+     * @throws IllegalArgumentException if the environment is null.
      */
     protected PhysicalConnectionLayer(Environment environment, Map<String, String> args) {
-        this.environment = Optional.of(environment).get();
+        this.environment = Optional.ofNullable(environment).orElseThrow(() -> new IllegalArgumentException("The environment cannot be null"));
     }
     
     // Methods.
@@ -67,10 +66,14 @@ public abstract class PhysicalConnectionLayer {
      * @param target        the target of the {@link PhysicalEvent}
      * @param physicalEvent the {@link PhysicalEvent}
      *
-     * @throws NullPointerException if the initiator, target or physicalEvent is null
+     * @throws IllegalArgumentException if the initiator, target or physicalEvent is null
      */
     public void send(AgentIdentifier initiator, AgentIdentifier target, PhysicalEvent physicalEvent) {
-        var decoratedPhysicalEvent = decoratePhysicalEvent(Optional.of(physicalEvent).get());
+        initiator = Optional.ofNullable(initiator).orElseThrow(() -> new IllegalArgumentException("The initiator cannot be null"));
+        target = Optional.ofNullable(target).orElseThrow(() -> new IllegalArgumentException("The target cannot be null"));
+        physicalEvent = Optional.ofNullable(physicalEvent).orElseThrow(() -> new IllegalArgumentException("The physicalEvent cannot be null"));
+        
+        var decoratedPhysicalEvent = decoratePhysicalEvent(physicalEvent);
         boolean success = canBeSent(initiator, target, decoratedPhysicalEvent);
         if (hasNext() && success)
             next.send(initiator, target, decoratedPhysicalEvent);
@@ -102,7 +105,7 @@ public abstract class PhysicalConnectionLayer {
      *
      * @return true if for this {@link PhysicalConnectionLayer}, both {@link sima.core.agent.SimaAgent} have physical connection between them.
      *
-     * @throws NullPointerException if a1 or a2 is null.
+     * @throws IllegalArgumentException if a1 or a2 is null.
      */
     public abstract boolean hasPhysicalConnection(AgentIdentifier a1, AgentIdentifier a2);
     

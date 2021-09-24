@@ -47,7 +47,7 @@
     {
       "id": "SEnv",
       "name": "SpecificEnvironmentTesting",
-      "environmentClass": "sima.basic.environment.FullyConnectedNetworkEnvironment",
+      "environmentClass": "sima.basic.environment.SimpleEnvironment",
       "args": [
         [
           "eArg1",
@@ -58,13 +58,13 @@
     {
       "id": "SEnvSecond",
       "name": "IgnoredEnvironment0",
-      "environmentClass": "sima.basic.environment.FullyConnectedNetworkEnvironment",
+      "environmentClass": "sima.basic.environment.SimpleEnvironment",
       "args": []
     },
     {
       "id": "SEnvThird",
       "name": "IgnoredEnvironment1",
-      "environmentClass": "sima.basic.environment.FullyConnectedNetworkEnvironment"
+      "environmentClass": "sima.basic.environment.SimpleEnvironment"
     }
   ],
   "protocols": [

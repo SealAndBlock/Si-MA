@@ -47,7 +47,7 @@
   "environments": [
     {
       "name": "SpecificEnvironmentTesting",
-      "environmentClass": "sima.basic.environment.FullyConnectedNetworkEnvironment",
+      "environmentClass": "sima.basic.environment.SimpleEnvironment",
       "args": [
         [
           "eArg1",

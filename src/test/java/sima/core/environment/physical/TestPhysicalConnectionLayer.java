@@ -39,9 +39,9 @@ public abstract class TestPhysicalConnectionLayer {
         @Test
         @DisplayName("Test if the method send throws NullPointerException if the initiator, the target or the physicalEvent is null")
         void testSendWithNullArgs() {
-            assertThrows(NullPointerException.class, () -> physicalConnectionLayer.send(null, mockAgentTarget, mockPhysicalEvent));
-            assertThrows(NullPointerException.class, () -> physicalConnectionLayer.send(mockAgentInitiator, null, mockPhysicalEvent));
-            assertThrows(NullPointerException.class, () -> physicalConnectionLayer.send(mockAgentInitiator, mockAgentTarget, null));
+            assertThrows(IllegalArgumentException.class, () -> physicalConnectionLayer.send(null, mockAgentTarget, mockPhysicalEvent));
+            assertThrows(IllegalArgumentException.class, () -> physicalConnectionLayer.send(mockAgentInitiator, null, mockPhysicalEvent));
+            assertThrows(IllegalArgumentException.class, () -> physicalConnectionLayer.send(mockAgentInitiator, mockAgentTarget, null));
         }
         
         @Test
@@ -70,10 +70,10 @@ public abstract class TestPhysicalConnectionLayer {
         }
         
         @Test
-        @DisplayName("Test if hasPhysicalConnection throws NullPointerException if a1 or a2 is null")
+        @DisplayName("Test if hasPhysicalConnection throws IllegalArgumentException if a1 or a2 is null")
         void testHasPhysicalConnectionWithNullArgs() {
-            assertThrows(NullPointerException.class, () -> physicalConnectionLayer.hasPhysicalConnection(null, mockAgentTarget));
-            assertThrows(NullPointerException.class, () -> physicalConnectionLayer.hasPhysicalConnection(mockAgentInitiator, null));
+            assertThrows(IllegalArgumentException.class, () -> physicalConnectionLayer.hasPhysicalConnection(null, mockAgentTarget));
+            assertThrows(IllegalArgumentException.class, () -> physicalConnectionLayer.hasPhysicalConnection(mockAgentInitiator, null));
         }
         
     }

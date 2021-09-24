@@ -26,6 +26,6 @@ public class EnvironmentNotAcceptAgent extends Environment {
     }
     
     @Override
-    protected void scheduleEventReception(AgentIdentifier receiver, Event event, long delay) {
+    protected void scheduleEventProcess(AgentIdentifier receiver, Event event, long delay) {
     }
 }

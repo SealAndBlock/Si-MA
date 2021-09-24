@@ -1,22 +1,17 @@
-package sima.basic.environment;
+package sima.basic.environment.physical;
 
+import org.jetbrains.annotations.NotNull;
 import sima.core.agent.AgentIdentifier;
-import sima.core.agent.SimaAgent;
 import sima.core.environment.Environment;
-import sima.core.environment.event.Event;
-import sima.core.simulation.SimaSimulation;
+import sima.core.environment.physical.PhysicalConnectionLayer;
+import sima.core.environment.physical.PhysicalEvent;
 
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 
 import static sima.core.simulation.SimaSimulationUtils.randomLong;
 
-/**
- * Simulate an {@link Environment} where all {@link SimaAgent} are directly connected together.
- * <p>
- * This {@code Environment} accept all type of agent, the method {@link #agentCanBeAccepted(AgentIdentifier)} always return true.
- */
-public class FullyConnectedNetworkEnvironment extends Environment {
+public class FullyConnectedPhysicalLayer extends PhysicalConnectionLayer {
     
     // Static.
     
@@ -33,27 +28,13 @@ public class FullyConnectedNetworkEnvironment extends Environment {
     
     // Constructors.
     
-    public FullyConnectedNetworkEnvironment(String environmentName, Map<String, String> args) {
-        super(environmentName, args);
+    public FullyConnectedPhysicalLayer(Environment environment, Map<String, String> args) {
+        super(environment, args);
         initSendDelay();
         processArgument(args);
     }
     
     // Methods.
-    
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof FullyConnectedNetworkEnvironment that)) return false;
-        if (!super.equals(o)) return false;
-        return getMinSendDelay() == that.getMinSendDelay() && getMaxSendDelay() == that.getMaxSendDelay();
-    }
-    
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), getMinSendDelay(), getMaxSendDelay());
-    }
     
     protected void processArgument(Map<String, String> args) {
         if (args != null)
@@ -108,29 +89,33 @@ public class FullyConnectedNetworkEnvironment extends Environment {
             maxSendDelay = DEFAULT_MAX_SEND_DELAY;
     }
     
+    @Override
+    protected @NotNull PhysicalEvent decoratePhysicalEvent(PhysicalEvent physicalEvent) {
+        return physicalEvent;
+    }
+    
     /**
-     * All agents are accepted.
+     * @param a1 the agent a1
+     * @param a2 the agent a2
      *
-     * @param abstractAgentIdentifier the {@link AgentIdentifier} of the agent to verify
-     *
-     * @return always true
+     * @return always true because all agents as direct connection between them.b
      */
     @Override
-    protected boolean agentCanBeAccepted(AgentIdentifier abstractAgentIdentifier) {
+    public boolean hasPhysicalConnection(AgentIdentifier a1, AgentIdentifier a2) {
+        if (Optional.ofNullable(a1).isEmpty() || Optional.ofNullable(a2).isEmpty())
+            throw new IllegalArgumentException("a1 and a2 must be not null");
+        
         return true;
     }
     
     @Override
-    protected void agentIsLeaving(AgentIdentifier leavingAgentIdentifier) {
-        // Nothing.
+    protected boolean canBeSent(AgentIdentifier initiator, AgentIdentifier target, PhysicalEvent physicalEvent) {
+        return true;
     }
     
     @Override
-    protected void scheduleEventReception(AgentIdentifier target, Event event, long delay) {
-        if (delay < minSendDelay && delay > maxSendDelay)
-            delay = randomLong(minSendDelay, maxSendDelay);
-        
-        SimaSimulation.getScheduler().scheduleEvent(target, event, delay);
+    protected void scheduleInEnvironment(AgentIdentifier target, PhysicalEvent physicalEvent) {
+        getEnvironment().assignEventOn(target, physicalEvent, randomLong(minSendDelay, maxSendDelay));
     }
     
     // Getters.

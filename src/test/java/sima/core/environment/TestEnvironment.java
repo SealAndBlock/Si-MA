@@ -60,7 +60,7 @@ public abstract class TestEnvironment {
         @DisplayName("Test if the method toString returns a correct String")
         public void testToString() {
             String expectedToString = "[Environment - " +
-                    "class=" + this.getClass().getName() +
+                    "class=" + environment.getClass().getName() +
                     ", environmentName=" + environment.getEnvironmentName() + "]";
             String toString = environment.toString();
             assertEquals(expectedToString, toString);
