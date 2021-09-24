@@ -21,10 +21,13 @@ public class TestMessage {
     private ProtocolIdentifier mockProtocolIdentifier;
     
     @Mock
+    private ProtocolIdentifier mockProtocolIdentifierOther;
+    
+    @Mock
     protected Message mockContentMessage;
     
     @Mock
-    private Message mockContentMessageOther;
+    protected Message mockContentMessageOther;
     
     // Init.
     
@@ -57,6 +60,54 @@ public class TestMessage {
         void testConstructorWithNotNullArgs() {
             assertDoesNotThrow(() -> new Message(mockContentMessage, mockProtocolIdentifier));
         }
+    }
+    
+    @Nested
+    @Tag("Message.hashCode")
+    @DisplayName("Message hashCode tests")
+    class HashCodeTest {
+        
+        @Test
+        @DisplayName("Test if two equals message has the same hashCode")
+        void testHashCodeWithEqualMessages() {
+            // WHEN
+            var m1 = new Message(mockContentMessage, mockProtocolIdentifier);
+            var m2 = new Message(mockContentMessage, mockProtocolIdentifier);
+            
+            // GIVEN
+            assertThat(m1.hashCode()).isEqualByComparingTo(m2.hashCode());
+        }
+        
+    }
+    
+    @Nested
+    @Tag("Message.equals")
+    @DisplayName("Message equals tests")
+    class EqualsTest {
+        
+        @Test
+        @DisplayName("Test if equals returns true with two equals message")
+        void testEqualsWithTwoEqualsMessage() {
+            // WHEN
+            var m1 = new Message(mockContentMessage, mockProtocolIdentifier);
+            var m2 = new Message(mockContentMessage, mockProtocolIdentifier);
+            
+            // GIVEN
+            assertThat(m1).isEqualTo(m2);
+        }
+        
+        @Test
+        @DisplayName("Test if equals returns false with two not equals message")
+        void testEqualsWithTwoNotEqualsMessage() {
+            // WHEN
+            var m1 = new Message(mockContentMessage, mockProtocolIdentifier);
+            var m2 = new Message(mockContentMessageOther, mockProtocolIdentifier);
+            var m3 = new Message(mockContentMessage, mockProtocolIdentifierOther);
+            
+            // GIVEN
+            assertThat(m1).isNotEqualTo(m2).isNotEqualTo(m3);
+        }
+        
     }
     
     @Nested
