@@ -48,12 +48,12 @@
     {
       "id": "SEnv",
       "name": "SpecificEnvironmentTesting",
-      "environmentClass": "sima.basic.environment.FullyConnectedNetworkEnvironment"
+      "environmentClass": "sima.basic.environment.SimpleEnvironment"
     },
     {
       "id": "SEnvSecond",
       "name": "SpecificEnvironmentTesting",
-      "environmentClass": "sima.basic.environment.FullyConnectedNetworkEnvironment"
+      "environmentClass": "sima.basic.environment.SimpleEnvironment"
     }
   ],
   "protocols": [

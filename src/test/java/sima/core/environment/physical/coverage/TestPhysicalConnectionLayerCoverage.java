@@ -41,7 +41,7 @@ public class TestPhysicalConnectionLayerCoverage extends TestPhysicalConnectionL
         @Test
         @DisplayName("Test if constructor throws NullPointerException with null environment")
         void testConstructorWithNullEnvironment() {
-            assertThrows(NullPointerException.class, () -> new PhysicalConnectionLayerCoverage(null, null));
+            assertThrows(IllegalArgumentException.class, () -> new PhysicalConnectionLayerCoverage(null, null));
         }
         
         @Test
@@ -72,7 +72,7 @@ public class TestPhysicalConnectionLayerCoverage extends TestPhysicalConnectionL
         @Override
         public boolean hasPhysicalConnection(AgentIdentifier a1, AgentIdentifier a2) {
             if (a1 == null || a2 == null)
-                throw new NullPointerException();
+                throw new IllegalArgumentException();
             return true;
         }
         

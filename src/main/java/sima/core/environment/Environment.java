@@ -48,9 +48,12 @@ public abstract class Environment implements EventAssignor {
      *
      * @param environmentName the sima.core.environment name
      * @param args            arguments map (map argument name with the argument)
+     *
+     * @throws IllegalArgumentException if environmentName is null
      */
     protected Environment(String environmentName, Map<String, String> args) {
-        this.environmentName = Optional.of(environmentName).get();
+        this.environmentName = Optional.ofNullable(environmentName).orElseThrow(() -> new IllegalArgumentException("The environmentName " +
+                "cannot be null"));
         evolvingAgents = new HashSet<>();
         physicalConnectionLayers = new HashMap<>();
     }
@@ -174,7 +177,7 @@ public abstract class Environment implements EventAssignor {
     @Override
     public synchronized void assignEventOn(AgentIdentifier target, Event event, long delay) {
         if (isEvolving(Optional.of(target).get())) {
-            scheduleEventReception(target, event, delay);
+            scheduleEventProcess(target, event, delay);
         } else {
             throw new NotEvolvingAgentInEnvironmentException(
                     "The target " + target + " is not evolving in the environment" + this);
@@ -191,7 +194,7 @@ public abstract class Environment implements EventAssignor {
      *
      * @throws IllegalArgumentException if the delay is less than {@link sima.core.scheduler.Scheduler#NOW}
      */
-    protected abstract void scheduleEventReception(AgentIdentifier receiver, Event event, long delay);
+    protected abstract void scheduleEventProcess(AgentIdentifier receiver, Event event, long delay);
     
     /**
      * Try to map the specified {@link PhysicalConnectionLayer} with the specified name. If there is already a {@link PhysicalConnectionLayer}
