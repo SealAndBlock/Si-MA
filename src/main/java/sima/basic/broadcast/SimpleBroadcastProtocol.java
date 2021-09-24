@@ -12,8 +12,10 @@ import sima.core.exception.UnknownProtocolForAgentException;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolManipulator;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class SimpleBroadcastProtocol extends Protocol implements MessageBroadcaster, MessageReceiver {
     
@@ -23,10 +25,13 @@ public class SimpleBroadcastProtocol extends Protocol implements MessageBroadcas
     
     private Environment environment;
     
+    private final Set<BroadcastMessage> messageReceived;
+    
     // Constructors.
     
     public SimpleBroadcastProtocol(String protocolTag, SimaAgent agentOwner, Map<String, String> args) {
         super(protocolTag, agentOwner, args);
+        messageReceived = new HashSet<>();
     }
     
     // Methods.
@@ -51,11 +56,37 @@ public class SimpleBroadcastProtocol extends Protocol implements MessageBroadcas
     
     @Override
     public void receive(Message message) {
-        if (message instanceof BroadcastMessage broadcastMessage)
+        if (message instanceof BroadcastMessage broadcastMessage) {
             deliver(broadcastMessage);
-        else
+            if (messageReceived.add(broadcastMessage)) {
+                reBroadcast(broadcastMessage);
+            }
+        } else
             throw new UnsupportedOperationException(
                     getClass() + " does not support the reception of other type of " + Message.class + " than " + BroadcastMessage.class);
+    }
+    
+    /**
+     * Re broadcast a {@link BroadcastMessage} that we just receive.
+     * <p>
+     * Re broadcast to all except the owner agent.
+     *
+     * @param broadcastMessage the message to re broadcast
+     */
+    protected void reBroadcast(BroadcastMessage broadcastMessage) {
+        for (AgentIdentifier agent : environment.getEvolvingAgentIdentifiers()) {
+            if (!isAgentOwner(agent))
+                messageTransport.send(agent, broadcastMessage);
+        }
+    }
+    
+    /**
+     * @param agent the agent to compare
+     *
+     * @return true if the agent is {@link #getAgentOwner()}, else false.
+     */
+    private boolean isAgentOwner(AgentIdentifier agent) {
+        return agent.equals(getAgentOwner().getAgentIdentifier());
     }
     
     /**

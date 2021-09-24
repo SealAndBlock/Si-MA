@@ -5,6 +5,7 @@ import sima.core.utils.Box;
 import sima.core.utils.Duplicable;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Represents an event which can occur during the simulation on an {@link SimaAgent}.
@@ -32,6 +33,20 @@ public abstract class Event implements Serializable, Duplicable<Event>, Box<Even
      */
     protected Event(Event content) {
         this.content = content;
+    }
+    
+    // Methods.
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Event event)) return false;
+        return Objects.equals(getContent(), event.getContent());
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(getContent());
     }
     
     // Getters and Setters.

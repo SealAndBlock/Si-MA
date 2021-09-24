@@ -58,6 +58,18 @@ public abstract class TestPhysicalConnectionLayer {
     class HasPhysicalConnectionTest {
         
         @Test
+        @DisplayName("Test if hashPhysicalConnection always returns true for two equals agentIdentifier")
+        void testHasPhysicalConnectionWithTwoEqualsAgentIdentifier() {
+            String name = "SAME_NAME";
+            int sequenceId = 0;
+            int uniqueId = 0;
+            var a1 = new AgentIdentifier(name, sequenceId, uniqueId);
+            var a2 = new AgentIdentifier(name, sequenceId, uniqueId);
+            
+            assertThat(physicalConnectionLayer.hasPhysicalConnection(a1, a2)).isTrue();
+        }
+        
+        @Test
         @DisplayName("Test if hasPhysicalConnection throws NullPointerException if a1 or a2 is null")
         void testHasPhysicalConnectionWithNullArgs() {
             assertThrows(NullPointerException.class, () -> physicalConnectionLayer.hasPhysicalConnection(null, mockAgentTarget));

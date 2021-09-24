@@ -211,6 +211,13 @@ public class TestSimpleBroadcastProtocol extends TestProtocol {
             when(mockMessage.getIntendedProtocol()).thenReturn(mockProtocolIdentifier);
             when(mockAgent.getProtocol(mockProtocolIdentifier)).thenReturn(mockProtocol);
             
+            List<AgentIdentifier> evolvingAgent = new ArrayList<>();
+            evolvingAgent.add(mockAgentIdentifier);
+            
+            when(mockEnvironment.getEvolvingAgentIdentifiers()).thenReturn(evolvingAgent);
+            simpleBroadcastProtocol.setEnvironment(mockEnvironment);
+            simpleBroadcastProtocol.setMessageTransport(mockMessageTransport);
+            
             // GIVEN
             assertDoesNotThrow(() -> simpleBroadcastProtocol.processEvent(broadcastMessage));
         }

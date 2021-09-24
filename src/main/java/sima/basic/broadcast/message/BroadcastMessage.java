@@ -5,6 +5,7 @@ import sima.basic.environment.message.Message;
 import sima.core.agent.AgentIdentifier;
 import sima.core.protocol.ProtocolIdentifier;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class BroadcastMessage extends Message {
@@ -32,6 +33,19 @@ public class BroadcastMessage extends Message {
     }
     
     // Methods.
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BroadcastMessage that)) return false;
+        if (!super.equals(o)) return false;
+        return getSender().equals(that.getSender());
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), getSender());
+    }
     
     @Override
     public @NotNull BroadcastMessage duplicate() {

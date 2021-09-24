@@ -20,17 +20,23 @@ public class TestBroadcastMessage extends TestMessage {
     protected BroadcastMessage broadcastMessage;
     
     @Mock
-    private AgentIdentifier mockAgentIdentifier;
+    private AgentIdentifier mockAgentSender;
+    
+    @Mock
+    private AgentIdentifier mockAgentSenderOther;
     
     @Mock
     private ProtocolIdentifier mockProtocolIdentifier;
+    
+    @Mock
+    private ProtocolIdentifier mockProtocolIdentifierOther;
     
     // Init
     
     @BeforeEach
     @Override
     protected void setUp() {
-        broadcastMessage = new BroadcastMessage(mockAgentIdentifier, mockContentMessage, mockProtocolIdentifier);
+        broadcastMessage = new BroadcastMessage(mockAgentSender, mockContentMessage, mockProtocolIdentifier);
         message = broadcastMessage;
     }
     
@@ -50,21 +56,70 @@ public class TestBroadcastMessage extends TestMessage {
         @Test
         @DisplayName("Test if constructor does not throw exception with null content")
         void testConstructorWithNullContent() {
-            assertDoesNotThrow(() -> new BroadcastMessage(mockAgentIdentifier, null, mockProtocolIdentifier));
+            assertDoesNotThrow(() -> new BroadcastMessage(mockAgentSender, null, mockProtocolIdentifier));
         }
         
         @Test
         @DisplayName("Test if constructor throws NullPointerException with null intended protocol")
         void testConstructorWithNullIntendedProtocol() {
-            assertThrows(NullPointerException.class, () -> new BroadcastMessage(mockAgentIdentifier, mockContentMessage,
+            assertThrows(NullPointerException.class, () -> new BroadcastMessage(mockAgentSender, mockContentMessage,
                     null));
         }
         
         @Test
         @DisplayName("Test if constructor does not throw exception with not null args")
         void testConstructorWithNotNullArgs() {
-            assertDoesNotThrow(() -> new BroadcastMessage(mockAgentIdentifier, mockContentMessage, mockProtocolIdentifier));
+            assertDoesNotThrow(() -> new BroadcastMessage(mockAgentSender, mockContentMessage, mockProtocolIdentifier));
         }
+    }
+    
+    @Nested
+    @Tag("BroadcastMessage.hashCode")
+    @DisplayName("BroadcastMessage hashCode tests")
+    class HashCodeTest {
+        
+        @Test
+        @DisplayName("Test if two equals message has the same hashCode")
+        void testHashCodeWithEqualMessages() {
+            // WHEN
+            var m1 = new BroadcastMessage(mockAgentSender, mockContentMessage, mockProtocolIdentifier);
+            var m2 = new BroadcastMessage(mockAgentSender, mockContentMessage, mockProtocolIdentifier);
+            
+            // GIVEN
+            assertThat(m1.hashCode()).isEqualByComparingTo(m2.hashCode());
+        }
+        
+    }
+    
+    @Nested
+    @Tag("BroadcastMessage.equals")
+    @DisplayName("BroadcastMessage equals tests")
+    class EqualsTest {
+        
+        @Test
+        @DisplayName("Test if equals returns true with two equals message")
+        void testEqualsWithTwoEqualsMessage() {
+            // WHEN
+            var m1 = new BroadcastMessage(mockAgentSender, mockContentMessage, mockProtocolIdentifier);
+            var m2 = new BroadcastMessage(mockAgentSender, mockContentMessage, mockProtocolIdentifier);
+            
+            // GIVEN
+            assertThat(m1).isEqualTo(m2);
+        }
+        
+        @Test
+        @DisplayName("Test if equals returns false with two not equals message")
+        void testEqualsWithTwoNotEqualsMessage() {
+            // WHEN
+            var m1 = new BroadcastMessage(mockAgentSender, mockContentMessage, mockProtocolIdentifier);
+            var m2 = new BroadcastMessage(mockAgentSender, mockContentMessageOther, mockProtocolIdentifier);
+            var m3 = new BroadcastMessage(mockAgentSenderOther, mockContentMessage, mockProtocolIdentifier);
+            var m4 = new BroadcastMessage(mockAgentSender, mockContentMessage, mockProtocolIdentifierOther);
+            
+            // GIVEN
+            assertThat(m1).isNotEqualTo(m2).isNotEqualTo(m3).isNotEqualTo(m4);
+        }
+        
     }
     
     @Nested
