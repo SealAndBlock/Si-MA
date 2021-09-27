@@ -12,10 +12,8 @@ import sima.core.exception.UnknownProtocolForAgentException;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolManipulator;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * A class which implements message broadcasting.
