@@ -26,11 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class TestSimpleBroadcastProtocol extends TestProtocol {
+public class TestBasicBroadcast extends TestProtocol {
     
     // Variables.
     
-    protected SimpleBroadcastProtocol simpleBroadcastProtocol;
+    protected BasicBroadcast BasicBroadcast;
     
     @Mock
     private SimaAgent mockAgent;
@@ -61,57 +61,57 @@ public class TestSimpleBroadcastProtocol extends TestProtocol {
     @BeforeEach
     void setUp() {
         Map<String, String> correctArgs = new HashMap<>();
-        simpleBroadcastProtocol = new SimpleBroadcastProtocol("BD_P", mockAgent, correctArgs);
+        BasicBroadcast = new BasicBroadcast("BD_P", mockAgent, correctArgs);
         
-        protocol = simpleBroadcastProtocol;
+        protocol = BasicBroadcast;
     }
     
     // Tests.
     
     @Nested
-    @Tag("SimpleBroadcastProtocol.constructor")
-    @DisplayName("SimpleBroadcastProtocol constructor tests")
+    @Tag("BasicBroadcast.constructor")
+    @DisplayName("BasicBroadcast constructor tests")
     class ConstructorTest {
         
         @Test
         @DisplayName("Test if constructor throws a NullPointerException with null name")
         void testConstructorWithNullName() {
             Map<String, String> args = new HashMap<>();
-            assertThrows(IllegalArgumentException.class, () -> new SimpleBroadcastProtocol(null, mockAgent, args));
+            assertThrows(IllegalArgumentException.class, () -> new BasicBroadcast(null, mockAgent, args));
         }
         
         @Test
         @DisplayName("Test if constructor throws a NullPointerException with null agent")
         void testConstructorWithNullAgent() {
             Map<String, String> args = new HashMap<>();
-            assertThrows(IllegalArgumentException.class, () -> new SimpleBroadcastProtocol("BD_P", null, args));
+            assertThrows(IllegalArgumentException.class, () -> new BasicBroadcast("BD_P", null, args));
         }
         
         @Test
         @DisplayName("Test if constructor does not throw Exception with null args")
         void testConstructorWithNullArgs() {
-            assertDoesNotThrow(() -> new SimpleBroadcastProtocol("BD_P", mockAgent, null));
+            assertDoesNotThrow(() -> new BasicBroadcast("BD_P", mockAgent, null));
         }
         
         @Test
         @DisplayName("Test if constructor does not throw Exception with not null args")
         void testConstructorWithNotNullArgs() {
             Map<String, String> args = new HashMap<>();
-            assertDoesNotThrow(() -> new SimpleBroadcastProtocol("BD_P", mockAgent, args));
+            assertDoesNotThrow(() -> new BasicBroadcast("BD_P", mockAgent, args));
         }
     }
     
     @Nested
-    @Tag("SimpleBroadcastProtocol.broadcast")
-    @DisplayName("SimpleBroadcastProtocol broadcast tests")
+    @Tag("BasicBroadcast.broadcast")
+    @DisplayName("BasicBroadcast broadcast tests")
     class BroadcastTest {
         
         @Test
         @DisplayName("Test if broadcast does not throw an Exception with not null Message")
         void testBroadcastWithNotNullMessage() {
             // WHEN
-            simpleBroadcastProtocol.setEnvironment(mockEnvironment);
-            simpleBroadcastProtocol.setMessageTransport(mockMessageTransport);
+            BasicBroadcast.setEnvironment(mockEnvironment);
+            BasicBroadcast.setMessageTransport(mockMessageTransport);
             
             List<AgentIdentifier> evolvingAgent = new ArrayList<>();
             evolvingAgent.add(mockAgentIdentifier);
@@ -120,26 +120,26 @@ public class TestSimpleBroadcastProtocol extends TestProtocol {
             when(mockAgent.getAgentIdentifier()).thenReturn(mockAgentIdentifier);
             
             // GIVEN
-            assertDoesNotThrow(() -> simpleBroadcastProtocol.broadcast(mockMessage));
+            assertDoesNotThrow(() -> BasicBroadcast.broadcast(mockMessage));
         }
         
         @Test
         @DisplayName("Test if broadcast throws IllegalArgumentException if the message is null")
         void testBroadcastWithNullMessage() {
-            assertThrows(IllegalArgumentException.class, () -> simpleBroadcastProtocol.broadcast(null));
+            assertThrows(IllegalArgumentException.class, () -> BasicBroadcast.broadcast(null));
         }
         
     }
     
     @Nested
-    @Tag("SimpleBroadcastProtocol.receive")
-    @DisplayName("SimpleBroadcastProtocol receive tests")
+    @Tag("BasicBroadcast.receive")
+    @DisplayName("BasicBroadcast receive tests")
     class ReceiveTest {
         
         @Test
         @DisplayName("Test if receive throws UnsupportedOperationException if the message is not a BroadcastMessage")
         void testReceiveWithNotBroadcastMessage() {
-            assertThrows(UnsupportedOperationException.class, () -> simpleBroadcastProtocol.receive(mockMessage));
+            assertThrows(UnsupportedOperationException.class, () -> BasicBroadcast.receive(mockMessage));
         }
         
         @Test
@@ -150,16 +150,16 @@ public class TestSimpleBroadcastProtocol extends TestProtocol {
             when(mockAgent.getProtocol(mockProtocolIdentifier)).thenReturn(mockProtocol);
             
             // GIVEN
-            simpleBroadcastProtocol.setEnvironment(mockEnvironment);
-            assertDoesNotThrow(() -> simpleBroadcastProtocol.receive(new BroadcastMessage(mockAgentIdentifier, mockMessage,
-                    simpleBroadcastProtocol.getIdentifier())));
+            BasicBroadcast.setEnvironment(mockEnvironment);
+            assertDoesNotThrow(() -> BasicBroadcast.receive(new BroadcastMessage(mockAgentIdentifier, mockMessage,
+                    BasicBroadcast.getIdentifier())));
         }
         
     }
     
     @Nested
-    @Tag("SimpleBroadcastProtocol.deliver")
-    @DisplayName("SimpleBroadcastProtocol deliver tests")
+    @Tag("BasicBroadcast.deliver")
+    @DisplayName("BasicBroadcast deliver tests")
     class DeliverTest {
         
         @Test
@@ -172,7 +172,7 @@ public class TestSimpleBroadcastProtocol extends TestProtocol {
             when(mockAgent.getProtocol(mockProtocolIdentifier)).thenReturn(mockProtocol);
             
             // GIVEN
-            assertDoesNotThrow(() -> simpleBroadcastProtocol.deliver(broadcastMessage));
+            assertDoesNotThrow(() -> BasicBroadcast.deliver(broadcastMessage));
         }
         
         @Test
@@ -186,20 +186,20 @@ public class TestSimpleBroadcastProtocol extends TestProtocol {
             when(mockAgent.getProtocol(mockProtocolIdentifier)).thenReturn(null);
             
             // GIVEN
-            assertThrows(UnknownProtocolForAgentException.class, () -> simpleBroadcastProtocol.deliver(broadcastMessage));
+            assertThrows(UnknownProtocolForAgentException.class, () -> BasicBroadcast.deliver(broadcastMessage));
         }
         
         @Test
         @DisplayName("Test if deliver throws an Exception if the message is not a BroadcastMessage")
         void testDeliverWithNotBroadcastMessage() {
-            assertThrows(UnsupportedOperationException.class, () -> simpleBroadcastProtocol.deliver(mockMessage));
+            assertThrows(UnsupportedOperationException.class, () -> BasicBroadcast.deliver(mockMessage));
         }
         
     }
     
     @Nested
-    @Tag("SimpleBroadcastProtocol.processEvent")
-    @DisplayName("SimpleBroadcastProtocol processEvent tests")
+    @Tag("BasicBroadcast.processEvent")
+    @DisplayName("BasicBroadcast processEvent tests")
     class ProcessEventTest {
         
         @Test
@@ -211,21 +211,14 @@ public class TestSimpleBroadcastProtocol extends TestProtocol {
             when(mockMessage.getIntendedProtocol()).thenReturn(mockProtocolIdentifier);
             when(mockAgent.getProtocol(mockProtocolIdentifier)).thenReturn(mockProtocol);
             
-            List<AgentIdentifier> evolvingAgent = new ArrayList<>();
-            evolvingAgent.add(mockAgentIdentifier);
-            
-            when(mockEnvironment.getEvolvingAgentIdentifiers()).thenReturn(evolvingAgent);
-            simpleBroadcastProtocol.setEnvironment(mockEnvironment);
-            simpleBroadcastProtocol.setMessageTransport(mockMessageTransport);
-            
             // GIVEN
-            assertDoesNotThrow(() -> simpleBroadcastProtocol.processEvent(broadcastMessage));
+            assertDoesNotThrow(() -> BasicBroadcast.processEvent(broadcastMessage));
         }
         
         @Test
         @DisplayName("Test if processEvent throw an UnsupportedOperationException if the event does not contains a BroadcastMessage")
         void testProcessEventWithOtherEvent() {
-            assertThrows(UnsupportedOperationException.class, () -> simpleBroadcastProtocol.processEvent(mockEvent));
+            assertThrows(UnsupportedOperationException.class, () -> BasicBroadcast.processEvent(mockEvent));
         }
     }
 }
