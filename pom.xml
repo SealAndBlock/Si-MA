@@ -17,7 +17,7 @@
 
     <groupId>sima</groupId>
     <artifactId>core</artifactId>
-    <version>1.4.62-SNAPSHOT</version>
+    <version>1.4.7-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

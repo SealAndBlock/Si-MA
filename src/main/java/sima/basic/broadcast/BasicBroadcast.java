@@ -17,29 +17,45 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public class SimpleBroadcastProtocol extends Protocol implements MessageBroadcaster, MessageReceiver {
-    
+/**
+ * A class which implements message broadcasting.
+ * <p>
+ * This broadcast is a Best-Effort Broadcast. A Best-Effort Broadcast has three properties:
+ * <p>
+ * <ul>
+ * <li><strong>Validity:</strong> if a correct process <i>p</i> broadcast a message <i>m</i> then all correct process <i>q</i> deliver <i>m</i>.</li>
+ * <li><strong>No duplication:</strong> No message is deliver more than once.</li>
+ * <li><strong>No creation:</strong> if a process deliver a message <i>m</i> with a sender <i>s</i>, then <i>m</i> was previously broadcast by
+ * <i>s</i>.</li>
+ * </ul>
+ * <p>
+ * To send message, this class needs {@link MessageTransportProtocol} to transport message. It is the {@link MessageTransportProtocol} which manage
+ * that the message reach the process target.
+ * <p>
+ * A message broadcaster need to know the group membership which is the group of all processes "connected" together. The broadcast take each member
+ * and send to him the message. In this implementation, the group membership is given by the class {@link Environment} with the method
+ * {@link Environment#getEvolvingAgentIdentifiers()}. However in next version, the group membership will be provided by a dedicated class.
+ */
+public class BasicBroadcast extends Protocol implements MessageBroadcaster, MessageReceiver {
+
     // Variables.
-    
+
     private MessageTransportProtocol messageTransport;
-    
+
     private Environment environment;
-    
-    private final Set<BroadcastMessage> messageReceived;
-    
+
     // Constructors.
-    
-    public SimpleBroadcastProtocol(String protocolTag, SimaAgent agentOwner, Map<String, String> args) {
+
+    public BasicBroadcast(String protocolTag, SimaAgent agentOwner, Map<String, String> args) {
         super(protocolTag, agentOwner, args);
-        messageReceived = new HashSet<>();
     }
-    
+
     // Methods.
-    
+
     private BroadcastMessage createBroadcastMessage(Message message) {
         return new BroadcastMessage(getAgentOwner().getAgentIdentifier(), message, getIdentifier());
     }
-    
+
     /**
      * @param message the message to broadcast
      *
@@ -47,48 +63,23 @@ public class SimpleBroadcastProtocol extends Protocol implements MessageBroadcas
      */
     @Override
     public void broadcast(Message message) {
-        Message toSend = Optional.ofNullable(message).orElseThrow(() -> new IllegalArgumentException(Message.class + " to broadcast must be " +
-                "not null"));
+        Message toSend =
+                Optional.ofNullable(message).orElseThrow(() -> new IllegalArgumentException(Message.class + " to broadcast must be " + "not null"));
+        BroadcastMessage broadcastMessage = createBroadcastMessage(toSend);
         for (AgentIdentifier agent : environment.getEvolvingAgentIdentifiers()) {
-            messageTransport.send(agent, createBroadcastMessage(toSend));
+            messageTransport.send(agent, broadcastMessage);
         }
     }
-    
+
     @Override
     public void receive(Message message) {
         if (message instanceof BroadcastMessage broadcastMessage) {
             deliver(broadcastMessage);
-            if (messageReceived.add(broadcastMessage)) {
-                reBroadcast(broadcastMessage);
-            }
         } else
             throw new UnsupportedOperationException(
                     getClass() + " does not support the reception of other type of " + Message.class + " than " + BroadcastMessage.class);
     }
-    
-    /**
-     * Re broadcast a {@link BroadcastMessage} that we just receive.
-     * <p>
-     * Re broadcast to all except the owner agent.
-     *
-     * @param broadcastMessage the message to re broadcast
-     */
-    protected void reBroadcast(BroadcastMessage broadcastMessage) {
-        for (AgentIdentifier agent : environment.getEvolvingAgentIdentifiers()) {
-            if (!isAgentOwner(agent))
-                messageTransport.send(agent, broadcastMessage);
-        }
-    }
-    
-    /**
-     * @param agent the agent to compare
-     *
-     * @return true if the agent is {@link #getAgentOwner()}, else false.
-     */
-    private boolean isAgentOwner(AgentIdentifier agent) {
-        return agent.equals(getAgentOwner().getAgentIdentifier());
-    }
-    
+
     /**
      * Deliver the message by extract the content of the {@link BroadcastMessage} and try to find the intended protocol in the owner agent.
      * <p>
@@ -113,7 +104,7 @@ public class SimpleBroadcastProtocol extends Protocol implements MessageBroadcas
             throw new UnsupportedOperationException(
                     getClass() + " does not support the delivery of other type of " + Message.class + " than a" + BroadcastMessage.class);
     }
-    
+
     @Override
     public void processEvent(Event event) {
         if (event instanceof BroadcastMessage broadcastMessage) {
@@ -122,18 +113,18 @@ public class SimpleBroadcastProtocol extends Protocol implements MessageBroadcas
             throw new UnsupportedOperationException(
                     getClass() + " does not support the delivery of other type of " + Event.class + " than " + BroadcastMessage.class);
     }
-    
+
     @Override
     protected ProtocolManipulator createDefaultProtocolManipulator() {
         return new ProtocolManipulator.DefaultProtocolManipulator(this);
     }
-    
+
     // Getters and setters.
-    
+
     public void setMessageTransport(MessageTransportProtocol messageTransport) {
         this.messageTransport = messageTransport;
     }
-    
+
     public void setEnvironment(Environment environment) {
         this.environment = environment;
     }
