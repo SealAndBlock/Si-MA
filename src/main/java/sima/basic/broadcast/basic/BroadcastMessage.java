@@ -1,4 +1,4 @@
-package sima.basic.broadcast.message;
+package sima.basic.broadcast.basic;
 
 import org.jetbrains.annotations.NotNull;
 import sima.basic.environment.message.Message;

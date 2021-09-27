@@ -1,9 +1,10 @@
-package sima.basic.broadcast.message;
+package sima.basic.broadcast.basic;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sima.basic.broadcast.basic.BroadcastMessage;
 import sima.basic.environment.message.TestMessage;
 import sima.core.agent.AgentIdentifier;
 import sima.core.protocol.ProtocolIdentifier;
