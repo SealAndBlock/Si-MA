@@ -9,21 +9,25 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * A message is a particular event which has a content and which is intended to a specific protocol
+ * A message is a particular event which has a content and which is intended to a specific protocol.
+ * <p>
+ * It is very important to implement the method {@link #equals(Object)} and {@link #hashCode()} because {@link Message} sometime must be duplicated
+ * with the method {@link #duplicate()} and therefore, it is the must simple and correct way to identify a {@link Message} that we have already
+ * received with these methods.
  */
 public class Message extends Event implements IntendedToProtocol {
-    
+
     // Variables.
-    
+
     /**
      * The intended protocol.
      * <p>
      * It is the protocol which must treat the message.
      */
     private final ProtocolIdentifier intendedProtocol;
-    
+
     // Constructors.
-    
+
     /**
      * @param content          the content
      * @param intendedProtocol the intended protocol
@@ -34,13 +38,13 @@ public class Message extends Event implements IntendedToProtocol {
         super(content);
         this.intendedProtocol = Optional.of(intendedProtocol).get();
     }
-    
+
     private Message(Message message) {
         this(message.getContent().duplicate(), message.getIntendedProtocol());
     }
-    
+
     // Methods.
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -48,19 +52,19 @@ public class Message extends Event implements IntendedToProtocol {
         if (!super.equals(o)) return false;
         return getIntendedProtocol().equals(message.getIntendedProtocol());
     }
-    
+
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), getIntendedProtocol());
     }
-    
+
     @Override
     public @NotNull Message duplicate() {
         return new Message(this);
     }
-    
+
     // Getters and Setters.
-    
+
     /**
      * Same that {@link #getContent()}. Just here to be more clear that a {@link Message} contains other {@link Message}.
      *
@@ -69,12 +73,12 @@ public class Message extends Event implements IntendedToProtocol {
     public Message getMessage() {
         return getContent();
     }
-    
+
     @Override
     public Message getContent() {
         return (Message) super.getContent();
     }
-    
+
     @Override
     public @NotNull ProtocolIdentifier getIntendedProtocol() {
         return intendedProtocol;

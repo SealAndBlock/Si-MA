@@ -1,6 +1,6 @@
-package sima.basic.broadcast;
+package sima.basic.broadcast.basic;
 
-import sima.basic.broadcast.message.BroadcastMessage;
+import sima.basic.broadcast.MessageBroadcaster;
 import sima.basic.environment.message.Message;
 import sima.basic.environment.message.MessageReceiver;
 import sima.basic.transport.MessageTransportProtocol;
@@ -12,6 +12,7 @@ import sima.core.exception.UnknownProtocolForAgentException;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolManipulator;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,10 +22,11 @@ import java.util.Optional;
  * This broadcast is a Best-Effort Broadcast. A Best-Effort Broadcast has three properties:
  * <p>
  * <ul>
- * <li><strong>Validity:</strong> if a correct process <i>p</i> broadcast a message <i>m</i> then all correct process <i>q</i> deliver <i>m</i>.</li>
- * <li><strong>No duplication:</strong> No message is deliver more than once.</li>
+ * <li><strong>Validity:</strong> if a correct process <i>p</i> broadcast a message <i>m</i> then every correct process eventually deliver <i>m</i>
+ * </li>
+ * <li><strong>No duplication:</strong> No message is deliver more than once</li>
  * <li><strong>No creation:</strong> if a process deliver a message <i>m</i> with a sender <i>s</i>, then <i>m</i> was previously broadcast by
- * <i>s</i>.</li>
+ * <i>s</i></li>
  * </ul>
  * <p>
  * To send message, this class needs {@link MessageTransportProtocol} to transport message. It is the {@link MessageTransportProtocol} which manage
@@ -61,21 +63,50 @@ public class BasicBroadcast extends Protocol implements MessageBroadcaster, Mess
      */
     @Override
     public void broadcast(Message message) {
-        Message toSend =
-                Optional.ofNullable(message).orElseThrow(() -> new IllegalArgumentException(Message.class + " to broadcast must be " + "not null"));
-        BroadcastMessage broadcastMessage = createBroadcastMessage(toSend);
-        for (AgentIdentifier agent : environment.getEvolvingAgentIdentifiers()) {
+        sendToAll(createBroadcastMessage(isNotNull(message)));
+    }
+
+    /**
+     * Verify if the message is not null. If it is not the case, throws {@link IllegalArgumentException}
+     *
+     * @param message the message to verify
+     *
+     * @return the message if the specified message is not null.
+     *
+     * @throws IllegalArgumentException if the message is null
+     */
+    protected Message isNotNull(Message message) {
+        message = Optional
+                .ofNullable(message)
+                .orElseThrow(() -> new IllegalArgumentException(Message.class + " to broadcast must be " + "not null"));
+        return message;
+    }
+
+    /**
+     * Take all members of the group membership and send to each the specified {@link BroadcastMessage}.
+     *
+     * @param broadcastMessage the broadcast message to send
+     */
+    protected void sendToAll(BroadcastMessage broadcastMessage) {
+        for (AgentIdentifier agent : getGroupMemberShip()) {
             messageTransport.send(agent, broadcastMessage);
         }
     }
 
+    /**
+     * Returns the list of all agents which are in the group membership. For the moment, use the method {@link
+     * Environment#getEvolvingAgentIdentifiers()}.
+     *
+     * @return the list of all agents which are in the group membership.
+     */
+    public List<AgentIdentifier> getGroupMemberShip() {
+        return environment.getEvolvingAgentIdentifiers();
+    }
+
     @Override
     public void receive(Message message) {
-        if (message instanceof BroadcastMessage broadcastMessage) {
-            deliver(broadcastMessage);
-        } else
-            throw new UnsupportedOperationException(
-                    getClass() + " does not support the reception of other type of " + Message.class + " than " + BroadcastMessage.class);
+        if (isAcceptedEvent(message))
+            deliver(acceptedMessageClass().cast(message));
     }
 
     /**
@@ -89,27 +120,44 @@ public class BasicBroadcast extends Protocol implements MessageBroadcaster, Mess
      */
     @Override
     public void deliver(Message message) {
-        if (message instanceof BroadcastMessage broadcastMessage) {
-            var content = broadcastMessage.getContent();
-            var intendedProtocolIdentifier = content.getIntendedProtocol();
-            var intendedProtocol = getAgentOwner().getProtocol(intendedProtocolIdentifier);
+        if (isAcceptedEvent(message)) {
+            var content = acceptedMessageClass().cast(message).getMessage();
+            var intendedProtocol = getAgentOwner().getProtocol(content.getIntendedProtocol());
             if (intendedProtocol != null)
                 intendedProtocol.processEvent(content);
             else
                 throw new UnknownProtocolForAgentException(
-                        "The agent " + getAgentOwner() + " does not know the protocol identify by " + intendedProtocolIdentifier);
-        } else
-            throw new UnsupportedOperationException(
-                    getClass() + " does not support the delivery of other type of " + Message.class + " than a" + BroadcastMessage.class);
+                        "The agent " + getAgentOwner() + " does not know the protocol identify by " + content.getIntendedProtocol());
+        }
     }
 
     @Override
     public void processEvent(Event event) {
-        if (event instanceof BroadcastMessage broadcastMessage) {
-            receive(broadcastMessage);
-        } else
+        if (isAcceptedEvent(event))
+            receive(acceptedMessageClass().cast(event));
+    }
+
+    /**
+     * Verify if the specified {@link Event} is an accepted {@link Event}. For {@link BasicBroadcast}, an accepted {@link Event} is only an {@link
+     * Event} which is an instance of {@link BroadcastMessage}.
+     *
+     * @param event the event to verify
+     *
+     * @return true if the specified {@link Event} is an accepted {@link Event}, else false.
+     */
+    protected boolean isAcceptedEvent(Event event) {
+        if (acceptedMessageClass().isInstance(event))
+            return true;
+        else
             throw new UnsupportedOperationException(
-                    getClass() + " does not support the delivery of other type of " + Event.class + " than " + BroadcastMessage.class);
+                    getClass() + " does not support other type of " + Event.class + " than " + acceptedMessageClass());
+    }
+
+    /**
+     * @return the class of {@link Event} that are accepted.
+     */
+    protected Class<? extends BroadcastMessage> acceptedMessageClass() {
+        return BroadcastMessage.class;
     }
 
     @Override
@@ -118,6 +166,11 @@ public class BasicBroadcast extends Protocol implements MessageBroadcaster, Mess
     }
 
     // Getters and setters.
+
+
+    public MessageTransportProtocol getMessageTransport() {
+        return messageTransport;
+    }
 
     public void setMessageTransport(MessageTransportProtocol messageTransport) {
         this.messageTransport = messageTransport;
