@@ -9,7 +9,7 @@ import java.util.Optional;
 import static sima.core.simulation.SimaSimulation.SimaLog;
 
 /**
- * Represents the sima.core.behavior that an {@link SimaAgent} can have.
+ * Represents the {@link Behavior} that an {@link SimaAgent} can have.
  * <p>
  * All inherited classes of {@link Behavior} must have the same constructor {@link #Behavior(SimaAgent, Map)}. In that way, it allows the use of java
  * reflexivity.
@@ -19,34 +19,34 @@ public abstract class Behavior {
     // Variables.
 
     /**
-     * The sima.core.agent which has the sima.core.behavior.
+     * The {@link SimaAgent} which has the {@link Behavior}.
      */
     private final SimaAgent agent;
 
     /**
-     * True if the {@link #agent} is playing the sima.core.behavior, else false.
+     * True if the {@link #agent} is playing the {@link Behavior}, else false.
      */
     private boolean isPlaying = false;
 
     // Constructors.
 
     /**
-     * Initiate the sima.core.behavior with the instance of the sima.core.agent which will play it and a map of arguments. Verifies if the specified
-     * sima.core.agent can play the sima.core.behavior, if it is not the case, throws a {@link BehaviorCannotBePlayedByAgentException}.
+     * Initiate the {@link Behavior} with the instance of the {@link SimaAgent} which will play it and a map of arguments. Verifies if the specified
+     * {@link SimaAgent} can play the {@link Behavior}, if it is not the case, throws a {@link BehaviorCannotBePlayedByAgentException}.
      * <p>
      * All inherited classes of {@link Behavior} must have this constructor with sames arguments of this constructor.
      *
-     * @param agent the sima.core.agent which play the sima.core.behavior
+     * @param agent the {@link SimaAgent} which play the {@link Behavior}
      * @param args  arguments map (map argument name with the argument)
      *
-     * @throws NullPointerException                   if the sima.core.agent is null
-     * @throws BehaviorCannotBePlayedByAgentException if the sima.core.behavior cannot be played by the sima.core.agent
+     * @throws NullPointerException                   if the {@link SimaAgent} is null
+     * @throws BehaviorCannotBePlayedByAgentException if the {@link Behavior} cannot be played by the {@link SimaAgent}
      */
     protected Behavior(SimaAgent agent, Map<String, String> args) throws BehaviorCannotBePlayedByAgentException {
         this.agent = Optional.of(agent).get();
 
         if (!canBePlayedBy(agent))
-            throw new BehaviorCannotBePlayedByAgentException("The sima.core.agent : " + agent + " cannot play the " +
+            throw new BehaviorCannotBePlayedByAgentException("The {@link SimaAgent} : " + agent + " cannot play the " +
                                                                      "behavior " + getClass().getName());
     }
 
@@ -60,19 +60,19 @@ public abstract class Behavior {
     }
 
     /**
-     * Verify if the sima.core.agent can play the sima.core.behavior or not.
+     * Verify if the {@link SimaAgent} can play the {@link Behavior} or not.
      *
-     * @param agent the sima.core.agent to verify
+     * @param agent the {@link SimaAgent} to verify
      *
-     * @return true if the sima.core.agent can play the sima.core.behavior, else false.
+     * @return true if the {@link SimaAgent} can play the {@link Behavior}, else false.
      */
     public abstract boolean canBePlayedBy(SimaAgent agent);
 
     /**
-     * Call when the sima.core.agent must start to play the sima.core.behavior. Can be call only one time (no effect after the first call). You must
+     * Call when the {@link SimaAgent} must start to play the {@link Behavior}. Can be call only one time (no effect after the first call). You must
      * call the method {@link #stopPlaying()} to be allowed to call again this method.
      * <p>
-     * To implement the start sima.core.behavior, implement the method {@link #onStartPlaying()}.
+     * To implement the start {@link Behavior}, implement the method {@link #onStartPlaying()}.
      */
     public final void startPlaying() {
         if (!isPlaying()) {
@@ -92,7 +92,7 @@ public abstract class Behavior {
     public abstract void onStartPlaying();
 
     /**
-     * Stop to play the sima.core.behavior. The sima.core.behavior must be started for that method has an effect.
+     * Stop to play the {@link Behavior}. The {@link Behavior} must be started for that method has an effect.
      */
     public final void stopPlaying() {
         if (isPlaying()) {
