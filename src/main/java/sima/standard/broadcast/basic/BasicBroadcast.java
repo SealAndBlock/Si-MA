@@ -1,9 +1,5 @@
 package sima.standard.broadcast.basic;
 
-import sima.standard.broadcast.MessageBroadcaster;
-import sima.standard.environment.message.Message;
-import sima.standard.environment.message.MessageReceiver;
-import sima.standard.transport.MessageTransportProtocol;
 import sima.core.agent.AgentIdentifier;
 import sima.core.agent.SimaAgent;
 import sima.core.environment.Environment;
@@ -11,6 +7,10 @@ import sima.core.environment.event.Event;
 import sima.core.exception.UnknownProtocolForAgentException;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolManipulator;
+import sima.standard.broadcast.MessageBroadcaster;
+import sima.standard.environment.message.Message;
+import sima.standard.environment.message.MessageReceiver;
+import sima.standard.transport.MessageTransportProtocol;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +20,6 @@ import java.util.Optional;
  * A class which implements message broadcasting.
  * <p>
  * This broadcast is a Best-Effort Broadcast. A Best-Effort Broadcast has three properties:
- * <p>
  * <ul>
  * <li><strong>Validity:</strong> if a correct process <i>p</i> broadcast a message <i>m</i> then every correct process eventually deliver <i>m</i>
  * </li>

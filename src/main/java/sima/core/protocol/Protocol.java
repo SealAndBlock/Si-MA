@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * This class represents a sima.core.protocol. A sima.core.protocol is an algorithm that an {@link SimaAgent} can use and thanks to the {@link
- * ProtocolManipulator}, the sima.core.agent via the {@link Behavior} can change the sima.core.behavior of the sima.core.protocol by changing the
+ * This class represents a {@link Protocol}. A {@link Protocol} is an algorithm that an {@link SimaAgent} can use and thanks to the {@link
+ * ProtocolManipulator}, the {@link SimaAgent} via the {@link Behavior} can change the {@link Behavior} of the {@link Protocol} by changing the
  * current {@link #protocolManipulator}.
  * <p>
  * All inherited class of {@link Protocol} must have this constructor <strong>Protocol(String protocolTag, String[] args)</strong>. In that way,
@@ -20,7 +20,7 @@ public abstract class Protocol implements EventProcessor {
     // Singletons.
     
     /**
-     * The {@link ProtocolIdentifier} of the sima.core.protocol.
+     * The {@link ProtocolIdentifier} of the {@link Protocol}.
      */
     private ProtocolIdentifier protocolIdentifier;
     
@@ -29,7 +29,7 @@ public abstract class Protocol implements EventProcessor {
     /**
      * A tag for the {@link Protocol} to allow its identification among all other protocols which can have the same class.
      * <p>
-     * In other word, if a {@link SimaAgent} use two instance of a same sima.core.protocol class, both protocols must imperatively have two
+     * In other word, if a {@link SimaAgent} use two instance of a same {@link Protocol} class, both protocols must imperatively have two
      * different tag.
      */
     private final String protocolTag;
@@ -42,7 +42,7 @@ public abstract class Protocol implements EventProcessor {
     private final ProtocolManipulator defaultProtocolManipulator;
     
     /**
-     * The sima.core.protocol manipulator. Must be not null.
+     * The {@link Protocol} manipulator. Must be not null.
      */
     private ProtocolManipulator protocolManipulator;
     
@@ -58,7 +58,7 @@ public abstract class Protocol implements EventProcessor {
      * <p>
      * This constructor must always be implemented by inherited class. In that way, the java reflexivity can be used.
      *
-     * @param protocolTag the tag of the sima.core.protocol (must be not null)
+     * @param protocolTag the tag of the {@link Protocol} (must be not null)
      * @param agentOwner  the agent which use the instance of the protocol (must be not null)
      * @param args        arguments map (map argument name with the argument)
      *
@@ -99,20 +99,20 @@ public abstract class Protocol implements EventProcessor {
     }
     
     /**
-     * Returns the default sima.core.protocol manipulator of the sima.core.protocol. This method never returns null. If the implementation is not
+     * Returns the default {@link Protocol} manipulator of the {@link Protocol}. This method never returns null. If the implementation is not
      * correct and this method returns null, the risk is that some methods throw a {@link NullPointerException}.
      * <p>
      * If subclasses do not return a non-null {@link ProtocolManipulator}, the constructor {@link Protocol#Protocol(String, SimaAgent, Map)} will
      * throw a {@link NullPointerException}.
      *
-     * @return the default sima.core.protocol manipulator of the sima.core.protocol, never returns null.
+     * @return the default {@link Protocol} manipulator of the {@link Protocol}, never returns null.
      *
      * @see Protocol#Protocol(String, SimaAgent, Map)
      */
     protected abstract ProtocolManipulator createDefaultProtocolManipulator();
     
     /**
-     * Reset the default manipulator of the sima.core.protocol. In that way, the property {@link #protocolManipulator} is never null.
+     * Reset the default manipulator of the {@link Protocol}. In that way, the property {@link #protocolManipulator} is never null.
      */
     public void resetDefaultProtocolManipulator() {
         protocolManipulator = defaultProtocolManipulator;
@@ -138,11 +138,11 @@ public abstract class Protocol implements EventProcessor {
     
     /**
      * Set {@link #protocolManipulator}. In addition to this, the method {@link ProtocolManipulator#setManipulatedProtocol(Protocol)} is called
-     * to set as manipulated sima.core.protocol for the new sima.core.protocol manipulator the current sima.core.protocol.
+     * to set as manipulated {@link Protocol} for the new {@link Protocol} manipulator the current {@link Protocol}.
      *
-     * @param protocolManipulator the sima.core.protocol manipulator (must be not null)
+     * @param protocolManipulator the {@link Protocol} manipulator (must be not null)
      *
-     * @throws NullPointerException if the sima.core.protocol manipulator is null
+     * @throws NullPointerException if the {@link Protocol} manipulator is null
      */
     public void setProtocolManipulator(ProtocolManipulator protocolManipulator) {
         this.protocolManipulator = Optional.of(protocolManipulator).get();

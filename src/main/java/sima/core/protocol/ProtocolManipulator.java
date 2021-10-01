@@ -1,30 +1,32 @@
 package sima.core.protocol;
 
+import sima.core.behavior.Behavior;
+
 import java.util.Optional;
 
 /**
  * Allows a {@link Protocol} to define several methods which can be control by the {@link ProtocolManipulator}. In that
- * way, it is possible to change the sima.core.behavior of a sima.core.protocol only by changing is current
- * sima.core.protocol manipulator and not by reimplement all the sima.core.protocol.
+ * way, it is possible to change the {@link Behavior} of a {@link Protocol} only by changing is current
+ * {@link Protocol} manipulator and not by reimplement all the {@link Protocol}.
  */
 public abstract class ProtocolManipulator {
     
     // Variables.
     
     /**
-     * The manipulated sima.core.protocol.
+     * The manipulated {@link Protocol}.
      */
     private Protocol manipulatedProtocol;
     
     // Constructors.
     
     /**
-     * Constructs a {@link ProtocolManipulator} with the instance of the sima.core.protocol which is manipulated by
+     * Constructs a {@link ProtocolManipulator} with the instance of the {@link Protocol} which is manipulated by
      * him.
      *
-     * @param manipulatedProtocol the new manipulated sima.core.protocol (must be not null)
+     * @param manipulatedProtocol the new manipulated {@link Protocol} (must be not null)
      *
-     * @throws NullPointerException if the manipulated sima.core.protocol is null
+     * @throws NullPointerException if the manipulated {@link Protocol} is null
      */
     protected ProtocolManipulator(Protocol manipulatedProtocol) {
         this.manipulatedProtocol = Optional.of(manipulatedProtocol).get();
@@ -46,9 +48,9 @@ public abstract class ProtocolManipulator {
     }
     
     /**
-     * @param manipulatedProtocol the new manipulated sima.core.protocol (must be not null)
+     * @param manipulatedProtocol the new manipulated {@link Protocol} (must be not null)
      *
-     * @throws NullPointerException if the manipulated sima.core.protocol is null
+     * @throws NullPointerException if the manipulated {@link Protocol} is null
      */
     public void setManipulatedProtocol(Protocol manipulatedProtocol) {
         this.manipulatedProtocol = Optional.of(manipulatedProtocol).get();
@@ -61,12 +63,12 @@ public abstract class ProtocolManipulator {
         // Constructors.
         
         /**
-         * Constructs a {@link ProtocolManipulator} with the instance of the sima.core.protocol which is manipulated
+         * Constructs a {@link ProtocolManipulator} with the instance of the {@link Protocol} which is manipulated
          * by him.
          *
-         * @param manipulatedProtocol the new manipulated sima.core.protocol (must be not null)
+         * @param manipulatedProtocol the new manipulated {@link Protocol} (must be not null)
          *
-         * @throws NullPointerException if the manipulated sima.core.protocol is null
+         * @throws NullPointerException if the manipulated {@link Protocol} is null
          */
         public DefaultProtocolManipulator(Protocol manipulatedProtocol) {
             super(manipulatedProtocol);

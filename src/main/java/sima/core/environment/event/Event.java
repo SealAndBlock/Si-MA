@@ -10,7 +10,6 @@ import java.util.Objects;
 /**
  * Represents an event which can occur during the simulation on an {@link SimaAgent}.
  * <p>
- * <p>
  * An {@link Event} represent just an event that an {@link sima.core.environment.Environment} can create and associate to an {@link SimaAgent} which
  * will call the method {@link SimaAgent#processEvent(Event)} of the agent.
  * <p>

@@ -1,11 +1,11 @@
 package sima.standard.broadcast.reliable;
 
-import sima.standard.broadcast.basic.BasicBroadcast;
-import sima.standard.environment.message.Message;
-import sima.standard.transport.MessageTransportProtocol;
 import sima.core.agent.AgentIdentifier;
 import sima.core.agent.SimaAgent;
 import sima.core.environment.Environment;
+import sima.standard.broadcast.basic.BasicBroadcast;
+import sima.standard.environment.message.Message;
+import sima.standard.transport.MessageTransportProtocol;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -15,7 +15,6 @@ import java.util.Set;
  * A class which implement message broadcasting.
  * <p>
  * This broadcast is a Reliable Broadcast. A Reliable Broadcast is a Best-Effort Broadcast as {@link BasicBroadcast} with an additional property:
- * <p>
  * <ul>
  * <li><strong><i>Best-Effort Broadcast properties</i></strong></li>
  * <li><strong>Agreement:</strong> if a correct process deliver a message <i>m</i>, then every correct process eventually deliver <i>m</i></li>

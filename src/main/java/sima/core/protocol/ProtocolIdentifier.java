@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * A sima.core.protocol identifier allows the identification of a sima.core.protocol in a {@link sima.core.agent.SimaAgent}. If a {@link
+ * A {@link Protocol} identifier allows the identification of a {@link Protocol} in a {@link sima.core.agent.SimaAgent}. If a {@link
  * sima.core.agent.SimaAgent} <i>A</i> has the same {@link Protocol} <i>P</i> than the {@link sima.core.agent.SimaAgent} <i>B</i>, then a {@link
  * Protocol} identifier <i>PI</i> for the {@link Protocol} <i>P</i> must allow the identification of the {@link Protocol} <i>P</i> in the {@link
  * sima.core.agent.SimaAgent} <i>A</i> and the {@link sima.core.agent.SimaAgent} <i>B</i>.
