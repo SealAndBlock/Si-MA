@@ -11,8 +11,6 @@ import sima.core.environment.physical.PhysicalConnectionLayer;
 import sima.core.environment.physical.PhysicalEvent;
 import sima.core.environment.physical.TestPhysicalConnectionLayer;
 
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -28,7 +26,7 @@ public class TestPhysicalConnectionLayerCoverage extends TestPhysicalConnectionL
     
     @BeforeEach
     void setUp() {
-        physicalConnectionLayer = new PhysicalConnectionLayerCoverage(mockEnvironment, null);
+        physicalConnectionLayer = new PhysicalConnectionLayerCoverage(mockEnvironment);
     }
     
     // Tests.
@@ -41,13 +39,13 @@ public class TestPhysicalConnectionLayerCoverage extends TestPhysicalConnectionL
         @Test
         @DisplayName("Test if constructor throws NullPointerException with null environment")
         void testConstructorWithNullEnvironment() {
-            assertThrows(IllegalArgumentException.class, () -> new PhysicalConnectionLayerCoverage(null, null));
+            assertThrows(IllegalArgumentException.class, () -> new PhysicalConnectionLayerCoverage(null));
         }
         
         @Test
         @DisplayName("Test if constructor does not throw exception with not null environment")
         void testConstructorWithNotNullEnvironment() {
-            assertDoesNotThrow(() -> new PhysicalConnectionLayerCoverage(mockEnvironment, null));
+            assertDoesNotThrow(() -> new PhysicalConnectionLayerCoverage(mockEnvironment));
         }
         
     }
@@ -58,8 +56,8 @@ public class TestPhysicalConnectionLayerCoverage extends TestPhysicalConnectionL
         
         // Constructors.
         
-        protected PhysicalConnectionLayerCoverage(Environment environment, Map<String, String> args) {
-            super(environment, args);
+        protected PhysicalConnectionLayerCoverage(Environment environment) {
+            super(environment, null);
         }
         
         // Methods.

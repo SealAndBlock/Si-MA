@@ -30,7 +30,7 @@ public abstract class MultiThreadScheduler implements Scheduler {
     private final long endSimulation;
     
     /**
-     * The number of thread use to execute all {@link Executable}.
+     * The number of thread used to execute all {@link Executable}.
      */
     protected final int nbExecutorThread;
     
@@ -222,7 +222,7 @@ public abstract class MultiThreadScheduler implements Scheduler {
     }
     
     /**
-     * Executable which encapsulates an other executable which must be executed in repetitively way.
+     * Executable which encapsulates another executable which must be executed in repetitively way.
      */
     protected class RepeatedExecutable extends LoopExecutable {
         
@@ -251,7 +251,7 @@ public abstract class MultiThreadScheduler implements Scheduler {
     }
     
     /**
-     * Executable which encapsulates an other executable which must be executed in infinite way.
+     * Executable which encapsulates another executable which must be executed in infinite way.
      */
     protected class InfiniteExecutable extends LoopExecutable {
         

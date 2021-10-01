@@ -12,21 +12,21 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public abstract class TestProtocol {
-    
+
     // Variables.
-    
+
     protected Protocol protocol;
-    
+
     @Mock
     private ProtocolManipulator mockProtocolManipulator;
-    
+
     // Tests.
-    
+
     @Nested
     @Tag("Protocol.toString")
     @DisplayName("Protocol toString tests")
     class ToStringTest {
-        
+
         @Test
         @DisplayName("Test if the toString method returns a correct String")
         void testToString() {
@@ -39,56 +39,56 @@ public abstract class TestProtocol {
             String toString = protocol.toString();
             assertEquals(expectedToString, toString);
         }
-        
+
     }
-    
+
     @Nested
     @Tag("Protocol.getIdentifier")
     @DisplayName("Protocol getIdentifier tests")
     class GetIdentifierTest {
-        
+
         @Test
         @DisplayName("Test if getIdentifier returns always the same instance (question of performance) and that instance contains correct " +
-                             "values")
+                "values")
         void testGetIdentifierTest() {
             var p0 = protocol.getIdentifier();
             var p1 = protocol.getIdentifier();
             assertSame(p0, p1);
-            
+
             assertEquals(protocol.getClass(), p0.protocolClass());
             assertEquals(protocol.getProtocolTag(), p0.protocolTag());
         }
-        
+
     }
-    
+
     @Nested
     @Tag("Protocol.resetDefaultProtocolManipulator")
     @DisplayName("Protocol resetDefaultProtocolManipulator tests")
     class ResetDefaultProtocolManipulatorTest {
-        
+
         @Test
-        @DisplayName("Test if after resetDefaultProtocolManipulator call, the protocol manipulator of the protocol is the defautl protocol " +
-                             "manipulator of the protocol")
+        @DisplayName("Test if after resetDefaultProtocolManipulator call, the protocol manipulator of the protocol is the default protocol " +
+                "manipulator of the protocol")
         void testResetDefaultProtocolManipulator() {
             protocol.resetDefaultProtocolManipulator();
             var defaultProtocolManipulator = protocol.getDefaultProtocolManipulator();
             var currentProtocolManipulator = protocol.getProtocolManipulator();
             assertSame(defaultProtocolManipulator, currentProtocolManipulator);
         }
-        
+
     }
-    
+
     @Nested
     @Tag("Protocol.setProtocolManipulator")
     @DisplayName("Protocol setProtocolManipulator tests")
     class SetProtocolManipulatorTest {
-        
+
         @Test
         @DisplayName("Test if setProtocolManipulator throw a NullPointerException if the protocolManipulator is null")
         void testSetProtocolManipulatorWithNull() {
             assertThrows(NullPointerException.class, () -> protocol.setProtocolManipulator(null));
         }
-        
+
         @Test
         @DisplayName("Test if setProtocolManipulator set the new protocol manipulator to the protocol")
         void testSetProtocolManipulatorSetTheNewProtocolManipulator() {
@@ -96,7 +96,7 @@ public abstract class TestProtocol {
             var protocolManipulator = protocol.getProtocolManipulator();
             assertSame(mockProtocolManipulator, protocolManipulator);
         }
-        
+
     }
-    
+
 }

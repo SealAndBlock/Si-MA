@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sima.basic.environment.message.event.MessageReceptionEvent;
+import sima.standard.environment.message.event.MessageReceptionEvent;
 import sima.core.environment.Environment;
 import sima.core.environment.event.Event;
 import sima.core.exception.AgentNotStartedException;

@@ -19,7 +19,7 @@ public abstract class ProtocolManipulator {
     // Constructors.
     
     /**
-     * Constructs a {@link ProtocolManipulator} with the instance of the the sima.core.protocol which is manipulated by
+     * Constructs a {@link ProtocolManipulator} with the instance of the sima.core.protocol which is manipulated by
      * him.
      *
      * @param manipulatedProtocol the new manipulated sima.core.protocol (must be not null)
@@ -61,7 +61,7 @@ public abstract class ProtocolManipulator {
         // Constructors.
         
         /**
-         * Constructs a {@link ProtocolManipulator} with the instance of the the sima.core.protocol which is manipulated
+         * Constructs a {@link ProtocolManipulator} with the instance of the sima.core.protocol which is manipulated
          * by him.
          *
          * @param manipulatedProtocol the new manipulated sima.core.protocol (must be not null)

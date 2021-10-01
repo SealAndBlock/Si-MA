@@ -17,63 +17,62 @@ import static sima.core.simulation.SimaSimulation.SimaLog;
 import static sima.core.utils.Utils.instantiate;
 
 public class SimaAgent implements EventProcessor {
-    
+
     // Variables.
-    
+
     /**
      * The name of the sima.core.agent
      */
     private final String agentName;
-    
+
     /**
      * A number greater or equal to 0. The id of the agent in function of the sequence construction where it was created.
      */
     private final int sequenceId;
-    
+
     /**
-     * A number greater or equal to 0. This number must be the only ide define for an agent, For example if one agent as the id 1, only this
-     * agent can have the id 1.
+     * A number greater or equal to 0. This number must be the only ide define for an agent, For example if one agent as the id 1, only this agent can
+     * have the id 1.
      */
     private final int uniqueId;
-    
+
     /**
      * The unique identifier of the Agent.
      */
     private final AgentIdentifier agentIdentifier;
-    
+
     /**
      * The several behaviors that the sima.core.agent can have.
      * <p>
      * Associate the name of the class of the sima.core.behavior and the instance of the sima.core.behavior.
      */
     private final Map<String, Behavior> mapBehaviors;
-    
+
     /**
      * The several protocols that the sima.core.agent can use.
      * <p>
      * Associate the {@link ProtocolIdentifier} and the instance of the sima.core.protocol.
      */
     private final Map<ProtocolIdentifier, Protocol> mapProtocol;
-    
+
     /**
      * True if the sima.core.agent is started, else false.
      */
     private boolean isStarted = false;
-    
+
     /**
-     * True if the sima.core.agent is killed, else false. If an sima.core.agent is killed, it stops to be started and cannot become started
-     * again.
+     * True if the sima.core.agent is killed, else false. If a {@link SimaAgent} is killed, it stops to be started and cannot become started again.
      */
     private boolean isKilled = false;
-    
+
     // Constructors.
-    
+
     /**
-     * Constructs an sima.core.agent with a name and no environments, behaviors and protocols.
+     * Constructs a {@link SimaAgent} with a name and no environments, behaviors and protocols.
      *
      * @param agentName  the agent name
      * @param sequenceId the sequenceId
-     * @param uniqueId   the number Id of the agent
+     * @param uniqueId   the number ID of the agent
      * @param args       the map of argument
      *
      * @throws IllegalArgumentException if the numberId is less than 0.
@@ -83,23 +82,23 @@ public class SimaAgent implements EventProcessor {
         this.sequenceId = sequenceId;
         if (sequenceId < 0)
             throw new IllegalArgumentException("The sequenceId must be greater or equal to 0, the current sequenceId "
-                    + "= " + sequenceId);
-        
+                                                       + "= " + sequenceId);
+
         this.uniqueId = uniqueId;
         if (uniqueId < 0)
             throw new IllegalArgumentException(
                     "The uniqueId must be greater or equal to 0, the current uniqueId = " + uniqueId);
-        
+
         this.agentName = Optional.of(agentName).get();
         agentIdentifier = new AgentIdentifier(agentName, sequenceId, uniqueId);
         mapBehaviors = new HashMap<>();
         mapProtocol = new HashMap<>();
-        
+
         SimaLog.info(String.format("CREATED %s", this));
     }
-    
+
     // Methods.
-    
+
     @Override
     public String toString() {
         return "[AGENT - " +
@@ -108,7 +107,7 @@ public class SimaAgent implements EventProcessor {
                 ", sequenceId=" + sequenceId +
                 ", uniqueId=" + uniqueId + "]";
     }
-    
+
     /**
      * Only use the attributes and {@link #agentName} to compare two agents.
      *
@@ -122,7 +121,7 @@ public class SimaAgent implements EventProcessor {
         if (!(o instanceof SimaAgent that)) return false;
         return agentName.equals(that.agentName) && sequenceId == that.sequenceId && uniqueId == that.uniqueId;
     }
-    
+
     /**
      * Compute the hash code of the sima.core.agent. Use the hashCode generate by the {@link #getAgentIdentifier()} of the agent.
      *
@@ -132,11 +131,11 @@ public class SimaAgent implements EventProcessor {
     public int hashCode() {
         return getAgentIdentifier().hashCode();
     }
-    
+
     /**
      * Start the sima.core.agent.
      * <p>
-     * When an sima.core.agent is starting, the method {@link #onStart()} is called.
+     * When a {@link SimaAgent} is starting, the method {@link #onStart()} is called.
      *
      * @throws KilledAgentException         if the sima.core.agent is killed
      * @throws AlreadyStartedAgentException if the sima.core.agent have already been started
@@ -152,25 +151,25 @@ public class SimaAgent implements EventProcessor {
                 throw new AlreadyStartedAgentException();
         }
     }
-    
+
     private void setStarted() {
         isStarted = true;
-        
+
         SimaLog.info(String.format("STARTED %s", this));
     }
-    
+
     /**
      * Method call when the sima.core.agent is started in the method {@link #start()}.
      */
     protected void onStart() {
-        // Nothing is done. Here to allow sub classes to make something during the start.
+        // Nothing is done. Here to allow subclasses to make something during the start.
     }
-    
+
     /**
-     * Kill the sima.core.agent. When an sima.core.agent is killed, it cannot be restarted.
+     * Kill the sima.core.agent. When a {@link SimaAgent} is killed, it cannot be restarted.
      * <p>
-     * When an sima.core.agent is killed, it stops to play all its behaviors, leaves all the environments where it was evolving and call the
-     * method {@link #onKill()}.
+     * When a {@link SimaAgent} is killed, it stops to play all its behaviors, leaves all the environments where it was evolving and call the method
+     * {@link #onKill()}.
      *
      * @throws AlreadyKilledAgentException if the sima.core.agent have already been killed
      */
@@ -183,35 +182,35 @@ public class SimaAgent implements EventProcessor {
         } else
             throw new AlreadyKilledAgentException();
     }
-    
+
     private void setKilled() {
         isStarted = false;
         isKilled = true;
-        
+
         SimaLog.info(String.format("KILLED %s", this));
     }
-    
+
     private void stopPlayingAllBehaviors() {
         List<Behavior> behaviors = getBehaviorList();
         for (Behavior behavior : behaviors) {
             behavior.stopPlaying();
         }
     }
-    
+
     private void leaveAllEnvironments() {
         List<Environment> environments = getEnvironmentList();
         for (Environment environment : environments) {
             leaveEnvironment(environment);
         }
     }
-    
+
     /**
      * Method call when the sima.core.agent is killed in the method {@link #kill()}
      */
     protected void onKill() {
-        // Nothing is done. Here to allow sub classes to make something during the kill.
+        // Nothing is done. Here to allow subclasses to make something during the kill.
     }
-    
+
     /**
      * @param environment the sima.core.environment
      *
@@ -223,7 +222,7 @@ public class SimaAgent implements EventProcessor {
         else
             return false;
     }
-    
+
     /**
      * @param environment the sima.core.environment that the sima.core.agent want join
      *
@@ -234,8 +233,8 @@ public class SimaAgent implements EventProcessor {
     public synchronized boolean joinEnvironment(@NotNull Environment environment) {
         return environment.acceptAgent(getAgentIdentifier());
     }
-    
-    
+
+
     /**
      * Makes that the sima.core.agent leaves the sima.core.environment.
      *
@@ -246,10 +245,10 @@ public class SimaAgent implements EventProcessor {
     public synchronized void leaveEnvironment(@NotNull Environment environment) {
         environment.leave(getAgentIdentifier());
     }
-    
+
     /**
-     * Add the sima.core.behavior to the sima.core.agent. If the sima.core.agent already have this sima.core.behavior, nothing is done and
-     * returns false.
+     * Add the sima.core.behavior to the sima.core.agent. If the sima.core.agent already have this sima.core.behavior, nothing is done and returns
+     * false.
      * <p>
      * In the case where the sima.core.agent has not already the sima.core.behavior, this method creates a new instance of the sima.core.behavior
      * class. If the creation of the instance is a success, the sima.core.behavior is added to the sima.core.agent and returns true, else the
@@ -271,7 +270,7 @@ public class SimaAgent implements EventProcessor {
         else
             return false;
     }
-    
+
     /**
      * Construct an instance of the specified Behavior classed.
      *
@@ -287,10 +286,10 @@ public class SimaAgent implements EventProcessor {
             throws FailInstantiationException {
         return instantiate(behaviorClass, new Class[]{SimaAgent.class, Map.class}, this, behaviorArgs);
     }
-    
+
     /**
-     * Create a new instance of the behavior class specified with the method {@link #constructBehavior(Class, Map)} and add the new instance in
-     * {@link #mapBehaviors}.
+     * Create a new instance of the behavior class specified with the method {@link #constructBehavior(Class, Map)} and add the new instance in {@link
+     * #mapBehaviors}.
      *
      * @param behaviorClass the sima.core.behavior class
      * @param behaviorArgs  the argument to transfer to the sima.core.behavior
@@ -301,10 +300,10 @@ public class SimaAgent implements EventProcessor {
             throws FailInstantiationException {
         var behavior = constructBehavior(behaviorClass, behaviorArgs);
         mapBehaviors.put(behaviorClass.getName(), behavior);
-        
+
         SimaLog.info(String.format("AGENT %s ADD BEHAVIOR %s", this, behavior));
     }
-    
+
     /**
      * Search if the sima.core.behavior is a sima.core.behavior of the sima.core.agent, if it is the case, call the method {@link
      * Behavior#startPlaying()}.
@@ -322,7 +321,7 @@ public class SimaAgent implements EventProcessor {
                 behavior.startPlaying();
         }
     }
-    
+
     /**
      * Search if the sima.core.behavior is a sima.core.behavior of the sima.core.agent, if it is the case, call the method {@link
      * Behavior#stopPlaying()}.
@@ -336,7 +335,7 @@ public class SimaAgent implements EventProcessor {
         if (behavior != null)
             behavior.stopPlaying();
     }
-    
+
     /**
      * @param behaviorClass the behavior class
      *
@@ -351,7 +350,7 @@ public class SimaAgent implements EventProcessor {
             return false;
         }
     }
-    
+
     /**
      * Look if the sima.core.behavior is playing by the sima.core.agent by calling the function {@link Behavior#isPlaying()}
      *
@@ -366,7 +365,7 @@ public class SimaAgent implements EventProcessor {
         else
             return false;
     }
-    
+
     /**
      * @param behaviorClass the class of the behavior
      *
@@ -375,11 +374,11 @@ public class SimaAgent implements EventProcessor {
     public synchronized Behavior getBehavior(Class<? extends Behavior> behaviorClass) {
         return mapBehaviors.get(behaviorClass.getName());
     }
-    
+
     /**
-     * Creates a new instance of the specified protocol class. After that, verifies if the agent has already not an instance of protocol with the
-     * same {@link ProtocolIdentifier}. If it not the case, the protocol is add to the agent, else the protocol is not add to the agent and
-     * returns false.
+     * Creates a new instance of the specified protocol class. After that, verifies if the agent has already not an instance of protocol with the same
+     * {@link ProtocolIdentifier}. If it not the case, the protocol is added to the agent, else the protocol is not add to the agent and returns
+     * false.
      *
      * @param protocolClass the class of the protocol
      * @param protocolTag   the tag of the protocol
@@ -401,17 +400,17 @@ public class SimaAgent implements EventProcessor {
             return false;
         }
     }
-    
+
     private void mapProtocol(ProtocolIdentifier protocolIdentifier, Protocol protocol) {
         mapProtocol.put(protocolIdentifier, protocol);
-        
+
         SimaLog.info(String.format("AGENT %s ADD PROTOCOL %s", this, protocol));
     }
-    
+
     private boolean isNotAddedProtocol(ProtocolIdentifier protocolIdentifier) {
         return !mapProtocol.containsKey(protocolIdentifier);
     }
-    
+
     /**
      * Construct an instance of the specified Protocol classed.
      *
@@ -428,26 +427,25 @@ public class SimaAgent implements EventProcessor {
                                        Map<String, String> protocolArgs)
             throws FailInstantiationException {
         return instantiate(protocolClass, new Class[]{String.class, SimaAgent.class, Map.class}, protocolTag,
-                this, protocolArgs);
+                           this, protocolArgs);
     }
-    
+
     /**
      * @param protocolIdentifier the string which identify the sima.core.protocol
      *
-     * @return the sima.core.protocol associate to the sima.core.protocol class, if no sima.core.protocol is associated to this class, return
-     * null.
+     * @return the sima.core.protocol associate to the sima.core.protocol class, if no sima.core.protocol is associated to this class, return null.
      */
     public synchronized Protocol getProtocol(ProtocolIdentifier protocolIdentifier) {
         return mapProtocol.get(protocolIdentifier);
     }
-    
+
     /**
-     * Method called by an {@link Environment} when an event occurs and that the receiver is the sima.core.agent. This method is here to allow
-     * the sima.core.agent to manage how the event must be treated.
+     * Method called by an {@link Environment} when an event occurs and that the receiver is the sima.core.agent. This method is here to allow the
+     * sima.core.agent to manage how the event must be treated.
      * <p>
      * This method is final and synchronized to hide the synchronisation for the user. Therefore, to manage the treatment of the event, you must
-     * override the method {@link #inProcessEvent(Event)}. However, the method {@link #inProcessEvent(Event)} is called only if the agent is
-     * started, else these methods throws {@link AgentNotStartedException}.
+     * override the method {@link #inProcessEvent(Event)}. However, the method {@link #inProcessEvent(Event)} is called only if the agent is started,
+     * else these methods throws {@link AgentNotStartedException}.
      *
      * @param event the event received
      *
@@ -460,16 +458,15 @@ public class SimaAgent implements EventProcessor {
             inProcessEvent(event);
         else
             throw new AgentNotStartedException("The agent " + agentIdentifier + " is not started, cannot " +
-                    "process Event.");
+                                                       "process Event.");
     }
-    
+
     /**
-     * This method is called in the method {@link #processEvent(Event)}. In that way this method is not synchronized and the user must not have
-     * to be preoccupied by synchronisation and multi threading. This method is called by {@link #processEvent(Event)} only if the agent is
-     * started.
+     * This method is called in the method {@link #processEvent(Event)}. In that way this method is not synchronized and the user must not have to be
+     * preoccupied by synchronisation and multi threading. This method is called by {@link #processEvent(Event)} only if the agent is started.
      * <p>
-     * This method take all {@link Protocol} added in the agent and call the method {@link Protocol#processEvent(Event)}. Each protocol which
-     * think that the {@link Event} must be treated by him treats the {@link Event}.
+     * This method take all {@link Protocol} added in the agent and call the method {@link Protocol#processEvent(Event)}. Each protocol which think
+     * that the {@link Event} must be treated by him treats the {@link Event}.
      *
      * @param event the event to process
      *
@@ -486,20 +483,20 @@ public class SimaAgent implements EventProcessor {
         } else
             throw new UnsupportedOperationException("The agent " + this + " cannot process event like " + event.getClass());
     }
-    
+
     public AgentIdentifier getAgentIdentifier() {
         return agentIdentifier;
     }
-    
+
     /**
      * @return a new instance of {@link AgentInfo} which contains all information about the sima.core.agent.
      */
     public AgentInfo getInfo() {
         List<Environment> environments = SimaSimulation.getAgentEnvironment(getAgentIdentifier());
         return new AgentInfo(getAgentIdentifier(), new ArrayList<>(mapBehaviors.keySet()),
-                new ArrayList<>(mapProtocol.keySet()), getEnvironmentNameList(environments));
+                             new ArrayList<>(mapProtocol.keySet()), getEnvironmentNameList(environments));
     }
-    
+
     @NotNull
     private List<String> getEnvironmentNameList(List<Environment> environments) {
         List<String> environmentNameList = new ArrayList<>();
@@ -508,37 +505,37 @@ public class SimaAgent implements EventProcessor {
         }
         return environmentNameList;
     }
-    
+
     // Getters and Setters.
-    
+
     public String getAgentName() {
         return agentName;
     }
-    
+
     public int getSequenceId() {
         return sequenceId;
     }
-    
+
     public int getUniqueId() {
         return uniqueId;
     }
-    
+
     public List<Environment> getEnvironmentList() {
         return SimaSimulation.getAgentEnvironment(agentIdentifier);
     }
-    
+
     public List<Behavior> getBehaviorList() {
         return new ArrayList<>(mapBehaviors.values());
     }
-    
+
     public List<Protocol> getProtocolList() {
         return new ArrayList<>(mapProtocol.values());
     }
-    
+
     public boolean isStarted() {
         return isStarted;
     }
-    
+
     public boolean isKilled() {
         return isKilled;
     }
