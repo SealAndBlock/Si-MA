@@ -26,7 +26,7 @@ public abstract class TestSima {
     // Methods.
     
     /**
-     * @return a instance of MockedStatic of a SimaSimulation
+     * @return an instance of MockedStatic of a SimaSimulation
      */
     public static MockedStatic<SimaSimulation> mockSimaSimulation() {
         return Mockito.mockStatic(SimaSimulation.class);

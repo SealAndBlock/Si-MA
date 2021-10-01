@@ -11,21 +11,20 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class ConfigurationParser {
-    
+
     // Constructors.
-    
+
     private ConfigurationParser() {
     }
-    
+
     // Static methods.
-    
+
     /**
-     * Parse the json file enter in parameter to create a {@link SimaSimulationJson}. This instance contain all
-     * information of the configuration.
+     * Parse the json file enter in parameter to create a {@link SimaSimulationJson}. This instance contains all information of the configuration.
      *
      * @param configurationJsonPath the path of the json file
      *
-     * @return a instance of {@link SimaSimulationJson} if the configuration parsing success.
+     * @return an instance of {@link SimaSimulationJson} if the configuration parsing success.
      *
      * @throws IOException         for relative problems to the file path
      * @throws JsonSyntaxException if relative problems to the json syntax
@@ -35,14 +34,14 @@ public class ConfigurationParser {
         final var gson = createGson();
         return getSimaSimulationJSONFromFile(configurationJsonPath, gson);
     }
-    
+
     private static @NotNull SimaSimulationJson getSimaSimulationJSONFromFile(String filePath, Gson gson)
             throws IOException, JsonSyntaxException {
         try (var reader = new JsonReader(new FileReader(filePath))) {
             return gson.fromJson(reader, SimaSimulationJson.class);
         }
     }
-    
+
     private static @NotNull Gson createGson() {
         final var builder = new GsonBuilder();
         return builder.create();

@@ -48,7 +48,7 @@
     {
       "id": "SEnv",
       "name": "SpecificEnvironmentTesting",
-      "environmentClass": "sima.basic.environment.SimpleEnvironment",
+      "environmentClass": "sima.standard.environment.SimpleEnvironment",
       "physicalConnectionLayerChains": [
         {
           "name": "fully_connected_cable_connection",
@@ -68,13 +68,13 @@
     {
       "id": "SEnvSecond",
       "name": "IgnoredEnvironment0",
-      "environmentClass": "sima.basic.environment.SimpleEnvironment",
+      "environmentClass": "sima.standard.environment.SimpleEnvironment",
       "args": []
     },
     {
       "id": "SEnvThird",
       "name": "IgnoredEnvironment1",
-      "environmentClass": "sima.basic.environment.SimpleEnvironment"
+      "environmentClass": "sima.standard.environment.SimpleEnvironment"
     }
   ],
   "physicalConnectionLayers": [

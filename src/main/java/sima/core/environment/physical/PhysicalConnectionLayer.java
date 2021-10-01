@@ -45,7 +45,7 @@ public abstract class PhysicalConnectionLayer {
      * <p>
      * The algorithm used is simple. In first the {@link PhysicalConnectionLayer} decorates if needed the {@link PhysicalEvent}. After that, the
      * method {@link #canBeSent(AgentIdentifier, AgentIdentifier, PhysicalEvent)} is called to verify if the decorated {@link PhysicalEvent} can
-     * be sent to the target. If it is the case then verify if the {@link PhysicalConnectionLayer} has a nextb in the {@link
+     * be sent to the target. If it is the case then verify if the {@link PhysicalConnectionLayer} has a next in the {@link
      * PhysicalConnectionLayer} chain. Call this method send to the next if there is a next, else call the method {@link
      * #scheduleInEnvironment(AgentIdentifier, PhysicalEvent)} to schedule the {@link PhysicalEvent} via the {@link Environment} methods to send
      * {@link sima.core.environment.event.Event} like {@link Environment#assignEventOn(AgentIdentifier, Event, long)}.

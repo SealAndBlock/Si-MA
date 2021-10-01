@@ -38,9 +38,9 @@ public interface Scheduler {
     /**
      * Start the scheduler.
      * <p>
-     * If the scheduler has been started, it cannot be started an second time and returns false.
+     * If the scheduler has been started, it cannot be started a second time and returns false.
      * <p>
-     * A {@code Scheduler} cannot be re started if it at been killed. In that case, the method returns false.
+     * A {@code Scheduler} cannot be restarted if it at been killed. In that case, the method returns false.
      *
      * @return true if the {@code Scheduler} is started, else false.
      */
@@ -59,7 +59,7 @@ public interface Scheduler {
     boolean kill();
     
     /**
-     * Verifies if the scheduler is running or not. A scheduler is running after the call of the method {@link #start()} and it have some
+     * Verifies if the scheduler is running or not. A scheduler is running after the call of the method {@link #start()} and it has some
      * executables to execute. After the call of the method {@link #kill()}, the scheduler is not running and this method returns always false.
      *
      * @return true if the scheduler is running, else false.
@@ -113,14 +113,14 @@ public interface Scheduler {
      * <p>
      * If the simulationSpecificTime is greater than the end of the simulation, nothing id done.
      * <p>
-     * Here the simulationSpecificTime is based on the start of the scheduler. Therefore if the simulationSpecificTime is equal to 5, it is 5
+     * Here the simulationSpecificTime is based on the start of the scheduler. Therefore, if the simulationSpecificTime is equal to 5, it is 5
      * time unit (or milliseconds if REAL_TIME mode) after the start of the scheduler and not 5 after the call of this method.
      * <p>
      * <strong>WARNING!</strong> If the Simulation time mode is
      * {@link TimeMode#REAL_TIME} the unit time use is the millisecond.
      *
      * @param executable             the executable to schedule
-     * @param simulationSpecificTime the specific time of the simulation when the executable is execute (greater or equal to 0 if in repeated
+     * @param simulationSpecificTime the specific time of the simulation when the executable is executed (greater or equal to 0 if in repeated
      *                               mod)
      *
      * @throws NullPointerException     if the executable is null.
@@ -255,7 +255,7 @@ public interface Scheduler {
     @NotNull SchedulerType getSchedulerType();
     
     /**
-     * Enum to specify how many time an {@link Executable} can be schedule.
+     * Enum to specify how many times an {@link Executable} can be schedule.
      */
     enum ScheduleMode {
         ONCE, REPEATED, INFINITE

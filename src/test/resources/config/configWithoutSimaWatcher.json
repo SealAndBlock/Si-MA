@@ -47,7 +47,7 @@
     {
       "id": "SEnv",
       "name": "SpecificEnvironmentTesting",
-      "environmentClass": "sima.basic.environment.SimpleEnvironment",
+      "environmentClass": "sima.standard.environment.SimpleEnvironment",
       "args": [
         [
           "eArg1",
