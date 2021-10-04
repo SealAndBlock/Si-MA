@@ -6,11 +6,13 @@ import sima.core.environment.event.Event;
 import sima.core.environment.event.EventAssignor;
 import sima.core.environment.event.EventProcessor;
 import sima.core.environment.physical.PhysicalConnectionLayer;
+import sima.core.exception.KilledAgentException;
 import sima.core.exception.NotEvolvingAgentInEnvironmentException;
 
 import java.util.*;
 
 import static sima.core.simulation.SimaSimulation.SimaLog;
+import static sima.core.simulation.SimaSimulation.getAgent;
 
 /**
  * Represents an {@code Environment} where {@link SimaAgent} evolves. An {@code Environment} can be the representation of the physic layer of the
@@ -167,22 +169,31 @@ public abstract class Environment implements EventAssignor {
 
     /**
      * Schedule the call of the method {@link EventProcessor#processEvent(Event)} of the {@link SimaAgent} targeted.
+     * <p>
+     * The initiator and the target must be evolving in the {@link Environment}.
      *
-     * @param event  the event to process
-     * @param target the agent targeted
-     * @param delay  the delay to wait before call the method processEvent
+     * @param initiator the agent which initiate the event
+     * @param event     the event to process
+     * @param target    the agent targeted
+     * @param delay     the delay to wait before call the method processEvent
      *
      * @throws NotEvolvingAgentInEnvironmentException if the sender and/or the receiver agent are not evolving in the {@link Environment}.
      * @throws NullPointerException                   if the event is null
      */
     @Override
-    public synchronized void assignEventOn(AgentIdentifier target, Event event, long delay) {
-        if (isEvolving(Optional.of(target).get())) {
+    public synchronized void assignEventOn(AgentIdentifier initiator, AgentIdentifier target, Event event, long delay) {
+        initiator = Optional.ofNullable(initiator).orElseThrow(() -> new IllegalArgumentException("Initiator must be not null"));
+        target = Optional.ofNullable(target).orElseThrow(() -> new IllegalArgumentException("Target must be not null"));
+        event = Optional.ofNullable(event).orElseThrow(() -> new IllegalArgumentException("Event must be not null"));
+
+        if (isEvolving(initiator) && isEvolving(target)) {
+            if (getAgent(initiator).isKilled())
+                throw new KilledAgentException("A killed agent cannot initiates " + Event.class);
+
             scheduleEventProcess(target, event, delay);
-        } else {
+        } else
             throw new NotEvolvingAgentInEnvironmentException(
-                    "The target " + target + " is not evolving in the environment" + this);
-        }
+                    "The initiator " + initiator + " or the target " + target + " is not evolving in the environment" + this);
     }
 
     /**

@@ -26,8 +26,8 @@ public class TestSimpleEnvironment extends TestEnvironment {
     void setUp() {
         simpleEnvironment = new SimpleEnvironment("TEST", null);
         environment = simpleEnvironment;
-        agentIdentifier0 = new AgentIdentifier("AGENT_TEST_0", 0, 0);
-        agentIdentifier1 = new AgentIdentifier("AGENT_TEST_1", 1, 1);
+        agentInitiator = new AgentIdentifier("AGENT_TEST_0", 0, 0);
+        agentTarget = new AgentIdentifier("AGENT_TEST_1", 1, 1);
     }
     
     // Tests
