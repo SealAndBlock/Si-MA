@@ -9,4 +9,6 @@ public abstract class PhysicalEvent extends Event {
     protected PhysicalEvent(Event content) {
         super(content);
     }
+
+    // Methods.
 }

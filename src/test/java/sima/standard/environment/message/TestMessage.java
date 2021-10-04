@@ -68,7 +68,7 @@ public class TestMessage {
     class HashCodeTest {
         
         @Test
-        @DisplayName("Test if two equals message has the same hashCode")
+        @DisplayName("Test if two equals messages has the same hashCode")
         void testHashCodeWithEqualMessages() {
             // WHEN
             var m1 = new Message(mockContentMessage, mockProtocolIdentifier);
@@ -86,7 +86,7 @@ public class TestMessage {
     class EqualsTest {
         
         @Test
-        @DisplayName("Test if equals returns true with two equals message")
+        @DisplayName("Test if equals returns true with two equals messages")
         void testEqualsWithTwoEqualsMessage() {
             // WHEN
             var m1 = new Message(mockContentMessage, mockProtocolIdentifier);
@@ -97,7 +97,7 @@ public class TestMessage {
         }
         
         @Test
-        @DisplayName("Test if equals returns false with two not equals message")
+        @DisplayName("Test if equals returns false with two not equals messages")
         void testEqualsWithTwoNotEqualsMessage() {
             // WHEN
             var m1 = new Message(mockContentMessage, mockProtocolIdentifier);
