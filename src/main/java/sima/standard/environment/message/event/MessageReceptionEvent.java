@@ -6,6 +6,7 @@ import sima.core.environment.event.Event;
 import sima.core.protocol.IntendedToProtocol;
 import sima.core.protocol.ProtocolIdentifier;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class MessageReceptionEvent extends Event implements IntendedToProtocol {
@@ -36,7 +37,20 @@ public class MessageReceptionEvent extends Event implements IntendedToProtocol {
     }
     
     // Methods.
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MessageReceptionEvent that)) return false;
+        if (!super.equals(o)) return false;
+        return intendedProtocol.equals(that.intendedProtocol);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), intendedProtocol);
+    }
+
     @Override
     public @NotNull MessageReceptionEvent duplicate() {
         return new MessageReceptionEvent(this);

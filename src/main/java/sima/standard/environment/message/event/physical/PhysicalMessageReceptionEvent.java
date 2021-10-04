@@ -7,6 +7,7 @@ import sima.core.environment.physical.PhysicalEvent;
 import sima.core.protocol.IntendedToProtocol;
 import sima.core.protocol.ProtocolIdentifier;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class PhysicalMessageReceptionEvent extends PhysicalEvent implements IntendedToProtocol {
@@ -27,7 +28,20 @@ public class PhysicalMessageReceptionEvent extends PhysicalEvent implements Inte
     }
     
     // Methods.
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PhysicalMessageReceptionEvent that)) return false;
+        if (!super.equals(o)) return false;
+        return intendedProtocol.equals(that.intendedProtocol);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), intendedProtocol);
+    }
+
     @Override
     public Message getContent() {
         return (Message) super.getContent();
