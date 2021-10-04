@@ -51,6 +51,16 @@ public class BasicBroadcast extends Protocol implements MessageBroadcaster, Mess
 
     // Methods.
 
+    @Override
+    public void onOwnerStart() {
+        // Nothing.
+    }
+
+    @Override
+    public void onOwnerKill() {
+        // Nothing.
+    }
+
     private BroadcastMessage createBroadcastMessage(Message message) {
         return new BroadcastMessage(getAgentOwner().getAgentIdentifier(), message, getIdentifier());
     }

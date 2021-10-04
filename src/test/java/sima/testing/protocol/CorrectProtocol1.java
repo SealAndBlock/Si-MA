@@ -16,7 +16,17 @@ public class CorrectProtocol1 extends Protocol {
     }
     
     // Methods.
-    
+
+    @Override
+    public void onOwnerStart() {
+        // Nothing.
+    }
+
+    @Override
+    public void onOwnerKill() {
+        // Nothing.
+    }
+
     @Override
     public void processEvent(Event event) {
     }
