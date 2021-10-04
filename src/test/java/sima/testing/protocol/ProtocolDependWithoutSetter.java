@@ -9,23 +9,33 @@ import sima.core.protocol.ProtocolManipulator;
 import java.util.Map;
 
 public class ProtocolDependWithoutSetter extends Protocol {
-    
+
     // Variables.
-    
+
     private Environment environment;
-    
+
     // Constructors.
-    
+
     public ProtocolDependWithoutSetter(String protocolTag, SimaAgent agentOwner, Map<String, String> args) {
         super(protocolTag, agentOwner, args);
     }
-    
+
     // Methods.
-    
+
+    @Override
+    public void onOwnerStart() {
+        // Nothing.
+    }
+
+    @Override
+    public void onOwnerKill() {
+        // Nothing.
+    }
+
     @Override
     public void processEvent(Event event) {
     }
-    
+
     @Override
     protected ProtocolManipulator createDefaultProtocolManipulator() {
         return new ProtocolManipulator.DefaultProtocolManipulator(this);

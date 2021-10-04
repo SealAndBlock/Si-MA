@@ -162,7 +162,13 @@ public class SimaAgent implements EventProcessor {
      * Method call when the {@link SimaAgent} is started in the method {@link #start()}.
      */
     protected void onStart() {
-        // Nothing is done. Here to allow subclasses to make something during the start.
+        notifyProtocolOnStart();
+    }
+
+    private void notifyProtocolOnStart() {
+        for (Protocol protocol : getProtocolList()) {
+            protocol.onOwnerStart();
+        }
     }
 
     /**
@@ -208,7 +214,13 @@ public class SimaAgent implements EventProcessor {
      * Method call when the {@link SimaAgent} is killed in the method {@link #kill()}
      */
     protected void onKill() {
-        // Nothing is done. Here to allow subclasses to make something during the kill.
+        notifyProtocolOnKill();
+    }
+
+    private void notifyProtocolOnKill() {
+        for (Protocol protocol : getProtocolList()) {
+            protocol.onOwnerKill();
+        }
     }
 
     /**
@@ -250,9 +262,9 @@ public class SimaAgent implements EventProcessor {
      * Add the {@link Behavior} to the {@link SimaAgent}. If the {@link SimaAgent} already have this {@link Behavior}, nothing is done and returns
      * false.
      * <p>
-     * In the case where the {@link SimaAgent} has not already the {@link Behavior}, this method creates a new instance of the {@link Behavior}
-     * class. If the creation of the instance is a success, the {@link Behavior} is added to the {@link SimaAgent} and returns true, else the
-     * {@link Behavior} is not added in the {@link SimaAgent} and returns false.
+     * In the case where the {@link SimaAgent} has not already the {@link Behavior}, this method creates a new instance of the {@link Behavior} class.
+     * If the creation of the instance is a success, the {@link Behavior} is added to the {@link SimaAgent} and returns true, else the {@link
+     * Behavior} is not added in the {@link SimaAgent} and returns false.
      *
      * @param behaviorClass the {@link Behavior} class
      * @param behaviorArgs  the argument to transfer to the {@link Behavior}

@@ -12,47 +12,47 @@ import java.util.Optional;
  * ProtocolManipulator}, the {@link SimaAgent} via the {@link Behavior} can change the {@link Behavior} of the {@link Protocol} by changing the
  * current {@link #protocolManipulator}.
  * <p>
- * All inherited class of {@link Protocol} must have this constructor <strong>Protocol(String protocolTag, String[] args)</strong>. In that way,
- * it allows to use the java reflexivity.
+ * All inherited class of {@link Protocol} must have this constructor <strong>Protocol(String protocolTag, String[] args)</strong>. In that way, it
+ * allows to use the java reflexivity.
  */
 public abstract class Protocol implements EventProcessor {
-    
+
     // Singletons.
-    
+
     /**
      * The {@link ProtocolIdentifier} of the {@link Protocol}.
      */
     private ProtocolIdentifier protocolIdentifier;
-    
+
     // Variables.
-    
+
     /**
      * A tag for the {@link Protocol} to allow its identification among all other protocols which can have the same class.
      * <p>
-     * In other word, if a {@link SimaAgent} use two instance of a same {@link Protocol} class, both protocols must imperatively have two
-     * different tag.
+     * In other word, if a {@link SimaAgent} use two instance of a same {@link Protocol} class, both protocols must imperatively have two different
+     * tag.
      */
     private final String protocolTag;
-    
+
     private final SimaAgent agentOwner;
-    
+
     /**
      * The default protocol manipulator.
      */
     private final ProtocolManipulator defaultProtocolManipulator;
-    
+
     /**
      * The {@link Protocol} manipulator. Must be not null.
      */
     private ProtocolManipulator protocolManipulator;
-    
+
     // Constructors.²
-    
+
     /**
      * Create a {@link Protocol} with a unique tag, an agent owner and a map of arguments.
      * <p>
-     * This constructors set the protocolManipulator with the method {@link #createDefaultProtocolManipulator()}. This method must never return
-     * null, however, if it is the case, a {@link NullPointerException} is thrown.
+     * This constructors set the protocolManipulator with the method {@link #createDefaultProtocolManipulator()}. This method must never return null,
+     * however, if it is the case, a {@link NullPointerException} is thrown.
      * <p>
      * If the tag or the agent owner is null, throws a {@link NullPointerException}.
      * <p>
@@ -71,9 +71,20 @@ public abstract class Protocol implements EventProcessor {
                 "The method createDefaultProtocolManipulator must not return null"));
         protocolManipulator = defaultProtocolManipulator;
     }
-    
+
     // Methods.
-    
+
+    /**
+     * Method called when the {@link SimaAgent} owner is started with the method {@link SimaAgent#start()}.
+     */
+    public abstract void onOwnerStart();
+
+
+    /**
+     * Method called when the {@link SimaAgent} owner is killed with the method {@link SimaAgent#kill()}.
+     */
+    public abstract void onOwnerKill();
+
     @Override
     public String toString() {
         return "Protocol [" +
@@ -83,7 +94,7 @@ public abstract class Protocol implements EventProcessor {
                 ", protocolManipulator=" + protocolManipulator +
                 ']';
     }
-    
+
     /**
      * Returns the {@link ProtocolIdentifier} of the {@link Protocol}. The {@link Protocol} identifier must allow a {@link SimaAgent} to identify
      * which {@link Protocol} is called and for two different agents which use the same set of protocols, for a same instance of a {@link
@@ -94,13 +105,13 @@ public abstract class Protocol implements EventProcessor {
     public ProtocolIdentifier getIdentifier() {
         if (protocolIdentifier == null)
             protocolIdentifier = new ProtocolIdentifier(getClass(), protocolTag);
-        
+
         return protocolIdentifier;
     }
-    
+
     /**
-     * Returns the default {@link Protocol} manipulator of the {@link Protocol}. This method never returns null. If the implementation is not
-     * correct and this method returns null, the risk is that some methods throw a {@link NullPointerException}.
+     * Returns the default {@link Protocol} manipulator of the {@link Protocol}. This method never returns null. If the implementation is not correct
+     * and this method returns null, the risk is that some methods throw a {@link NullPointerException}.
      * <p>
      * If subclasses do not return a non-null {@link ProtocolManipulator}, the constructor {@link Protocol#Protocol(String, SimaAgent, Map)} will
      * throw a {@link NullPointerException}.
@@ -110,35 +121,44 @@ public abstract class Protocol implements EventProcessor {
      * @see Protocol#Protocol(String, SimaAgent, Map)
      */
     protected abstract ProtocolManipulator createDefaultProtocolManipulator();
-    
+
     /**
      * Reset the default manipulator of the {@link Protocol}. In that way, the property {@link #protocolManipulator} is never null.
      */
     public void resetDefaultProtocolManipulator() {
         protocolManipulator = defaultProtocolManipulator;
     }
-    
+
+    /**
+     * @return true if the agentOwner is killed else false.
+     *
+     * @see SimaAgent#isKilled()
+     */
+    public boolean ownerIsKilled() {
+        return getAgentOwner().isKilled();
+    }
+
     // Getters and Setters.
-    
+
     public String getProtocolTag() {
         return protocolTag;
     }
-    
+
     public SimaAgent getAgentOwner() {
         return agentOwner;
     }
-    
+
     public ProtocolManipulator getDefaultProtocolManipulator() {
         return defaultProtocolManipulator;
     }
-    
+
     public ProtocolManipulator getProtocolManipulator() {
         return protocolManipulator;
     }
-    
+
     /**
-     * Set {@link #protocolManipulator}. In addition to this, the method {@link ProtocolManipulator#setManipulatedProtocol(Protocol)} is called
-     * to set as manipulated {@link Protocol} for the new {@link Protocol} manipulator the current {@link Protocol}.
+     * Set {@link #protocolManipulator}. In addition to this, the method {@link ProtocolManipulator#setManipulatedProtocol(Protocol)} is called to set
+     * as manipulated {@link Protocol} for the new {@link Protocol} manipulator the current {@link Protocol}.
      *
      * @param protocolManipulator the {@link Protocol} manipulator (must be not null)
      *

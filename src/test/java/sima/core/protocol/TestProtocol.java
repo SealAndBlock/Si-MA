@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -99,4 +100,42 @@ public abstract class TestProtocol {
 
     }
 
+    @Nested
+    @Tag("Protocol.onOwnerStart")
+    @DisplayName("Protocol onOwnerStart tests")
+    class OnOwnerStartTest {
+
+        @Test
+        @DisplayName("Test if onOwnerStart does not throw Exception")
+        void testOnOwnerStart() {
+            assertDoesNotThrow(() -> protocol.onOwnerStart());
+        }
+
+    }
+
+    @Nested
+    @Tag("Protocol.onOwnerKill")
+    @DisplayName("Protocol onOwnerKill tests")
+    class OnOwnerKillTest {
+
+        @Test
+        @DisplayName("Test if onOwnerKill does not throw Exception")
+        void testOnOwnerKill() {
+            assertDoesNotThrow(() -> protocol.onOwnerKill());
+        }
+
+    }
+
+    @Nested
+    @Tag("Protocol.ownerIsKilled")
+    @DisplayName("Protocol ownerIsKilled test")
+    class OwnerIsKilledTest {
+
+        @Test
+        @DisplayName("Test if ownerIsKilled is always equals to the status of the owner agent")
+        void testOwnerIsKilledIsEqualToOwnerStatus() {
+            assertThat(protocol.ownerIsKilled()).isEqualTo(protocol.getAgentOwner().isKilled());
+        }
+
+    }
 }

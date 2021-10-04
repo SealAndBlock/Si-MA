@@ -1,10 +1,10 @@
 package sima.standard.message_sender;
 
-import sima.standard.environment.message.Message;
-import sima.standard.transport.MessageTransportProtocol;
 import sima.core.agent.SimaAgent;
 import sima.core.exception.UnknownProtocolForAgentException;
 import sima.core.protocol.ProtocolManipulator;
+import sima.standard.environment.message.Message;
+import sima.standard.transport.MessageTransportProtocol;
 
 import java.util.Map;
 
@@ -16,20 +16,30 @@ import java.util.Map;
  * There is no guarantee on the message reception and there is no guarantee on the message deliver order.
  */
 public class SimpleMessageSenderProtocol extends MessageTransportProtocol {
-    
+
     // Constructors
-    
+
     public SimpleMessageSenderProtocol(String protocolTag, SimaAgent agentOwner, Map<String, String> args) {
         super(protocolTag, agentOwner, args);
     }
-    
+
+    @Override
+    public void onOwnerStart() {
+        // Nothing.
+    }
+
+    @Override
+    public void onOwnerKill() {
+        // Nothing.
+    }
+
     // Methods.
-    
+
     @Override
     public void receive(Message message) {
         deliver(message);
     }
-    
+
     @Override
     public void deliver(Message message) {
         var content = message.getMessage();
@@ -44,7 +54,7 @@ public class SimpleMessageSenderProtocol extends MessageTransportProtocol {
         } else
             throw new UnsupportedOperationException("Cannot transfer content to intended protocol because message content is null");
     }
-    
+
     @Override
     protected ProtocolManipulator createDefaultProtocolManipulator() {
         return new ProtocolManipulator.DefaultProtocolManipulator(this);
