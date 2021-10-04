@@ -63,7 +63,7 @@ sonarqube-check:
     paths:
       - "target"
   script:
-    - mvn $MAVEN_CLI_OPTS -Dmaven.test.skip=true clean install sonar:sonar
+    - mvn $MAVEN_CLI_OPTS clean install sonar:sonar
   allow_failure: true
   when: on_success
   only:
