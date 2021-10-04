@@ -114,8 +114,8 @@ public class FullyConnectedPhysicalLayer extends PhysicalConnectionLayer {
     }
     
     @Override
-    protected void scheduleInEnvironment(AgentIdentifier target, PhysicalEvent physicalEvent) {
-        getEnvironment().assignEventOn(target, physicalEvent, randomLong(minSendDelay, maxSendDelay));
+    protected void scheduleInEnvironment(AgentIdentifier initiator, AgentIdentifier target, PhysicalEvent physicalEvent) {
+        getEnvironment().assignEventOn(initiator, target, physicalEvent, randomLong(minSendDelay, maxSendDelay));
     }
     
     // Getters.

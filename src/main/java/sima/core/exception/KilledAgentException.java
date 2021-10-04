@@ -7,4 +7,8 @@ public class KilledAgentException extends RuntimeException {
     public KilledAgentException() {
         super();
     }
+
+    public KilledAgentException(String message) {
+        super(message);
+    }
 }
