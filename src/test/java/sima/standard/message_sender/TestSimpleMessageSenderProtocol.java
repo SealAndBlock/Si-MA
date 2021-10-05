@@ -11,6 +11,7 @@ import sima.core.agent.SimaAgent;
 import sima.core.exception.UnknownProtocolForAgentException;
 import sima.core.protocol.Protocol;
 import sima.core.protocol.ProtocolIdentifier;
+import sima.standard.transport.message.SimpleMessageSenderProtocol;
 
 import java.util.HashMap;
 import java.util.Map;

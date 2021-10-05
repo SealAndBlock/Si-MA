@@ -1,4 +1,4 @@
-package sima.standard.message_sender;
+package sima.standard.transport.message;
 
 import sima.core.agent.SimaAgent;
 import sima.core.exception.UnknownProtocolForAgentException;
