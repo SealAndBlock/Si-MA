@@ -13,29 +13,29 @@ import java.util.Set;
  * instances of {@link SimaAgent} in the simulation are in the same process and JVM.
  */
 public class LocalAgentManager implements AgentManager {
-    
+
     // Variables.
-    
+
     /**
      * The set of all managed agents.
      */
     private final Set<SimaAgent> managedAgents;
-    
+
     // Constructors.
-    
+
     public LocalAgentManager() {
         this.managedAgents = new HashSet<>();
     }
-    
+
     // Methods.
-    
+
     @Override
     public boolean addAgent(SimaAgent agent) {
         if (agent == null)
             return false;
         return this.managedAgents.add(agent);
     }
-    
+
     @Override
     public @NotNull List<SimaAgent> getAllAgents() {
         return new ArrayList<>(this.managedAgents);
