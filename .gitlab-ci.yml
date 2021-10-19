@@ -52,6 +52,7 @@ integration-test-job:
       - "target"
   script:
     - mvn $MAVEN_CLI_OPTS clean verify
+  allow_failure: true
   when: on_success
   only:
     - merge_requests

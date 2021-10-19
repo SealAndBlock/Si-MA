@@ -32,11 +32,12 @@ public class Message extends Event implements IntendedToProtocol {
      * @param content          the content
      * @param intendedProtocol the intended protocol
      *
-     * @throws NullPointerException if intendedProtocol is null
+     * @throws IllegalArgumentException if intendedProtocol is null
      */
     public Message(Message content, ProtocolIdentifier intendedProtocol) {
         super(content);
-        this.intendedProtocol = Optional.of(intendedProtocol).get();
+        this.intendedProtocol = Optional.ofNullable(intendedProtocol).orElseThrow(() -> new IllegalArgumentException("IntendedProtocol cannot be " +
+                                                                                                                             "null"));
     }
 
     private Message(Message message) {

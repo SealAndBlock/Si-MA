@@ -1,0 +1,105 @@
+{
+  "endTime": 10000,
+  "timeMode": "DISCRETE_TIME",
+  "nbThreads": 1,
+  "schedulerType": "MULTI_THREAD",
+  "controllers": [
+    {
+      "controllerClass": "sima.util.RoleAssignerController",
+      "scheduleMode": "ONCE",
+      "beginAt": 90,
+      "args": [
+        [
+          "nbFaultyAgent",
+          "7"
+        ]
+      ]
+    },
+    {
+      "controllerClass": "sima.standard.broadcast.basic.controller.BroadcastWithCorrectAgentController",
+      "scheduleMode": "ONCE",
+      "beginAt": 100
+    },
+    {
+      "controllerClass": "sima.util.FaultyAgentKillerController",
+      "scheduleMode": "ONCE",
+      "beginAt": 110
+    }
+  ],
+  "physicalConnectionLayers": [
+    {
+      "id": "fully_connect",
+      "physicalConnectionLayerClass": "sima.standard.environment.physical.FullyConnectedPhysicalLayer",
+      "args": [
+        [
+          "minSendDelay",
+          "100"
+        ],
+        [
+          "maxSendDelay",
+          "300"
+        ]
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "id": "SimpleEnvironment",
+      "name": "SimpleEnvironment",
+      "environmentClass": "sima.standard.environment.SimpleEnvironment",
+      "physicalConnectionLayerChains": [
+        {
+          "name": "fully_connected_transport_layer",
+          "chain": [
+            "fully_connect"
+          ]
+        }
+      ]
+    }
+  ],
+  "protocols": [
+    {
+      "id": "BasicBroadcast",
+      "tag": "BasicBroadcast",
+      "protocolClass": "sima.standard.broadcast.basic.BasicBroadcast",
+      "protocolDependencies": {
+        "messageTransport": "MessageTransport",
+        "environment": "SimpleEnvironment"
+      }
+    },
+    {
+      "id": "MessageTransport",
+      "tag": "MessageTransport",
+      "protocolClass": "sima.standard.transport.message.SimpleMessageSenderProtocol",
+      "protocolDependencies": {
+        "environment": "SimpleEnvironment"
+      },
+      "args": [
+        [
+          "physicalConnectionLayerName",
+          "fully_connected_transport_layer"
+        ]
+      ]
+    },
+    {
+      "id": "ApplicationObserverProtocol",
+      "tag": "ApplicationObserverProtocol",
+      "protocolClass": "sima.standard.broadcast.basic.BasicBroadcastObserverProtocol"
+    }
+  ],
+  "agents": [
+    {
+      "agentClass": "sima.core.agent.SimaAgent",
+      "namePattern": "SimaAgent_%d",
+      "numberToCreate": 10,
+      "protocols": [
+        "BasicBroadcast",
+        "MessageTransport",
+        "ApplicationObserverProtocol"
+      ],
+      "environments": [
+        "SimpleEnvironment"
+      ]
+    }
+  ]
+}

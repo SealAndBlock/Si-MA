@@ -42,7 +42,7 @@ public class TestReliableBroadcastMessage extends TestMessage {
     @Nested
     @Tag("ReliableBroadcastMessage.constructor")
     @DisplayName("ReliableBroadcastMessage constructor tests")
-    class BroadcastMessageTest {
+    class ConstructorTest {
 
         @Test
         @DisplayName("Test if constructor throws NullPointerException with null sender")
@@ -57,9 +57,9 @@ public class TestReliableBroadcastMessage extends TestMessage {
         }
 
         @Test
-        @DisplayName("Test if constructor throws NullPointerException with null intended protocol")
+        @DisplayName("Test if constructor throws IllegalArgumentException with null intended protocol")
         void testConstructorWithNullIntendedProtocol() {
-            assertThrows(NullPointerException.class, () -> new ReliableBroadcastMessage(0, mockAgentSender, mockContentMessage,
+            assertThrows(IllegalArgumentException.class, () -> new ReliableBroadcastMessage(0, mockAgentSender, mockContentMessage,
                                                                                         null));
         }
 
