@@ -409,6 +409,7 @@ public class SimaAgent implements EventProcessor {
             } else
                 return false;
         } catch (FailInstantiationException e) {
+            SimaLog.error("Unable to construct protocol class: " + protocolClass + " tag: " + protocolTag, e);
             return false;
         }
     }

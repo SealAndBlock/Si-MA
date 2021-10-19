@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static sima.core.simulation.SimaSimulation.SimaLog;
+
 /**
  * A class which implements message broadcasting.
  * <p>
@@ -72,7 +74,10 @@ public class BasicBroadcast extends Protocol implements MessageBroadcaster, Mess
      */
     @Override
     public void broadcast(Message message) {
-        sendToAll(createBroadcastMessage(isNotNull(message)));
+        if (!ownerIsKilled())
+            sendToAll(createBroadcastMessage(isNotNull(message)));
+        else
+            SimaLog.info(getAgentOwner().getAgentIdentifier() + " cannot broadcast because it is killed.");
     }
 
     /**
