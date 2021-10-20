@@ -2,7 +2,7 @@ package sima.core.simulation.configuration.json;
 
 import java.util.List;
 
-public class PhysicalLayerChainJson {
+public class PCLChainJson {
     
     // Variables.
     

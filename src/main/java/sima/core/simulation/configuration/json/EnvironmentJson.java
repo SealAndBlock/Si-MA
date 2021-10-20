@@ -8,9 +8,19 @@ public class EnvironmentJson extends ObjectIdJson implements ArgumentativeObject
     
     private String name;
     private String environmentClass;
-    private List<PhysicalLayerChainJson> physicalConnectionLayerChains;
+    private List<PCLChainJson> physicalConnectionLayerChains;
     private List<List<String>> args;
-    
+
+    // Methods.
+
+    /**
+     *
+     * @return true if {@link #physicalConnectionLayerChains} is not null and not empty, else false.
+     */
+    public boolean containsPhysicalLayerChain() {
+        return physicalConnectionLayerChains != null && !physicalConnectionLayerChains.isEmpty();
+    }
+
     // Getters.
     
     public String getName() {
@@ -21,7 +31,7 @@ public class EnvironmentJson extends ObjectIdJson implements ArgumentativeObject
         return environmentClass;
     }
     
-    public List<PhysicalLayerChainJson> getPhysicalConnectionLayerChains() {
+    public List<PCLChainJson> getPhysicalConnectionLayerChains() {
         return physicalConnectionLayerChains;
     }
     
