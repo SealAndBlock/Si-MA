@@ -22,6 +22,15 @@ public class ProtocolJson extends ObjectIdJson implements ArgumentativeObjectJso
         return new ProtocolIdentifier(Utils.extractClassForName(protocolClass), tag);
     }
 
+    // Methods.
+
+    /**
+     * @return true if {@link #protocolDependencies} is not null and not empty.
+     */
+    public boolean hasProtocolDependencies() {
+        return protocolDependencies != null && !protocolDependencies.isEmpty();
+    }
+
     // Getters.
 
     public String getTag() {

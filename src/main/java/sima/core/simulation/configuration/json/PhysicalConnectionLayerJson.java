@@ -12,7 +12,7 @@ public class PhysicalConnectionLayerJson extends ObjectIdJson implements Argumen
     
     // Methods.
     
-    public String getPhysicalConnectionLayerClass() {
+    public String getPCLClass() {
         return physicalConnectionLayerClass;
     }
     

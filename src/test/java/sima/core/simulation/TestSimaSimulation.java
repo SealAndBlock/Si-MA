@@ -110,18 +110,6 @@ public class TestSimaSimulation {
         }
 
         @Test
-        @DisplayName("Test runSimulation with not correctly implemented SimulationSetup")
-        void testRunSimulationWithNotCorrectlyImplementedSimulationSetup() {
-            Set<SimaAgent> agents = new HashSet<>();
-            Set<Environment> environments = new HashSet<>();
-            environments.add(mockEnvironment);
-            assertThrows(SimaSimulationFailToStartRunningException.class,
-                         () -> SimaSimulation.runSimulation(mockScheduler, agents, environments, NotCorrectSimulationSetup.class
-                                 , null));
-            waitEndSimulation();
-        }
-
-        @Test
         @DisplayName("Test runSimulation throws a SimaSimulationFailToStartRunningException if a simulation is already running")
         void testRunSimulationWithAlreadyRunningSimulation() {
             createScheduledSimulationTest(() -> {
