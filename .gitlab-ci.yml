@@ -6,15 +6,9 @@ stages:
   - test
   - deploy-artifact
 
-cache:
-  - key: "$CI_COMMIT_REF_SLUG"
-    paths:
-      - .m2/repository
-      - $CI_PROJECT_DIR
-      - .sonar/cache
-
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml"
+  MAVEN_DEBUG: "-e -X"
   GIT_DEPTH: 0
   GIT_CLONE_PATH: $CI_BUILDS_DIR/Si-MA
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
