@@ -64,11 +64,11 @@ public abstract class TestEnvironment {
     @Nested
     @Tag("Environment.toString")
     @DisplayName("Environment toString tests")
-    public class ToStringTest {
+    class ToStringTest {
 
         @Test
         @DisplayName("Test if the method toString returns a correct String")
-        public void testToString() {
+        void testToString() {
             String expectedToString = "[Environment - " +
                     "class=" + environment.getClass().getName() +
                     ", environmentName=" + environment.getEnvironmentName() + "]";
