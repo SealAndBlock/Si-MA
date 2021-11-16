@@ -216,7 +216,7 @@ public class TestSimaSimulation {
             @Test
             @DisplayName("Test if getAgent(long) throws a SimaSimulationIsNotRunningException if the simulation is not running")
             void testGetAgentInNotRunningSimulation() {
-                long agentUniqueId = simaAgent.getAgentIdentifier().agentUniqueId();
+                long agentUniqueId = simaAgent.getAgentIdentifier().getAgentUniqueId();
                 assertThrows(SimaSimulationIsNotRunningException.class, () -> SimaSimulation.getAgent(agentUniqueId));
             }
 
@@ -226,7 +226,7 @@ public class TestSimaSimulation {
                 Set<SimaAgent> agents = new HashSet<>();
                 agents.add(simaAgent);
                 createScheduledSimulationTest(agents, () -> {
-                    SimaAgent agent = SimaSimulation.getAgent(simaAgent.getAgentIdentifier().agentUniqueId());
+                    SimaAgent agent = SimaSimulation.getAgent(simaAgent.getAgentIdentifier().getAgentUniqueId());
                     assertThat(agent).isSameAs(simaAgent);
                 });
             }
@@ -237,7 +237,7 @@ public class TestSimaSimulation {
                 Set<SimaAgent> agents = new HashSet<>();
                 agents.add(simaAgent);
                 createScheduledSimulationTest(agents, () -> {
-                    SimaAgent agent = SimaSimulation.getAgent(simaAgent.getAgentIdentifier().agentUniqueId() + 1);
+                    SimaAgent agent = SimaSimulation.getAgent(simaAgent.getAgentIdentifier().getAgentUniqueId() + 1);
                     assertThat(agent).isNotSameAs(simaAgent);
                 });
             }

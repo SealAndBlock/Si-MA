@@ -12,10 +12,16 @@ import java.util.Optional;
  * <p>
  * This class contains only {@link SimaAgent#getAgentName()}, {@link SimaAgent#getSequenceId()} and {@link SimaAgent#getUniqueId()} fields.
  */
-public record AgentIdentifier(String agentName, int agentSequenceId, int agentUniqueId) implements Serializable {
+public class AgentIdentifier implements Serializable {
     
     // Variables.
-    
+
+    private final String agentName;
+
+    private final int agentSequenceId;
+
+    private final int agentUniqueId;
+
     // Constructors.
     
     /**
@@ -60,5 +66,19 @@ public record AgentIdentifier(String agentName, int agentSequenceId, int agentUn
     @Override
     public int hashCode() {
         return Objects.hash(agentName, agentSequenceId, agentUniqueId);
+    }
+
+    // Getters.
+
+    public String getAgentName() {
+        return agentName;
+    }
+
+    public int getAgentSequenceId() {
+        return agentSequenceId;
+    }
+
+    public int getAgentUniqueId() {
+        return agentUniqueId;
     }
 }

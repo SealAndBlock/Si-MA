@@ -68,7 +68,7 @@ public interface AgentManager {
         List<SimaAgent> agents = getAllAgents();
         SimaAgent res = null;
         for (SimaAgent agent : agents)
-            if (agent.getAgentIdentifier().agentUniqueId() == uniqueId) {
+            if (agent.getAgentIdentifier().getAgentUniqueId() == uniqueId) {
                 res = agent;
                 break;
             }
