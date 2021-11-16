@@ -85,7 +85,7 @@ public class RoleAssignerController implements Controller {
     private void writeCorrectAgent(List<AgentIdentifier> correctAgents, Writer writerCorrect) {
         correctAgents.forEach(correct -> {
             try {
-                writerCorrect.write(correct.agentUniqueId() + "\n");
+                writerCorrect.write(correct.getAgentUniqueId() + "\n");
                 writerCorrect.flush();
             } catch (IOException e) {
                 SimaLog.error("Fail to write correct agent " + correct, e);
@@ -96,7 +96,7 @@ public class RoleAssignerController implements Controller {
     private void writeFaultyAgent(List<AgentIdentifier> faultyAgents, Writer writerFaulty) {
         faultyAgents.forEach(faulty -> {
             try {
-                writerFaulty.write(faulty.agentUniqueId() + "\n");
+                writerFaulty.write(faulty.getAgentUniqueId() + "\n");
                 writerFaulty.flush();
             } catch (IOException e) {
                 SimaLog.error("Fail to write faulty agent " + faulty, e);
