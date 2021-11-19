@@ -195,30 +195,22 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
             throw new IllegalArgumentException("Waiting time cannot be less than 1.");
 
         if (!isKilled())
-            addExecutableWithScheduleMode(executable, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
+            addExecutable(executable, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
     }
 
     /**
-     * Add the {@link Executable} in function of the {@link sima.core.scheduler.Scheduler.ScheduleMode}.
-     * <p>
-     * If the scheduleMode is equal to {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED} or {@link
-     * sima.core.scheduler.Scheduler.ScheduleMode#INFINITE}, the executable is added the number of times that it must be added. It is the same
-     * instance which is added at each time, there is no copy of the {@code Executable}.
+     * Add the executable in the list which contains all executable which must be executed at the specified time.
      *
-     * @param executable    the executable to add
-     * @param waitingTime   the waiting time before execute the action
-     * @param scheduleMode  the schedule mode
-     * @param nbRepetitions the number of times that the action must be repeated if the {@link sima.core.scheduler.Scheduler.ScheduleMode} is equal to
-     *                      {@link sima.core.scheduler.Scheduler.ScheduleMode#REPEATED}
+     * @param executable the executable to add
+     * @param time       the time when the executable must be executed
      */
-    private void addExecutableWithScheduleMode(Executable executable, long waitingTime,
-                                               Scheduler.ScheduleMode scheduleMode,
-                                               long nbRepetitions, long executionTimeStep) {
-        if (scheduleMode == ScheduleMode.ONCE)
-            addExecutableAtTime(executable, currentTime + waitingTime);
-        else
-            addExecutableForRepeatedAndInfiniteScheduleMode(executable, waitingTime, scheduleMode, nbRepetitions,
-                                                            executionTimeStep);
+    @Override
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+    protected void addExecutableAtTime(Executable executable, long time) {
+        LinkedList<Executable> executables = mapExecutable.computeIfAbsent(time, k -> new LinkedList<>());
+        synchronized (executables) {
+            executables.add(executable);
+        }
     }
 
     @Override
@@ -249,20 +241,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
             addExecutableAtTime(executable, simulationSpecificTime);
     }
 
-    /**
-     * Add the executable in the list which contains all executable which must be executed at the specified time.
-     *
-     * @param executable the executable to add
-     * @param time       the time when the executable must be executed
-     */
-    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
-    private void addExecutableAtTime(Executable executable, long time) {
-        LinkedList<Executable> executables = mapExecutable.computeIfAbsent(time, k -> new LinkedList<>());
-        synchronized (executables) {
-            executables.add(executable);
-        }
-    }
-
     @Override
     public long getCurrentTime() {
         if (isRunning() || !isKilled)
@@ -278,7 +256,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     // Inner classes.
 
-    private class DiscreteTimeExecutorThread extends OneExecutableExecutorThread {
+    private class DiscreteTimeExecutorThread extends ExecutorThread {
 
         // Variables.
 
