@@ -42,4 +42,9 @@ public class BroadcastWithCorrectAgentController implements Controller {
             SimaLog.error("Fail to read correct agent", e);
         }
     }
+
+    @Override
+    public Object getLockMonitor() {
+        return null;
+    }
 }

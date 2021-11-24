@@ -2,24 +2,16 @@ package sima.core.scheduler.multithread;
 
 import org.jetbrains.annotations.NotNull;
 import sima.core.exception.NotScheduleTimeException;
-import sima.core.scheduler.Executable;
 import sima.core.scheduler.Scheduler;
+import sima.core.scheduler.executor.Executable;
+import sima.core.scheduler.executor.MultiThreadExecutor;
 
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 
 public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     // Variables.
-
-    /**
-     * Lock uses for pass at the next time step.
-     */
-    private final Object stepLock;
 
     /**
      * The currentTime of the simulation.
@@ -48,7 +40,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     public DiscreteTimeMultiThreadScheduler(long endSimulation, int nbExecutorThread) {
         super(endSimulation, nbExecutorThread);
         mapExecutable = new ConcurrentHashMap<>();
-        stepLock = new Object();
         currentTime = 0;
     }
 
@@ -72,7 +63,7 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      */
     @Override
     protected void createNewExecutor() {
-        executor = Executors.newFixedThreadPool(nbExecutorThread);
+        executor = new MultiThreadExecutor(nbExecutorThread);
     }
 
     /**
@@ -92,7 +83,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
             shutdownExecutor();
             killStepFinishWatcher();
             mapExecutable.clear();
-            executorThreadList.clear();
             notifyOnSchedulerKilled();
             return true;
         } else
@@ -116,19 +106,17 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
      * This method is not thread safe, however, it is never called in parallel way.
      */
     private void executeNextStep() {
-        executorThreadList.clear();
-
         TreeSet<Long> sortedStepTimeSet = getSortedStepTimeSet();
         if (sortedStepTimeSet.isEmpty()) {
             endByNoExecutableToExecution();
         } else {
-            long nextTime = sortedStepTimeSet.first();
-            prepareExecutorThread(nextTime);
-            currentTime = nextTime;
+            currentTime = sortedStepTimeSet.first();
 
             if (!endSimulationReach()) {
+                // Order important
+                List<Executable> toExecute = getExecutableAtTime(currentTime);
                 removeExecutablesFor(currentTime);
-                executeALlExecutorThreads();
+                executeAllExecutables(toExecute);
             } else {
                 endByReachEndSimulationTime();
             }
@@ -150,16 +138,14 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
     }
 
     /**
-     * Give to the {@link #executor} all {@link sima.core.scheduler.multithread.MultiThreadScheduler.ExecutorThread} in the list {@link
-     * #executorThreadList}.
+     * Give to the {@link #executor} all {@link Executable}s in the list map with the {@link #currentTime} in the map {@link #mapExecutable}.
      */
-    private void executeALlExecutorThreads() {
-        executorThreadList.forEach(executorThread -> executor.execute(executorThread));
+    private void executeAllExecutables(List<Executable> toExecute) {
+        toExecute.forEach(executable -> executor.execute(executable));
     }
 
-    private void prepareExecutorThread(long nextTime) {
-        mapExecutable.get(nextTime).forEach(
-                executable -> executorThreadList.add(new DiscreteTimeExecutorThread(executable)));
+    private @NotNull List<Executable> getExecutableAtTime(long time) {
+        return mapExecutable.get(time);
     }
 
 
@@ -256,46 +242,15 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
     // Inner classes.
 
-    private class DiscreteTimeExecutorThread extends ExecutorThread {
-
-        // Variables.
-
-        private final DiscreteTimeMultiThreadScheduler scheduler;
-
-        // Constructors.
-
-        public DiscreteTimeExecutorThread(Executable executable) {
-            super(executable);
-            scheduler = DiscreteTimeMultiThreadScheduler.this;
-        }
-
-        // Methods.
-
-        @Override
-        public void run() {
-            super.run();
-
-            setFinished();
-        }
-
-        /**
-         * Set {@link #isFinished} at true and notifyAll thread waiting on the {@link Scheduler} stepLock.
-         */
-        private void setFinished() {
-            synchronized (scheduler.stepLock) {
-                isFinished = true;
-                scheduler.stepLock.notifyAll();
-            }
-        }
-    }
-
     private class StepFinishWatcher implements Runnable {
 
         // Variables.
 
         private final DiscreteTimeMultiThreadScheduler scheduler;
 
-        private boolean stopped = false;
+        private volatile boolean stopped = false;
+
+        private Thread stepFinisherThread;
 
         // Constructors.
 
@@ -307,43 +262,28 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
 
         @Override
         public void run() {
-            synchronized (scheduler.stepLock) {
-                while (!stopped) {
-                    while (!allExecutionsFinished()) {
-                        try {
-                            scheduler.stepLock.wait();
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-
-                        if (stopped) break;
-                    }
-
-                    if (!stopped)
-                        scheduler.executeNextStep();
+            stepFinisherThread = Thread.currentThread();
+            while (!stopped) {
+                try {
+                    boolean isQuiescence = executor.awaitQuiescence(100);
+                    if (!isQuiescence)
+                        continue;
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
+
+                if (!stopped)
+                    scheduler.executeNextStep();
             }
-        }
 
-        /**
-         * @return true if all {@link DiscreteTimeExecutorThread} in {@link #executorThreadList} have finished, else false.
-         */
-        private boolean allExecutionsFinished() {
-            for (ExecutorThread discreteTimeExecutorThread : scheduler.executorThreadList)
-                if (!discreteTimeExecutorThread.isFinished())
-                    return false;
-
-            return true;
         }
 
         /**
          * Kill the thread.
          */
         public void kill() {
-            synchronized (scheduler.stepLock) {
-                stopped = true;
-                scheduler.stepLock.notifyAll();
-            }
+            stopped = true;
+            stepFinisherThread.interrupt();
         }
     }
 }

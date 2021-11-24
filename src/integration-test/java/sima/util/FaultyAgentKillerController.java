@@ -37,4 +37,9 @@ public class FaultyAgentKillerController implements Controller {
             SimaLog.error("Fail to read faulty agents", e);
         }
     }
+
+    @Override
+    public Object getLockMonitor() {
+        return null;
+    }
 }

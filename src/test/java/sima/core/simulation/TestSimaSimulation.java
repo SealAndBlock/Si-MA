@@ -11,10 +11,9 @@ import sima.core.agent.SimaAgent;
 import sima.core.environment.Environment;
 import sima.core.exception.SimaSimulationFailToStartRunningException;
 import sima.core.exception.SimaSimulationIsNotRunningException;
-import sima.core.scheduler.Executable;
 import sima.core.scheduler.Scheduler;
+import sima.core.scheduler.executor.Executable;
 import sima.core.scheduler.multithread.DiscreteTimeMultiThreadScheduler;
-import sima.testing.simulation.NotCorrectSimulationSetup;
 
 import java.util.HashSet;
 import java.util.List;
@@ -115,9 +114,8 @@ public class TestSimaSimulation {
             createScheduledSimulationTest(() -> {
                 Set<Environment> environments = new HashSet<>();
                 environments.add(mockEnvironment);
-                assertThrows(SimaSimulationFailToStartRunningException.class, () -> SimaSimulation.runSimulation(mockScheduler, null,
-                                                                                                                 environments, null,
-                                                                                                                 null));
+                assertThrows(SimaSimulationFailToStartRunningException.class,
+                             () -> SimaSimulation.runSimulation(mockScheduler, null, environments, null, null));
             });
         }
 

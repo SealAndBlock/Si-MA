@@ -72,6 +72,11 @@ public class RoleAssignerController implements Controller {
         writeRoleInfo(faultyAgents, correctAgents);
     }
 
+    @Override
+    public Object getLockMonitor() {
+        return null;
+    }
+
     private void writeRoleInfo(List<AgentIdentifier> faultyAgents, List<AgentIdentifier> correctAgents) {
         try (Writer writerFaulty = new BufferedWriter(new FileWriter(FAULTY_AGENT_PATH)); Writer writerCorrect =
                 new BufferedWriter(new FileWriter(CORRECT_AGENT_PATH))) {
