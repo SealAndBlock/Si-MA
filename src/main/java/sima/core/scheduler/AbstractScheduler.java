@@ -1,5 +1,7 @@
 package sima.core.scheduler;
 
+import sima.core.scheduler.executor.Executable;
+
 import java.util.List;
 import java.util.Vector;
 
@@ -162,37 +164,27 @@ public abstract class AbstractScheduler implements Scheduler {
 
     // Inner classes.
 
-    protected static class ExecutorThread extends Thread {
+    /**
+     * When this {@link Executable} is executed, it calls the methods {@link Condition#wakeup()} of its {@link Condition} (only if the condition has
+     * been prepared).
+     */
+    protected record WakeupExecutable(Condition condition) implements Executable {
 
         // Variables.
 
-        protected boolean isFinished;
-
-        protected final Executable executable;
-
         // Constructors.
 
-        public ExecutorThread(Executable executable) {
-            super();
-            this.isFinished = false;
-            this.executable = executable;
+        public WakeupExecutable {
+            if (condition == null)
+                throw new NullPointerException("Condition cannot be null");
         }
 
         // Methods.
 
         @Override
-        public void run() {
-            try {
-                executable.execute();
-            } catch (Exception e) {
-                SimaLog.error(String.format("Execution of the executable %s FAILED", executable), e);
-            }
-        }
-
-        // Getters and Setters.
-
-        public boolean isFinished() {
-            return isFinished;
+        public void execute() {
+            if (condition.hasBeenPrepared())
+                condition.wakeup();
         }
     }
 
@@ -218,6 +210,11 @@ public abstract class AbstractScheduler implements Scheduler {
         }
 
         protected abstract void scheduleNextExecution();
+
+        @Override
+        public Object getLockMonitor() {
+            return executable.getLockMonitor();
+        }
     }
 
     /**
