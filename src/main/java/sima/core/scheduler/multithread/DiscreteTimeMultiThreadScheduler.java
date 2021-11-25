@@ -1,7 +1,6 @@
 package sima.core.scheduler.multithread;
 
 import org.jetbrains.annotations.NotNull;
-import sima.core.exception.NotScheduleTimeException;
 import sima.core.scheduler.Scheduler;
 import sima.core.scheduler.executor.Executable;
 import sima.core.scheduler.executor.MultiThreadExecutor;
@@ -171,19 +170,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
         }
     }
 
-    @Override
-    public void scheduleExecutable(Executable executable, long waitingTime, Scheduler.ScheduleMode scheduleMode,
-                                   long nbRepetitions, long executionTimeStep) {
-        if (executable == null)
-            throw new NullPointerException("Executable cannot be null");
-
-        if (waitingTime < 1)
-            throw new IllegalArgumentException("Waiting time cannot be less than 1.");
-
-        if (!isKilled())
-            addExecutable(executable, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
-    }
-
     /**
      * Add the executable in the list which contains all executable which must be executed at the specified time.
      *
@@ -210,21 +196,6 @@ public class DiscreteTimeMultiThreadScheduler extends MultiThreadScheduler {
                                          long executionTimeStep) {
         long time = currentTime + waitingTime;
         addExecutableAtTime(new RepeatedExecutable(executable, nbRepetitions, executionTimeStep), time);
-    }
-
-    @Override
-    public void scheduleExecutableAtSpecificTime(Executable executable, long simulationSpecificTime) {
-        if (executable == null)
-            throw new NullPointerException("Executable cannot be null");
-
-        if (simulationSpecificTime < 1)
-            throw new IllegalArgumentException("SimulationSpecificTime must be greater or equal to 1");
-
-        if (simulationSpecificTime <= currentTime)
-            throw new NotScheduleTimeException("SimulationSpecificTime is already passed");
-
-        if (!isKilled())
-            addExecutableAtTime(executable, simulationSpecificTime);
     }
 
     @Override

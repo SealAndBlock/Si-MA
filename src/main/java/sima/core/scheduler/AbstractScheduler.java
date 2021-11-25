@@ -1,8 +1,13 @@
 package sima.core.scheduler;
 
+import sima.core.exception.ForcedWakeUpException;
+import sima.core.exception.NotCorrectContextException;
+import sima.core.exception.NotScheduleTimeException;
 import sima.core.scheduler.executor.Executable;
+import sima.core.scheduler.executor.MultiThreadExecutor;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Vector;
 
 import static sima.core.simulation.SimaSimulation.SimaLog;
@@ -53,6 +58,34 @@ public abstract class AbstractScheduler implements Scheduler {
     }
 
     @Override
+    public void scheduleExecutable(Executable executable, long waitingTime, Scheduler.ScheduleMode scheduleMode,
+                                   long nbRepetitions, long executionTimeStep) {
+        if (executable == null)
+            throw new NullPointerException("Executable cannot be null");
+
+        if (waitingTime < 1)
+            throw new IllegalArgumentException("Waiting time cannot be less than 1.");
+
+        if (!isKilled())
+            addExecutable(executable, waitingTime, scheduleMode, nbRepetitions, executionTimeStep);
+    }
+
+    @Override
+    public void scheduleExecutableAtSpecificTime(Executable executable, long simulationSpecificTime) {
+        if (executable == null)
+            throw new NullPointerException("Executable cannot be null");
+
+        if (simulationSpecificTime < 1)
+            throw new IllegalArgumentException("SimulationSpecificTime must be greater or equal to 1");
+
+        if (simulationSpecificTime <= getCurrentTime())
+            throw new NotScheduleTimeException("SimulationSpecificTime is already passed");
+
+        if (!isKilled())
+            addExecutableAtTime(executable, simulationSpecificTime);
+    }
+
+    @Override
     public synchronized boolean addSchedulerWatcher(SchedulerWatcher schedulerWatcher) {
         if (schedulerWatcher == null)
             return false;
@@ -66,6 +99,39 @@ public abstract class AbstractScheduler implements Scheduler {
     @Override
     public void removeSchedulerWatcher(SchedulerWatcher schedulerWatcher) {
         schedulerWatchers.remove(schedulerWatcher);
+    }
+
+    @Override
+    public void scheduleAwait(Condition condition) throws ForcedWakeUpException, InterruptedException {
+        prepareCondition(condition);
+        awaitThread();
+    }
+
+    @Override
+    public void scheduleAwait(Condition condition, long timeout) throws ForcedWakeUpException, InterruptedException {
+        if (timeout >= NOW) {
+            prepareCondition(condition);
+            scheduleExecutableOnce(new WakeupExecutable(condition), timeout);
+            awaitThread();
+        } else
+            throw new IllegalArgumentException("Timeout must be greater or equal to 1");
+    }
+
+    private void prepareCondition(Condition condition) {
+        try {
+            Optional.of(condition).get().prepare();
+        } catch (ClassCastException e) {
+            throw new NotCorrectContextException();
+        }
+    }
+
+    private void awaitThread() throws InterruptedException, ForcedWakeUpException {
+        MultiThreadExecutor.ExecutorThread eT = currentExecutorThread();
+        eT.await();
+    }
+
+    private MultiThreadExecutor.ExecutorThread currentExecutorThread() {
+        return (MultiThreadExecutor.ExecutorThread) Thread.currentThread();
     }
 
     protected void notifyOnSchedulerStarted() {

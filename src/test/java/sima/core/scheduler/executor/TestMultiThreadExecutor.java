@@ -607,6 +607,7 @@ class TestMultiThreadExecutor {
             eT.set(executorThread);
             try {
                 executorThread.await();
+                System.out.println("FINISH");
                 finished.set(true);
             } catch (InterruptedException | ForcedWakeUpException | ExecutorShutdownException e) {
                 fail(e);
@@ -624,6 +625,7 @@ class TestMultiThreadExecutor {
             }
         }
 
+        sleep(50);
         List<Executable> notExecuted = mte.shutdownNow();
         assertThat(notExecuted).isNotEmpty();
 
@@ -657,9 +659,7 @@ class TestMultiThreadExecutor {
                     }
                 });
 
-                mte.execute(() -> {
-                    eT.get().wakeUp();
-                });
+                mte.execute(() -> eT.get().wakeUp());
 
                 sleep(250);
                 List<Executable> notExecuted = mte.shutdownNow();
